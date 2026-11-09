@@ -312,3 +312,11 @@ dialog.capture-panel h2 { margin: 0; font-size: 22px; }
 .epic-tab > .active + .epic-edit { color: var(--jelly-ink) !important; }
 .epic-edit:hover:not(:disabled) { background: rgba(255, 255, 255, .16) !important; }
 .epic-add { flex-shrink: 0; align-self: center; border: 1.5px dashed rgba(255, 244, 233, .35) !important; background: transparent !important; white-space: nowrap; }
+
+/* Weighted buttons (core/tilt.ts): the root's --tilt-r / --tilt-x glide (registered, so they can transition) and every
+   button follows them through the individual rotate/translate properties, never its own transform. */
+@property --tilt-r { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
+@property --tilt-x { syntax: '<length>'; inherits: true; initial-value: 0px; }
+html.tilt { transition: --tilt-r .45s cubic-bezier(.22, 1, .36, 1), --tilt-x .45s cubic-bezier(.22, 1, .36, 1); }
+html.tilt button { rotate: var(--tilt-r); translate: var(--tilt-x) 0; }
+@media (prefers-reduced-motion: reduce) { html.tilt button { rotate: none; translate: none; } }

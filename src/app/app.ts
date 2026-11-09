@@ -7,6 +7,7 @@ import { CaptureUi } from './pages/capture/capture-ui';
 import { closeDialog, isBackdropClick, openDialog } from './core/dialog';
 import { I18n } from './core/i18n';
 import { LibraryStore } from './core/library.store';
+import { Tilt } from './core/tilt';
 import { WeekStore } from './core/week.store';
 
 @Component({
@@ -33,6 +34,8 @@ import { WeekStore } from './core/week.store';
         <div class="drawer-foot">
           <button type="button" class="chip quiet" (click)="i18n.toggle()" [attr.aria-label]="i18n.lang() === 'en' ? 'Español' : 'English'">
             {{ i18n.lang() === 'en' ? 'Español' : 'English' }}</button>
+          <button type="button" class="chip quiet" role="switch" [class.on]="tilt.on()" [attr.aria-checked]="tilt.on()"
+            [title]="i18n.t('nav.tiltHint')" (click)="tilt.toggle()">⚖ {{ i18n.t('nav.tilt') }}</button>
           <button type="button" class="chip quiet" (click)="closeMenu(); auth.signOut()">{{ i18n.t('nav.signOut') }}</button>
         </div>
       </dialog>
@@ -63,6 +66,7 @@ export class App {
   protected readonly i18n = inject(I18n);
   protected readonly store = inject(WeekStore);
   protected readonly library = inject(LibraryStore);
+  protected readonly tilt = inject(Tilt);
   private readonly capture = inject(CaptureUi);
   private readonly router = inject(Router);
   /** The installed app (service worker) has downloaded a newer version: offer to switch to it. */
@@ -72,6 +76,7 @@ export class App {
   private readonly drawer = viewChild<ElementRef<HTMLDialogElement>>('drawer');
 
   constructor() {
+    this.tilt.start();   // buttons lean when the phone leans (a visual detail)
     const updates = inject(SwUpdate, { optional: true });
     if (updates?.isEnabled) {
       updates.versionUpdates.subscribe((event) => {

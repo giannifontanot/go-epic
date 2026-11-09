@@ -46,6 +46,8 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'nav.menu': { en: 'Menu', es: 'Menú' },
   'nav.close': { en: 'Close menu', es: 'Cerrar menú' },
   'nav.signOut': { en: 'Sign out', es: 'Salir' },
+  'nav.tilt': { en: 'Weighted buttons', es: 'Botones con peso' },
+  'nav.tiltHint': { en: 'Buttons lean when the phone leans', es: 'Los botones se cargan a un lado cuando el teléfono se inclina' },
   'login.lead': { en: 'Plan your week in blocks, then live each day one Beat at a time.', es: 'Planea tu semana en bloques y vive cada día un Beat a la vez.' },
   'login.google': { en: 'Sign in with Google', es: 'Entrar con Google' },
   'login.failed': { en: 'Sign-in failed', es: 'No se pudo entrar' },
