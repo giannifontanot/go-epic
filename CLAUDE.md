@@ -1,0 +1,66 @@
+# Go Epic - Project Guide
+
+## PR Traceability
+Every pull request:
+1. ends its title with the **branch session ID** as `- [SessionID]` (the trailing characters of the branch name, e.g. `ofxb07` from `claude/charming-planck-ofxb07`);
+2. shows it in the body (`Session: ofxb07`);
+3. carries the PR Checklist below.
+
+## Overview
+Go Epic is the Week board and Focus mode of Epic Manager (`giannifontanot/epic-manager`), rebuilt on Firebase with no server of its own. Only those two screens exist on purpose: no hierarchy (areas/stories), no seed editor, no variants, no sync queue. The owner is Gianni.
+
+- **Stack:** Angular 22 (standalone components, signals, new control flow, zoneless), TypeScript strict, Firebase JS SDK 13 (Auth + Firestore), Firebase Hosting, Vitest.
+- **Cost:** must stay on the free **Spark** plan: no Cloud Functions, no Cloud Run, nothing that needs the Blaze plan.
+- **Offline:** Firestore's persistent multi-tab cache is the offline layer; writes show at once and sync when the network is back. Never add a hand-made sync queue.
+
+## Data (Firestore)
+```
+users/{uid}/week/{DAY}         { blocks: Block[] }                 DAY = MONDAY…SUNDAY
+users/{uid}/days/{YYYY-MM-DD}  { done: { [taskId]: millis } }      today's done marks (local date)
+```
+- `Block { id, name, start: 'HH:mm'|null, end: 'HH:mm'|null, tasks: Task[] }`: the start anchors the first task, later starts cascade by minutes; the end is a hard limit (the tasks' minutes never pass `end - start`).
+- `Task { id, title, minutes, color: string|null, active }`: `color` null = automatic pastel (`blockColors`: FNV-1a of the title, never like the card above).
+- `firestore.rules`: each user reads/writes only `users/{uid}/**`. Update the rules with any new collection.
+- Firestore refuses `undefined`: `WeekStore` sanitizes every block on the way in and out.
+- `WeekStore.setBlocks` writes a whole day; an echo of an older local write must not undo a newer one (`pending` queue per day). Keep that when touching the store.
+
+## Code map
+- `src/app/core/week.model.ts`: types and **pure** rules (clock parsing 24h `HH:mm`, cascade, windows, free time, colours, now-line, timeline). Put new rules here with specs.
+- `src/app/core/week.store.ts`: the signed-in user's week + today's done marks, clock signal (15s).
+- `src/app/core/auth.service.ts`: Google sign-in (popup, redirect fallback).
+- `src/app/core/firebase.ts` + `src/app/firebase.config.ts`: Firebase init; config values are public (not secrets). On localhost, `localStorage['go-epic-emulators']='1'` uses the emulators with project `demo-go-epic`.
+- `src/app/core/i18n.ts`: EN/ES labels (`I18n.t`); every key needs both languages (a spec checks it).
+- `src/app/pages/week-board/`: Week board, `TaskDialog` (Floating Canvas look: Delete top, Cancel/Done bottom, edits a draft), `TransferDialog` (white Copy/Move card).
+- `src/app/pages/focus/focus.ts`: today's tasks, the running/next one large, tap to mark done.
+- `src/styles.css`: all styles (global, Epic Manager palette: navy `#101b42`, cream `#fff4e9`, plum days, yellow jelly blocks, pastel cards, pink `#f4a8b7` primary, teal `#76e0d0` focus).
+
+## Conventions
+- Standalone components, signals (`signal`, `computed`, `input`, `output`), `@if/@for`; no NgModules, no RxJS state.
+- Phones first: tap targets ≥ 40px, inputs 16px (no iOS zoom), safe-area insets, one day at a time ≤ 820px.
+- Dialogs are native `<dialog>` with `showModal()`; backdrop clicks via `isBackdropClick`.
+- Respect `prefers-reduced-motion`.
+
+## PR Workflow (AI Assistant)
+The AI assistant **never runs the test suite** itself (typecheck and builds are fine). After pushing: open the PR, comment `@codex review`, then post a PR comment asking Gianni for the tests with the **full HEAD SHA** and every command (`npm test`, `npm run build`, manual checks), and the reply title `## Test result — HEAD <sha>`. Re-request after every push. Merge only when Codex has no open findings and the tests are green on the exact current HEAD.
+
+## PR Checklist
+```markdown
+### PR Checklist
+- [ ] **Session ID in PR title** — `- [SessionID]`
+- [ ] **Session ID in PR body** — `Session: SessionID`
+- [ ] **Tests requested** — PR comment with the HEAD SHA and commands; green result received before merge
+- [ ] **i18n** — new strings in `src/app/core/i18n.ts` (EN and ES)
+- [ ] **CLAUDE.md / AGENTS.md updated** — when data, rules, structure or conventions change (keep both identical)
+- [ ] **Firestore rules** — new collections covered by `firestore.rules`
+- [ ] **Free plan** — nothing that needs Blaze
+```
+Items that do not apply are marked `N/A`, never removed.
+
+## Commands
+```bash
+npm start             # dev server http://localhost:4200
+npm test              # Vitest unit tests
+npm run build         # production build → dist/go-epic/browser
+npm run emulators     # Firebase Auth + Firestore emulators (Java)
+npm run deploy        # build + firebase deploy (hosting, firestore rules)
+```
