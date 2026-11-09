@@ -83,4 +83,14 @@ describe('library model', () => {
     expect(merged.find((x) => x.id === 'e')?.parentId).toBe('a');
     expect(merged.some((x) => x.id === 'a')).toBe(true);
   });
+
+  it('merges a refused save into a draft edited after the rollback', () => {
+    const rolledBack = lib().nodes;                                       // the library after the server's rollback
+    const refused = rolledBack.map((x) => (x.id === 't' ? { ...x, title: 'Run 5 km' } : x));
+    const draft = rolledBack.map((x) => (x.id === 'free' ? { ...x, title: 'Read a book' } : x));
+    const merged = rebaseLibrary(rolledBack, draft, refused);
+    expect(merged.find((x) => x.id === 't')?.title).toBe('Run 5 km');       // the refused rename comes back
+    expect(merged.find((x) => x.id === 'free')?.title).toBe('Read a book'); // and the later edit stays
+    expect(rebaseLibrary(refused, refused, refused)).toEqual(refused);      // a draft that still holds it: unchanged
+  });
 });
