@@ -139,7 +139,9 @@ export class WeekBoard {
     const current = this.transferring();
     this.transferring.set(null);
     if (!current) return;
-    const { day: from, block } = current;
+    const from = current.day;
+    const block = this.blocks(from).find((b) => b.id === current.block.id);   // the latest saved version, not the one the dialog opened with
+    if (!block) return;                                                      // deleted meanwhile (another tab)
     for (const day of transfer.days) {
       if (day === from) continue;
       const names = this.blocks(day).map((b) => b.name);
