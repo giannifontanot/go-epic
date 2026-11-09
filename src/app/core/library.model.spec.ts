@@ -1,5 +1,5 @@
 import {
-  LibNode, Library, canParent, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, tasksWithin, twinTask,
+  LibNode, Library, STARTER_TEMPLATE, canParent, followDay, inboxTasks, planTemplate, storyOptions, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, tasksWithin, twinTask,
 } from './library.model';
 
 const n = (id: string, kind: LibNode['kind'], parentId: string | null, title = id): LibNode => ({ id, kind, title, parentId, color: null });
@@ -92,5 +92,39 @@ describe('library model', () => {
     expect(merged.find((x) => x.id === 't')?.title).toBe('Run 5 km');       // the refused rename comes back
     expect(merged.find((x) => x.id === 'free')?.title).toBe('Read a book'); // and the later edit stays
     expect(rebaseLibrary(refused, refused, refused)).toEqual(refused);      // a draft that still holds it: unchanged
+  });
+
+  it('plans the starter template once, reusing what already exists', () => {
+    let i = 0;
+    const id = () => `n${i++}`;
+    const all = planTemplate([], STARTER_TEMPLATE, id);
+    expect(all.filter((x) => x.kind === 'area').length).toBe(4);
+    expect(all.filter((x) => x.kind === 'epic').length).toBe(8);
+    expect(all.filter((x) => x.kind === 'feature').length).toBe(13);
+    expect(sanitizeLibrary({ nodes: all }).nodes).toEqual(all);              // every parent is of the right kind
+    expect(planTemplate(all, STARTER_TEMPLATE, id)).toEqual([]);             // twice: nothing more
+    const mine = [n('t', 'area', null, ' el templo ')];                      // an area made by hand, other spacing/case
+    const plan = planTemplate(mine, STARTER_TEMPLATE, id);
+    expect(plan.some((x) => x.kind === 'area' && x.title === 'El Templo')).toBe(false);
+    expect(plan.filter((x) => x.parentId === 't').map((x) => x.title)).toEqual(['Cuerpo Fuerte', 'Fe Viva', 'Finanzas Sanas']);
+  });
+
+  it('Capture: the inbox is Free Space tasks, newest first; stories are offered by their place', () => {
+    const library: Library = { nodes: [...lib().nodes, n('new', 'task', null, 'Call mom'), n('box', 'story', null, 'Loose story')] };
+    expect(inboxTasks(library).map((x) => x.id)).toEqual(['new', 'free']);
+    expect(storyOptions(library).map((x) => x.place)).toEqual(['Health › Temple › Body › Exercise', 'Loose story']);
+  });
+
+  it('the week follows a library change: renamed cards change, deleted ones leave with an emptied block', () => {
+    const card = (id: string, ref: string | null, title = id) => ({ id, title, minutes: 5, color: null, active: true, ref });
+    const blocks = [
+      { id: 'b1', name: 'B1', start: null, end: null, tasks: [card('c1', 't', 'Run'), card('c2', null)] },
+      { id: 'b2', name: 'B2', start: null, end: null, tasks: [card('c3', 'free', 'Read')] },
+    ];
+    const after = new Map([['t', { ...n('t', 'task', 's'), title: 'Run 5 km' }]]);
+    const next = followDay(blocks, new Set(['t', 'free']), after)!;
+    expect(next.map((b) => b.id)).toEqual(['b1']);
+    expect(next[0].tasks.map((t) => t.title)).toEqual(['Run 5 km', 'c2']);
+    expect(followDay(blocks, new Set(), after)).toBeNull();                  // unknown before: untouched
   });
 });

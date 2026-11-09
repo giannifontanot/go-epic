@@ -1,8 +1,8 @@
 import { Component, DestroyRef, ElementRef, HostListener, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
-import { isBackdropClick } from '../../core/dialog';
+import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { AuthService } from '../../core/auth.service';
-import { Kind, LibNode, PARENT_KIND, emptyLibrary, rebaseLibrary } from '../../core/library.model';
+import { Kind, LibNode, PARENT_KIND, STARTER_TEMPLATE, emptyLibrary, followDay, planTemplate, rebaseLibrary } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
 import { COLOR_CHOICES, DAYS } from '../../core/week.model';
 import { WeekStore, WeekWrite } from '../../core/week.store';
@@ -41,6 +41,7 @@ export class Canvas {
   private owner: string | null | undefined;
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly editor = viewChild<ElementRef<HTMLDialogElement>>('editor');
+  private readonly templateDialog = viewChild<ElementRef<HTMLDialogElement>>('templateDialog');
 
   readonly state = new CanvasState();
   readonly motion = new CanvasMotion();
@@ -136,22 +137,10 @@ export class Canvas {
   /** The week follows the library: a renamed or recoloured task changes in every block, a deleted one leaves the week. */
   private syncWeek(before: Map<string, LibNode>, after: Map<string, LibNode>): WeekWrite[] {
     const writes: WeekWrite[] = [];
+    const ids = new Set(before.keys());
     for (const day of DAYS) {
-      const blocks = this.week.week()[day].blocks;
-      let changed = false;
-      const next = blocks
-        .map((block) => ({
-          ...block,
-          tasks: block.tasks.flatMap((task) => {
-            if (!task.ref || !before.has(task.ref)) return [task];
-            const node = after.get(task.ref);
-            if (!node) { changed = true; return []; }
-            if (node.title !== task.title || node.color !== task.color) { changed = true; return [{ ...task, title: node.title, color: node.color }]; }
-            return [task];
-          }),
-        }))
-        .filter((block) => block.tasks.length > 0);
-      const write = changed ? this.week.stage(day, next) : null;
+      const next = followDay(this.week.week()[day].blocks, ids, after);
+      const write = next ? this.week.stage(day, next) : null;
       if (write) writes.push(write);
     }
     return writes;
@@ -211,20 +200,63 @@ export class Canvas {
   }
   setAreaFilter(id: string): void { this.areaFilter = id; this.ensureActive(); this.bump(); }
 
+  // --- Starter template: the structure Gianni chose (4 areas, 8 epics, 13 features), added to the draft ---
+
+  protected readonly template = STARTER_TEMPLATE;
+  /** What the template would add now (nothing that already exists with the same name and place). */
+  get templateMissing(): LibNode[] { let i = 0; return planTemplate(this.state.nodes, STARTER_TEMPLATE, () => `preview-${i++}`); }
+  /** True when this template node already exists (shown with ✓ in the preview). */
+  templateHas(kind: Kind, title: string): boolean {
+    return !this.templateMissing.some((n) => n.kind === kind && n.title === title);
+  }
+  openTemplate(): void {
+    const d = this.templateDialog()?.nativeElement;
+    if (d) openDialog(d);
+  }
+  closeTemplate(): void { void closeDialog(this.templateDialog()?.nativeElement); }
+  /** True from the Add press until the window has closed: a double click adds the template only once. */
+  applyingTemplate = false;
+  applyTemplate(): void {
+    if (this.applyingTemplate) return;
+    this.applyingTemplate = true;
+    void closeDialog(this.templateDialog()?.nativeElement).then(() => {
+      this.applyingTemplate = false;
+      const nodes = planTemplate(this.state.nodes, STARTER_TEMPLATE);   // planned now, against the current draft
+      if (!nodes.length) return;
+      this.mutate(() => this.state.addNodes(nodes));
+      this.areaFilter = '';
+      this.ensureActive();
+      this.announcement = this.i18n.t('canvas.draftUpdated');
+    });
+  }
+  onTemplateBackdrop(event: MouseEvent): void {
+    const d = this.templateDialog()?.nativeElement;
+    if (d && isBackdropClick(event, d)) this.closeTemplate();
+  }
+
   // --- The action dialog (create / edit / move / colour / delete) ---
 
+  /** The editor is shrinking away: nothing more is applied (a double click on Apply must not create twice). */
+  editorClosing = false;
+
   open(kind: Kind, parentId: string | null = null, node?: LibNode): void {
+    this.editorClosing = false;
     this.modal = { kind, parentId, node };
     this.title = node?.title || '';
     this.parentId = node?.parentId || parentId || (kind === 'epic' ? this.areaFilter || this.state.areas[0]?.id || '' : '');
     this.fillCascade(this.parentId || null);
-    queueMicrotask(() => { const d = this.editor()?.nativeElement; if (d && !d.open) d.showModal(); });
+    const from = pressPoint();                                              // read now: the dialog opens a tick later
+    queueMicrotask(() => { const d = this.editor()?.nativeElement; if (d) openDialog(d, { from }); });
   }
   addChild(node: LibNode): void { this.open(node.kind === 'feature' ? 'story' : 'task', node.id); }
   close(): void {
     const d = this.editor()?.nativeElement;
-    if (d?.open) d.close();
-    this.modal = null;
+    if (d?.open) {
+      this.editorClosing = true;
+      void closeDialog(d).then(() => (this.editorClosing = false));        // its close event clears the modal
+    } else {
+      this.modal = null;
+    }
   }
   onBackdrop(event: MouseEvent): void {
     const d = this.editor()?.nativeElement;
@@ -310,7 +342,7 @@ export class Canvas {
   }
 
   get canApply(): boolean {
-    if (!this.modal || !this.title.trim() || this.saving || this.cascadeIncomplete) return false;
+    if (!this.modal || this.editorClosing || !this.title.trim() || this.saving || this.cascadeIncomplete) return false;
     return this.modal.kind !== 'epic' || !!this.parentId;
   }
 
@@ -347,6 +379,7 @@ export class Canvas {
 
   arrange(delta: number): void {
     const node = this.modal?.node;
+    if (this.editorClosing) return;
     if (!node || node.kind === 'epic' || node.kind === 'area') return;
     const siblings = this.state.children(node.parentId);
     const index = siblings.findIndex((n) => n.id === node.id);
@@ -364,7 +397,7 @@ export class Canvas {
 
   remove(): void {
     const node = this.modal?.node;
-    if (!node || this.saving) return;
+    if (!node || this.saving || this.editorClosing) return;
     if (!this.state.canDelete(node.id)) { alert(this.i18n.t('canvas.deleteHint')); return; }
     const places = node.kind === 'task' ? this.weekPlaces(node.id) : 0;
     const question = places ? this.i18n.t('canvas.confirmDeleteTask', { n: places }) : this.i18n.t('canvas.confirmDelete');

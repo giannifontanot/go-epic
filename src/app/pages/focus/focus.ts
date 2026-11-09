@@ -1,12 +1,15 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
+import { STATUSES, Status } from '../../core/status.model';
 import { TimedTask, blockColors, formatClock, timeline, validMinutes } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
 
 /**
  * Today, one task at a time: the running task large with its time left and a progress bar, then the rest
- * of the day. A tap marks a task done or not done (saved for today only; tomorrow starts fresh).
+ * of the day. A tap marks a task done or not done; a long press (or right click) picks any state: To do, Done, Late,
+ * In progress, Skipped (saved for today only; tomorrow starts fresh).
  */
 @Component({
   selector: 'app-focus',
@@ -35,12 +38,13 @@ import { WeekStore } from '../../core/week.store';
         <p class="center"><a class="chip quiet" routerLink="/">{{ i18n.t('nav.week') }}</a></p>
       } @else {
         @if (current(); as item) {
-          <article class="now-card" [style.--tone]="tone(item)" [class.done]="store.isDone(item.task.id)">
+          <article class="now-card" [style.--tone]="tone(item)" [class.done]="store.isDone(item.task.id)" [attr.data-status]="store.status(item.task.id)">
             <p class="eyebrow">{{ i18n.t(started(item) ? 'focus.now' : 'focus.next') }} · {{ item.block.name }} · {{ range(item) }}</p>
             <h2>{{ item.task.title }}</h2>
             <div class="bar"><span [style.width.%]="fraction() * 100"></span></div>
             <div class="now-actions">
               <span>{{ started(item) ? i18n.t('focus.left', { n: minutesLeft(item) }) : i18n.t('focus.startsIn', { n: startsIn(item) }) }}</span>
+              <button type="button" class="chip quiet" (click)="openStatus(item)">{{ icon(store.status(item.task.id)) }} {{ i18n.t('status.' + store.status(item.task.id)) }}</button>
               <button type="button" class="primary big" (click)="toggle(item)">
                 {{ store.isDone(item.task.id) ? '↺ ' + i18n.t('focus.markTodo') : '✓ ' + i18n.t('focus.markDone') }}</button>
             </div>
@@ -52,10 +56,12 @@ import { WeekStore } from '../../core/week.store';
           @for (item of items(); track item.task.id) {
             <li>
               <button type="button" class="today-task" [style.--tone]="tone(item)" [class.done]="store.isDone(item.task.id)"
+                      [attr.data-status]="store.status(item.task.id)" (pointerdown)="pressStart($event, item)" (pointerup)="pressEnd()"
+                      (pointerleave)="pressEnd()" (pointercancel)="pressEnd()" (contextmenu)="$event.preventDefault(); openStatus(item)"
                       [class.current]="item.task.id === current()?.task?.id" [attr.aria-pressed]="store.isDone(item.task.id)"
                       [attr.aria-label]="(store.isDone(item.task.id) ? i18n.t('focus.markTodo') : i18n.t('focus.markDone')) + ': ' + item.task.title"
-                      (click)="toggle(item)">
-                <span class="check" aria-hidden="true">{{ store.isDone(item.task.id) ? '✓' : '' }}</span>
+                      (click)="tap(item)">
+                <span class="check" aria-hidden="true">{{ icon(store.status(item.task.id)) }}</span>
                 <span class="t-time">{{ item.start === null ? '' : clockOf(item.start) }}</span>
                 <span class="t-title">{{ item.task.title }}</span>
                 <span class="t-dur">{{ item.task.minutes }} min</span>
@@ -63,8 +69,22 @@ import { WeekStore } from '../../core/week.store';
             </li>
           }
         </ol>
+        <p class="muted center hint">{{ i18n.t('status.hint') }}</p>
       }
     </section>
+
+    <dialog #statusDialog class="status-menu" [attr.aria-label]="i18n.t('status.title')" (click)="onBackdrop($event)" (close)="picking.set(null)">
+      @if (picking(); as item) {
+        <h2>{{ item.task.title }}</h2>
+        <div class="status-options" role="radiogroup" [attr.aria-label]="i18n.t('status.title')">
+          @for (s of statuses; track s) {
+            <button type="button" role="radio" [attr.data-status]="s" [attr.aria-checked]="store.status(item.task.id) === s"
+                    [class.on]="store.status(item.task.id) === s" (click)="pick(s)">
+              <span aria-hidden="true">{{ icon(s) }}</span> {{ i18n.t('status.' + s) }}</button>
+          }
+        </div>
+      }
+    </dialog>
   `,
 })
 export class Focus {
@@ -135,5 +155,56 @@ export class Focus {
 
   protected toggle(item: TimedTask): void {
     this.store.setDone(item.task.id, !this.store.isDone(item.task.id));
+  }
+
+  // --- States: a long press (500 ms) or a right click opens the menu; a short tap toggles done ---
+
+  protected readonly statuses = STATUSES;
+  protected readonly picking = signal<TimedTask | null>(null);
+  private readonly statusDialog = viewChild<ElementRef<HTMLDialogElement>>('statusDialog');
+  private pressTimer: ReturnType<typeof setTimeout> | null = null;
+  private longPressed = false;
+
+  protected icon(status: Status): string {
+    return { todo: '', done: '✓', late: '⏰', progress: '▶', skipped: '⤼' }[status];
+  }
+
+  protected pressStart(event: PointerEvent, item: TimedTask): void {
+    if (event.button !== 0) return;
+    this.longPressed = false;
+    this.pressEnd();
+    this.pressTimer = setTimeout(() => {
+      this.longPressed = true;
+      navigator.vibrate?.(15);
+      this.openStatus(item);
+    }, 500);
+  }
+
+  protected pressEnd(): void {
+    if (this.pressTimer) clearTimeout(this.pressTimer);
+    this.pressTimer = null;
+  }
+
+  protected tap(item: TimedTask): void {
+    if (this.longPressed) { this.longPressed = false; return; }       // the long press already opened the menu
+    this.toggle(item);
+  }
+
+  protected openStatus(item: TimedTask): void {
+    this.pressEnd();
+    this.picking.set(item);
+    const d = this.statusDialog()?.nativeElement;
+    if (d) openDialog(d);
+  }
+
+  protected pick(status: Status): void {
+    const item = this.picking();
+    if (item) this.store.setStatus(item.task.id, status);
+    void closeDialog(this.statusDialog()?.nativeElement);
+  }
+
+  protected onBackdrop(event: MouseEvent): void {
+    const d = this.statusDialog()?.nativeElement;
+    if (d && isBackdropClick(event, d)) void closeDialog(d);
   }
 }

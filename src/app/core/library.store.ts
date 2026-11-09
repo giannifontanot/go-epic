@@ -2,8 +2,9 @@ import { Injectable, effect, inject, signal } from '@angular/core';
 import { Unsubscribe, doc, onSnapshot, writeBatch } from 'firebase/firestore';
 import { AuthService } from './auth.service';
 import { firebase } from './firebase';
-import { Library, emptyLibrary, sanitizeLibrary } from './library.model';
-import type { WeekWrite } from './week.store';
+import { Library, emptyLibrary, followDay, sanitizeLibrary } from './library.model';
+import { DAYS } from './week.model';
+import { WeekStore, WeekWrite } from './week.store';
 
 /**
  * The signed-in user's library (Area → Epic → Feature → User story → Task), one Firestore document:
@@ -13,6 +14,7 @@ import type { WeekWrite } from './week.store';
 @Injectable({ providedIn: 'root' })
 export class LibraryStore {
   private readonly auth = inject(AuthService);
+  private readonly week = inject(WeekStore);
 
   readonly library = signal<Library>(emptyLibrary());
   /** The saved copy has arrived: nothing is written before (a write would replace nodes not loaded yet). */
@@ -62,6 +64,26 @@ export class LibraryStore {
 
   update(change: (lib: Library) => Library): boolean {
     return this.save(change(structuredClone(this.library())));
+  }
+
+  /**
+   * A library change outside the Canvas (Capture: rename, file, delete): the week follows it (renamed cards, deleted
+   * ones leave) and both are saved in one batch.
+   */
+  updateWithWeek(change: (lib: Library) => Library): boolean {
+    if (!this.ready() || !this.week.loaded()) return false;               // every day must be there to follow the change
+    const before = this.library();
+    const after = sanitizeLibrary(change(structuredClone(before)));
+    const ids = new Set(before.nodes.map((n) => n.id));
+    const byId = new Map(after.nodes.map((n) => [n.id, n]));
+    const week = this.week;
+    const writes: WeekWrite[] = [];
+    for (const day of DAYS) {
+      const next = followDay(week.week()[day].blocks, ids, byId);
+      const write = next ? week.stage(day, next) : null;
+      if (write) writes.push(write);
+    }
+    return this.save(after, writes);
   }
 
   private watch(uid: string): void {

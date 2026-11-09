@@ -4,7 +4,7 @@
  * The Week board schedules library tasks: a week task points to one with `ref`.
  * Pure functions only, so the rules are easy to test.
  */
-import { newId } from './week.model';
+import { Block, newId } from './week.model';
 
 export const newNodeId = newId;
 
@@ -239,4 +239,85 @@ export function rebaseLibrary(base: LibNode[], mine: LibNode[], theirs: LibNode[
     }
   }
   return sanitizeLibrary({ nodes: out }).nodes;
+}
+
+/** The starter structure (Gianni's choice): 4 areas, 8 epics, 13 features, names in Spanish. */
+export interface TemplateArea { area: string; epics: { title: string; features: string[] }[] }
+export const STARTER_TEMPLATE: TemplateArea[] = [
+  { area: 'El Templo', epics: [
+    { title: 'Cuerpo Fuerte', features: ['Ejercicio y comida', 'Descanso'] },
+    { title: 'Fe Viva', features: ['Oración y Biblia'] },
+    { title: 'Finanzas Sanas', features: ['Presupuesto y ahorro'] },
+  ] },
+  { area: 'El Castillo', epics: [
+    { title: 'Hogar y Familia', features: ['Casa', 'Tiempo juntos'] },
+    { title: 'Amigos y Comunidad', features: ['Amistades', 'Servir a otros'] },
+  ] },
+  { area: 'La Torre', epics: [
+    { title: 'Subir de Nivel', features: ['Trabajo', 'Aprender'] },
+  ] },
+  { area: 'La Arena', epics: [
+    { title: 'Recargar Energía', features: ['Diversión'] },
+    { title: 'Crear y Explorar', features: ['Pasatiempos', 'Viajes y aventuras'] },
+  ] },
+];
+
+/**
+ * What a template still needs: the nodes to add, in parent-first order. Whatever already exists with the same name
+ * (case- and space-insensitive) in the same place is reused, so applying it twice adds nothing.
+ */
+export function planTemplate(nodes: LibNode[], template: TemplateArea[], makeId: () => string = newNodeId): LibNode[] {
+  const out: LibNode[] = [];
+  const all = () => [...nodes, ...out];
+  const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
+  const ensure = (kind: Kind, title: string, parentId: string | null): string => {
+    const found = all().find((n) => n.kind === kind && n.parentId === parentId && same(n.title, title));
+    if (found) return found.id;
+    const node: LibNode = { id: makeId(), kind, title, parentId, color: null };
+    out.push(node);
+    return node.id;
+  };
+  for (const { area, epics } of template) {
+    const areaId = ensure('area', area, null);
+    for (const epic of epics) {
+      const epicId = ensure('epic', epic.title, areaId);
+      for (const feature of epic.features) ensure('feature', feature, epicId);
+    }
+  }
+  return out;
+}
+
+/**
+ * A day's blocks after a library change: cards of a library task that changed take its title and colour, cards of
+ * one that was deleted leave (an emptied block goes). `before` = the task ids the library had before the change.
+ * Returns null when nothing in the day changes.
+ */
+export function followDay(blocks: Block[], before: Set<string>, after: Map<string, LibNode>): Block[] | null {
+  let changed = false;
+  const next = blocks
+    .map((block) => ({
+      ...block,
+      tasks: block.tasks.flatMap((task) => {
+        if (!task.ref || !before.has(task.ref)) return [task];
+        const node = after.get(task.ref);
+        if (!node) { changed = true; return []; }
+        if (node.title !== task.title || node.color !== task.color) { changed = true; return [{ ...task, title: node.title, color: node.color }]; }
+        return [task];
+      }),
+    }))
+    .filter((block) => block.tasks.length > 0);
+  return changed ? next : null;
+}
+
+/** Every story with its place ("Area › Epic › Feature › Story"), sorted, for filing a task. */
+export function storyOptions(lib: Library): { node: LibNode; place: string }[] {
+  return lib.nodes
+    .filter((n) => n.kind === 'story')
+    .map((node) => ({ node, place: pathOf(lib, node.id).map((n) => n.title).join(' › ') }))
+    .sort((a, b) => a.place.localeCompare(b.place));
+}
+
+/** The tasks waiting in Free Space (no story yet), newest first: what Capture shows. */
+export function inboxTasks(lib: Library): LibNode[] {
+  return lib.nodes.filter((n) => n.kind === 'task' && n.parentId === null).reverse();
 }

@@ -58,7 +58,7 @@
 
             <ul class="tasks">
               @for (task of block.tasks; track task.id; let ti = $index, tfirst = $first, tlast = $last) {
-                <li class="task" [style.--tone]="tones[ti]" [style.--mins]="task.minutes" [class.done]="isDone(day, task)" [class.off]="!task.active"
+                <li class="task" [style.--tone]="tones[ti]" [style.--mins]="task.minutes" [class.done]="isDone(day, task)" [attr.data-status]="day === store.today() ? store.status(task.id) : null" [class.off]="!task.active"
                     (click)="openTask(day, block, task)">
                   <div class="task-row">
                     <span class="t-time">{{ startLabel(block, ti) }}</span>

@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, computed, effect, inject, input, output, signal, untracked, viewChild } from '@angular/core';
-import { isBackdropClick } from '../../core/dialog';
+import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { Kind, LibNode, Library, nodeById, pathOf, taskByTitle, tasksWithin, twinTask } from '../../core/library.model';
 import { Block, COLOR_CHOICES, DAYS, Day, Task, Week, fits, freeMinutes, validMinutes } from '../../core/week.model';
@@ -33,14 +33,14 @@ export interface TaskSave {
 @Component({
   selector: 'app-task-dialog',
   template: `
-    <dialog #dialog class="editor" aria-labelledby="task-dialog-title" (cancel)="$event.preventDefault(); cancel.emit()"
+    <dialog #dialog class="editor" aria-labelledby="task-dialog-title" (cancel)="$event.preventDefault(); leave()"
             (click)="onBackdrop($event)">
       <header>
         <div>
           <p class="eyebrow">{{ i18n.t('day.' + edit().day) }} · {{ blockName() }}</p>
           <h2 id="task-dialog-title" tabindex="-1" autofocus>{{ i18n.t(edit().isNew ? 'task.newTitle' : 'task.title') }}</h2>
         </div>
-        <button type="button" class="danger" (click)="remove.emit()">{{ i18n.t('task.delete') }}</button>
+        <button type="button" class="danger" (click)="askRemove()">{{ i18n.t('task.delete') }}</button>
       </header>
 
       @if (libraryReady()) {
@@ -110,7 +110,7 @@ export interface TaskSave {
       @if (problem()) { <p class="app-error" role="alert">{{ problem() }}</p> }
 
       <footer>
-        <button type="button" (click)="cancel.emit()">{{ i18n.t('task.cancel') }}</button>
+        <button type="button" (click)="leave()">{{ i18n.t('task.cancel') }}</button>
         <button type="button" class="primary" (click)="done()">{{ i18n.t('task.done') }}</button>
       </footer>
     </dialog>
@@ -128,6 +128,8 @@ export class TaskDialog implements AfterViewInit {
   readonly remove = output<void>();
 
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
+  /** Closing (shrinking away): further presses are ignored, so a double click never saves or leaves twice. */
+  private leaving = false;
   protected readonly days = DAYS;
   protected readonly colors = COLOR_CHOICES;
   protected readonly validMinutes = validMinutes;
@@ -191,7 +193,7 @@ export class TaskDialog implements AfterViewInit {
     this.active.set(task.active);
     this.viewReady = true;
     if (this.libraryReady()) this.linkFromLibrary();
-    this.dialog().nativeElement.showModal();
+    openDialog(this.dialog().nativeElement, { escape: false });          // Esc = Cancel (leave), handled above
   }
 
   /** Linked to its library task (or, for an older task with none, to the only library task of that name); once. */
@@ -270,10 +272,11 @@ export class TaskDialog implements AfterViewInit {
   }
 
   protected onBackdrop(event: MouseEvent): void {
-    if (isBackdropClick(event, this.dialog().nativeElement)) this.cancel.emit();
+    if (isBackdropClick(event, this.dialog().nativeElement)) this.leave();
   }
 
   protected done(): void {
+    if (this.leaving) return;
     const title = this.title().trim();
     if (!title) {
       this.problem.set(this.i18n.t('task.nameRequired'));
@@ -291,7 +294,7 @@ export class TaskDialog implements AfterViewInit {
         return;
       }
     }
-    this.save.emit({
+    const save: TaskSave = {
       fromDay,
       fromBlockId,
       day: this.day$(),
@@ -299,6 +302,24 @@ export class TaskDialog implements AfterViewInit {
       task: { ...task, title, minutes: this.minutes(), color: this.color(), active: this.active(), ref: this.linkedNode()?.id ?? this.twin()?.id ?? (this.libraryReady() ? null : task.ref) },
       parentId: this.where().story || null,
       colorPicked: this.colorPicked(),
-    });
+    };
+    this.leaving = true;
+    void closeDialog(this.dialog().nativeElement).then(() => this.save.emit(save));
+  }
+
+  /** Cancel, Esc or the backdrop: the window shrinks back to where it came from, then the draft is dropped. */
+  protected leave(): void {
+    if (this.leaving) return;
+    this.leaving = true;
+    void closeDialog(this.dialog().nativeElement).then(() => this.cancel.emit());
+  }
+
+  /** Delete (asks first for a saved task; a + task was never saved), then closes smoothly. */
+  protected askRemove(): void {
+    if (this.leaving) return;
+    const { task, isNew } = this.edit();
+    if (!isNew && !confirm(this.i18n.t('week.confirmDeleteTask', { task: task.title }))) return;
+    this.leaving = true;
+    void closeDialog(this.dialog().nativeElement).then(() => this.remove.emit());
   }
 }

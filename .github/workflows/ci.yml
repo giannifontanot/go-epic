@@ -1,0 +1,33 @@
+name: CI
+
+# Runs the unit tests and the production build on every pull request (and on main), so nobody has to run them by hand.
+# A PR is merged only when this check is green on its exact HEAD and Codex has no open findings.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22        # Angular 22 needs Node ^22.22.3 || ^24.15.0; setup-node takes the latest 22.x
+          cache: npm
+      - run: node -v
+      - run: npm ci
+      - name: Unit tests (Vitest)
+        run: npm test -- --watch=false
+      - name: Production build
+        run: npm run build

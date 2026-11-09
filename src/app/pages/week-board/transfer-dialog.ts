@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
-import { isBackdropClick } from '../../core/dialog';
+import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { DAYS, Day } from '../../core/week.model';
 
@@ -12,14 +12,14 @@ export interface Transfer {
 @Component({
   selector: 'app-transfer-dialog',
   template: `
-    <dialog #dialog class="transfer" aria-labelledby="transfer-title" (cancel)="$event.preventDefault(); cancel.emit()"
+    <dialog #dialog class="transfer" aria-labelledby="transfer-title" (cancel)="$event.preventDefault(); leave()"
             (click)="onBackdrop($event)">
       <header>
         <div>
           <p class="eyebrow">{{ i18n.t('day.' + day()) }} · {{ blockName() }}</p>
           <h2 id="transfer-title">{{ i18n.t('week.transfer') }}</h2>
         </div>
-        <button type="button" class="close" [attr.aria-label]="i18n.t('task.cancel')" (click)="cancel.emit()">×</button>
+        <button type="button" class="close" [attr.aria-label]="i18n.t('task.cancel')" (click)="leave()">×</button>
       </header>
       <div class="mode" role="radiogroup" [attr.aria-label]="i18n.t('week.transfer')">
         <button type="button" role="radio" [attr.aria-checked]="mode() === 'copy'" (click)="setMode('copy')">⧉ {{ i18n.t('transfer.copy') }}</button>
@@ -33,8 +33,8 @@ export interface Transfer {
         }
       </div>
       <footer>
-        <button type="button" (click)="cancel.emit()">{{ i18n.t('task.cancel') }}</button>
-        <button type="button" class="primary" [disabled]="!picked().length" (click)="apply.emit({ mode: mode(), days: picked() })">
+        <button type="button" (click)="leave()">{{ i18n.t('task.cancel') }}</button>
+        <button type="button" class="primary" [disabled]="!picked().length" (click)="done()">
           {{ i18n.t(mode() === 'copy' ? 'transfer.copy' : 'transfer.move') }}@if (picked().length > 1) { ({{ picked().length }}) }
         </button>
       </footer>
@@ -49,12 +49,14 @@ export class TransferDialog implements AfterViewInit {
   readonly cancel = output<void>();
 
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
+  /** Closing (shrinking away): further presses are ignored, so a double click never saves or leaves twice. */
+  private leaving = false;
   protected readonly days = DAYS;
   protected readonly mode = signal<'copy' | 'move'>('copy');
   protected readonly picked = signal<Day[]>([]);
 
   ngAfterViewInit(): void {
-    this.dialog().nativeElement.showModal();
+    openDialog(this.dialog().nativeElement, { escape: false });
   }
 
   protected setMode(mode: 'copy' | 'move'): void {
@@ -71,6 +73,19 @@ export class TransferDialog implements AfterViewInit {
   }
 
   protected onBackdrop(event: MouseEvent): void {
-    if (isBackdropClick(event, this.dialog().nativeElement)) this.cancel.emit();
+    if (isBackdropClick(event, this.dialog().nativeElement)) this.leave();
+  }
+
+  protected leave(): void {
+    if (this.leaving) return;
+    this.leaving = true;
+    void closeDialog(this.dialog().nativeElement).then(() => this.cancel.emit());
+  }
+
+  protected done(): void {
+    if (this.leaving) return;
+    const transfer = { mode: this.mode(), days: this.picked() };
+    this.leaving = true;
+    void closeDialog(this.dialog().nativeElement).then(() => this.apply.emit(transfer));
   }
 }

@@ -124,6 +124,14 @@ export class CanvasState {
     return true;
   }
 
+  /** Adds ready-made nodes (a template) as one undoable step. */
+  addNodes(nodes: LibNode[]): void {
+    if (!nodes.length) return;
+    this.record();
+    this.nodes = [...this.nodes, ...structuredClone(nodes)];
+    this.changed();
+  }
+
   /** Puts these nodes back as the draft (e.g. a save the server refused), undoable and to be saved again. */
   replace(nodes: LibNode[]): void {
     this.record();
