@@ -260,7 +260,10 @@ dialog.transfer footer .primary { border-color: var(--pink); background: var(--p
 .drawer-capture { display: flex; align-items: center; min-height: 48px; padding: 0 16px; border: 0; border-radius: 14px; background: transparent;
   color: var(--ink); font-size: 17px; font-weight: 700; text-align: left; }
 .drawer-capture:hover { background: rgba(255, 255, 255, .08); }
-dialog.capture-panel { width: min(460px, calc(100vw - 24px)); max-height: min(80dvh, 680px); padding: 18px; border: 0; border-radius: 22px;
+/* Capture opens near the TOP, so the keyboard that comes up for the box never covers it; it fits the visible part of the
+   screen above the keyboard (--vv-top / --vv-h follow window.visualViewport while it is open, capture-panel.ts). */
+dialog.capture-panel { margin: calc(var(--vv-top, 0px) + max(12px, env(safe-area-inset-top))) auto auto;
+  width: min(460px, calc(100vw - 24px)); max-height: min(680px, calc(var(--vv-h, 100dvh) - 24px - env(safe-area-inset-top))); padding: 18px; border: 0; border-radius: 22px;
   background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; overflow-y: auto; }
 dialog.capture-panel::backdrop, dialog.app-drawer::backdrop, dialog.editor::backdrop, dialog.transfer::backdrop { background: rgba(4, 9, 30, .55); }
 dialog.capture-panel header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
