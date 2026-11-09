@@ -44,7 +44,7 @@ export class Tilt {
   /** Called once by the shell: starts listening (on iPhone, after the first tap grants it). */
   start(): void {
     if (typeof window === 'undefined' || !('DeviceOrientationEvent' in window)) return;
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (reducedMotion()) return;
     if (!this.on()) return;
     if (needsPermission()) {
       // iPhone only asks after a user gesture: the first tap anywhere asks once.
@@ -69,7 +69,7 @@ export class Tilt {
   }
 
   private async enable(): Promise<void> {
-    if (!this.on() || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!this.on() || reducedMotion()) return;
     const request = (DeviceOrientationEvent as unknown as { requestPermission?: PermissionFn }).requestPermission;
     if (request) {
       let answer: string;
@@ -115,6 +115,10 @@ export class Tilt {
   };
 }
 
+/** Reduced motion asked (or no way to know, e.g. a test DOM without matchMedia: then no motion either). */
+function reducedMotion(): boolean {
+  return typeof matchMedia !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
 function needsPermission(): boolean {
   return typeof (DeviceOrientationEvent as unknown as { requestPermission?: PermissionFn }).requestPermission === 'function';
 }
