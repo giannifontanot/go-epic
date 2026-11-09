@@ -117,8 +117,10 @@ export function habits(week: Week, marksByDate: Record<string, DayMarks>, today:
     const first = days.findIndex((d) => d.result !== 'none' && d.result !== 'missed' && d.result !== 'pending');
     for (let i = 0; i < (first < 0 ? days.length : first); i++) if (days[i].result === 'missed') days[i] = { ...days[i], result: 'none' };
     const { streak, capped } = streakInfo(days.map((d) => d.result));
-    // Only when the habit was already being marked on the oldest day read can the streak go back further.
-    out.push({ key, title, days: days.slice(-count), streak, streakCapped: capped && first === 0 });
+    // The streak may go back further only when the habit was already being marked on its first PLANNED day read
+    // (days with nothing planned before it just pause the streak).
+    const firstPlanned = days.findIndex((d, i) => ids[dayOf(dates[i])].length > 0);
+    out.push({ key, title, days: days.slice(-count), streak, streakCapped: capped && first >= 0 && first === firstPlanned });
   }
   return out.sort((a, b) => b.streak - a.streak || a.title.localeCompare(b.title));
 }

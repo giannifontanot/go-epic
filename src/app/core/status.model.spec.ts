@@ -75,4 +75,18 @@ describe('streaks', () => {
     expect(pray.streakCapped).toBe(false);
     expect(streakInfo(['done', 'done'])).toEqual({ streak: 2, capped: true });
   });
+
+  it('a weekly habit marked on every planned day read shows its streak as "n+"', () => {
+    const week: Week = emptyWeek();
+    week.MONDAY = { blocks: [{ id: 'b', name: 'B', start: null, end: null, tasks: [task('m', 'Plan')] }] };
+    const today = new Date(2026, 10, 9);                                     // a Monday
+    const marks: Record<string, DayMarks> = {};
+    for (let w = 0; w < 13; w++) {                                           // every Monday of the 90 days read
+      const d = new Date(2026, 10, 9 - 7 * w);
+      marks[`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`] = { done: { m: 1 } };
+    }
+    const [plan] = habits(week, marks, today, 14, 90);
+    expect(plan.streak).toBe(13);
+    expect(plan.streakCapped).toBe(true);
+  });
 });
