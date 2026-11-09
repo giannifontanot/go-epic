@@ -4,7 +4,10 @@ import { LibNode } from '../../core/library.model';
 import { Task, blockColors } from '../../core/week.model';
 import { CanvasState } from './canvas-state';
 
-/** A Feature box, a User story container or a Task capsule (Floating Canvas): grip to drag, ••• for its actions, ± to fold. */
+/**
+ * A Feature box, a Story container or an Activity capsule (Floating Canvas). Activities: grip, title, •••. Features and
+ * Stories: grip, label and fold ⌄ on the small label line, the title below on the whole width (a tap on it opens the actions).
+ */
 @Component({
   selector: 'app-canvas-node',
   template: `
@@ -12,17 +15,29 @@ import { CanvasState } from './canvas-state';
     <article class="object" [class.feature]="n.kind === 'feature'" [class.story]="n.kind === 'story'" [class.task]="n.kind === 'task'"
       [attr.data-node]="n.id" [attr.data-drop-kind]="n.kind" [attr.data-parent]="n.id" [style.translate]="offset()"
       [style.background]="tone()" [attr.aria-label]="n.title">
-      <header>
-        <button type="button" class="grip" [disabled]="disabled()" [attr.aria-label]="i18n.t('canvas.drag') + ' ' + n.title"
-          (pointerdown)="drag.emit({ event: $event, node: n })">⠿</button>
-        <div class="name"><small>{{ i18n.t('canvas.' + n.kind) }}</small><strong>{{ n.title }}</strong></div>
-        <button type="button" class="more" [disabled]="disabled()" [attr.aria-label]="i18n.t('canvas.actions') + ' ' + n.title"
-          (click)="action.emit(n)">•••</button>
-        @if (n.kind !== 'task') {
-          <button type="button" class="fold" [attr.aria-expanded]="!collapsed" [attr.aria-label]="i18n.t(collapsed ? 'canvas.expand' : 'canvas.collapse')"
-            (click)="toggle()">{{ collapsed ? '+' : '−' }}</button>
-        }
-      </header>
+      @if (n.kind === 'task') {
+        <header>
+          <button type="button" class="grip" [disabled]="disabled()" [attr.aria-label]="i18n.t('canvas.drag') + ' ' + n.title"
+            (pointerdown)="drag.emit({ event: $event, node: n })">⠿</button>
+          <div class="name"><strong>{{ n.title }}</strong></div>
+          <button type="button" class="more" [disabled]="disabled()" [attr.aria-label]="i18n.t('canvas.actions') + ' ' + n.title"
+            (click)="action.emit(n)">•••</button>
+        </header>
+      } @else {
+        <!-- Features and Stories: the controls live on the small label line, so the title gets the whole width;
+             tapping the title opens its actions (no ••• beside it). -->
+        <header class="stacked">
+          <div class="node-bar">
+            <button type="button" class="grip" [disabled]="disabled()" [attr.aria-label]="i18n.t('canvas.drag') + ' ' + n.title"
+              (pointerdown)="drag.emit({ event: $event, node: n })">⠿</button>
+            <small>{{ i18n.t('canvas.' + n.kind) }}</small>
+            <button type="button" class="fold" [class.closed]="collapsed" [attr.aria-expanded]="!collapsed"
+              [attr.aria-label]="i18n.t(collapsed ? 'canvas.expand' : 'canvas.collapse') + ' ' + n.title" (click)="toggle()">⌄</button>
+          </div>
+          <button type="button" class="title" [disabled]="disabled()" [attr.aria-label]="i18n.t('canvas.actions') + ' ' + n.title"
+            [title]="i18n.t('canvas.actions') + ' ' + n.title" (click)="action.emit(n)"><strong>{{ n.title }}</strong></button>
+        </header>
+      }
       @if (n.kind !== 'task' && !collapsed) {
         <div class="children">
           @for (child of children(); track child.id) {
