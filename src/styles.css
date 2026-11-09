@@ -21,7 +21,7 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; background: var(--page); color: var(--ink); }
 body { font: 15px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-main { padding: max(8px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); }   /* top: level with the ☰ */
+main { padding: max(8px, env(safe-area-inset-top)) 16px max(88px, calc(env(safe-area-inset-bottom) + 80px)); }   /* top: level with the ☰ */
 h1, h2, h3 { font-family: Georgia, 'Times New Roman', serif; letter-spacing: -.02em; }
 button, input, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
@@ -56,10 +56,8 @@ dialog.app-drawer { margin: 0; width: min(300px, 84vw); max-width: none; height:
   border: 0; border-radius: 0 22px 22px 0; background: var(--navy-card); color: var(--ink); box-shadow: 12px 0 40px #0008;
   display: flex; flex-direction: column; gap: 6px;
   padding: max(14px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-  translate: -100% 0; transition: translate .28s cubic-bezier(.22, 1, .36, 1), overlay .28s allow-discrete, display .28s allow-discrete; }
+}   /* opens growing out of the ☰ and closes back into it (core/dialog openDialog/closeDialog) */
 dialog.app-drawer:not([open]) { display: none; }
-dialog.app-drawer[open] { translate: 0 0; }
-@starting-style { dialog.app-drawer[open] { translate: -100% 0; } }
 dialog.app-drawer::backdrop { background: rgba(4, 9, 30, .55); }
 .drawer-head { display: flex; align-items: center; justify-content: space-between; }
 .drawer-head .brand { font-family: Georgia, serif; font-size: 26px; font-weight: 700; }
@@ -129,6 +127,21 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 .task.off { background: #d9d3e3; text-decoration: line-through; }
 .task.done { background: #d6d6dc; box-shadow: inset 0 3px 6px rgba(0, 0, 0, .18); translate: 0 4px; }
 .task.done > * { color: #5c5966; }
+/* States of today's tasks (status.model): late is done with an amber mark, in progress has a teal ring, skipped is faded and struck */
+.task[data-status='late'], .today-task[data-status='late'], .now-card[data-status='late'] { box-shadow: inset 0 0 0 3px #f5a623; }
+.task[data-status='progress'], .today-task[data-status='progress'], .now-card[data-status='progress'] { outline: 3px solid var(--teal); outline-offset: 2px; }
+.task[data-status='skipped'], .today-task[data-status='skipped'] { opacity: .55; }
+.task[data-status='skipped'] .t-title, .today-task[data-status='skipped'] .t-title { text-decoration: line-through; }
+.today-task[data-status='late'], .today-task[data-status='done'] { background: #d6d6dc; color: #5c5966; }
+.focus .hint { margin-top: 14px; font-size: 13px; }
+/* The state menu (Focus): a small centred card */
+dialog.status-menu { width: min(340px, calc(100vw - 32px)); padding: 18px; border: 0; border-radius: 22px; background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; }
+dialog.status-menu::backdrop { background: rgba(4, 9, 30, .55); }
+dialog.status-menu h2 { margin: 0 0 12px; font-size: 20px; overflow-wrap: anywhere; }
+.status-options { display: grid; gap: 8px; }
+.status-options button { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; border: 0; border-radius: 14px; background: rgba(255, 255, 255, .08); color: var(--ink); font-size: 16px; font-weight: 700; text-align: left; }
+.status-options button span { width: 1.4em; text-align: center; }
+.status-options button.on { background: var(--pink); color: var(--card-ink); }
 .quick-add { min-height: 40px; padding: 6px 12px; border: 1px dashed rgba(54, 38, 67, .4); border-radius: 12px; background: rgba(255, 255, 255, .45); color: var(--jelly-ink); font-size: 16px; }
 .quick-add::placeholder { color: rgba(54, 38, 67, .6); }
 
@@ -238,3 +251,47 @@ dialog.transfer footer .primary { border-color: var(--pink); background: var(--p
 }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* Capture: a floating ✎ (bottom right) and the notes panel; both open from the point pressed (core/dialog) */
+.capture-fab { position: fixed; z-index: 20; right: max(16px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom));
+  width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--pink); color: var(--card-ink); font-size: 22px;
+  box-shadow: 0 6px 18px rgba(1, 6, 29, .45); }
+.capture-fab:hover { background: #f8bfca; }
+.drawer-capture { display: flex; align-items: center; min-height: 48px; padding: 0 16px; border: 0; border-radius: 14px; background: transparent;
+  color: var(--ink); font-size: 17px; font-weight: 700; text-align: left; }
+.drawer-capture:hover { background: rgba(255, 255, 255, .08); }
+dialog.capture-panel { width: min(460px, calc(100vw - 24px)); max-height: min(80dvh, 680px); padding: 18px; border: 0; border-radius: 22px;
+  background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; overflow-y: auto; }
+dialog.capture-panel::backdrop, dialog.app-drawer::backdrop, dialog.editor::backdrop, dialog.transfer::backdrop { background: rgba(4, 9, 30, .55); }
+dialog.capture-panel header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+dialog.capture-panel h2 { margin: 0; font-size: 22px; }
+.capture-add { display: flex; gap: 8px; margin-bottom: 10px; }
+.capture-add input, .c-edit { flex: 1; min-width: 0; min-height: 44px; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px; background: var(--page); color: var(--ink); font-size: 16px; }
+.capture-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.capture-list li { display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 14px; background: rgba(255, 255, 255, .06); }
+.capture-list li.star { background: rgba(245, 201, 69, .16); }
+.capture-list li.done .c-text { text-decoration: line-through; opacity: .55; }
+.c-check { flex: none; width: 40px; height: 40px; border: 2px solid rgba(255, 255, 255, .35); border-radius: 50%; background: transparent; color: var(--teal); font-weight: 900; }
+.c-text { flex: 1; min-width: 0; min-height: 40px; border: 0; background: transparent; color: var(--ink); font-size: 15px; text-align: left; overflow-wrap: anywhere; }
+.c-icon { flex: none; width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent; color: var(--ink-soft); font-size: 18px; }
+.c-icon:hover:not(:disabled) { background: rgba(255, 255, 255, .1); color: var(--ink); }
+.c-empty { justify-content: center; padding: 16px !important; color: var(--ink-soft); }
+
+/* Progress: one row per habit, its streak and the last 14 days as dots */
+.progress-page { max-width: 720px; margin: 0 auto; }
+.progress-page .legend, .progress-page .note { font-size: 13px; }
+.habits { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.habit { padding: 12px 14px; border-radius: 18px; background: linear-gradient(155deg, var(--plum-a), var(--plum-b) 86%); }
+.h-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.h-head strong { overflow-wrap: anywhere; }
+.streak { flex: none; padding: 4px 10px; border-radius: 999px; background: var(--jelly-b); color: var(--jelly-ink); font-weight: 800; font-size: 14px; }
+.streak.zero { background: rgba(255, 255, 255, .12); color: var(--ink-soft); font-weight: 600; }
+.dots { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(14, minmax(0, 1fr)); gap: 4px; }
+.dot { aspect-ratio: 1; display: grid; place-items: center; border-radius: 50%; font-size: 11px; font-weight: 800; background: rgba(255, 255, 255, .06); color: transparent; }
+.dot[data-result='done'] { background: var(--teal); color: #0b2f2a; }
+.dot[data-result='late'] { background: #f5a623; color: #3a2400; }
+.dot[data-result='progress'] { background: rgba(118, 224, 208, .35); color: var(--ink); }
+.dot[data-result='skipped'] { background: rgba(255, 255, 255, .18); color: var(--ink); }
+.dot[data-result='missed'] { background: rgba(220, 38, 38, .55); color: #fff; }
+.dot[data-result='pending'] { background: transparent; box-shadow: inset 0 0 0 2px var(--pink); color: var(--pink); }
+.dot[data-result='none'] { background: transparent; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); }

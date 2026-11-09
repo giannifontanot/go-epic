@@ -4,6 +4,8 @@ The two screens that mattered most in Epic Manager, rebuilt on Firebase with no 
 
 - **Week board** — seven days of blocks (a named time window) holding task cards. Locked by default; *Arrange the week* unlocks editing: block name and start/end window (the end is a hard limit), ▲▼ order, ⇄ copy or move a block to other days, + and quick-add, and each card's ••• details (name, minutes, day, block, colour, active) with Delete on top and Cancel / Done below.
 - **Floating Canvas** — the task library in five levels (Area → Epic → Feature → User story → Task) with Free Space for what is not filed yet: drag objects between Epics, Features, Stories and Free Space, or move them from their ••• menu; undo/redo, and nothing is written until Save. Week tasks are picked from (or added to) the library, so renaming or recolouring a task here changes it in every block.
+- **Progress** — every task of your week as a habit, with its 🔥 streak and the last 14 days.
+- **Capture** — a floating ✎ for quick notes; any note can become a task in the Canvas's Free Space.
 - **Focus** — today, one task at a time: the running task with its time left, then the rest of the day. A tap marks a task done for today.
 
 It is an installable app (PWA): on iPhone open it in Safari → Share → **Add to Home Screen**; on Android/desktop Chrome use **Install app**. It opens offline, and shows an *Update* bar when a new version is published.

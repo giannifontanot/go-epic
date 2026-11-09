@@ -1,8 +1,8 @@
 import { Component, DestroyRef, ElementRef, HostListener, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
-import { isBackdropClick } from '../../core/dialog';
+import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { AuthService } from '../../core/auth.service';
-import { Kind, LibNode, PARENT_KIND, emptyLibrary, rebaseLibrary } from '../../core/library.model';
+import { Kind, LibNode, PARENT_KIND, STARTER_TEMPLATE, emptyLibrary, planTemplate, rebaseLibrary } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
 import { COLOR_CHOICES, DAYS } from '../../core/week.model';
 import { WeekStore, WeekWrite } from '../../core/week.store';
@@ -41,6 +41,7 @@ export class Canvas {
   private owner: string | null | undefined;
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly editor = viewChild<ElementRef<HTMLDialogElement>>('editor');
+  private readonly templateDialog = viewChild<ElementRef<HTMLDialogElement>>('templateDialog');
 
   readonly state = new CanvasState();
   readonly motion = new CanvasMotion();
@@ -211,6 +212,35 @@ export class Canvas {
   }
   setAreaFilter(id: string): void { this.areaFilter = id; this.ensureActive(); this.bump(); }
 
+  // --- Starter template: the structure Gianni chose (4 areas, 8 epics, 13 features), added to the draft ---
+
+  protected readonly template = STARTER_TEMPLATE;
+  /** What the template would add now (nothing that already exists with the same name and place). */
+  get templateMissing(): LibNode[] { let i = 0; return planTemplate(this.state.nodes, STARTER_TEMPLATE, () => `preview-${i++}`); }
+  /** True when this template node already exists (shown with ✓ in the preview). */
+  templateHas(kind: Kind, title: string): boolean {
+    return !this.templateMissing.some((n) => n.kind === kind && n.title === title);
+  }
+  openTemplate(): void {
+    const d = this.templateDialog()?.nativeElement;
+    if (d) openDialog(d);
+  }
+  closeTemplate(): void { void closeDialog(this.templateDialog()?.nativeElement); }
+  applyTemplate(): void {
+    const nodes = planTemplate(this.state.nodes, STARTER_TEMPLATE);
+    void closeDialog(this.templateDialog()?.nativeElement).then(() => {
+      if (!nodes.length) return;
+      this.mutate(() => this.state.addNodes(nodes));
+      this.areaFilter = '';
+      this.ensureActive();
+      this.announcement = this.i18n.t('canvas.draftUpdated');
+    });
+  }
+  onTemplateBackdrop(event: MouseEvent): void {
+    const d = this.templateDialog()?.nativeElement;
+    if (d && isBackdropClick(event, d)) this.closeTemplate();
+  }
+
   // --- The action dialog (create / edit / move / colour / delete) ---
 
   open(kind: Kind, parentId: string | null = null, node?: LibNode): void {
@@ -218,13 +248,14 @@ export class Canvas {
     this.title = node?.title || '';
     this.parentId = node?.parentId || parentId || (kind === 'epic' ? this.areaFilter || this.state.areas[0]?.id || '' : '');
     this.fillCascade(this.parentId || null);
-    queueMicrotask(() => { const d = this.editor()?.nativeElement; if (d && !d.open) d.showModal(); });
+    const from = pressPoint();                                              // read now: the dialog opens a tick later
+    queueMicrotask(() => { const d = this.editor()?.nativeElement; if (d) openDialog(d, { from }); });
   }
   addChild(node: LibNode): void { this.open(node.kind === 'feature' ? 'story' : 'task', node.id); }
   close(): void {
     const d = this.editor()?.nativeElement;
-    if (d?.open) d.close();
-    this.modal = null;
+    if (d?.open) void closeDialog(d);                                       // its close event clears the modal
+    else this.modal = null;
   }
   onBackdrop(event: MouseEvent): void {
     const d = this.editor()?.nativeElement;

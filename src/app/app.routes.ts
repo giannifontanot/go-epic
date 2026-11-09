@@ -25,5 +25,6 @@ export const routes: Routes = [
   { path: '', canActivate: [signedIn(true)], loadComponent: () => import('./pages/week-board/week-board').then((m) => m.WeekBoard) },
   { path: 'focus', canActivate: [signedIn(true)], loadComponent: () => import('./pages/focus/focus').then((m) => m.Focus) },
   { path: 'canvas', canActivate: [signedIn(true)], canDeactivate: [draftSaved], loadComponent: () => import('./pages/canvas/canvas').then((m) => m.Canvas) },
+  { path: 'progress', canActivate: [signedIn(true)], loadComponent: () => import('./pages/progress/progress').then((m) => m.Progress) },
   { path: '**', redirectTo: '' },
 ];

@@ -315,7 +315,6 @@ export class WeekBoard {
   protected removeEditing(): void {
     const edit = this.editing();
     if (!edit) return;
-    if (!edit.isNew && !confirm(this.i18n.t('week.confirmDeleteTask', { task: edit.task.title }))) return;
     this.editing.set(null);
     this.draftBlock.set(null);
     if (edit.isNew) return;                                                  // a + task was never saved

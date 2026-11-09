@@ -240,3 +240,49 @@ export function rebaseLibrary(base: LibNode[], mine: LibNode[], theirs: LibNode[
   }
   return sanitizeLibrary({ nodes: out }).nodes;
 }
+
+/** The starter structure (Gianni's choice): 4 areas, 8 epics, 13 features, names in Spanish. */
+export interface TemplateArea { area: string; epics: { title: string; features: string[] }[] }
+export const STARTER_TEMPLATE: TemplateArea[] = [
+  { area: 'El Templo', epics: [
+    { title: 'Cuerpo Fuerte', features: ['Ejercicio y comida', 'Descanso'] },
+    { title: 'Fe Viva', features: ['Oración y Biblia'] },
+    { title: 'Finanzas Sanas', features: ['Presupuesto y ahorro'] },
+  ] },
+  { area: 'El Castillo', epics: [
+    { title: 'Hogar y Familia', features: ['Casa', 'Tiempo juntos'] },
+    { title: 'Amigos y Comunidad', features: ['Amistades', 'Servir a otros'] },
+  ] },
+  { area: 'La Torre', epics: [
+    { title: 'Subir de Nivel', features: ['Trabajo', 'Aprender'] },
+  ] },
+  { area: 'La Arena', epics: [
+    { title: 'Recargar Energía', features: ['Diversión'] },
+    { title: 'Crear y Explorar', features: ['Pasatiempos', 'Viajes y aventuras'] },
+  ] },
+];
+
+/**
+ * What a template still needs: the nodes to add, in parent-first order. Whatever already exists with the same name
+ * (case- and space-insensitive) in the same place is reused, so applying it twice adds nothing.
+ */
+export function planTemplate(nodes: LibNode[], template: TemplateArea[], makeId: () => string = newNodeId): LibNode[] {
+  const out: LibNode[] = [];
+  const all = () => [...nodes, ...out];
+  const same = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
+  const ensure = (kind: Kind, title: string, parentId: string | null): string => {
+    const found = all().find((n) => n.kind === kind && n.parentId === parentId && same(n.title, title));
+    if (found) return found.id;
+    const node: LibNode = { id: makeId(), kind, title, parentId, color: null };
+    out.push(node);
+    return node.id;
+  };
+  for (const { area, epics } of template) {
+    const areaId = ensure('area', area, null);
+    for (const epic of epics) {
+      const epicId = ensure('epic', epic.title, areaId);
+      for (const feature of epic.features) ensure('feature', feature, epicId);
+    }
+  }
+  return out;
+}

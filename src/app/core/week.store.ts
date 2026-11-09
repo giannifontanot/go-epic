@@ -1,7 +1,8 @@
 import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angular/core';
-import { Unsubscribe, deleteField, doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { Unsubscribe, collection, deleteField, doc, documentId, onSnapshot, query, setDoc, where } from 'firebase/firestore';
 import { AuthService } from './auth.service';
 import { firebase } from './firebase';
+import { DayMarks, Status, applyStatus, isFinished, statusOf, statusPatch } from './status.model';
 import { Block, DAYS, Day, DayPlan, Week, dateKey, dayOf, emptyWeek, minutesOfDay, validMinutes } from './week.model';
 
 /** A day document write, staged for a batch. */
@@ -10,7 +11,7 @@ export interface WeekWrite { path: string; data: { blocks: Block[] }; }
 /**
  * The signed-in user's week and today's done marks, kept in Firestore:
  *   users/{uid}/week/{DAY}       { blocks: Block[] }           one document per weekday
- *   users/{uid}/days/{YYYY-MM-DD} { done: { [taskId]: millis } } one document per date
+ *   users/{uid}/days/{YYYY-MM-DD} { done: { [taskId]: millis }, status: { [taskId]: state } } one document per date (status.model)
  * Firestore keeps a copy on the device, so every change shows at once and syncs when the network is back.
  */
 @Injectable({ providedIn: 'root' })
@@ -27,8 +28,10 @@ export class WeekStore {
   readonly today = computed<Day>(() => dayOf(this.now()));
   readonly todayKey = computed(() => dateKey(this.now()));
   readonly nowMinutes = computed(() => minutesOfDay(this.now()));
-  /** Today's done marks: task id → when it was marked. */
-  readonly done = signal<Record<string, number>>({});
+  /** Today's marks: when tasks were finished (`done`) and the other states (`status`), see status.model. */
+  readonly marks = signal<DayMarks>({});
+  /** Today's finished tasks (done or late): task id → when. */
+  readonly done = computed<Record<string, number>>(() => this.marks().done ?? {});
 
   private weekSubs: Unsubscribe[] = [];
   /**
@@ -61,7 +64,7 @@ export class WeekStore {
       const key = this.todayKey();
       this.doneSub?.();
       this.doneSub = null;
-      this.done.set({});
+      this.marks.set({});
       if (uid) this.watchDone(uid, key);
     });
   }
@@ -96,22 +99,45 @@ export class WeekStore {
     this.setBlocks(day, change(structuredClone(this.week()[day].blocks)));
   }
 
+  /** Finished today (done or late). */
   isDone(taskId: string): boolean {
-    return taskId in this.done();
+    return isFinished(this.status(taskId));
+  }
+
+  status(taskId: string): Status {
+    return statusOf(this.marks(), taskId);
   }
 
   setDone(taskId: string, done: boolean): void {
-    this.done.update((marks) => {
-      const next = { ...marks };
-      if (done) next[taskId] = Date.now();
-      else delete next[taskId];
-      return next;
-    });
+    this.setStatus(taskId, done ? 'done' : 'todo');
+  }
+
+  /** Sets today's state of a task: shown at once, merged into today's document (queued on the device when offline). */
+  setStatus(taskId: string, status: Status): void {
+    const now = Date.now();
+    const before = this.marks();
+    this.marks.set(applyStatus(before, taskId, status, now));
     const fb = firebase();
     const uid = this.auth.user()?.uid;
     if (!fb || !uid) return;
-    const ref = doc(fb.db, 'users', uid, 'days', this.todayKey());
-    setDoc(ref, { done: { [taskId]: done ? Date.now() : deleteField() } }, { merge: true }).catch((error) => this.fail(error));
+    const patch = statusPatch(before, taskId, status, now);
+    const field = (value: number | string | null) => (value === null ? deleteField() : value);
+    setDoc(doc(fb.db, 'users', uid, 'days', this.todayKey()), {
+      done: { [taskId]: field(patch.done[taskId]) },
+      status: { [taskId]: field(patch.status[taskId]) },
+    }, { merge: true }).catch((error) => this.fail(error));
+  }
+
+  /** Follows the day documents from `fromKey` (YYYY-MM-DD) on, for the Progress page; returns the stop function. */
+  watchHistory(fromKey: string, receive: (byDate: Record<string, DayMarks>) => void): Unsubscribe {
+    const fb = firebase();
+    const uid = this.auth.user()?.uid;
+    if (!fb || !uid) { receive({}); return () => undefined; }
+    return onSnapshot(
+      query(collection(fb.db, 'users', uid, 'days'), where(documentId(), '>=', fromKey)),
+      (snap) => receive(Object.fromEntries(snap.docs.map((d) => [d.id, d.data() as DayMarks]))),
+      (error) => this.fail(error),
+    );
   }
 
   private watchWeek(uid: string): void {
@@ -145,7 +171,10 @@ export class WeekStore {
     if (!fb) return;
     this.doneSub = onSnapshot(
       doc(fb.db, 'users', uid, 'days', key),
-      (snap) => this.done.set({ ...((snap.data()?.['done'] ?? {}) as Record<string, number>) }),
+      (snap) => {
+        const data = (snap.data() ?? {}) as DayMarks;
+        this.marks.set({ done: { ...(data.done ?? {}) }, status: { ...(data.status ?? {}) } });
+      },
       (error) => this.fail(error),
     );
   }

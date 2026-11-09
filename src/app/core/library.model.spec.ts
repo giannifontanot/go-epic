@@ -1,5 +1,5 @@
 import {
-  LibNode, Library, canParent, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, tasksWithin, twinTask,
+  LibNode, Library, STARTER_TEMPLATE, canParent, planTemplate, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, tasksWithin, twinTask,
 } from './library.model';
 
 const n = (id: string, kind: LibNode['kind'], parentId: string | null, title = id): LibNode => ({ id, kind, title, parentId, color: null });
@@ -92,5 +92,20 @@ describe('library model', () => {
     expect(merged.find((x) => x.id === 't')?.title).toBe('Run 5 km');       // the refused rename comes back
     expect(merged.find((x) => x.id === 'free')?.title).toBe('Read a book'); // and the later edit stays
     expect(rebaseLibrary(refused, refused, refused)).toEqual(refused);      // a draft that still holds it: unchanged
+  });
+
+  it('plans the starter template once, reusing what already exists', () => {
+    let i = 0;
+    const id = () => `n${i++}`;
+    const all = planTemplate([], STARTER_TEMPLATE, id);
+    expect(all.filter((x) => x.kind === 'area').length).toBe(4);
+    expect(all.filter((x) => x.kind === 'epic').length).toBe(8);
+    expect(all.filter((x) => x.kind === 'feature').length).toBe(13);
+    expect(sanitizeLibrary({ nodes: all }).nodes).toEqual(all);              // every parent is of the right kind
+    expect(planTemplate(all, STARTER_TEMPLATE, id)).toEqual([]);             // twice: nothing more
+    const mine = [n('t', 'area', null, ' el templo ')];                      // an area made by hand, other spacing/case
+    const plan = planTemplate(mine, STARTER_TEMPLATE, id);
+    expect(plan.some((x) => x.kind === 'area' && x.title === 'El Templo')).toBe(false);
+    expect(plan.filter((x) => x.parentId === 't').map((x) => x.title)).toEqual(['Cuerpo Fuerte', 'Fe Viva', 'Finanzas Sanas']);
   });
 });
