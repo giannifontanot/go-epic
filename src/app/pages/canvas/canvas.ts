@@ -1,7 +1,7 @@
 import { Component, DestroyRef, ElementRef, HostListener, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { isBackdropClick } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
-import { Kind, LibNode, PARENT_KIND } from '../../core/library.model';
+import { Kind, LibNode, PARENT_KIND, rebaseLibrary } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
 import { COLOR_CHOICES, DAYS } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
@@ -99,8 +99,10 @@ export class Canvas {
     if (this.saving || !this.state.dirty || !this.ready()) return;
     this.saving = true;
     this.error = '';
-    const before = new Map(this.state.saved.map((n) => [n.id, n]));
-    const nodes = this.state.nodes;
+    // Rebased onto the library as it is now: changes made meanwhile (another tab's quick-add…) are kept.
+    const current = this.libraryStore.library().nodes;
+    const before = new Map(current.map((n) => [n.id, n]));
+    const nodes = rebaseLibrary(this.state.saved, this.state.nodes, current);
     if (!this.libraryStore.save({ nodes })) {
       this.error = this.i18n.t('canvas.saveError');
       this.saving = false;
@@ -108,7 +110,7 @@ export class Canvas {
     }
     this.syncWeek(before, new Map(nodes.map((n) => [n.id, n])));
     this.writeLayout(this.state.layout);
-    this.state.commit();
+    this.state.load({ nodes }, this.state.layout);
     this.saving = false;
     this.announcement = this.i18n.t('canvas.saved');
     this.bump();

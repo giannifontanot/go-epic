@@ -1,5 +1,5 @@
 import {
-  LibNode, Library, canParent, fileTask, followLibrary, placeLabel, sanitizeLibrary, tasksWithin, twinTask,
+  LibNode, Library, canParent, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, tasksWithin, twinTask,
 } from './library.model';
 
 const n = (id: string, kind: LibNode['kind'], parentId: string | null, title = id): LibNode => ({ id, kind, title, parentId, color: null });
@@ -50,5 +50,19 @@ describe('library model', () => {
     const clean = sanitizeLibrary({ nodes: [n('s', 'story', 'gone'), { id: 'x', kind: 'planet' }, { ...n('t', 'task', 's'), color: undefined }] });
     expect(clean.nodes.map((x) => [x.id, x.parentId, x.color])).toEqual([['s', null, null], ['t', 's', null]]);
     expect(sanitizeLibrary(undefined).nodes).toEqual([]);
+  });
+
+  it('rebases a draft onto changes made meanwhile elsewhere', () => {
+    const base = lib().nodes;
+    const mine = [...base.filter((x) => x.id !== 'free').map((x) => (x.id === 't' ? { ...x, title: 'Run 5 km' } : x)), n('mine', 'task', null)];
+    const theirs = [...base.map((x) => (x.id === 's' ? { ...x, title: 'Sport' } : x)), n('quick', 'task', 's', 'Stretch')];
+    const merged = rebaseLibrary(base, mine, theirs);
+    const byId = new Map(merged.map((x) => [x.id, x]));
+    expect(byId.get('t')?.title).toBe('Run 5 km');                       // my edit
+    expect(byId.get('s')?.title).toBe('Sport');                          // their edit, untouched in the draft
+    expect(byId.has('quick')).toBe(true);                                // their new task (another tab's quick-add)
+    expect(byId.has('mine')).toBe(true);                                 // my new task
+    expect(byId.has('free')).toBe(false);                                // my delete
+    expect(rebaseLibrary(base, base, base.filter((x) => x.id !== 'free')).some((x) => x.id === 'free')).toBe(false);   // their delete
   });
 });

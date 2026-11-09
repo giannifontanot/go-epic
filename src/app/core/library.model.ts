@@ -205,3 +205,26 @@ export function followLibrary<T extends { title: string; color: string | null; r
     return node && (node.title !== task.title || node.color !== task.color) ? { ...task, title: node.title, color: node.color } : task;
   });
 }
+
+/**
+ * A draft saved over a library that changed meanwhile (another tab or device): three-way merge by node.
+ * What the draft changed wins; what changed elsewhere (added, edited, deleted) and the draft left alone is kept.
+ */
+export function rebaseLibrary(base: LibNode[], mine: LibNode[], theirs: LibNode[]): LibNode[] {
+  const same = (a: LibNode | undefined, b: LibNode | undefined) => JSON.stringify(a) === JSON.stringify(b);
+  const baseById = new Map(base.map((n) => [n.id, n]));
+  const theirsById = new Map(theirs.map((n) => [n.id, n]));
+  const out: LibNode[] = [];
+  for (const node of mine) {
+    const was = baseById.get(node.id);
+    const now = theirsById.get(node.id);
+    if (!was) out.push(node);                                    // created in the draft
+    else if (!now) { if (!same(node, was)) out.push(node); }      // deleted elsewhere: gone, unless the draft changed it
+    else out.push(same(node, was) ? now : node);                  // the draft's change wins, else theirs
+  }
+  const mineIds = new Set(mine.map((n) => n.id));
+  for (const node of theirs) {
+    if (!mineIds.has(node.id) && !baseById.has(node.id)) out.push(node);   // added elsewhere
+  }
+  return sanitizeLibrary({ nodes: out }).nodes;
+}

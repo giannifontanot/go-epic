@@ -32,6 +32,8 @@ export class LibraryStore {
       this.pending = [];
       this.library.set(emptyLibrary());
       this.ready.set(false);
+      this.rejected.set(null);                                  // never offer one account's refused save to another
+      this.error.set('');
       if (uid) this.watch(uid);
     });
   }
@@ -46,6 +48,7 @@ export class LibraryStore {
     if (!fb || !uid) return true;
     this.pending.push(JSON.stringify(clean));
     setDoc(doc(fb.db, 'users', uid, 'library', 'tree'), clean).catch((error) => {
+      if (this.auth.user()?.uid !== uid) return;                // signed out (or another account) meanwhile
       this.rejected.set(clean);
       this.fail(error);
     });
