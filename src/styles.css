@@ -21,7 +21,7 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; background: var(--page); color: var(--ink); }
 body { font: 15px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-main { padding: 0 16px max(24px, env(safe-area-inset-bottom)); }
+main { padding: max(8px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); }   /* top: level with the ☰ */
 h1, h2, h3 { font-family: Georgia, 'Times New Roman', serif; letter-spacing: -.02em; }
 button, input, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
@@ -45,13 +45,33 @@ button:disabled { opacity: .4; cursor: default; }
 .round:hover:not(:disabled) { border-color: #0d9488; color: #0d9488; }
 .day-head .round { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .3); color: var(--ink); }
 
-/* App navigation */
-.app-nav { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 6px; padding: max(8px, env(safe-area-inset-top)) 16px 8px; background: color-mix(in srgb, var(--page) 92%, transparent); backdrop-filter: blur(6px); }
-.app-nav a { padding: 8px 12px; border-radius: 999px; color: var(--ink-soft); font-weight: 700; text-decoration: none; }
-.app-nav a.on { background: var(--pink); color: var(--card-ink); }
-.app-nav .brand { font-family: Georgia, serif; font-size: 20px; color: var(--ink); padding-left: 0; }
-.app-nav .spacer { flex: 1; }
-@media (max-width: 520px) { .app-nav .brand { display: none; } .app-nav { gap: 2px; } .app-nav .chip { padding: 0 10px; } }
+/* App navigation: a floating ☰ (top-left, beside each page's title) opens a drawer from the left, as in Epic Manager */
+.nav-toggle { position: fixed; z-index: 20; top: max(8px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left));
+  width: 44px; height: 44px; border: 0; border-radius: 14px; background: rgba(255, 255, 255, .1); color: var(--ink);
+  font-size: 22px; line-height: 1; backdrop-filter: blur(6px); }
+.nav-toggle:hover { background: rgba(255, 255, 255, .18); }
+.board-top > :first-child, .focus-top > :first-child, .page-header > :first-child { margin-left: 52px; }   /* room for the ☰ */
+.board-top, .focus-top, .page-header { min-height: 44px; }
+dialog.app-drawer { margin: 0; width: min(300px, 84vw); max-width: none; height: 100dvh; max-height: none; padding: 0;
+  border: 0; border-radius: 0 22px 22px 0; background: var(--navy-card); color: var(--ink); box-shadow: 12px 0 40px #0008;
+  display: flex; flex-direction: column; gap: 6px;
+  padding: max(14px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  translate: -100% 0; transition: translate .28s cubic-bezier(.22, 1, .36, 1), overlay .28s allow-discrete, display .28s allow-discrete; }
+dialog.app-drawer:not([open]) { display: none; }
+dialog.app-drawer[open] { translate: 0 0; }
+@starting-style { dialog.app-drawer[open] { translate: -100% 0; } }
+dialog.app-drawer::backdrop { background: rgba(4, 9, 30, .55); }
+.drawer-head { display: flex; align-items: center; justify-content: space-between; }
+.drawer-head .brand { font-family: Georgia, serif; font-size: 26px; font-weight: 700; }
+.drawer-close { width: 44px; height: 44px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .08); color: var(--ink); font-size: 24px; }
+.drawer-user { margin: 0 0 10px; color: var(--ink-soft); font-size: 13px; overflow-wrap: anywhere; }
+.drawer-links { display: grid; gap: 6px; }
+.drawer-links a { display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 14px; color: var(--ink);
+  font-size: 17px; font-weight: 700; text-decoration: none; }
+.drawer-links a:hover { background: rgba(255, 255, 255, .08); }
+.drawer-links a.on { background: var(--pink); color: var(--card-ink); }
+.drawer-foot { margin-top: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+.drawer-foot .chip { min-height: 44px; }
 .app-error { margin: 8px 16px; padding: 8px 12px; border-radius: 12px; background: #7a2440; color: var(--ink); font-weight: 600; }
 
 /* Sign-in */
@@ -60,7 +80,7 @@ button:disabled { opacity: .4; cursor: default; }
 .login .lead { color: var(--ink-soft); margin: 0; }
 
 /* Week board */
-.board-top, .focus-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 8px 0 12px; }
+.board-top, .focus-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 0 0 12px; }
 .board-top h1, .focus-top h1 { margin: 0; font-size: 34px; }
 .day-tabs { display: none; }
 .week { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(270px, 320px); gap: 12px; overflow-x: auto; padding-bottom: 12px; align-items: start; }
@@ -208,7 +228,7 @@ dialog.transfer footer .primary { border-color: var(--pink); background: var(--p
 
 /* Phones and touch screens: every control is at least 40px tall (AGENTS.md). */
 @media (pointer: coarse), (max-width: 820px) {
-  .chip, .app-nav a, dialog.editor header .danger { min-height: 42px; display: inline-flex; align-items: center; }
+  .chip, dialog.editor header .danger { min-height: 42px; display: inline-flex; align-items: center; }
   .block-window input, .quick-add { min-height: 42px; }
   /* the colours go on two rows of four so each one is a 44px target */
   .color-pick { grid-template-columns: repeat(4, minmax(44px, 1fr)); gap: 10px; }

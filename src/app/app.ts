@@ -1,7 +1,8 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/auth.service';
+import { isBackdropClick } from './core/dialog';
 import { I18n } from './core/i18n';
 import { LibraryStore } from './core/library.store';
 import { WeekStore } from './core/week.store';
@@ -11,16 +12,26 @@ import { WeekStore } from './core/week.store';
   imports: [RouterOutlet, RouterLink, RouterLinkActive],
   template: `
     @if (auth.user()) {
-      <nav class="app-nav">
-        <a class="brand" routerLink="/">Go&nbsp;Epic</a>
-        <a routerLink="/" routerLinkActive="on" [routerLinkActiveOptions]="{ exact: true }">{{ i18n.t('nav.week') }}</a>
-        <a routerLink="/focus" routerLinkActive="on">{{ i18n.t('nav.focus') }}</a>
-        <a routerLink="/canvas" routerLinkActive="on">{{ i18n.t('nav.canvas') }}</a>
-        <span class="spacer"></span>
-        <button type="button" class="chip quiet" (click)="i18n.toggle()" [attr.aria-label]="i18n.lang() === 'en' ? 'Español' : 'English'">
-          {{ i18n.lang() === 'en' ? 'ES' : 'EN' }}</button>
-        <button type="button" class="chip quiet" (click)="auth.signOut()">{{ i18n.t('nav.signOut') }}</button>
-      </nav>
+      <button type="button" class="nav-toggle" [attr.aria-label]="i18n.t('nav.menu')" [attr.aria-expanded]="menuOpen()"
+        aria-controls="app-drawer" (click)="openMenu()">☰</button>
+      <dialog #drawer id="app-drawer" class="app-drawer" [attr.aria-label]="i18n.t('nav.menu')"
+        (click)="onDrawerClick($event)" (close)="menuOpen.set(false)">
+        <div class="drawer-head">
+          <span class="brand">Go Epic</span>
+          <button type="button" class="drawer-close" [attr.aria-label]="i18n.t('nav.close')" (click)="closeMenu()">×</button>
+        </div>
+        @if (auth.user(); as user) { <p class="drawer-user">{{ user.displayName || user.email }}</p> }
+        <nav class="drawer-links">
+          <a routerLink="/" routerLinkActive="on" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">{{ i18n.t('nav.week') }}</a>
+          <a routerLink="/focus" routerLinkActive="on" (click)="closeMenu()">{{ i18n.t('nav.focus') }}</a>
+          <a routerLink="/canvas" routerLinkActive="on" (click)="closeMenu()">{{ i18n.t('nav.canvas') }}</a>
+        </nav>
+        <div class="drawer-foot">
+          <button type="button" class="chip quiet" (click)="i18n.toggle()" [attr.aria-label]="i18n.lang() === 'en' ? 'Español' : 'English'">
+            {{ i18n.lang() === 'en' ? 'Español' : 'English' }}</button>
+          <button type="button" class="chip quiet" (click)="closeMenu(); auth.signOut()">{{ i18n.t('nav.signOut') }}</button>
+        </div>
+      </dialog>
       @if (store.error()) {
         <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ store.error() }}
           <button type="button" class="chip quiet" (click)="store.error.set('')">×</button></p>
@@ -50,6 +61,9 @@ export class App {
   private readonly router = inject(Router);
   /** The installed app (service worker) has downloaded a newer version: offer to switch to it. */
   protected readonly updateReady = signal(false);
+  /** The menu (☰): a drawer from the left, as in Epic Manager, so every page has the whole screen. */
+  protected readonly menuOpen = signal(false);
+  private readonly drawer = viewChild<ElementRef<HTMLDialogElement>>('drawer');
 
   constructor() {
     const updates = inject(SwUpdate, { optional: true });
@@ -65,6 +79,20 @@ export class App {
     effect(() => {
       if (this.auth.user() === null && !this.router.url.startsWith('/login')) this.router.navigateByUrl('/login').catch(() => undefined);
     });
+  }
+
+  protected openMenu(): void {
+    const d = this.drawer()?.nativeElement;
+    if (d && !d.open) { d.showModal(); this.menuOpen.set(true); }
+  }
+  protected closeMenu(): void {
+    const d = this.drawer()?.nativeElement;
+    if (d?.open) d.close();
+    this.menuOpen.set(false);
+  }
+  protected onDrawerClick(event: MouseEvent): void {
+    const d = this.drawer()?.nativeElement;
+    if (d && isBackdropClick(event, d)) this.closeMenu();
   }
 
   protected onCanvas(): boolean { return this.router.url.startsWith('/canvas'); }

@@ -18,7 +18,8 @@ describe('App', () => {
     await fixture.whenStable();
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('router-outlet')).toBeTruthy();
-    expect(root.querySelector('.app-nav')).toBeNull();
+    expect(root.querySelector('.nav-toggle')).toBeNull();
+    expect(root.querySelector('.app-drawer')).toBeNull();
     expect(root.querySelector('.update-bar')).toBeNull();
   });
 

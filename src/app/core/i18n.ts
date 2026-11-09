@@ -6,6 +6,8 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'app.title': { en: 'Go Epic', es: 'Go Epic' },
   'nav.week': { en: 'Week board', es: 'Semana' },
   'nav.focus': { en: 'Focus', es: 'Enfoque' },
+  'nav.menu': { en: 'Menu', es: 'Menú' },
+  'nav.close': { en: 'Close menu', es: 'Cerrar menú' },
   'nav.signOut': { en: 'Sign out', es: 'Salir' },
   'login.lead': { en: 'Plan your week in blocks, then live each day one task at a time.', es: 'Planea tu semana en bloques y vive cada día una tarea a la vez.' },
   'login.google': { en: 'Sign in with Google', es: 'Entrar con Google' },
