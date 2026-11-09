@@ -86,8 +86,13 @@ export class Focus {
   protected readonly current = computed<TimedTask | null>(() => {
     const now = this.store.nowMinutes();
     const items = this.items();
-    return items.find((item) => item.start !== null && item.end !== null && item.start <= now && now < item.end)
-      ?? items.find((item) => item.start !== null && item.start > now)
+    // By time, not by board order: blocks can be arranged in any order on the board.
+    const byStart = (pick: (a: number, b: number) => boolean) => (list: TimedTask[]) =>
+      list.reduce<TimedTask | null>((best, item) => (!best || pick(item.start as number, best.start as number) ? item : best), null);
+    const running = items.filter((item) => item.start !== null && item.end !== null && item.start <= now && now < item.end);
+    const upcoming = items.filter((item) => item.start !== null && item.start > now);
+    return byStart((a, b) => a > b)(running)                               // the one that started last
+      ?? byStart((a, b) => a < b)(upcoming)                                 // else the next to start
       ?? items.find((item) => item.start === null && !this.store.isDone(item.task.id))
       ?? null;
   });

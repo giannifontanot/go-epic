@@ -16,6 +16,8 @@ export class WeekStore {
 
   readonly week = signal<Week>(emptyWeek());
   readonly loaded = signal(false);
+  /** The days whose saved copy has arrived; a day is never written before (it would replace blocks not shown yet). */
+  private readonly ready = new Set<Day>();
   readonly error = signal('');
   /** The clock, refreshed every 15 seconds. */
   readonly now = signal(new Date());
@@ -67,6 +69,7 @@ export class WeekStore {
 
   /** Replaces a day's blocks: shown at once, saved to Firestore (queued on the device when offline). */
   setBlocks(day: Day, blocks: Block[]): void {
+    if (!this.ready.has(day)) return;
     const clean = blocks.map(sanitizeBlock);
     this.week.update((week) => ({ ...week, [day]: { blocks: clean } }));
     const fb = firebase();
@@ -102,7 +105,6 @@ export class WeekStore {
   private watchWeek(uid: string): void {
     const fb = firebase();
     if (!fb) return;
-    const seen = new Set<Day>();
     this.weekSubs = DAYS.map((day) =>
       onSnapshot(
         doc(fb.db, 'users', uid, 'week', day),
@@ -118,8 +120,8 @@ export class WeekStore {
             if (at >= 0) this.pending[day] = mine.slice(at);
           }
           this.week.update((week) => ({ ...week, [day]: { blocks } }));
-          seen.add(day);
-          if (seen.size === DAYS.length) this.loaded.set(true);
+          this.ready.add(day);
+          if (this.ready.size === DAYS.length) this.loaded.set(true);
         },
         (error) => this.fail(error),
       ),
@@ -140,6 +142,7 @@ export class WeekStore {
     this.weekSubs.forEach((stop) => stop());
     this.weekSubs = [];
     this.pending = {};
+    this.ready.clear();
   }
 
   private fail(error: unknown): void {

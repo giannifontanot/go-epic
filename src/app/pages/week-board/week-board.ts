@@ -90,6 +90,7 @@ export class WeekBoard {
   }
 
   protected toggleArrange(): void {
+    if (!this.store.loaded()) return;                                        // edits wait for the saved week
     this.arranging.update((on) => !on);
     this.notice.set('');
   }
