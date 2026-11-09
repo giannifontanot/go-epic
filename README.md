@@ -5,6 +5,8 @@ The two screens that mattered most in Epic Manager, rebuilt on Firebase with no 
 - **Week board** — seven days of blocks (a named time window) holding task cards. Locked by default; *Arrange the week* unlocks editing: block name and start/end window (the end is a hard limit), ▲▼ order, ⇄ copy or move a block to other days, + and quick-add, and each card's ••• details (name, minutes, day, block, colour, active) with Delete on top and Cancel / Done below.
 - **Focus** — today, one task at a time: the running task with its time left, then the rest of the day. A tap marks a task done for today.
 
+It is an installable app (PWA): on iPhone open it in Safari → Share → **Add to Home Screen**; on Android/desktop Chrome use **Install app**. It opens offline, and shows an *Update* bar when a new version is published.
+
 Built with Angular 22 (standalone components, signals), Firebase Auth (Google sign-in), Cloud Firestore (with the device cache, so it works offline) and Firebase Hosting. Everything fits the free **Spark** plan: no credit card.
 
 ## Data
