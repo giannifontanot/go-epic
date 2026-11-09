@@ -17,6 +17,8 @@ export class LibraryStore {
   /** The saved copy has arrived: nothing is written before (a write would replace nodes not loaded yet). */
   readonly ready = signal(false);
   readonly error = signal('');
+  /** The last library the server refused (size limit, quota…): the Canvas offers it back as a draft to save again. */
+  readonly rejected = signal<Library | null>(null);
 
   private sub: Unsubscribe | null = null;
   /** Versions this device wrote that the server has not confirmed yet (an older echo must not undo a newer write). */
@@ -43,7 +45,10 @@ export class LibraryStore {
     const uid = this.auth.user()?.uid;
     if (!fb || !uid) return true;
     this.pending.push(JSON.stringify(clean));
-    setDoc(doc(fb.db, 'users', uid, 'library', 'tree'), clean).catch((error) => this.fail(error));
+    setDoc(doc(fb.db, 'users', uid, 'library', 'tree'), clean).catch((error) => {
+      this.rejected.set(clean);
+      this.fail(error);
+    });
     return true;
   }
 

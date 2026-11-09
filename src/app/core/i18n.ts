@@ -139,6 +139,8 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'canvas.saved': { en: 'Saved', es: 'Guardado' },
   'canvas.unsaved': { en: 'Unsaved changes', es: 'Cambios sin guardar' },
   'canvas.saveError': { en: 'Could not save yet: the library is still loading.', es: 'Aún no se puede guardar: la biblioteca sigue cargando.' },
+  'canvas.rejected': { en: 'The library could not be saved, so it went back to its saved copy.', es: 'No se pudo guardar la biblioteca, así que volvió a la copia guardada.' },
+  'canvas.restore': { en: 'Restore my changes', es: 'Recuperar mis cambios' },
   'canvas.confirmDiscard': { en: 'Discard every change since the last save?', es: '¿Descartar todos los cambios desde que guardaste?' },
   'canvas.confirmLeave': { en: 'You have unsaved changes. Leave anyway?', es: 'Tienes cambios sin guardar. ¿Salir de todos modos?' },
   'canvas.draftUpdated': { en: 'Draft updated. Save to keep it.', es: 'Borrador actualizado. Guarda para conservarlo.' },

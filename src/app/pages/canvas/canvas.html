@@ -14,6 +14,11 @@
     </div>
   </header>
   @if (error) { <div class="error" role="alert">{{ error }}</div> }
+  @if (libraryStore.rejected()) {
+    <div class="error" role="alert">{{ i18n.t('canvas.rejected') }} {{ libraryStore.error() }}
+      <button type="button" class="primary" (click)="restoreRejected()">{{ i18n.t('canvas.restore') }}</button>
+      <button type="button" (click)="dismissRejected()">×</button></div>
+  }
   @if (!ready()) {
     <p class="loading" role="status">{{ i18n.t('loading') }}</p>
   } @else {

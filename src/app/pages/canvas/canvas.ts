@@ -33,7 +33,7 @@ const FREE_KEY = 'go-epic-canvas-free-space';
 })
 export class Canvas {
   protected readonly i18n = inject(I18n);
-  private readonly libraryStore = inject(LibraryStore);
+  protected readonly libraryStore = inject(LibraryStore);
   private readonly week = inject(WeekStore);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly editor = viewChild<ElementRef<HTMLDialogElement>>('editor');
@@ -133,6 +133,18 @@ export class Canvas {
         .filter((block) => block.tasks.length > 0);
       if (changed) this.week.setBlocks(day, next);
     }
+  }
+
+  /** The server refused the last save (the library went back to its saved copy): the refused changes return as a draft. */
+  restoreRejected(): void {
+    const rejected = this.libraryStore.rejected();
+    if (!rejected) return;
+    this.mutate(() => this.state.replace(rejected.nodes));
+    this.dismissRejected();
+  }
+  dismissRejected(): void {
+    this.libraryStore.rejected.set(null);
+    this.libraryStore.error.set('');
   }
 
   discard(): void {

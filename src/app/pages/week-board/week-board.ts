@@ -172,7 +172,7 @@ export class WeekBoard {
     const task: Task = { id: newId(), title, minutes, color: null, active: true, ref: null };
     // Filed with the previous task of the block (its user story), as in Epic Manager's quick-add; else in Free Space.
     const previous = [...block.tasks].reverse().find((t) => t.ref && nodeById(this.library.library(), t.ref));
-    const filed = this.fileInLibrary(task, nodeById(this.library.library(), previous?.ref)?.parentId ?? null);
+    const filed = this.fileInLibrary(task, nodeById(this.library.library(), previous?.ref)?.parentId ?? null, false);
     this.store.update(day, (blocks) => blocks.map((b) => (b.id === block.id ? { ...b, tasks: [...b.tasks, filed] } : b)));
     this.followLibrary();
     input.value = '';
@@ -206,15 +206,15 @@ export class WeekBoard {
    * Every week task schedules a library task (Floating Canvas): the linked one, the same-titled task of the chosen
    * story (or Free Space), or a new one there. A colour picked here is the library task's colour, in every block.
    */
-  private fileInLibrary(task: Task, parentId: string | null): Task {
+  private fileInLibrary(task: Task, parentId: string | null, colorPicked: boolean): Task {
     if (!this.library.ready() || !task.title.trim()) return task;
     let lib = this.library.library();
     let id = task.ref && nodeById(lib, task.ref)?.kind === 'task' ? task.ref : '';
     if (!id) ({ lib, id } = fileTask(lib, task.title, parentId, task.color));
     const node = nodeById(lib, id)!;
-    if (node.color !== task.color) lib = updateNode(lib, id, { color: task.color });
+    if (colorPicked && node.color !== task.color) lib = updateNode(lib, id, { color: task.color });
     if (lib !== this.library.library()) this.library.save(lib);
-    return { ...task, title: node.title, ref: id };
+    return { ...task, title: node.title, color: colorPicked ? task.color : node.color, ref: id };
   }
 
   /** The other places of a library task follow its title and colour. */
@@ -232,7 +232,7 @@ export class WeekBoard {
   }
 
   protected saveTask(raw: TaskSave): void {
-    const save = { ...raw, task: this.fileInLibrary(raw.task, raw.parentId) };
+    const save = { ...raw, task: this.fileInLibrary(raw.task, raw.parentId, raw.colorPicked) };
     queueMicrotask(() => this.followLibrary());
     const edit = this.editing();
     const draft = this.draftBlock();

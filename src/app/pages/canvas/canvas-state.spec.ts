@@ -95,4 +95,13 @@ describe('CanvasState (Floating Canvas draft)', () => {
     expect(state.dirty).toBe(false);
     expect(state.saved.find((x) => x.id === 'task')).toEqual(expect.objectContaining({ title: 'Run', color: '#ffc9d6' }));
   });
+
+  it('puts refused nodes back as an undoable draft', () => {
+    const refused = [...state.nodes, n('extra', 'task', null)];
+    state.replace(refused);
+    expect(state.dirty).toBe(true);
+    expect(state.node('extra')).toBeTruthy();
+    state.undo();
+    expect(state.node('extra')).toBeUndefined();
+  });
 });

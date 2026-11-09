@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, computed, inject, input, output, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, computed, effect, inject, input, output, signal, untracked, viewChild } from '@angular/core';
 import { isBackdropClick } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { Kind, LibNode, Library, nodeById, pathOf, taskByTitle, tasksWithin, twinTask } from '../../core/library.model';
@@ -22,6 +22,8 @@ export interface TaskSave {
   task: Task;
   /** Where the task is filed in the library: its user story, or null (Free Space). */
   parentId: string | null;
+  /** The colour was chosen in these details (else a reused library task keeps its own). */
+  colorPicked: boolean;
 }
 
 /**
@@ -92,11 +94,11 @@ export interface TaskSave {
 
       <div class="color-pick" role="group" [attr.aria-label]="i18n.t('task.color')">
         <span>{{ i18n.t('task.color') }}</span>
-        <button type="button" class="swatch auto" [class.on]="!color()" [attr.aria-pressed]="!color()" (click)="color.set(null)">{{ i18n.t('task.auto') }}</button>
+        <button type="button" class="swatch auto" [class.on]="!color()" [attr.aria-pressed]="!color()" (click)="pickColor(null)">{{ i18n.t('task.auto') }}</button>
         @for (choice of colors; track choice.color) {
           <button type="button" class="swatch" [style.background]="choice.color" [class.on]="color() === choice.color"
                   [attr.aria-pressed]="color() === choice.color" [attr.aria-label]="i18n.t(choice.label)" [title]="i18n.t(choice.label)"
-                  (click)="color.set(choice.color)"></button>
+                  (click)="pickColor(choice.color)"></button>
         }
       </div>
 
@@ -141,6 +143,16 @@ export class TaskDialog implements AfterViewInit {
   protected readonly where = signal<Record<Level, string>>({ area: '', epic: '', feature: '', story: '' });
   /** The library task these details are linked to ('' = a new one, named in the name box). */
   protected readonly linked = signal('');
+  private readonly colorPicked = signal(false);
+  private viewReady = false;
+  private libraryLinked = false;
+
+  constructor() {
+    // Opened before the library arrived: link to the task's library task as soon as it does.
+    effect(() => {
+      if (this.libraryReady() && this.viewReady) untracked(() => this.linkFromLibrary());
+    });
+  }
 
   protected readonly linkedNode = computed(() => {
     const node = nodeById(this.library(), this.linked());
@@ -177,14 +189,27 @@ export class TaskDialog implements AfterViewInit {
     this.blockId.set(blockId);
     this.color.set(task.color);
     this.active.set(task.active);
-    // Linked to its library task (or, for an older task with none, to the only library task of that name).
+    this.viewReady = true;
+    if (this.libraryReady()) this.linkFromLibrary();
+    this.dialog().nativeElement.showModal();
+  }
+
+  /** Linked to its library task (or, for an older task with none, to the only library task of that name); once. */
+  private linkFromLibrary(): void {
+    if (this.libraryLinked) return;
+    this.libraryLinked = true;
+    const task = this.edit().task;
     const lib = this.library();
     const own = nodeById(lib, task.ref);
     const byName = task.title.trim() ? taskByTitle(lib, task.title) : undefined;
     const unique = byName && lib.nodes.filter((n) => n.kind === 'task' && n.title.trim().toLowerCase() === byName.title.trim().toLowerCase()).length === 1;
     const node = own?.kind === 'task' ? own : unique ? byName : undefined;
-    if (node) this.link(node);
-    this.dialog().nativeElement.showModal();
+    if (node && !this.linked()) this.link(node);
+  }
+
+  protected pickColor(color: string | null): void {
+    this.color.set(color);
+    this.colorPicked.set(true);
   }
 
   protected options(level: Level): LibNode[] {
@@ -224,7 +249,7 @@ export class TaskDialog implements AfterViewInit {
   private link(node: LibNode): void {
     this.linked.set(node.id);
     this.title.set(node.title);
-    this.color.set(node.color);
+    if (!this.colorPicked()) this.color.set(node.color);
     const where: Record<Level, string> = { area: '', epic: '', feature: '', story: '' };
     for (const n of pathOf(this.library(), node.id)) if (n.kind !== 'task') where[n.kind as Level] = n.id;
     this.where.set(where);
@@ -271,8 +296,9 @@ export class TaskDialog implements AfterViewInit {
       fromBlockId,
       day: this.day$(),
       blockId: this.blockId(),
-      task: { ...task, title, minutes: this.minutes(), color: this.color(), active: this.active(), ref: this.linkedNode()?.id ?? this.twin()?.id ?? null },
+      task: { ...task, title, minutes: this.minutes(), color: this.color(), active: this.active(), ref: this.linkedNode()?.id ?? this.twin()?.id ?? (this.libraryReady() ? null : task.ref) },
       parentId: this.where().story || null,
+      colorPicked: this.colorPicked(),
     });
   }
 }

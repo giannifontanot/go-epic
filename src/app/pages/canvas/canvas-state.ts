@@ -124,6 +124,13 @@ export class CanvasState {
     return true;
   }
 
+  /** Puts these nodes back as the draft (e.g. a save the server refused), undoable and to be saved again. */
+  replace(nodes: LibNode[]): void {
+    this.record();
+    this.nodes = structuredClone(nodes);
+    this.changed();
+  }
+
   group(action: () => void): void {
     if (this.grouping) { action(); return; }
     this.record();
