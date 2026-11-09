@@ -127,18 +127,40 @@ export class Tilt {
     root.style.setProperty('--tilt-k', String(k));
   };
 
-  /** Writes each button's free room to the left and right screen edges at rest (`--tilt-rl`/`--tilt-rr`, px), its current slide taken off. */
+  /**
+   * Writes each button's free room to the left and right at rest (`--tilt-rl`/`--tilt-rr`, px, its current slide taken
+   * off), up to the nearest box that clips it (a panel with overflow hidden/auto, a dialog) or else the screen, so a
+   * sliding button never disappears behind its panel's edge.
+   */
   private measure(): void {
     this.measuredAt = performance.now();
     const width = document.documentElement.clientWidth || innerWidth;
+    const bounds = new Map<Element, { left: number; right: number }>();
     for (const b of Array.from(document.querySelectorAll<HTMLElement>('button'))) {
       const r = b.getBoundingClientRect();
       if (!r.width) continue;
       const slid = parseFloat(getComputedStyle(b).translate) || 0;
-      b.style.setProperty('--tilt-rl', Math.max(0, Math.round(r.left - slid)) + 'px');
-      b.style.setProperty('--tilt-rr', Math.max(0, Math.round(width - r.right + slid)) + 'px');
+      const box = clipBox(b, width, bounds);
+      b.style.setProperty('--tilt-rl', Math.max(0, Math.round(r.left - slid - box.left)) + 'px');
+      b.style.setProperty('--tilt-rr', Math.max(0, Math.round(box.right - r.right + slid)) + 'px');
     }
   }
+}
+
+/** The horizontal edges of the nearest ancestor that clips `el` (overflow other than visible, or a dialog), within the screen. */
+function clipBox(el: HTMLElement, width: number, cache: Map<Element, { left: number; right: number }>): { left: number; right: number } {
+  for (let a = el.parentElement; a && a !== document.body && a !== document.documentElement; a = a.parentElement) {
+    const known = cache.get(a);
+    if (known) return known;
+    const style = getComputedStyle(a);
+    if (a.tagName === 'DIALOG' || style.overflowX !== 'visible') {
+      const r = a.getBoundingClientRect();
+      const box = { left: Math.max(0, r.left), right: Math.min(width, r.right) };
+      cache.set(a, box);
+      return box;
+    }
+  }
+  return { left: 0, right: width };
 }
 
 /** Reduced motion asked (or no way to know, e.g. a test DOM without matchMedia: then no motion either). */
