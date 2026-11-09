@@ -52,6 +52,12 @@ button:disabled { opacity: .4; cursor: default; }
 .app-nav .brand { font-family: Georgia, serif; font-size: 20px; color: var(--ink); padding-left: 0; }
 .app-nav .spacer { flex: 1; }
 @media (max-width: 520px) { .app-nav .brand { display: none; } .app-nav { gap: 2px; } .app-nav .chip { padding: 0 10px; } }
+/* Phones: the menu stays on one line (no item wraps); the text shrinks with the screen, the tap height stays 42px */
+.app-nav a, .app-nav .chip { white-space: nowrap; flex-shrink: 0; }
+@media (max-width: 520px) {
+  .app-nav { padding-left: max(8px, env(safe-area-inset-left)); padding-right: max(8px, env(safe-area-inset-right)); }
+  .app-nav a, .app-nav .chip { font-size: clamp(12px, 3.6vw, 15px); padding: 0 clamp(7px, 2.4vw, 12px); }
+}
 .app-error { margin: 8px 16px; padding: 8px 12px; border-radius: 12px; background: #7a2440; color: var(--ink); font-weight: 600; }
 
 /* Sign-in */
