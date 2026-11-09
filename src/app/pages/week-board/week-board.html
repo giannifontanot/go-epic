@@ -1,8 +1,11 @@
 <section class="board" [class.locked]="!arranging()">
-  <header class="board-top">
+  <!-- Title, then (while arranging) Finish in the middle, and 💡 Capture at the right; the floating ✎ arranges the week. -->
+  <header class="board-top week-top">
     <h1>{{ i18n.t('nav.week') }}</h1>
-    <button type="button" class="chip quiet" [class.on]="arranging()" [disabled]="!store.loaded() || !library.ready()" (click)="toggleArrange()">
-      {{ arranging() ? '✓ ' + i18n.t('week.finish') : '✎ ' + i18n.t('week.arrange') }}</button>
+    @if (arranging()) {
+      <button type="button" class="chip quiet on finish" (click)="toggleArrange()">✓ {{ i18n.t('week.finish') }}</button>
+    } @else { <span></span> }
+    <button type="button" class="round idea" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')" (click)="capture.open.set(true)">💡</button>
   </header>
 
   <nav class="day-tabs" role="tablist">
@@ -58,7 +61,7 @@
 
             <ul class="tasks">
               @for (task of block.tasks; track task.id; let ti = $index, tfirst = $first, tlast = $last) {
-                <li class="task" [style.--tone]="tones[ti]" [style.--mins]="task.minutes" [class.done]="isDone(day, task)" [attr.data-status]="day === store.today() ? store.status(task.id) : null" [class.off]="!task.active"
+                <li class="task" [style.--tone]="tones[ti]" [style.--mins]="task.minutes" [attr.data-paper]="paper(task)" [class.done]="isDone(day, task)" [attr.data-status]="day === store.today() ? store.status(task.id) : null" [class.off]="!task.active"
                     (click)="openTask(day, block, task)">
                   <div class="task-row">
                     <span class="t-time">{{ startLabel(block, ti) }}</span>
@@ -101,7 +104,7 @@
 </section>
 
 @if (editing(); as edit) {
-  <app-task-dialog [edit]="edit" [week]="dialogWeek()" [library]="library.library()" [libraryReady]="library.ready()" (save)="saveTask($event)" (cancel)="cancelTask()" (remove)="removeEditing()" />
+  <app-task-dialog [edit]="edit" [newBlock]="isNewBlock(edit)" [week]="dialogWeek()" [library]="library.library()" [libraryReady]="library.ready()" (save)="saveTask($event)" (cancel)="cancelTask()" (remove)="removeEditing()" />
 }
 @if (transferring(); as tr) {
   <app-transfer-dialog [day]="tr.day" [blockName]="tr.block.name" (apply)="applyTransfer($event)" (cancel)="transferring.set(null)" />

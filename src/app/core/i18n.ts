@@ -75,7 +75,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
 
   'week.arrange': { en: 'Arrange the week', es: 'Organizar la semana' },
   'week.finish': { en: 'Finish arranging', es: 'Terminar' },
-  'week.addBlock': { en: 'Add block', es: 'Agregar bloque' },
+  'week.addBlock': { en: 'Create new Block + Activity', es: 'Crear nuevo Block + Actividad' },
   'week.newBlock': { en: 'New block', es: 'Bloque nuevo' },
   'week.empty': { en: 'Nothing planned', es: 'Nada planeado' },
   'week.quickAdd': { en: '+ Add Activity (Enter)', es: '+ Agregar Actividad (Enter)' },
@@ -105,6 +105,9 @@ const LABELS: Record<string, { en: string; es: string }> = {
 
   'task.title': { en: 'Activity', es: 'Actividad' },
   'task.newTitle': { en: 'New Activity', es: 'Nueva Actividad' },
+  'task.newBlockTitle': { en: 'Create new Block + Activity', es: 'Crear nuevo Block + Actividad' },
+  'task.pickActivity': { en: 'See the {n} activities', es: 'Ver las {n} actividades' },
+  'task.pickTitle': { en: 'Pick an activity', es: 'Elige una actividad' },
   'task.name': { en: 'Name', es: 'Nombre' },
   'task.minutes': { en: 'Minutes', es: 'Minutos' },
   'task.day': { en: 'Day', es: 'Día' },

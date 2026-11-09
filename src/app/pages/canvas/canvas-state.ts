@@ -90,7 +90,7 @@ export class CanvasState {
         : kind === 'epic' ? !this.nodes.some((n) => n.id === parentId && n.kind === 'area')
         : parentId !== null && !this.nodes.some((n) => n.id === parentId && n.kind === PARENT_KIND[kind])) return null;
     this.record();
-    const node: LibNode = { kind, id: newNodeId(), title: title.trim(), parentId, color: null };
+    const node: LibNode = { kind, id: newNodeId(), title: title.trim(), parentId, color: null, ...(kind === 'task' ? { created: Date.now() } : {}) };
     this.nodes = [...this.nodes, node];
     this.changed();
     return node;
