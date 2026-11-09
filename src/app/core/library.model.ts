@@ -245,27 +245,77 @@ export function rebaseLibrary(base: LibNode[], mine: LibNode[], theirs: LibNode[
  * The starter structure (Gianni's choice, names in Spanish): 4 Areas, 8 Epics, 13 Features, and in each Feature a first
  * Story with one small Beat (start small; Beats are library tasks, planned in the Week via "Existing Beat").
  */
-export interface TemplateFeature { title: string; story: string; beat: string }
+/**
+ * A Feature is written as an outcome already lived (present tense, positive, first person, and believable: something
+ * you DO, e.g. "Manejo un presupuesto y tengo ahorros"). `was` keeps the names an earlier template used, so applying
+ * the template again renames those Features instead of adding twins.
+ */
+export interface TemplateFeature { title: string; was: string[]; story: string; beat: string }
 export interface TemplateArea { area: string; epics: { title: string; features: TemplateFeature[] }[] }
-const f = (title: string, story: string, beat: string): TemplateFeature => ({ title, story, beat });
+const f = (title: string, was: string, story: string, beat: string): TemplateFeature => ({ title, was: [was], story, beat });
 export const STARTER_TEMPLATE: TemplateArea[] = [
   { area: 'El Templo', epics: [
-    { title: 'Cuerpo Fuerte', features: [f('Ejercicio y comida', 'Moverme cada día', 'Caminar 10 min'), f('Descanso', 'Dormir bien', 'Apagar pantallas a las 10 pm')] },
-    { title: 'Fe Viva', features: [f('Oración y Biblia', 'Leer la Biblia', 'Leer 1 versículo y orar 2 min')] },
-    { title: 'Finanzas Sanas', features: [f('Presupuesto y ahorro', 'Revisar gastos', 'Revisar gastos 10 min')] },
+    { title: 'Cuerpo Fuerte', features: [
+      f('Me muevo cada día y como sano', 'Ejercicio y comida', 'Moverme cada día', 'Caminar 10 min'),
+      f('Duermo bien y descanso', 'Descanso', 'Dormir bien', 'Apagar pantallas a las 10 pm')] },
+    { title: 'Fe Viva', features: [f('Oro y leo la Biblia cada día', 'Oración y Biblia', 'Leer la Biblia', 'Leer 1 versículo y orar 2 min')] },
+    { title: 'Finanzas Sanas', features: [f('Manejo un presupuesto y tengo ahorros', 'Presupuesto y ahorro', 'Revisar gastos', 'Revisar gastos 10 min')] },
   ] },
   { area: 'El Castillo', epics: [
-    { title: 'Hogar y Familia', features: [f('Casa', 'Casa en orden', 'Ordenar 10 min'), f('Tiempo juntos', 'Tiempo en familia', 'Cenar juntos sin teléfono')] },
-    { title: 'Amigos y Comunidad', features: [f('Amistades', 'Cuidar amistades', 'Escribir a un amigo'), f('Servir a otros', 'Servir', 'Un acto de servicio')] },
+    { title: 'Hogar y Familia', features: [
+      f('Mantengo mi casa en orden', 'Casa', 'Casa en orden', 'Ordenar 10 min'),
+      f('Comparto tiempo de calidad con mi familia', 'Tiempo juntos', 'Tiempo en familia', 'Cenar juntos sin teléfono')] },
+    { title: 'Amigos y Comunidad', features: [
+      f('Cuido a mis amigos', 'Amistades', 'Cuidar amistades', 'Escribir a un amigo'),
+      f('Sirvo a los demás', 'Servir a otros', 'Servir', 'Un acto de servicio')] },
   ] },
   { area: 'La Torre', epics: [
-    { title: 'Subir de Nivel', features: [f('Trabajo', 'Trabajo profundo', 'Bloque de trabajo profundo 50 min'), f('Aprender', 'Aprender algo nuevo', 'Estudiar 20 min')] },
+    { title: 'Subir de Nivel', features: [
+      f('Hago trabajo profundo y de calidad', 'Trabajo', 'Trabajo profundo', 'Bloque de trabajo profundo 50 min'),
+      f('Aprendo algo nuevo cada semana', 'Aprender', 'Aprender algo nuevo', 'Estudiar 20 min')] },
   ] },
   { area: 'La Arena', epics: [
-    { title: 'Recargar Energía', features: [f('Diversión', 'Descansar y divertirme', 'Ver un episodio')] },
-    { title: 'Crear y Explorar', features: [f('Pasatiempos', 'Practicar un pasatiempo', 'Practicar 15 min'), f('Viajes y aventuras', 'Planear aventuras', 'Planear la próxima salida')] },
+    { title: 'Recargar Energía', features: [f('Disfruto y recargo energía', 'Diversión', 'Descansar y divertirme', 'Ver un episodio')] },
+    { title: 'Crear y Explorar', features: [
+      f('Practico mis pasatiempos', 'Pasatiempos', 'Practicar un pasatiempo', 'Practicar 15 min'),
+      f('Vivo aventuras y conozco lugares nuevos', 'Viajes y aventuras', 'Planear aventuras', 'Planear la próxima salida')] },
   ] },
 ];
+
+/** A template Feature found under an old name: it gets the template's current name. */
+export interface TemplateRename { id: string; from: string; title: string }
+
+const sameTitle = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
+
+/**
+ * Features of an earlier template still under an old name (`was`), in their template Epic, with no Feature of the new
+ * name next to them: they are renamed rather than duplicated.
+ */
+export function templateRenames(nodes: LibNode[], template: TemplateArea[]): TemplateRename[] {
+  const out: TemplateRename[] = [];
+  for (const { area, epics } of template) {
+    const areaNode = nodes.find((n) => n.kind === 'area' && n.parentId === null && sameTitle(n.title, area));
+    if (!areaNode) continue;
+    for (const epic of epics) {
+      const epicNode = nodes.find((n) => n.kind === 'epic' && n.parentId === areaNode.id && sameTitle(n.title, epic.title));
+      if (!epicNode) continue;
+      const features = nodes.filter((n) => n.kind === 'feature' && n.parentId === epicNode.id);
+      for (const feature of epic.features) {
+        if (features.some((n) => sameTitle(n.title, feature.title))) continue;
+        const old = features.find((n) => feature.was.some((w) => sameTitle(n.title, w)) && !out.some((r) => r.id === n.id));
+        if (old) out.push({ id: old.id, from: old.title, title: feature.title });
+      }
+    }
+  }
+  return out;
+}
+
+/** Everything applying a template changes: the renames first, then the nodes still missing after them. */
+export function planTemplateChanges(nodes: LibNode[], template: TemplateArea[], makeId: () => string = newNodeId): { renames: TemplateRename[]; add: LibNode[] } {
+  const renames = templateRenames(nodes, template);
+  const renamed = nodes.map((n) => { const r = renames.find((x) => x.id === n.id); return r ? { ...n, title: r.title } : n; });
+  return { renames, add: planTemplate(renamed, template, makeId) };
+}
 
 /**
  * What a template still needs: the nodes to add, in parent-first order. Whatever already exists with the same name
@@ -287,7 +337,7 @@ export function planTemplate(nodes: LibNode[], template: TemplateArea[], makeId:
     for (const epic of epics) {
       const epicId = ensure('epic', epic.title, areaId);
       for (const feature of epic.features) {
-        const featureId = ensure('feature', feature.title, epicId);
+        const featureId = ensure('feature', feature.title, epicId);   // renames of old names come first (planTemplateChanges)
         const storyId = ensure('story', feature.story, featureId);
         ensure('task', feature.beat, storyId);
       }

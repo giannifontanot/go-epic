@@ -295,3 +295,6 @@ dialog.capture-panel h2 { margin: 0; font-size: 22px; }
 .dot[data-result='missed'] { background: rgba(220, 38, 38, .55); color: #fff; }
 .dot[data-result='pending'] { background: transparent; box-shadow: inset 0 0 0 2px var(--pink); color: var(--pink); }
 .dot[data-result='none'] { background: transparent; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); }
+
+/* Starter template preview: a Feature renamed from its old name (Canvas) */
+.template-tree .renamed { display: block; color: var(--jelly-b); font-size: 12px; font-style: normal; }

@@ -1,5 +1,5 @@
 import {
-  LibNode, Library, STARTER_TEMPLATE, canParent, followDay, inboxTasks, planTemplate, storyOptions, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, tasksWithin, twinTask,
+  LibNode, Library, STARTER_TEMPLATE, canParent, planTemplateChanges, followDay, inboxTasks, planTemplate, storyOptions, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, tasksWithin, twinTask,
 } from './library.model';
 
 const n = (id: string, kind: LibNode['kind'], parentId: string | null, title = id): LibNode => ({ id, kind, title, parentId, color: null });
@@ -128,5 +128,19 @@ describe('library model', () => {
     expect(next.map((b) => b.id)).toEqual(['b1']);
     expect(next[0].tasks.map((t) => t.title)).toEqual(['Run 5 km', 'c2']);
     expect(followDay(blocks, new Set(), after)).toBeNull();                  // unknown before: untouched
+  });
+
+  it('renames Features of an earlier template instead of duplicating them (and keeps their Stories and Beats)', () => {
+    let i = 0;
+    const id = () => `o${i++}`;
+    // The library as the first template left it: the same tree, Features under their old names.
+    const oldTemplate = STARTER_TEMPLATE.map((a) => ({ ...a, epics: a.epics.map((e) => ({ ...e, features: e.features.map((f) => ({ ...f, title: f.was[0] })) })) }));
+    const before = planTemplate([], oldTemplate, id);
+    const { renames, add } = planTemplateChanges(before, STARTER_TEMPLATE, id);
+    expect(renames.length).toBe(13);
+    expect(renames.find((r) => r.from === 'Presupuesto y ahorro')?.title).toBe('Manejo un presupuesto y tengo ahorros');
+    expect(add).toEqual([]);                                                // Stories and Beats are found under the renamed Features
+    const after = before.map((x) => { const r = renames.find((y) => y.id === x.id); return r ? { ...x, title: r.title } : x; });
+    expect(planTemplateChanges(after, STARTER_TEMPLATE, id)).toEqual({ renames: [], add: [] });
   });
 });

@@ -170,7 +170,7 @@
 
 <dialog #templateDialog class="editor canvas-template" aria-labelledby="template-title" (click)="onTemplateBackdrop($event)">
   @if (true) {
-    @let missing = templateMissing.length;
+    @let missing = templateCount;
     <header><h2 id="template-title">✨ {{ i18n.t('template.title') }}</h2></header>
     <p class="hint">{{ i18n.t(missing ? 'template.intro' : 'template.complete') }}</p>
     <ul class="template-tree">
@@ -182,6 +182,7 @@
                 <ul class="template-features">
                   @for (f of epic.features; track f.title) {
                     <li><span [class.has]="templateHas('feature', f.title)">{{ f.title }}</span>
+                      @if (templateRenamedFrom(f.title); as from) { <em class="renamed">↻ {{ i18n.t('template.was', { name: from }) }}</em> }
                       <small>› <span [class.has]="templateHas('story', f.story)">{{ f.story }}</span> › <span [class.has]="templateHas('task', f.beat)">{{ f.beat }}</span></small></li>
                   }
                 </ul></li>
