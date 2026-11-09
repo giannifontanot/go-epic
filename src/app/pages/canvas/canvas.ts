@@ -2,7 +2,7 @@ import { Component, DestroyRef, ElementRef, HostListener, computed, effect, inje
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { AuthService } from '../../core/auth.service';
-import { Kind, LibNode, PARENT_KIND, STARTER_TEMPLATE, emptyLibrary, followDay, planTemplate, rebaseLibrary } from '../../core/library.model';
+import { Kind, LibNode, PARENT_KIND, STARTER_TEMPLATE, TemplateRename, emptyLibrary, followDay, planTemplateChanges, rebaseLibrary } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
 import { COLOR_CHOICES, DAYS } from '../../core/week.model';
 import { WeekStore, WeekWrite } from '../../core/week.store';
@@ -204,10 +204,20 @@ export class Canvas {
 
   protected readonly template = STARTER_TEMPLATE;
   /** What the template would add now (nothing that already exists with the same name and place). */
-  get templateMissing(): LibNode[] { let i = 0; return planTemplate(this.state.nodes, STARTER_TEMPLATE, () => `preview-${i++}`); }
-  /** True when this template node already exists (shown with ✓ in the preview). */
+  /** What the template would change now: Features of an old name renamed, then whatever is still missing. */
+  get templateChanges(): { renames: TemplateRename[]; add: LibNode[] } {
+    let i = 0;
+    return planTemplateChanges(this.state.nodes, STARTER_TEMPLATE, () => `preview-${i++}`);
+  }
+  get templateCount(): number { const c = this.templateChanges; return c.renames.length + c.add.length; }
+  /** True when this template node already exists under its current name (✓ in the preview). */
   templateHas(kind: Kind, title: string): boolean {
-    return !this.templateMissing.some((n) => n.kind === kind && n.title === title);
+    const c = this.templateChanges;
+    return !c.add.some((n) => n.kind === kind && n.title === title) && !c.renames.some((r) => r.kind === kind && r.title === title);
+  }
+  /** The old name an Epic or Feature will be renamed from (↻ in the preview), if any. */
+  templateRenamedFrom(kind: 'epic' | 'feature', title: string): string {
+    return this.templateChanges.renames.find((r) => r.kind === kind && r.title === title)?.from ?? '';
   }
   openTemplate(): void {
     const d = this.templateDialog()?.nativeElement;
@@ -221,9 +231,12 @@ export class Canvas {
     this.applyingTemplate = true;
     void closeDialog(this.templateDialog()?.nativeElement).then(() => {
       this.applyingTemplate = false;
-      const nodes = planTemplate(this.state.nodes, STARTER_TEMPLATE);   // planned now, against the current draft
-      if (!nodes.length) return;
-      this.mutate(() => this.state.addNodes(nodes));
+      const { renames, add } = planTemplateChanges(this.state.nodes, STARTER_TEMPLATE);   // planned now, on the current draft
+      if (!renames.length && !add.length) return;
+      this.mutate(() => this.state.group(() => {
+        for (const r of renames) this.state.edit(r.id, r.title);
+        this.state.addNodes(add);
+      }));
       this.areaFilter = '';
       this.ensureActive();
       this.announcement = this.i18n.t('canvas.draftUpdated');

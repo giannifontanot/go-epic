@@ -18,7 +18,7 @@ import { CaptureUi } from './capture-ui';
   template: `
     <button type="button" class="capture-fab" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')"
       (click)="ui.open.set(true)">✎</button>
-    <dialog #panel class="capture-panel" aria-labelledby="capture-title" (click)="onBackdrop($event)" (close)="ui.open.set(false)">
+    <dialog #panel class="capture-panel" aria-labelledby="capture-title" (click)="onBackdrop($event)" (close)="unfollow?.(); ui.open.set(false)">
       <header>
         <h2 id="capture-title">{{ i18n.t('capture.title') }}</h2>
         <button type="button" class="drawer-close" [attr.aria-label]="i18n.t('nav.close')" (click)="close()">×</button>
@@ -84,13 +84,39 @@ export class CapturePanel {
         const d = this.panel().nativeElement;
         if (open && !d.open) {
           this.message.set('');
+          this.followViewport(d);
           openDialog(d);
           queueMicrotask(() => this.input().nativeElement.focus());
         } else if (!open && d.open) {
+          this.unfollow?.();
           void closeDialog(d);
         }
       });
     });
+  }
+
+  protected unfollow: (() => void) | null = null;
+
+  /**
+   * While open, the panel tracks the visible part of the screen (the keyboard shrinks it on phones): it stays at the
+   * top of what is visible and never taller than it, so the box and the newest ideas are never under the keyboard.
+   */
+  private followViewport(d: HTMLDialogElement): void {
+    this.unfollow?.();
+    const vv = typeof window !== 'undefined' ? window.visualViewport : null;
+    if (!vv) return;
+    const apply = () => {
+      d.style.setProperty('--vv-h', vv.height + 'px');
+      d.style.setProperty('--vv-top', vv.offsetTop + 'px');
+    };
+    apply();
+    vv.addEventListener('resize', apply);
+    vv.addEventListener('scroll', apply);
+    this.unfollow = () => {
+      vv.removeEventListener('resize', apply);
+      vv.removeEventListener('scroll', apply);
+      this.unfollow = null;
+    };
   }
 
   protected close(): void {
