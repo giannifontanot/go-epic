@@ -134,9 +134,10 @@ export class TaskDialog implements AfterViewInit {
     const { day: fromDay, blockId: fromBlockId, task } = this.edit();
     const target = this.blocks().find((b) => b.id === this.blockId());
     if (target) {
-      // Only a saved task already in the target block gives its old minutes back; a + draft or a moved task counts in full.
-      const present = target.tasks.some((t) => t.id === task.id);
-      const extra = this.minutes() - (present ? task.minutes : 0);
+      // Only the task as it is saved in the target block now (another tab may have changed it) gives its minutes back;
+      // a + draft or a task moved from another block counts in full.
+      const saved = target.tasks.find((t) => t.id === task.id);
+      const extra = this.minutes() - (saved?.minutes ?? 0);
       if (extra > 0 && !fits(target, extra)) {
         this.problem.set(this.i18n.t('week.noRoom', { block: target.name, n: Math.max(0, freeMinutes(target) ?? 0) }));
         return;

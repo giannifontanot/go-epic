@@ -191,4 +191,10 @@ dialog.transfer footer .primary { border-color: var(--pink); background: var(--p
 .today-task.done .t-title { text-decoration: line-through; }
 .today-task .check { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border: 2px solid currentColor; border-radius: 50%; font-weight: 800; }
 
+/* Phones and touch screens: every control is at least 40px tall (AGENTS.md). */
+@media (pointer: coarse), (max-width: 820px) {
+  .chip, .app-nav a, dialog.editor header .danger { min-height: 42px; display: inline-flex; align-items: center; }
+  .block-window input, .quick-add { min-height: 42px; }
+}
+
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
