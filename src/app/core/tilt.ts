@@ -132,24 +132,25 @@ export class Tilt {
   };
 
   /**
-   * Writes each button's free room to the left and right at rest (`--tilt-rl`/`--tilt-rr`, px, its current slide taken
-   * off), up to the nearest box that clips it (a panel with overflow hidden/auto, a dialog) or else the screen, so a
-   * sliding button never disappears behind its panel's edge.
+   * Writes each body's free room to the left and right at rest (`--tilt-rl`/`--tilt-rr`, px, its current slide taken
+   * off): inside the body that holds it, else up to the nearest box that clips it (a panel with overflow hidden/auto,
+   * a dialog) or the screen, so nothing sliding ever disappears behind an edge.
    */
   private measure(): void {
     this.measuredAt = performance.now();
     const width = document.documentElement.clientWidth || innerWidth;
     const bounds = new Map<Element, { left: number; right: number }>();
-    // In document order, so a body's slide is known before the bodies inside it: what an element has moved is its own
-    // slide plus that of every leaning body around it (a card inside its block), all taken off to find its resting place.
-    const slides = new Map<Element, number>();
+    const rects = new Map<Element, DOMRect>();
+    const rectOf = (el: Element) => { let r = rects.get(el); if (!r) rects.set(el, (r = el.getBoundingClientRect())); return r; };
     for (const b of Array.from(document.querySelectorAll<HTMLElement>(TILT_BODIES))) {
-      const r = b.getBoundingClientRect();
+      const r = rectOf(b);
       if (!r.width) continue;
+      const slid = parseFloat(getComputedStyle(b).translate) || 0;
+      // A body inside another body (a card in its block, a button on a card) slides within that body, which itself
+      // slides within its own room: the slides add up but nothing ever passes the edge that clips the outermost one.
+      // (Both rects carry the outer bodies' slides, so only this body's own slide is taken off.)
       const outer = b.parentElement?.closest(TILT_BODIES);
-      const slid = (parseFloat(getComputedStyle(b).translate) || 0) + ((outer && slides.get(outer)) || 0);
-      slides.set(b, slid);
-      const box = clipBox(b, width, bounds);
+      const box = outer ? rectOf(outer) : clipBox(b, width, bounds);
       b.style.setProperty('--tilt-rl', Math.max(0, Math.round(r.left - slid - box.left)) + 'px');
       b.style.setProperty('--tilt-rr', Math.max(0, Math.round(box.right - r.right + slid)) + 'px');
     }
