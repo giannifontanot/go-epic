@@ -130,18 +130,20 @@ describe('library model', () => {
     expect(followDay(blocks, new Set(), after)).toBeNull();                  // unknown before: untouched
   });
 
-  it('renames Epics and Features of an earlier template instead of duplicating them (and keeps their Stories and Activities)', () => {
+  it('renames Epics, Features and Stories of an earlier template instead of duplicating them (and keeps their Activities)', () => {
     let i = 0;
     const id = () => `o${i++}`;
-    // The library as the first template left it: the same tree, Features under their old names.
-    const oldTemplate = STARTER_TEMPLATE.map((a) => ({ ...a, epics: a.epics.map((e) => ({ ...e, title: e.was[0], features: e.features.map((f) => ({ ...f, title: f.was[0] })) })) }));
+    // The library as the first template left it: the same tree, Epics, Features and Stories under their old names.
+    const oldTemplate = STARTER_TEMPLATE.map((a) => ({ ...a, epics: a.epics.map((e) => ({ ...e, title: e.was[0], features: e.features.map((f) => ({ ...f, title: f.was[0], story: f.storyWas[0] })) })) }));
     const before = planTemplate([], oldTemplate, id);
     const { renames, add } = planTemplateChanges(before, STARTER_TEMPLATE, id);
     expect(renames.filter((r) => r.kind === 'epic').length).toBe(8);
     expect(renames.filter((r) => r.kind === 'feature').length).toBe(13);
+    expect(renames.filter((r) => r.kind === 'story').length).toBe(13);
+    expect(renames.find((r) => r.from === 'Revisar gastos')?.title).toBe('Como alguien que administra con sabiduría, quiero revisar mis gastos cada domingo, para saber a dónde va mi dinero');
     expect(renames.find((r) => r.from === 'Presupuesto y ahorro')?.title).toBe('Manejo un presupuesto y tengo ahorros');
     expect(renames.find((r) => r.from === 'Finanzas Sanas')?.title).toBe('Administro con sabiduría');
-    expect(add).toEqual([]);                                                // Stories and Activities are found under the renamed Features
+    expect(add).toEqual([]);                                                // Activities are found under the renamed Stories
     const after = before.map((x) => { const r = renames.find((y) => y.id === x.id); return r ? { ...x, title: r.title } : x; });
     expect(planTemplateChanges(after, STARTER_TEMPLATE, id)).toEqual({ renames: [], add: [] });
   });

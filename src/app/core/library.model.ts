@@ -247,51 +247,70 @@ export function rebaseLibrary(base: LibNode[], mine: LibNode[], theirs: LibNode[
  */
 /**
  * A Feature is written as an outcome already lived (present tense, positive, first person, and believable: something
- * you DO, e.g. "Manejo un presupuesto y tengo ahorros"). `was` keeps the names an earlier template used, so applying
- * the template again renames those Features instead of adding twins.
+ * you DO, e.g. "Manejo un presupuesto y tengo ahorros"). A Story is the road, written like a user story in Azure DevOps
+ * ("As a…, I want…, so that…"): "Como [who the Epic says I am], quiero [the route, with its when], para [what the
+ * Feature lives]"; long on purpose, it gives the Activities their meaning. `was` / `storyWas` keep the names an earlier
+ * template used, so applying the template again renames those Features and Stories instead of adding twins.
  */
-export interface TemplateFeature { title: string; was: string[]; story: string; beat: string }
+export interface TemplateFeature { title: string; was: string[]; story: string; storyWas: string[]; activity: string }
 /** An Epic is who you are (identity, present tense, short enough for a tab); `was` = its earlier template names. */
 export interface TemplateEpic { title: string; was: string[]; features: TemplateFeature[] }
 export interface TemplateArea { area: string; epics: TemplateEpic[] }
-const f = (title: string, was: string, story: string, beat: string): TemplateFeature => ({ title, was: [was], story, beat });
+const f = (title: string, was: string, story: string, storyWas: string, activity: string): TemplateFeature =>
+  ({ title, was: [was], story, storyWas: [storyWas], activity });
 export const STARTER_TEMPLATE: TemplateArea[] = [
   { area: 'El Templo', epics: [
     { title: 'Soy fuerte y saludable', was: ['Cuerpo Fuerte'], features: [
-      f('Me muevo cada día y como sano', 'Ejercicio y comida', 'Moverme cada día', 'Caminar 10 min'),
-      f('Duermo bien y descanso', 'Descanso', 'Dormir bien', 'Apagar pantallas a las 10 pm')] },
-    { title: 'Camino con Dios', was: ['Fe Viva'], features: [f('Oro y leo la Biblia cada día', 'Oración y Biblia', 'Leer la Biblia', 'Leer 1 versículo y orar 2 min')] },
-    { title: 'Administro con sabiduría', was: ['Finanzas Sanas'], features: [f('Manejo un presupuesto y tengo ahorros', 'Presupuesto y ahorro', 'Revisar gastos', 'Revisar gastos 10 min')] },
+      f('Me muevo cada día y como sano', 'Ejercicio y comida',
+        'Como persona activa, quiero caminar cada mañana después del café, para tener energía todo el día', 'Moverme cada día', 'Caminar 10 min'),
+      f('Duermo bien y descanso', 'Descanso',
+        'Como alguien que cuida su descanso, quiero desconectarme temprano por la noche, para dormir profundo', 'Dormir bien', 'Apagar pantallas a las 10 pm')] },
+    { title: 'Camino con Dios', was: ['Fe Viva'], features: [
+      f('Oro y leo la Biblia cada día', 'Oración y Biblia',
+        'Como persona de fe, quiero empezar el día con la Palabra, para caminar cerca de Dios', 'Leer la Biblia', 'Leer 1 versículo y orar 2 min')] },
+    { title: 'Administro con sabiduría', was: ['Finanzas Sanas'], features: [
+      f('Manejo un presupuesto y tengo ahorros', 'Presupuesto y ahorro',
+        'Como alguien que administra con sabiduría, quiero revisar mis gastos cada domingo, para saber a dónde va mi dinero', 'Revisar gastos', 'Revisar gastos 10 min')] },
   ] },
   { area: 'El Castillo', epics: [
     { title: 'Mi hogar es paz', was: ['Hogar y Familia'], features: [
-      f('Mantengo mi casa en orden', 'Casa', 'Casa en orden', 'Ordenar 10 min'),
-      f('Comparto tiempo de calidad con mi familia', 'Tiempo juntos', 'Tiempo en familia', 'Cenar juntos sin teléfono')] },
+      f('Mantengo mi casa en orden', 'Casa',
+        'Como parte de un hogar en paz, quiero dejar la casa en orden cada noche, para despertar sin caos', 'Casa en orden', 'Ordenar 10 min'),
+      f('Comparto tiempo de calidad con mi familia', 'Tiempo juntos',
+        'Como parte de mi familia, quiero cenar con ellos sin teléfonos, para estar presente de verdad', 'Tiempo en familia', 'Cenar juntos sin teléfono')] },
     { title: 'Construyo comunidad', was: ['Amigos y Comunidad'], features: [
-      f('Cuido a mis amigos', 'Amistades', 'Cuidar amistades', 'Escribir a un amigo'),
-      f('Sirvo a los demás', 'Servir a otros', 'Servir', 'Un acto de servicio')] },
+      f('Cuido a mis amigos', 'Amistades',
+        'Como alguien que cuida a sus amigos, quiero buscar a uno cada semana, para que la amistad no se enfríe', 'Cuidar amistades', 'Escribir a un amigo'),
+      f('Sirvo a los demás', 'Servir a otros',
+        'Como alguien que sirve, quiero hacer un acto de servicio cada semana, para ser útil a los demás', 'Servir', 'Un acto de servicio')] },
   ] },
   { area: 'La Torre', epics: [
     { title: 'Crezco en mi oficio', was: ['Subir de Nivel'], features: [
-      f('Hago trabajo profundo y de calidad', 'Trabajo', 'Trabajo profundo', 'Bloque de trabajo profundo 50 min'),
-      f('Aprendo algo nuevo cada semana', 'Aprender', 'Aprender algo nuevo', 'Estudiar 20 min')] },
+      f('Hago trabajo profundo y de calidad', 'Trabajo',
+        'Como profesional que crece, quiero proteger mis mañanas para el trabajo profundo, para entregar trabajo de calidad', 'Trabajo profundo', 'Bloque de trabajo profundo 50 min'),
+      f('Aprendo algo nuevo cada semana', 'Aprender',
+        'Como aprendiz de por vida, quiero estudiar un poco cada día, para seguir mejorando en mi oficio', 'Aprender algo nuevo', 'Estudiar 20 min')] },
   ] },
   { area: 'La Arena', epics: [
-    { title: 'Vivo con alegría', was: ['Recargar Energía'], features: [f('Disfruto y recargo energía', 'Diversión', 'Descansar y divertirme', 'Ver un episodio')] },
+    { title: 'Vivo con alegría', was: ['Recargar Energía'], features: [
+      f('Disfruto y recargo energía', 'Diversión',
+        'Como persona alegre, quiero darme tiempo para descansar sin culpa, para recargar energía', 'Descansar y divertirme', 'Ver un episodio')] },
     { title: 'Vivo con curiosidad', was: ['Crear y Explorar'], features: [
-      f('Practico mis pasatiempos', 'Pasatiempos', 'Practicar un pasatiempo', 'Practicar 15 min'),
-      f('Vivo aventuras y conozco lugares nuevos', 'Viajes y aventuras', 'Planear aventuras', 'Planear la próxima salida')] },
+      f('Practico mis pasatiempos', 'Pasatiempos',
+        'Como persona curiosa, quiero practicar mi pasatiempo un rato, para disfrutar creando algo mío', 'Practicar un pasatiempo', 'Practicar 15 min'),
+      f('Vivo aventuras y conozco lugares nuevos', 'Viajes y aventuras',
+        'Como persona curiosa, quiero planear una salida nueva cada mes, para vivir aventuras', 'Planear aventuras', 'Planear la próxima salida')] },
   ] },
 ];
 
-/** A template Epic or Feature found under an old name: it gets the template's current name. */
-export interface TemplateRename { id: string; kind: 'epic' | 'feature'; from: string; title: string }
+/** A template Epic, Feature or Story found under an old name: it gets the template's current name. */
+export interface TemplateRename { id: string; kind: 'epic' | 'feature' | 'story'; from: string; title: string }
 
 const sameTitle = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
 
 /**
- * Epics and Features of an earlier template still under an old name (`was`), with none of the new name next to them:
- * they are renamed rather than duplicated (Features are looked for in their Epic, under its new or old name).
+ * Epics, Features and Stories of an earlier template still under an old name (`was`, `storyWas`), with none of the new
+ * name next to them: they are renamed rather than duplicated (each is looked for in its parent, under its new or old name).
  */
 export function templateRenames(nodes: LibNode[], template: TemplateArea[]): TemplateRename[] {
   const out: TemplateRename[] = [];
@@ -310,9 +329,17 @@ export function templateRenames(nodes: LibNode[], template: TemplateArea[]): Tem
       const parentId = epicNode.id;
       const features = nodes.filter((n) => n.kind === 'feature' && n.parentId === parentId);
       for (const feature of epic.features) {
-        if (features.some((n) => sameTitle(n.title, feature.title))) continue;
-        const old = features.find((n) => feature.was.some((w) => sameTitle(n.title, w)) && !out.some((r) => r.id === n.id));
-        if (old) out.push({ id: old.id, kind: 'feature', from: old.title, title: feature.title });
+        let featureNode = features.find((n) => sameTitle(n.title, feature.title));
+        if (!featureNode) {
+          featureNode = features.find((n) => feature.was.some((w) => sameTitle(n.title, w)) && !out.some((r) => r.id === n.id));
+          if (featureNode) out.push({ id: featureNode.id, kind: 'feature', from: featureNode.title, title: feature.title });
+        }
+        if (!featureNode) continue;
+        const storyParent = featureNode.id;
+        const stories = nodes.filter((n) => n.kind === 'story' && n.parentId === storyParent);
+        if (stories.some((n) => sameTitle(n.title, feature.story))) continue;
+        const oldStory = stories.find((n) => feature.storyWas.some((w) => sameTitle(n.title, w)) && !out.some((r) => r.id === n.id));
+        if (oldStory) out.push({ id: oldStory.id, kind: 'story', from: oldStory.title, title: feature.story });
       }
     }
   }
@@ -348,7 +375,7 @@ export function planTemplate(nodes: LibNode[], template: TemplateArea[], makeId:
       for (const feature of epic.features) {
         const featureId = ensure('feature', feature.title, epicId);   // renames of old names come first (planTemplateChanges)
         const storyId = ensure('story', feature.story, featureId);
-        ensure('task', feature.beat, storyId);
+        ensure('task', feature.activity, storyId);
       }
     }
   }
