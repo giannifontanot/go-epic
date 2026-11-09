@@ -352,6 +352,14 @@ html.tilt button { rotate: var(--tilt-r);
 .week-top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
 .week-top .idea { justify-self: end; width: 44px; height: 44px; font-size: 22px; background: rgba(255, 255, 255, .1); border: 1.5px solid rgba(255, 244, 233, .25); }
 .week-top .finish { justify-self: center; }
+.week-top > h1 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Narrow phones: title and 💡 share the first row, Finish gets its own centred row (nothing leaves the screen) */
+@media (max-width: 440px) {
+  .week-top { grid-template-columns: minmax(0, 1fr) auto; row-gap: 8px; }
+  .week-top > span { display: none; }
+  .week-top .idea { grid-column: 2; grid-row: 1; }
+  .week-top .finish { grid-column: 1 / -1; grid-row: 2; }
+}
 
 /* A day's + makes a new block with its first activity: the window is block yellow, so the level shows */
 dialog.editor.new-block { background: linear-gradient(150deg, var(--jelly-a), var(--jelly-b)); color: var(--jelly-ink);
