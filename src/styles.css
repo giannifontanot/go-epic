@@ -316,12 +316,15 @@ dialog.capture-panel h2 { margin: 0; font-size: 22px; }
 .epic-edit:hover:not(:disabled) { background: rgba(255, 255, 255, .16) !important; }
 .epic-add { flex-shrink: 0; align-self: center; border: 1.5px dashed rgba(255, 244, 233, .35) !important; background: transparent !important; white-space: nowrap; }
 
-/* Weighted buttons (core/tilt.ts): the root's --tilt-r / --tilt-x glide (registered, so they can transition) and every
-   button follows them through the individual rotate/translate properties, never its own transform. */
+/* Weighted buttons (core/tilt.ts): the root's --tilt-r / --tilt-k glide (registered, so they can transition, with a
+   little bounce when they spring back) and every button follows through rotate/translate, never its own transform. Each
+   button slides a share of its free room to the lower edge (pileShift: --tilt-rl / --tilt-rr, measured at rest), so the
+   farther ones travel more and pile up on top of each other, and none leaves the screen; upright, k = 0 and they go back. */
 @property --tilt-r { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
-@property --tilt-x { syntax: '<length>'; inherits: true; initial-value: 0px; }
-html.tilt { transition: --tilt-r .45s cubic-bezier(.22, 1, .36, 1), --tilt-x .45s cubic-bezier(.22, 1, .36, 1); }
-html.tilt button { rotate: var(--tilt-r); translate: var(--tilt-x) 0; }
+@property --tilt-k { syntax: '<number>'; inherits: true; initial-value: 0; }
+html.tilt { transition: --tilt-r .55s cubic-bezier(.34, 1.4, .64, 1), --tilt-k .55s cubic-bezier(.34, 1.4, .64, 1); }
+html.tilt button { rotate: var(--tilt-r);
+  translate: calc((max(var(--tilt-k), 0) * var(--tilt-rr, 0px) + min(var(--tilt-k), 0) * var(--tilt-rl, 0px)) * .55) 0; }
 @media (prefers-reduced-motion: reduce) { html.tilt button { rotate: none; translate: none; } }
 
 /* New version ready: a soft yellow halo flashes around the whole update bar so it gets noticed (a still halo under reduced motion) */
