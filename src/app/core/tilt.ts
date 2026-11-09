@@ -145,7 +145,9 @@ export class Tilt {
     for (const b of Array.from(document.querySelectorAll<HTMLElement>(TILT_BODIES))) {
       const r = rectOf(b);
       if (!r.width) continue;
-      const slid = parseFloat(getComputedStyle(b).translate) || 0;
+      const style = getComputedStyle(b);
+      // A Canvas object's translate also carries its place on this device (--ox): that is not slide.
+      const slid = (parseFloat(style.translate) || 0) - (b.classList.contains('object') ? parseFloat(style.getPropertyValue('--ox')) || 0 : 0);
       // A body inside another body (a card in its block, a button on a card) slides within that body, which itself
       // slides within its own room: the slides add up but nothing ever passes the edge that clips the outermost one.
       // (Both rects carry the outer bodies' slides, so only this body's own slide is taken off.)

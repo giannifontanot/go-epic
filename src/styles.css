@@ -331,7 +331,10 @@ html.tilt :is(.block, .task, .now-card, .habit, .capture-list li, .epics-label, 
   rotate: calc(var(--tilt-r) * .3);
   translate: calc((max(var(--tilt-k), 0) * var(--tilt-rr, 0px) + min(var(--tilt-k), 0) * var(--tilt-rl, 0px)) * .55) var(--tilt-y, 0px); }
 html.tilt .task.done { --tilt-y: 4px; }
-@media (prefers-reduced-motion: reduce) { html.tilt :is(button, .block, .task, .now-card, .habit, .capture-list li, .epics-label, .object, .pc-feature, .pc-story, .pc-activity) { rotate: none; translate: none; } }
+/* A Canvas object keeps its place on this device (--ox / --oy, canvas-node) and adds the slide to it */
+html.tilt .object { translate: calc(var(--ox, 0px) + (max(var(--tilt-k), 0) * var(--tilt-rr, 0px) + min(var(--tilt-k), 0) * var(--tilt-rl, 0px)) * .55) var(--oy, 0px); }
+@media (prefers-reduced-motion: reduce) { html.tilt :is(button, .block, .task, .now-card, .habit, .capture-list li, .epics-label, .pc-feature, .pc-story, .pc-activity) { rotate: none; translate: none; }
+  html.tilt .object { rotate: none; translate: var(--ox, 0px) var(--oy, 0px); } }
 
 /* New version ready: a soft yellow halo flashes around the whole update bar so it gets noticed (a still halo under reduced motion) */
 .update-bar { animation: update-halo 2.4s ease-in-out infinite; }

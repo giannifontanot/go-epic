@@ -19,7 +19,8 @@ button:disabled { opacity:.4; cursor:default; }.grip { touch-action:none; cursor
 @media (pointer:coarse) { button, .add { min-width:40px; min-height:44px; }.feature { padding:9px; }.story { padding:8px; } }
 @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
 
-@media(max-width:680px) { .object { translate:none!important; } }
+.object { translate:var(--ox,0px) var(--oy,0px); }
+@media(max-width:680px) { .object { --ox:0px!important; --oy:0px!important; } }   /* phones: no layout offsets (the tilt slide still applies) */
 
 /* Seed Board 2 look, no white edges: Features are yellow jelly blocks, Stories lagoon cards, Tasks peach cards (indigo ink, lip shadows) */
 .object { border:0; color:#302746; box-shadow:0 5px 0 rgba(78,57,88,.16), 0 8px 11px rgba(82,47,74,.16); }
