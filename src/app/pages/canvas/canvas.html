@@ -26,7 +26,6 @@
       <section class="epic-space" aria-labelledby="workspace-title">
         <div class="panel-heading"><h2 id="workspace-title">{{ i18n.t('canvas.workspace') }}</h2>
           @if (active; as a) {
-            <button type="button" [disabled]="saving" (click)="open('epic', a.parentId, a)">{{ i18n.t('canvas.editEpic') }}</button>
             <button type="button" [disabled]="saving" (click)="open('feature', activeId)">+ {{ i18n.t('canvas.feature') }}</button>
           }
           <span class="heading-spacer"></span>
@@ -40,16 +39,23 @@
           }
           <button type="button" [disabled]="saving" (click)="openTemplate()">✨ {{ i18n.t('template.button') }}</button>
           <button type="button" [disabled]="saving" (click)="open('area')">+ {{ i18n.t('canvas.area') }}</button>
-          <button type="button" [disabled]="saving || !state.areas.length" (click)="open('epic')">+ {{ i18n.t('canvas.epic') }}</button>
         </div>
+        <div class="epic-strip">
+        @if (epics.length) { <span class="epics-label" aria-hidden="true">{{ i18n.t('canvas.epicsLabel') }}</span> }
         <div class="epic-tabs" role="tablist" [attr.aria-label]="i18n.t('canvas.epics')">
           @for (epic of epics; track epic.id; let index = $index) {
-            <button type="button" role="tab" [attr.id]="'tab-' + epic.id" [attr.data-tab]="epic.id" data-drop-kind="epic" [attr.data-parent]="epic.id"
-              [class.active]="activeId === epic.id" [attr.aria-selected]="activeId === epic.id" aria-controls="epic-panel"
-              [attr.tabindex]="activeId === epic.id ? 0 : -1" (keydown)="tabKey($event, index)" (click)="selectEpic(epic.id)">
-              <span>{{ epic.title }}</span><small>{{ areaName(epic.parentId) }}</small>
-            </button>
+            <div class="epic-tab">
+              <button type="button" role="tab" [attr.id]="'tab-' + epic.id" [attr.data-tab]="epic.id" data-drop-kind="epic" [attr.data-parent]="epic.id"
+                [class.active]="activeId === epic.id" [attr.aria-selected]="activeId === epic.id" aria-controls="epic-panel"
+                [attr.tabindex]="activeId === epic.id ? 0 : -1" (keydown)="tabKey($event, index)" (click)="selectEpic(epic.id)">
+                <span>{{ epic.title }}</span><small>{{ areaName(epic.parentId) }}</small>
+              </button>
+              <button type="button" class="epic-edit" [disabled]="saving" [attr.aria-label]="i18n.t('canvas.editEpic') + ': ' + epic.title"
+                [title]="i18n.t('canvas.editEpic')" (click)="open('epic', epic.parentId, epic)">✎</button>
+            </div>
           }
+          <button type="button" class="epic-add" [disabled]="saving || !state.areas.length" (click)="open('epic')">+ {{ i18n.t('canvas.epic') }}</button>
+        </div>
         </div>
         <div class="scroll-panel epic-objects" id="epic-panel" role="tabpanel" [attr.aria-labelledby]="activeId ? 'tab-' + activeId : 'workspace-title'"
           [attr.data-drop-kind]="activeId ? 'epic' : null" [attr.data-parent]="activeId || null" tabindex="0">
