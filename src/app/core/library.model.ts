@@ -243,7 +243,7 @@ export function rebaseLibrary(base: LibNode[], mine: LibNode[], theirs: LibNode[
 
 /**
  * The starter structure (Gianni's choice, names in Spanish): 4 Areas, 8 Epics, 13 Features, and in each Feature a first
- * Story with one small Beat (start small; Beats are library tasks, planned in the Week via "Existing Beat").
+ * Story with one small Activity (start small; Activities are library tasks, planned in the Week via "Existing Activity").
  */
 /**
  * A Feature is written as an outcome already lived (present tense, positive, first person, and believable: something
