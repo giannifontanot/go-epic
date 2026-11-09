@@ -179,7 +179,12 @@
           <ul>
             @for (epic of area.epics; track epic.title) {
               <li><span [class.has]="templateHas('epic', epic.title)">{{ epic.title }}</span>
-                <small>· @for (f of epic.features; track f; let last = $last) {<span [class.has]="templateHas('feature', f)">{{ f }}</span>@if (!last) { · }}</small></li>
+                <ul class="template-features">
+                  @for (f of epic.features; track f.title) {
+                    <li><span [class.has]="templateHas('feature', f.title)">{{ f.title }}</span>
+                      <small>› <span [class.has]="templateHas('story', f.story)">{{ f.story }}</span> › <span [class.has]="templateHas('task', f.beat)">{{ f.beat }}</span></small></li>
+                  }
+                </ul></li>
             }
           </ul>
         </li>
