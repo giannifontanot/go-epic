@@ -27,9 +27,20 @@ export class WeekBoard {
   protected readonly notice = signal('');
   protected readonly windowErrors = signal<Record<string, string>>({});
   protected readonly editing = signal<TaskEdit | null>(null);
+  /**
+   * A task added by + stays a draft until Done: it is not saved, only shown in the details' Day/Block lists.
+   * `newBlock` is the block a day's + would create for it (null when it goes into an existing block).
+   */
+  private readonly draftBlock = signal<Block | null>(null);
+  /** The week the details see: the saved week plus the draft block of a + task. */
+  protected readonly dialogWeek = computed(() => {
+    const week = this.store.week();
+    const edit = this.editing();
+    const draft = this.draftBlock();
+    if (!edit?.isNew || !draft) return week;
+    return { ...week, [edit.day]: { blocks: [draft, ...week[edit.day].blocks] } };
+  });
   protected readonly transferring = signal<{ day: Day; block: Block } | null>(null);
-  /** The day as it was before a + added a task: Cancel puts it back. */
-  private undo: { day: Day; blocks: Block[] } | null = null;
 
   /** Where today's now-line sits: the running task and the share of it already gone. */
   protected readonly now = computed(() => nowPosition(this.store.week()[this.store.today()], this.store.nowMinutes()));
@@ -86,12 +97,10 @@ export class WeekBoard {
   // --- Blocks ---
 
   protected addBlock(day: Day): void {
-    const before = structuredClone(this.blocks(day));
     const task: Task = { id: newId(), title: '', minutes: NEW_TASK_MINUTES, color: null, active: true };
-    const block: Block = { id: newId(), name: uniqueName(before.map((b) => b.name), this.i18n.t('week.newBlock')), start: null, end: null, tasks: [task] };
-    this.store.setBlocks(day, [block, ...before]);                           // a new block goes at the top, easy to find
-    this.undo = { day, blocks: before };
-    this.editing.set({ day, blockId: block.id, task, isNew: true });
+    const name = uniqueName(this.blocks(day).map((b) => b.name), this.i18n.t('week.newBlock'));
+    this.draftBlock.set({ id: newId(), name, start: null, end: null, tasks: [] });   // saved (at the top of the day) only on Done
+    this.editing.set({ day, blockId: this.draftBlock()!.id, task, isNew: true });
   }
 
   protected renameBlock(day: Day, block: Block, value: string): void {
@@ -143,12 +152,10 @@ export class WeekBoard {
   // --- Tasks ---
 
   protected addTask(day: Day, block: Block): void {
-    const before = structuredClone(this.blocks(day));
     const free = freeMinutes(block);
     const task: Task = { id: newId(), title: '', minutes: free === null ? NEW_TASK_MINUTES : Math.max(0, Math.min(NEW_TASK_MINUTES, free)), color: null, active: true };
-    this.store.update(day, (blocks) => blocks.map((b) => (b.id === block.id ? { ...b, tasks: [...b.tasks, task] } : b)));
-    this.undo = { day, blocks: before };
-    this.editing.set({ day, blockId: block.id, task, isNew: true });
+    this.draftBlock.set(null);
+    this.editing.set({ day, blockId: block.id, task, isNew: true });        // a draft: added to the block only on Done
   }
 
   protected quickAdd(day: Day, block: Block, input: HTMLInputElement): void {
@@ -163,7 +170,7 @@ export class WeekBoard {
 
   protected openTask(day: Day, block: Block, task: Task): void {
     if (!this.arranging()) return;
-    this.undo = null;
+    this.draftBlock.set(null);
     this.editing.set({ day, blockId: block.id, task: structuredClone(task), isNew: false });
   }
 
@@ -186,8 +193,14 @@ export class WeekBoard {
   }
 
   protected saveTask(save: TaskSave): void {
+    const edit = this.editing();
+    const draft = this.draftBlock();
     this.editing.set(null);
-    this.undo = null;
+    this.draftBlock.set(null);
+    if (edit?.isNew) {
+      this.addSaved(save, draft);
+      return;
+    }
     const sameBlock = save.fromDay === save.day && save.fromBlockId === save.blockId;
     if (sameBlock) {
       this.store.update(save.day, (blocks) =>
@@ -206,10 +219,22 @@ export class WeekBoard {
     });
   }
 
+  /** Done on a + task: it joins the latest saved week (other changes made meanwhile stay). */
+  private addSaved(save: TaskSave, draft: Block | null): void {
+    this.store.update(save.day, (blocks) => {
+      if (blocks.some((b) => b.id === save.blockId)) {
+        return blocks.map((b) => (b.id === save.blockId ? { ...b, tasks: [...b.tasks, save.task] } : b));
+      }
+      const name = uniqueName(blocks.map((b) => b.name), draft?.name ?? this.i18n.t('week.newBlock'));
+      const block: Block = { id: draft?.id ?? newId(), name, start: null, end: null, tasks: [save.task] };
+      return [block, ...blocks];                                             // a new block goes at the top, easy to find
+    });
+  }
+
+  /** Cancel: nothing was saved yet for a + task, and an edited task keeps its saved values. */
   protected cancelTask(): void {
-    if (this.undo) this.store.setBlocks(this.undo.day, this.undo.blocks);   // a + task goes away again
-    this.undo = null;
     this.editing.set(null);
+    this.draftBlock.set(null);
   }
 
   protected removeEditing(): void {
@@ -217,11 +242,8 @@ export class WeekBoard {
     if (!edit) return;
     if (!edit.isNew && !confirm(this.i18n.t('week.confirmDeleteTask', { task: edit.task.title }))) return;
     this.editing.set(null);
-    if (edit.isNew && this.undo) {
-      this.store.setBlocks(this.undo.day, this.undo.blocks);
-      this.undo = null;
-      return;
-    }
+    this.draftBlock.set(null);
+    if (edit.isNew) return;                                                  // a + task was never saved
     this.removeTask(edit.day, edit.blockId, edit.task.id);
   }
 

@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, effect, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/auth.service';
 import { I18n } from './core/i18n';
 import { WeekStore } from './core/week.store';
@@ -30,4 +30,12 @@ export class App {
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18n);
   protected readonly store = inject(WeekStore);
+  private readonly router = inject(Router);
+
+  constructor() {
+    // Signing out (here or in another tab) leaves the open page for the sign-in page; the guards only run on navigation.
+    effect(() => {
+      if (this.auth.user() === null && !this.router.url.startsWith('/login')) this.router.navigateByUrl('/login').catch(() => undefined);
+    });
+  }
 }
