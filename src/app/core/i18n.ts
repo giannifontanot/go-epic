@@ -13,6 +13,8 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'setup.title': { en: 'Firebase is not configured yet', es: 'Falta configurar Firebase' },
   'setup.body': { en: 'Fill in src/app/firebase.config.ts with your Firebase web app config, then build again.', es: 'Llena src/app/firebase.config.ts con la configuración de tu app web de Firebase y vuelve a compilar.' },
   'loading': { en: 'Loading…', es: 'Cargando…' },
+  'pwa.update': { en: 'A new version of Go Epic is ready.', es: 'Hay una versión nueva de Go Epic.' },
+  'pwa.reload': { en: 'Update', es: 'Actualizar' },
   'saveFailed': { en: 'Could not save', es: 'No se pudo guardar' },
 
   'day.MONDAY': { en: 'Monday', es: 'Lunes' },
