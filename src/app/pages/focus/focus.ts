@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { I18n } from '../../core/i18n';
-import { TimedTask, blockColors, formatClock, nowPosition, timeline, validMinutes } from '../../core/week.model';
+import { TimedTask, blockColors, formatClock, timeline, validMinutes } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
 
 /**
@@ -79,12 +79,24 @@ export class Focus {
     for (const block of this.plan().blocks) blockColors(block.tasks).forEach((color, i) => map.set(block.tasks[i].id, color));
     return map;
   });
-  private readonly position = computed(() => nowPosition(this.plan(), this.store.nowMinutes()));
+  /**
+   * The task to focus on: the one running now (start ≤ now < end); in a gap between tasks or before the day starts,
+   * the next one to start; a task without a start time only when nothing timed is left and it is not done yet.
+   */
   protected readonly current = computed<TimedTask | null>(() => {
-    const id = this.position()?.taskId;
-    return this.items().find((item) => item.task.id === id) ?? this.items().find((item) => !this.store.isDone(item.task.id)) ?? null;
+    const now = this.store.nowMinutes();
+    const items = this.items();
+    return items.find((item) => item.start !== null && item.end !== null && item.start <= now && now < item.end)
+      ?? items.find((item) => item.start !== null && item.start > now)
+      ?? items.find((item) => item.start === null && !this.store.isDone(item.task.id))
+      ?? null;
   });
-  protected readonly fraction = computed(() => (this.current()?.task.id === this.position()?.taskId ? this.position()?.fraction ?? 0 : 0));
+  /** The share of the running task already gone (0 for a task still to come). */
+  protected readonly fraction = computed(() => {
+    const item = this.current();
+    if (!item || item.start === null || item.end === null || item.end <= item.start) return 0;
+    return Math.min(1, Math.max(0, (this.store.nowMinutes() - item.start) / (item.end - item.start)));
+  });
   protected readonly activeCount = computed(() => this.items().length);
   protected readonly doneCount = computed(() => this.items().filter((item) => item.task.id in this.store.done()).length);
   protected readonly allDone = computed(() => this.activeCount() > 0 && this.doneCount() === this.activeCount());
