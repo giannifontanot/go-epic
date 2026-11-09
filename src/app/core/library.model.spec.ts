@@ -130,7 +130,7 @@ describe('library model', () => {
     expect(followDay(blocks, new Set(), after)).toBeNull();                  // unknown before: untouched
   });
 
-  it('renames Epics and Features of an earlier template instead of duplicating them (and keeps their Stories and Beats)', () => {
+  it('renames Epics and Features of an earlier template instead of duplicating them (and keeps their Stories and Activities)', () => {
     let i = 0;
     const id = () => `o${i++}`;
     // The library as the first template left it: the same tree, Features under their old names.
@@ -141,7 +141,7 @@ describe('library model', () => {
     expect(renames.filter((r) => r.kind === 'feature').length).toBe(13);
     expect(renames.find((r) => r.from === 'Presupuesto y ahorro')?.title).toBe('Manejo un presupuesto y tengo ahorros');
     expect(renames.find((r) => r.from === 'Finanzas Sanas')?.title).toBe('Administro con sabiduría');
-    expect(add).toEqual([]);                                                // Stories and Beats are found under the renamed Features
+    expect(add).toEqual([]);                                                // Stories and Activities are found under the renamed Features
     const after = before.map((x) => { const r = renames.find((y) => y.id === x.id); return r ? { ...x, title: r.title } : x; });
     expect(planTemplateChanges(after, STARTER_TEMPLATE, id)).toEqual({ renames: [], add: [] });
   });
