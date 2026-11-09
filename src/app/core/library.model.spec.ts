@@ -108,7 +108,7 @@ describe('library model', () => {
     const mine = [n('t', 'area', null, ' el templo ')];                      // an area made by hand, other spacing/case
     const plan = planTemplate(mine, STARTER_TEMPLATE, id);
     expect(plan.some((x) => x.kind === 'area' && x.title === 'El Templo')).toBe(false);
-    expect(plan.filter((x) => x.parentId === 't').map((x) => x.title)).toEqual(['Cuerpo Fuerte', 'Fe Viva', 'Finanzas Sanas']);
+    expect(plan.filter((x) => x.parentId === 't').map((x) => x.title)).toEqual(['Soy fuerte y saludable', 'Camino con Dios', 'Administro con sabiduría']);
   });
 
   it('Capture: the inbox is Free Space tasks, newest first; stories are offered by their place', () => {
