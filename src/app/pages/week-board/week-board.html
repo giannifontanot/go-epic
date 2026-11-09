@@ -1,0 +1,108 @@
+<section class="board" [class.locked]="!arranging()">
+  <header class="board-top">
+    <h1>{{ i18n.t('nav.week') }}</h1>
+    <button type="button" class="chip quiet" [class.on]="arranging()" (click)="toggleArrange()">
+      {{ arranging() ? '✓ ' + i18n.t('week.finish') : '✎ ' + i18n.t('week.arrange') }}</button>
+  </header>
+
+  <nav class="day-tabs" role="tablist">
+    @for (day of days; track day) {
+      <button type="button" role="tab" [attr.aria-selected]="day === mobileDay()" [class.today]="day === store.today()"
+              (click)="mobileDay.set(day)">{{ i18n.t('dayShort.' + day) }}</button>
+    }
+  </nav>
+
+  @if (!store.loaded()) { <p class="muted">{{ i18n.t('loading') }}</p> }
+
+  <div class="week">
+    @for (day of days; track day) {
+      <article class="day" [class.mobile-on]="day === mobileDay()" [class.today]="day === store.today()" [class.empty]="!blocks(day).length">
+        <header class="day-head">
+          <h2>{{ i18n.t('day.' + day) }}</h2>
+          @if (arranging()) {
+            <button type="button" class="round" [attr.aria-label]="i18n.t('week.addBlock')" [title]="i18n.t('week.addBlock')" (click)="addBlock(day)">+</button>
+          }
+        </header>
+
+        @for (block of blocks(day); track block.id; let bi = $index, bfirst = $first, blast = $last) {
+          @let tones = colors(block);
+          <section class="block" [class.over]="isOver(block)">
+            <div class="block-head">
+              @if (arranging()) {
+                <input class="block-name" type="text" [value]="block.name" [attr.aria-label]="i18n.t('week.blockName')"
+                       (change)="renameBlock(day, block, $any($event.target).value)" (keydown.enter)="$any($event.target).blur()" />
+              } @else {
+                <h3 class="block-name">{{ block.name }}</h3>
+              }
+              <span class="free">{{ freeLabel(block) }}</span>
+            </div>
+
+            @if (arranging()) {
+              <div class="block-window">
+                <label>{{ i18n.t('week.start') }}
+                  <input #winStart type="time" step="60" [value]="block.start ?? ''" (change)="setWindow(day, block, winStart.value, winEnd.value)" /></label>
+                <label>{{ i18n.t('week.end') }}
+                  <input #winEnd type="time" step="60" [value]="block.end ?? ''" (change)="setWindow(day, block, winStart.value, winEnd.value)" /></label>
+              </div>
+              @if (windowErrors()[block.id]) { <p class="window-error">{{ windowErrors()[block.id] }}</p> }
+              <div class="block-tools">
+                <button type="button" class="round" [disabled]="bfirst" [attr.aria-label]="i18n.t('week.blockUp')" [title]="i18n.t('week.blockUp')" (click)="moveBlock(day, bi, -1)">▲</button>
+                <button type="button" class="round" [disabled]="blast" [attr.aria-label]="i18n.t('week.blockDown')" [title]="i18n.t('week.blockDown')" (click)="moveBlock(day, bi, 1)">▼</button>
+                <button type="button" class="round" [attr.aria-label]="i18n.t('week.transfer')" [title]="i18n.t('week.transfer')" (click)="openTransfer(day, block)">⇄</button>
+                <button type="button" class="round" [disabled]="!canAddTo(block)" [attr.aria-label]="i18n.t('week.addTask')" [title]="i18n.t('week.addTask')" (click)="addTask(day, block)">+</button>
+                <button type="button" class="round danger" [attr.aria-label]="i18n.t('week.deleteBlock')" [title]="i18n.t('week.deleteBlock')" (click)="deleteBlock(day, block)">🗑</button>
+              </div>
+            } @else if (summary(block)) {
+              <p class="summary">{{ summary(block) }}</p>
+            }
+
+            <ul class="tasks">
+              @for (task of block.tasks; track task.id; let ti = $index, tfirst = $first, tlast = $last) {
+                <li class="task" [style.--tone]="tones[ti]" [style.--mins]="task.minutes" [class.done]="isDone(day, task)" [class.off]="!task.active"
+                    (click)="openTask(day, block, task)">
+                  <div class="task-row">
+                    <span class="t-time">{{ startLabel(block, ti) }}</span>
+                    <span class="t-title" [title]="task.title">{{ task.title || i18n.t('week.newTask') }}</span>
+                    @if (arranging()) {
+                      <span class="t-tools">
+                        <button type="button" class="round" [attr.aria-label]="i18n.t('week.taskActions') + ': ' + task.title" [title]="i18n.t('week.taskActions')"
+                                (click)="$event.stopPropagation(); openTask(day, block, task)">•••</button>
+                        <button type="button" class="round" [attr.aria-label]="i18n.t('week.deleteTask') + ': ' + task.title" [title]="i18n.t('week.deleteTask')"
+                                (click)="$event.stopPropagation(); deleteTask(day, block, task)">×</button>
+                        <button type="button" class="round" [disabled]="tfirst" [attr.aria-label]="i18n.t('week.taskUp')" [title]="i18n.t('week.taskUp')"
+                                (click)="$event.stopPropagation(); moveTask(day, block, ti, -1)">▲</button>
+                        <button type="button" class="round" [disabled]="tlast" [attr.aria-label]="i18n.t('week.taskDown')" [title]="i18n.t('week.taskDown')"
+                                (click)="$event.stopPropagation(); moveTask(day, block, ti, 1)">▼</button>
+                      </span>
+                    }
+                  </div>
+                  <span class="t-dur">{{ durationLabel(task.minutes) }}</span>
+                  @if (day === store.today() && now()?.taskId === task.id) {
+                    <span class="now-line" [style.top.%]="now()!.fraction * 100" aria-hidden="true"><span class="now-badge">{{ nowLabel() }}</span></span>
+                  }
+                </li>
+              }
+            </ul>
+
+            @if (arranging()) {
+              <input #quick class="quick-add" type="text" [placeholder]="i18n.t('week.quickAdd')" [attr.aria-label]="i18n.t('week.quickAdd')"
+                     [disabled]="!canAddTo(block)" (keydown.enter)="quickAdd(day, block, quick)" />
+            }
+          </section>
+        }
+
+        @if (!blocks(day).length) { <p class="muted center">{{ i18n.t('week.empty') }}</p> }
+        @if (arranging()) {
+          <button type="button" class="add-block" (click)="addBlock(day)">+ {{ i18n.t('week.addBlock') }}</button>
+        }
+      </article>
+    }
+  </div>
+</section>
+
+@if (editing(); as edit) {
+  <app-task-dialog [edit]="edit" [week]="store.week()" (save)="saveTask($event)" (cancel)="cancelTask()" (remove)="removeEditing()" />
+}
+@if (transferring(); as tr) {
+  <app-transfer-dialog [day]="tr.day" [blockName]="tr.block.name" (apply)="applyTransfer($event)" (cancel)="transferring.set(null)" />
+}
