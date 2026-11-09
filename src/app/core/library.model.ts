@@ -226,5 +226,15 @@ export function rebaseLibrary(base: LibNode[], mine: LibNode[], theirs: LibNode[
   for (const node of theirs) {
     if (!mineIds.has(node.id) && !baseById.has(node.id)) out.push(node);   // added elsewhere
   }
+  // A container the draft deleted while it was empty stays when something was filed in it elsewhere meanwhile
+  // (only empty containers can go): never leave those children without their parent.
+  for (let changed = true; changed;) {
+    changed = false;
+    const ids = new Set(out.map((n) => n.id));
+    for (const node of out) {
+      const parent = node.parentId && !ids.has(node.parentId) ? theirsById.get(node.parentId) : undefined;
+      if (parent && baseById.has(parent.id)) { out.push(parent); changed = true; break; }
+    }
+  }
   return sanitizeLibrary({ nodes: out }).nodes;
 }

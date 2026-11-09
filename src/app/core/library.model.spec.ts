@@ -65,4 +65,14 @@ describe('library model', () => {
     expect(byId.has('free')).toBe(false);                                // my delete
     expect(rebaseLibrary(base, base, base.filter((x) => x.id !== 'free')).some((x) => x.id === 'free')).toBe(false);   // their delete
   });
+
+  it('keeps a container the draft deleted when something was filed in it elsewhere', () => {
+    const base = [n('a', 'area', null), n('b', 'area', null)];
+    const mine = [n('b', 'area', null)];                                  // the draft deletes the empty area "a"
+    const theirs = [...base, n('e', 'epic', 'a')];                        // another tab adds an epic to it
+    const merged = rebaseLibrary(base, mine, theirs);
+    expect(merged.find((x) => x.id === 'e')?.parentId).toBe('a');
+    expect(merged.some((x) => x.id === 'a')).toBe(true);
+    expect(rebaseLibrary(base, mine, base).some((x) => x.id === 'a')).toBe(false);   // still empty: deleted
+  });
 });
