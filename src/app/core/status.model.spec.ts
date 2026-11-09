@@ -1,4 +1,4 @@
-import { DayMarks, Status, applyStatus, habits, isFinished, statusOf, statusPatch, streakOf } from './status.model';
+import { DayMarks, Status, applyStatus, habits, isFinished, statusOf, statusPatch, streakInfo, streakOf } from './status.model';
 import { Task, Week, emptyWeek } from './week.model';
 
 const task = (id: string, title = id, extra: Partial<Task> = {}): Task => ({ id, title, minutes: 10, color: null, active: true, ref: null, ...extra });
@@ -54,5 +54,25 @@ describe('streaks', () => {
     const [later] = habits(week, { '2026-11-02': { done: { m: 1 } } }, new Date(2026, 10, 16), 15);
     expect(later.days[0].result).toBe('done');                               // 11-02, first mark
     expect(later.days[7].result).toBe('missed');                             // 11-09, after it: a real miss
+  });
+
+  it('reads a longer history than it draws: the real streak and the first mark', () => {
+    const week: Week = emptyWeek();
+    for (const day of ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'] as const) {
+      week[day] = { blocks: [{ id: day, name: day, start: null, end: null, tasks: [task('t-' + day, 'Pray', { ref: 'lib-pray' })] }] };
+    }
+    const today = new Date(2026, 10, 9);
+    const marks: Record<string, DayMarks> = {};
+    for (let i = 1; i <= 30; i++) {                                         // done the 30 days before today
+      const d = new Date(2026, 10, 9 - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const day = (['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'] as const)[d.getDay()];
+      marks[key] = { done: { ['t-' + day]: 1 } };
+    }
+    const [pray] = habits(week, marks, today, 14, 90);
+    expect(pray.days.length).toBe(14);
+    expect(pray.streak).toBe(30);
+    expect(pray.streakCapped).toBe(false);
+    expect(streakInfo(['done', 'done'])).toEqual({ streak: 2, capped: true });
   });
 });

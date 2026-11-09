@@ -2,7 +2,7 @@ import { Component, DestroyRef, ElementRef, HostListener, computed, effect, inje
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { AuthService } from '../../core/auth.service';
-import { Kind, LibNode, PARENT_KIND, STARTER_TEMPLATE, emptyLibrary, planTemplate, rebaseLibrary } from '../../core/library.model';
+import { Kind, LibNode, PARENT_KIND, STARTER_TEMPLATE, emptyLibrary, followDay, planTemplate, rebaseLibrary } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
 import { COLOR_CHOICES, DAYS } from '../../core/week.model';
 import { WeekStore, WeekWrite } from '../../core/week.store';
@@ -137,22 +137,10 @@ export class Canvas {
   /** The week follows the library: a renamed or recoloured task changes in every block, a deleted one leaves the week. */
   private syncWeek(before: Map<string, LibNode>, after: Map<string, LibNode>): WeekWrite[] {
     const writes: WeekWrite[] = [];
+    const ids = new Set(before.keys());
     for (const day of DAYS) {
-      const blocks = this.week.week()[day].blocks;
-      let changed = false;
-      const next = blocks
-        .map((block) => ({
-          ...block,
-          tasks: block.tasks.flatMap((task) => {
-            if (!task.ref || !before.has(task.ref)) return [task];
-            const node = after.get(task.ref);
-            if (!node) { changed = true; return []; }
-            if (node.title !== task.title || node.color !== task.color) { changed = true; return [{ ...task, title: node.title, color: node.color }]; }
-            return [task];
-          }),
-        }))
-        .filter((block) => block.tasks.length > 0);
-      const write = changed ? this.week.stage(day, next) : null;
+      const next = followDay(this.week.week()[day].blocks, ids, after);
+      const write = next ? this.week.stage(day, next) : null;
       if (write) writes.push(write);
     }
     return writes;
@@ -226,9 +214,14 @@ export class Canvas {
     if (d) openDialog(d);
   }
   closeTemplate(): void { void closeDialog(this.templateDialog()?.nativeElement); }
+  /** True from the Add press until the window has closed: a double click adds the template only once. */
+  applyingTemplate = false;
   applyTemplate(): void {
-    const nodes = planTemplate(this.state.nodes, STARTER_TEMPLATE);
+    if (this.applyingTemplate) return;
+    this.applyingTemplate = true;
     void closeDialog(this.templateDialog()?.nativeElement).then(() => {
+      this.applyingTemplate = false;
+      const nodes = planTemplate(this.state.nodes, STARTER_TEMPLATE);   // planned now, against the current draft
       if (!nodes.length) return;
       this.mutate(() => this.state.addNodes(nodes));
       this.areaFilter = '';

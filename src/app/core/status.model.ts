@@ -69,6 +69,8 @@ export interface Habit {
   days: { date: string; result: DayResult }[];
   /** Days in a row it was finished (done or late), counting back from today; skipped days pause it, missed ones end it. */
   streak: number;
+  /** The streak reaches the oldest day read: it may go back further ("n+ days"). */
+  streakCapped: boolean;
 }
 
 const habitKey = (task: Task): string => task.ref || 'title:' + task.title.trim().toLowerCase();
@@ -79,7 +81,7 @@ const habitKey = (task: Task): string => task.ref || 'title:' + task.title.trim(
  * is used for past days too). A planned past day with nothing marked is missed (but only from the first day the habit
  * was ever marked on); today with nothing marked is pending.
  */
-export function habits(week: Week, marksByDate: Record<string, DayMarks>, today: Date, count = 14): Habit[] {
+export function habits(week: Week, marksByDate: Record<string, DayMarks>, today: Date, count = 14, history = count): Habit[] {
   const byKey = new Map<string, { title: string; ids: Record<Day, string[]> }>();
   for (const day of DAYS) {
     for (const block of week[day].blocks) {
@@ -93,7 +95,8 @@ export function habits(week: Week, marksByDate: Record<string, DayMarks>, today:
     }
   }
   const dates: Date[] = [];
-  for (let i = count - 1; i >= 0; i--) dates.push(new Date(today.getFullYear(), today.getMonth(), today.getDate() - i));
+  const span = Math.max(count, history);                                // the streak and the first mark read the whole history
+  for (let i = span - 1; i >= 0; i--) dates.push(new Date(today.getFullYear(), today.getMonth(), today.getDate() - i));
   const todayKey = dateKey(today);
   const out: Habit[] = [];
   for (const [key, { title, ids }] of byKey) {
@@ -113,19 +116,26 @@ export function habits(week: Week, marksByDate: Record<string, DayMarks>, today:
     // so a task added today does not show a week of misses.
     const first = days.findIndex((d) => d.result !== 'none' && d.result !== 'missed' && d.result !== 'pending');
     for (let i = 0; i < (first < 0 ? days.length : first); i++) if (days[i].result === 'missed') days[i] = { ...days[i], result: 'none' };
-    out.push({ key, title, days, streak: streakOf(days.map((d) => d.result)) });
+    const { streak, capped } = streakInfo(days.map((d) => d.result));
+    // Only when the habit was already being marked on the oldest day read can the streak go back further.
+    out.push({ key, title, days: days.slice(-count), streak, streakCapped: capped && first === 0 });
   }
   return out.sort((a, b) => b.streak - a.streak || a.title.localeCompare(b.title));
 }
 
 /** Counted back from the last day: finished days add one, unplanned/skipped days (and today still open) are passed over. */
 export function streakOf(results: DayResult[]): number {
+  return streakInfo(results).streak;
+}
+
+/** The streak, and whether counting it ran into the oldest day given (nothing ended it). */
+export function streakInfo(results: DayResult[]): { streak: number; capped: boolean } {
   let streak = 0;
   for (let i = results.length - 1; i >= 0; i--) {
     const r = results[i];
     if (r === 'done' || r === 'late') streak++;
     else if (r === 'none' || r === 'skipped' || (i === results.length - 1 && (r === 'pending' || r === 'progress'))) continue;
-    else break;
+    else return { streak, capped: false };
   }
-  return streak;
+  return { streak, capped: streak > 0 };
 }

@@ -2,8 +2,8 @@ import { Component, ElementRef, effect, inject, signal, viewChild } from '@angul
 import { SwUpdate } from '@angular/service-worker';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/auth.service';
-import { CaptureStore } from './core/capture.store';
 import { CapturePanel } from './pages/capture/capture-panel';
+import { CaptureUi } from './pages/capture/capture-ui';
 import { closeDialog, isBackdropClick, openDialog } from './core/dialog';
 import { I18n } from './core/i18n';
 import { LibraryStore } from './core/library.store';
@@ -63,7 +63,7 @@ export class App {
   protected readonly i18n = inject(I18n);
   protected readonly store = inject(WeekStore);
   protected readonly library = inject(LibraryStore);
-  private readonly capture = inject(CaptureStore);
+  private readonly capture = inject(CaptureUi);
   private readonly router = inject(Router);
   /** The installed app (service worker) has downloaded a newer version: offer to switch to it. */
   protected readonly updateReady = signal(false);

@@ -4,7 +4,7 @@
  * The Week board schedules library tasks: a week task points to one with `ref`.
  * Pure functions only, so the rules are easy to test.
  */
-import { newId } from './week.model';
+import { Block, newId } from './week.model';
 
 export const newNodeId = newId;
 
@@ -285,4 +285,39 @@ export function planTemplate(nodes: LibNode[], template: TemplateArea[], makeId:
     }
   }
   return out;
+}
+
+/**
+ * A day's blocks after a library change: cards of a library task that changed take its title and colour, cards of
+ * one that was deleted leave (an emptied block goes). `before` = the task ids the library had before the change.
+ * Returns null when nothing in the day changes.
+ */
+export function followDay(blocks: Block[], before: Set<string>, after: Map<string, LibNode>): Block[] | null {
+  let changed = false;
+  const next = blocks
+    .map((block) => ({
+      ...block,
+      tasks: block.tasks.flatMap((task) => {
+        if (!task.ref || !before.has(task.ref)) return [task];
+        const node = after.get(task.ref);
+        if (!node) { changed = true; return []; }
+        if (node.title !== task.title || node.color !== task.color) { changed = true; return [{ ...task, title: node.title, color: node.color }]; }
+        return [task];
+      }),
+    }))
+    .filter((block) => block.tasks.length > 0);
+  return changed ? next : null;
+}
+
+/** Every story with its place ("Area › Epic › Feature › Story"), sorted, for filing a task. */
+export function storyOptions(lib: Library): { node: LibNode; place: string }[] {
+  return lib.nodes
+    .filter((n) => n.kind === 'story')
+    .map((node) => ({ node, place: pathOf(lib, node.id).map((n) => n.title).join(' › ') }))
+    .sort((a, b) => a.place.localeCompare(b.place));
+}
+
+/** The tasks waiting in Free Space (no story yet), newest first: what Capture shows. */
+export function inboxTasks(lib: Library): LibNode[] {
+  return lib.nodes.filter((n) => n.kind === 'task' && n.parentId === null).reverse();
 }

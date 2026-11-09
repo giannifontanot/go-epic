@@ -1,53 +1,59 @@
 import { Component, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
-import { CaptureStore } from '../../core/capture.store';
-import { Note, newNote, removeNote, sortNotes, updateNote } from '../../core/capture.model';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
-import { addNode, newNodeId } from '../../core/library.model';
+import { LibNode, addNode, inboxTasks, moveNode, newNodeId, nodeById, removeNode, storyOptions, updateNode } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
+import { DAYS } from '../../core/week.model';
+import { WeekStore } from '../../core/week.store';
+import { CaptureUi } from './capture-ui';
 
 /**
- * Capture, as in Epic Manager: a floating ✎ (and the menu's Capture) opens a panel for quick notes. Enter adds a note;
- * each one can be ticked, starred ⭐, edited (tap its text), deleted, or sent "→ Task" to the Floating Canvas's Free
- * Space. Opens and closes smoothly from the point pressed (core/dialog).
+ * Capture = the quick way into Free Space (GTD: one inbox). The floating ✎ (or the menu's Capture) opens the panel
+ * with the cursor in the box: type and press Enter, as many times as you like. Every idea is a task in the Floating
+ * Canvas's Free Space (no story yet). The panel lists those tasks, newest first: edit (tap the text), file it in a
+ * story ("Where →", it then leaves the inbox), or delete it. The Week's "Existing task" picker also offers them.
  */
 @Component({
   selector: 'app-capture-panel',
   template: `
     <button type="button" class="capture-fab" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')"
-      (click)="store.open.set(true)">✎</button>
-    <dialog #panel class="capture-panel" aria-labelledby="capture-title" (click)="onBackdrop($event)" (close)="store.open.set(false)">
+      (click)="ui.open.set(true)">✎</button>
+    <dialog #panel class="capture-panel" aria-labelledby="capture-title" (click)="onBackdrop($event)" (close)="ui.open.set(false)">
       <header>
         <h2 id="capture-title">{{ i18n.t('capture.title') }}</h2>
         <button type="button" class="drawer-close" [attr.aria-label]="i18n.t('nav.close')" (click)="close()">×</button>
       </header>
       <form class="capture-add" (submit)="$event.preventDefault(); add(input)">
-        <input #input type="text" enterkeyhint="done" autocomplete="off" [placeholder]="i18n.t('capture.placeholder')"
-          [attr.aria-label]="i18n.t('capture.placeholder')" [disabled]="!store.ready()" />
-        <button type="submit" class="primary" [disabled]="!store.ready()">{{ i18n.t('capture.add') }}</button>
+        <input #input type="text" enterkeyhint="send" autocomplete="off" [placeholder]="i18n.t('capture.placeholder')"
+          [attr.aria-label]="i18n.t('capture.placeholder')" [disabled]="!library.ready()" />
+        <button type="submit" class="primary" [disabled]="!library.ready()">{{ i18n.t('capture.add') }}</button>
       </form>
-      @if (message()) { <p class="hint" role="status">{{ message() }}</p> }
-      @if (store.error()) { <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ store.error() }}</p> }
+      <p class="hint">{{ message() || i18n.t('capture.inboxHint') }}</p>
+      @if (library.error()) { <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ library.error() }}</p> }
       <ul class="capture-list">
-        @for (note of notes(); track note.id) {
-          <li [class.done]="note.done" [class.star]="note.star">
-            <button type="button" class="c-check" role="checkbox" [attr.aria-checked]="note.done"
-              [attr.aria-label]="i18n.t('capture.done')" (click)="change(note, { done: !note.done })">{{ note.done ? '✓' : '' }}</button>
-            @if (editing() === note.id) {
-              <input class="c-edit" type="text" [value]="note.text" [attr.aria-label]="i18n.t('capture.edit')"
-                (keydown.enter)="$event.preventDefault(); saveEdit(note, $any($event.target).value)" (keydown.escape)="$event.stopPropagation(); editing.set('')"
-                (blur)="saveEdit(note, $any($event.target).value)" />
+        @for (task of inbox(); track task.id) {
+          <li>
+            @if (editing() === task.id) {
+              <input class="c-edit" type="text" [value]="task.title" [attr.aria-label]="i18n.t('capture.edit')"
+                (keydown.enter)="$event.preventDefault(); saveEdit(task, $any($event.target).value)"
+                (keydown.escape)="$event.stopPropagation(); editing.set('')" (blur)="saveEdit(task, $any($event.target).value)" />
             } @else {
-              <button type="button" class="c-text" [attr.aria-label]="i18n.t('capture.edit') + ': ' + note.text" (click)="startEdit(note)">{{ note.text }}</button>
+              <button type="button" class="c-text" [attr.aria-label]="i18n.t('capture.edit') + ': ' + task.title" (click)="startEdit(task)">{{ task.title }}</button>
             }
-            <button type="button" class="c-icon" [attr.aria-pressed]="note.star" [attr.aria-label]="i18n.t('capture.star')" [title]="i18n.t('capture.star')"
-              (click)="change(note, { star: !note.star })">{{ note.star ? '★' : '☆' }}</button>
-            <button type="button" class="c-icon" [disabled]="!library.ready()" [attr.aria-label]="i18n.t('capture.toTask')" [title]="i18n.t('capture.toTask')"
-              (click)="toTask(note)">→</button>
-            <button type="button" class="c-icon" [attr.aria-label]="i18n.t('capture.delete')" [title]="i18n.t('capture.delete')" (click)="remove(note)">×</button>
+            @if (filing() === task.id) {
+              <select class="c-where" [attr.aria-label]="i18n.t('capture.where')" (change)="file(task, $any($event.target).value)" (blur)="filing.set('')">
+                <option value="" selected>{{ stories().length ? i18n.t('canvas.choose') : i18n.t('capture.noStories') }}</option>
+                @for (s of stories(); track s.node.id) { <option [value]="s.node.id">{{ s.place }}</option> }
+              </select>
+            } @else {
+              <button type="button" class="c-icon c-file" [disabled]="!library.ready()" [attr.aria-label]="i18n.t('capture.where')" [title]="i18n.t('capture.where')"
+                (click)="startFiling(task)">{{ i18n.t('capture.whereShort') }}</button>
+            }
+            <button type="button" class="c-icon" [disabled]="!library.ready()" [attr.aria-label]="i18n.t('capture.delete')" [title]="i18n.t('capture.delete')"
+              (click)="remove(task)">×</button>
           </li>
         } @empty {
-          <li class="c-empty">{{ i18n.t(store.ready() ? 'capture.empty' : 'loading') }}</li>
+          <li class="c-empty">{{ i18n.t(library.ready() ? 'capture.empty' : 'loading') }}</li>
         }
       </ul>
     </dialog>
@@ -55,19 +61,23 @@ import { LibraryStore } from '../../core/library.store';
 })
 export class CapturePanel {
   protected readonly i18n = inject(I18n);
-  protected readonly store = inject(CaptureStore);
+  protected readonly ui = inject(CaptureUi);
   protected readonly library = inject(LibraryStore);
+  private readonly week = inject(WeekStore);
   private readonly panel = viewChild.required<ElementRef<HTMLDialogElement>>('panel');
   private readonly input = viewChild.required<ElementRef<HTMLInputElement>>('input');
 
-  protected readonly notes = computed(() => sortNotes(this.store.notes()));
+  protected readonly inbox = computed(() => inboxTasks(this.library.library()));
+  protected readonly stories = computed(() => storyOptions(this.library.library()));
   protected readonly editing = signal('');
+  protected readonly filing = signal('');
   protected readonly message = signal('');
 
   constructor() {
-    // The store says open / closed (the ✎ and the menu both set it); the dialog follows, growing from the press point.
+    // Open / closed follows the shared flag (the ✎ and the menu both set it); the dialog grows from the press point
+    // and the cursor goes straight to the box, so writing an idea is one tap away.
     effect(() => {
-      const open = this.store.open();
+      const open = this.ui.open();
       untracked(() => {
         const d = this.panel().nativeElement;
         if (open && !d.open) {
@@ -82,44 +92,56 @@ export class CapturePanel {
   }
 
   protected close(): void {
-    this.store.open.set(false);
+    this.ui.open.set(false);
   }
 
   protected onBackdrop(event: MouseEvent): void {
     if (isBackdropClick(event, this.panel().nativeElement)) this.close();
   }
 
+  /** Enter: a new task in Free Space; the box empties and keeps the cursor for the next idea. */
   protected add(input: HTMLInputElement): void {
-    const note = newNote(input.value, Date.now());
-    if (!note || !this.store.update((notes) => [note, ...notes])) return;
+    const title = input.value.trim();
+    if (!title) return;
+    const added = this.library.update((lib) => addNode(lib, { id: newNodeId(), kind: 'task', title, parentId: null, color: null }));
+    if (!added) return;
     input.value = '';
     this.message.set('');
+    input.focus();
   }
 
-  protected change(note: Note, change: Partial<Pick<Note, 'done' | 'star'>>): void {
-    this.store.update((notes) => updateNote(notes, note.id, change));
-  }
-
-  protected startEdit(note: Note): void {
-    this.editing.set(note.id);
+  protected startEdit(task: LibNode): void {
+    this.editing.set(task.id);
     queueMicrotask(() => this.panel().nativeElement.querySelector<HTMLInputElement>('.c-edit')?.focus());
   }
 
-  protected saveEdit(note: Note, text: string): void {
-    if (this.editing() !== note.id) return;
+  /** A rename also renames its cards in the week (same batch). */
+  protected saveEdit(task: LibNode, text: string): void {
+    if (this.editing() !== task.id) return;
     this.editing.set('');
-    if (text.trim() && text.trim() !== note.text) this.store.update((notes) => updateNote(notes, note.id, { text }));
+    const title = text.trim();
+    if (title && title !== task.title) this.library.updateWithWeek((lib) => updateNode(lib, task.id, { title }));
   }
 
-  protected remove(note: Note): void {
-    this.store.update((notes) => removeNote(notes, note.id));
+  protected startFiling(task: LibNode): void {
+    this.filing.set(task.id);
+    queueMicrotask(() => this.panel().nativeElement.querySelector<HTMLSelectElement>('.c-where')?.focus());
   }
 
-  /** The note becomes a task waiting in the Floating Canvas's Free Space, and leaves the list. */
-  protected toTask(note: Note): void {
-    const sent = this.library.update((lib) => addNode(lib, { id: newNodeId(), kind: 'task', title: note.text, parentId: null, color: null }));
-    if (!sent) return;
-    this.store.update((notes) => removeNote(notes, note.id));
-    this.message.set(this.i18n.t('capture.sent', { task: note.text }));
+  /** "Where →": the task moves into a story (it leaves the inbox; the Canvas shows it there). */
+  protected file(task: LibNode, storyId: string): void {
+    this.filing.set('');
+    if (!storyId) return;
+    if (!this.library.update((lib) => moveNode(lib, task.id, storyId))) return;
+    const place = this.stories().find((s) => s.node.id === storyId)?.place ?? '';
+    this.message.set(this.i18n.t('capture.filed', { task: task.title, place }));
+  }
+
+  /** Delete: a task already planned in the week asks first, and its cards leave the week with it (same batch). */
+  protected remove(task: LibNode): void {
+    const places = DAYS.reduce((n, day) => n + this.week.week()[day].blocks.reduce((m, b) => m + b.tasks.filter((t) => t.ref === task.id).length, 0), 0);
+    if (places && !confirm(this.i18n.t('canvas.confirmDeleteTask', { n: places }))) return;
+    if (!nodeById(this.library.library(), task.id)) return;
+    this.library.updateWithWeek((lib) => removeNode(lib, task.id));
   }
 }

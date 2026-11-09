@@ -188,7 +188,7 @@
     <p class="hint">{{ i18n.t('template.draft') }}</p>
     <footer>
       <button type="button" (click)="closeTemplate()">{{ i18n.t('task.cancel') }}</button>
-      <button type="button" class="primary" [disabled]="!missing" (click)="applyTemplate()">
+      <button type="button" class="primary" [disabled]="!missing || applyingTemplate" (click)="applyTemplate()">
         {{ missing ? i18n.t('template.add', { n: missing }) : i18n.t('template.nothing') }}</button>
     </footer>
   }

@@ -268,13 +268,13 @@ dialog.capture-panel h2 { margin: 0; font-size: 22px; }
 .capture-add { display: flex; gap: 8px; margin-bottom: 10px; }
 .capture-add input, .c-edit { flex: 1; min-width: 0; min-height: 44px; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px; background: var(--page); color: var(--ink); font-size: 16px; }
 .capture-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.capture-list li { display: flex; align-items: center; gap: 4px; padding: 4px; border-radius: 14px; background: rgba(255, 255, 255, .06); }
-.capture-list li.star { background: rgba(245, 201, 69, .16); }
-.capture-list li.done .c-text { text-decoration: line-through; opacity: .55; }
-.c-check { flex: none; width: 40px; height: 40px; border: 2px solid rgba(255, 255, 255, .35); border-radius: 50%; background: transparent; color: var(--teal); font-weight: 900; }
+.capture-list li { display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 10px; border-radius: 14px; background: rgba(255, 255, 255, .06); }
 .c-text { flex: 1; min-width: 0; min-height: 40px; border: 0; background: transparent; color: var(--ink); font-size: 15px; text-align: left; overflow-wrap: anywhere; }
 .c-icon { flex: none; width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent; color: var(--ink-soft); font-size: 18px; }
 .c-icon:hover:not(:disabled) { background: rgba(255, 255, 255, .1); color: var(--ink); }
+.c-file { width: auto; padding: 0 10px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.c-where { flex: 0 1 55%; min-width: 0; min-height: 40px; padding: 6px 8px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px; background: var(--page); color: var(--ink); font-size: 16px; }
+.c-where option { color: var(--card-ink); background: var(--ink); }
 .c-empty { justify-content: center; padding: 16px !important; color: var(--ink-soft); }
 
 /* Progress: one row per habit, its streak and the last 14 days as dots */

@@ -1,5 +1,5 @@
 import {
-  LibNode, Library, STARTER_TEMPLATE, canParent, planTemplate, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, tasksWithin, twinTask,
+  LibNode, Library, STARTER_TEMPLATE, canParent, followDay, inboxTasks, planTemplate, storyOptions, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, tasksWithin, twinTask,
 } from './library.model';
 
 const n = (id: string, kind: LibNode['kind'], parentId: string | null, title = id): LibNode => ({ id, kind, title, parentId, color: null });
@@ -107,5 +107,24 @@ describe('library model', () => {
     const plan = planTemplate(mine, STARTER_TEMPLATE, id);
     expect(plan.some((x) => x.kind === 'area' && x.title === 'El Templo')).toBe(false);
     expect(plan.filter((x) => x.parentId === 't').map((x) => x.title)).toEqual(['Cuerpo Fuerte', 'Fe Viva', 'Finanzas Sanas']);
+  });
+
+  it('Capture: the inbox is Free Space tasks, newest first; stories are offered by their place', () => {
+    const library: Library = { nodes: [...lib().nodes, n('new', 'task', null, 'Call mom'), n('box', 'story', null, 'Loose story')] };
+    expect(inboxTasks(library).map((x) => x.id)).toEqual(['new', 'free']);
+    expect(storyOptions(library).map((x) => x.place)).toEqual(['Health › Temple › Body › Exercise', 'Loose story']);
+  });
+
+  it('the week follows a library change: renamed cards change, deleted ones leave with an emptied block', () => {
+    const card = (id: string, ref: string | null, title = id) => ({ id, title, minutes: 5, color: null, active: true, ref });
+    const blocks = [
+      { id: 'b1', name: 'B1', start: null, end: null, tasks: [card('c1', 't', 'Run'), card('c2', null)] },
+      { id: 'b2', name: 'B2', start: null, end: null, tasks: [card('c3', 'free', 'Read')] },
+    ];
+    const after = new Map([['t', { ...n('t', 'task', 's'), title: 'Run 5 km' }]]);
+    const next = followDay(blocks, new Set(['t', 'free']), after)!;
+    expect(next.map((b) => b.id)).toEqual(['b1']);
+    expect(next[0].tasks.map((t) => t.title)).toEqual(['Run 5 km', 'c2']);
+    expect(followDay(blocks, new Set(), after)).toBeNull();                  // unknown before: untouched
   });
 });
