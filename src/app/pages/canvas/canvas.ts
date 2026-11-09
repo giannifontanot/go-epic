@@ -161,7 +161,12 @@ export class Canvas {
   restoreRejected(): void {
     const rejected = this.libraryStore.rejected();
     if (!rejected) return;
-    this.mutate(() => this.state.replace(rejected.nodes));
+    this.mutate(() => {
+      // Edited again after the refused save: the draft already holds those changes. Otherwise it was reloaded with
+      // the rolled-back library, so the refused nodes come back. Either way the saved copy is the rolled-back one.
+      if (!this.state.dirty) this.state.replace(rejected.nodes);
+      this.state.rebase(this.libraryStore.library().nodes);
+    });
     this.dismissRejected();
   }
   dismissRejected(): void {

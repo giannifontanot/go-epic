@@ -104,4 +104,16 @@ describe('CanvasState (Floating Canvas draft)', () => {
     state.undo();
     expect(state.node('extra')).toBeUndefined();
   });
+
+  it('stays dirty when the saved copy is rolled back under the draft', () => {
+    const rolledBack = structuredClone(state.saved);
+    state.create('task', 'Refused', null);
+    state.commit();                                                        // the save that the server will refuse
+    state.edit('task', 'Edited again');
+    state.rebase(rolledBack);
+    expect(state.dirty).toBe(true);
+    expect(state.nodes.some((x) => x.title === 'Refused')).toBe(true);
+    state.rebase(state.nodes);
+    expect(state.dirty).toBe(false);
+  });
 });

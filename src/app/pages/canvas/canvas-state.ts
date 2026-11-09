@@ -131,6 +131,12 @@ export class CanvasState {
     this.changed();
   }
 
+  /** A new saved copy under the draft (e.g. the server rolled a refused save back): the draft stays, its dirtiness follows. */
+  rebase(saved: LibNode[]): void {
+    this.saved = structuredClone(saved);
+    this.changed();
+  }
+
   group(action: () => void): void {
     if (this.grouping) { action(); return; }
     this.record();
