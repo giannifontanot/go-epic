@@ -37,7 +37,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'template.button': { en: 'Template', es: 'Plantilla' },
   'template.start': { en: 'Starter template', es: 'Plantilla inicial' },
   'template.title': { en: 'Starter template', es: 'Plantilla inicial' },
-  'template.intro': { en: 'Adds these Areas, Epics, Features (written as already lived), and in each Feature a first Story with one small Beat. What you already have (✓) is reused, never duplicated; a Feature under its old name is renamed (↻).', es: 'Agrega estas Áreas, Epics, Features (escritos como ya logrados), y en cada Feature una primera Story con un Beat pequeño. Lo que ya tienes (✓) se reutiliza, nunca se duplica; un Feature con su nombre anterior se renombra (↻).' },
+  'template.intro': { en: 'Adds these Areas, Epics (who you are), Features (written as already lived), and in each Feature a first Story with one small Beat. What you already have (✓) is reused, never duplicated; an Epic or Feature under its old name is renamed (↻).', es: 'Agrega estas Áreas, Epics (quién eres), Features (escritos como ya logrados), y en cada Feature una primera Story con un Beat pequeño. Lo que ya tienes (✓) se reutiliza, nunca se duplica; un Epic o Feature con su nombre anterior se renombra (↻).' },
   'template.complete': { en: 'You already have the whole template.', es: 'Ya tienes toda la plantilla.' },
   'template.draft': { en: 'It goes into the draft: review it, then Save (Undo removes it in one step).', es: 'Entra al borrador: revísalo y luego Guarda (Deshacer lo quita de un toque).' },
   'template.add': { en: 'Apply {n} changes to the draft', es: 'Aplicar {n} cambios al borrador' },

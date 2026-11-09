@@ -179,10 +179,11 @@
           <ul>
             @for (epic of area.epics; track epic.title) {
               <li><span [class.has]="templateHas('epic', epic.title)">{{ epic.title }}</span>
+                @if (templateRenamedFrom('epic', epic.title); as from) { <em class="renamed">↻ {{ i18n.t('template.was', { name: from }) }}</em> }
                 <ul class="template-features">
                   @for (f of epic.features; track f.title) {
                     <li><span [class.has]="templateHas('feature', f.title)">{{ f.title }}</span>
-                      @if (templateRenamedFrom(f.title); as from) { <em class="renamed">↻ {{ i18n.t('template.was', { name: from }) }}</em> }
+                      @if (templateRenamedFrom('feature', f.title); as from) { <em class="renamed">↻ {{ i18n.t('template.was', { name: from }) }}</em> }
                       <small>› <span [class.has]="templateHas('story', f.story)">{{ f.story }}</span> › <span [class.has]="templateHas('task', f.beat)">{{ f.beat }}</span></small></li>
                   }
                 </ul></li>

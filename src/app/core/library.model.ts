@@ -251,59 +251,68 @@ export function rebaseLibrary(base: LibNode[], mine: LibNode[], theirs: LibNode[
  * the template again renames those Features instead of adding twins.
  */
 export interface TemplateFeature { title: string; was: string[]; story: string; beat: string }
-export interface TemplateArea { area: string; epics: { title: string; features: TemplateFeature[] }[] }
+/** An Epic is who you are (identity, present tense, short enough for a tab); `was` = its earlier template names. */
+export interface TemplateEpic { title: string; was: string[]; features: TemplateFeature[] }
+export interface TemplateArea { area: string; epics: TemplateEpic[] }
 const f = (title: string, was: string, story: string, beat: string): TemplateFeature => ({ title, was: [was], story, beat });
 export const STARTER_TEMPLATE: TemplateArea[] = [
   { area: 'El Templo', epics: [
-    { title: 'Cuerpo Fuerte', features: [
+    { title: 'Soy fuerte y saludable', was: ['Cuerpo Fuerte'], features: [
       f('Me muevo cada día y como sano', 'Ejercicio y comida', 'Moverme cada día', 'Caminar 10 min'),
       f('Duermo bien y descanso', 'Descanso', 'Dormir bien', 'Apagar pantallas a las 10 pm')] },
-    { title: 'Fe Viva', features: [f('Oro y leo la Biblia cada día', 'Oración y Biblia', 'Leer la Biblia', 'Leer 1 versículo y orar 2 min')] },
-    { title: 'Finanzas Sanas', features: [f('Manejo un presupuesto y tengo ahorros', 'Presupuesto y ahorro', 'Revisar gastos', 'Revisar gastos 10 min')] },
+    { title: 'Camino con Dios', was: ['Fe Viva'], features: [f('Oro y leo la Biblia cada día', 'Oración y Biblia', 'Leer la Biblia', 'Leer 1 versículo y orar 2 min')] },
+    { title: 'Administro con sabiduría', was: ['Finanzas Sanas'], features: [f('Manejo un presupuesto y tengo ahorros', 'Presupuesto y ahorro', 'Revisar gastos', 'Revisar gastos 10 min')] },
   ] },
   { area: 'El Castillo', epics: [
-    { title: 'Hogar y Familia', features: [
+    { title: 'Mi hogar es paz', was: ['Hogar y Familia'], features: [
       f('Mantengo mi casa en orden', 'Casa', 'Casa en orden', 'Ordenar 10 min'),
       f('Comparto tiempo de calidad con mi familia', 'Tiempo juntos', 'Tiempo en familia', 'Cenar juntos sin teléfono')] },
-    { title: 'Amigos y Comunidad', features: [
+    { title: 'Construyo comunidad', was: ['Amigos y Comunidad'], features: [
       f('Cuido a mis amigos', 'Amistades', 'Cuidar amistades', 'Escribir a un amigo'),
       f('Sirvo a los demás', 'Servir a otros', 'Servir', 'Un acto de servicio')] },
   ] },
   { area: 'La Torre', epics: [
-    { title: 'Subir de Nivel', features: [
+    { title: 'Crezco en mi oficio', was: ['Subir de Nivel'], features: [
       f('Hago trabajo profundo y de calidad', 'Trabajo', 'Trabajo profundo', 'Bloque de trabajo profundo 50 min'),
       f('Aprendo algo nuevo cada semana', 'Aprender', 'Aprender algo nuevo', 'Estudiar 20 min')] },
   ] },
   { area: 'La Arena', epics: [
-    { title: 'Recargar Energía', features: [f('Disfruto y recargo energía', 'Diversión', 'Descansar y divertirme', 'Ver un episodio')] },
-    { title: 'Crear y Explorar', features: [
+    { title: 'Vivo con alegría', was: ['Recargar Energía'], features: [f('Disfruto y recargo energía', 'Diversión', 'Descansar y divertirme', 'Ver un episodio')] },
+    { title: 'Vivo con curiosidad', was: ['Crear y Explorar'], features: [
       f('Practico mis pasatiempos', 'Pasatiempos', 'Practicar un pasatiempo', 'Practicar 15 min'),
       f('Vivo aventuras y conozco lugares nuevos', 'Viajes y aventuras', 'Planear aventuras', 'Planear la próxima salida')] },
   ] },
 ];
 
-/** A template Feature found under an old name: it gets the template's current name. */
-export interface TemplateRename { id: string; from: string; title: string }
+/** A template Epic or Feature found under an old name: it gets the template's current name. */
+export interface TemplateRename { id: string; kind: 'epic' | 'feature'; from: string; title: string }
 
 const sameTitle = (a: string, b: string) => a.trim().toLowerCase() === b.trim().toLowerCase();
 
 /**
- * Features of an earlier template still under an old name (`was`), in their template Epic, with no Feature of the new
- * name next to them: they are renamed rather than duplicated.
+ * Epics and Features of an earlier template still under an old name (`was`), with none of the new name next to them:
+ * they are renamed rather than duplicated (Features are looked for in their Epic, under its new or old name).
  */
 export function templateRenames(nodes: LibNode[], template: TemplateArea[]): TemplateRename[] {
   const out: TemplateRename[] = [];
   for (const { area, epics } of template) {
     const areaNode = nodes.find((n) => n.kind === 'area' && n.parentId === null && sameTitle(n.title, area));
     if (!areaNode) continue;
+    const epicNodes = nodes.filter((n) => n.kind === 'epic' && n.parentId === areaNode.id);
     for (const epic of epics) {
-      const epicNode = nodes.find((n) => n.kind === 'epic' && n.parentId === areaNode.id && sameTitle(n.title, epic.title));
+      // The Epic under its current name, else under an earlier one (then it is renamed too).
+      let epicNode = epicNodes.find((n) => sameTitle(n.title, epic.title));
+      if (!epicNode) {
+        epicNode = epicNodes.find((n) => epic.was.some((w) => sameTitle(n.title, w)) && !out.some((r) => r.id === n.id));
+        if (epicNode) out.push({ id: epicNode.id, kind: 'epic', from: epicNode.title, title: epic.title });
+      }
       if (!epicNode) continue;
-      const features = nodes.filter((n) => n.kind === 'feature' && n.parentId === epicNode.id);
+      const parentId = epicNode.id;
+      const features = nodes.filter((n) => n.kind === 'feature' && n.parentId === parentId);
       for (const feature of epic.features) {
         if (features.some((n) => sameTitle(n.title, feature.title))) continue;
         const old = features.find((n) => feature.was.some((w) => sameTitle(n.title, w)) && !out.some((r) => r.id === n.id));
-        if (old) out.push({ id: old.id, from: old.title, title: feature.title });
+        if (old) out.push({ id: old.id, kind: 'feature', from: old.title, title: feature.title });
       }
     }
   }

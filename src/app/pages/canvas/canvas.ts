@@ -213,10 +213,12 @@ export class Canvas {
   /** True when this template node already exists under its current name (✓ in the preview). */
   templateHas(kind: Kind, title: string): boolean {
     const c = this.templateChanges;
-    return !c.add.some((n) => n.kind === kind && n.title === title) && !c.renames.some((r) => kind === 'feature' && r.title === title);
+    return !c.add.some((n) => n.kind === kind && n.title === title) && !c.renames.some((r) => r.kind === kind && r.title === title);
   }
-  /** The old name a Feature will be renamed from ("antes: …" in the preview), if any. */
-  templateRenamedFrom(title: string): string { return this.templateChanges.renames.find((r) => r.title === title)?.from ?? ''; }
+  /** The old name an Epic or Feature will be renamed from (↻ in the preview), if any. */
+  templateRenamedFrom(kind: 'epic' | 'feature', title: string): string {
+    return this.templateChanges.renames.find((r) => r.kind === kind && r.title === title)?.from ?? '';
+  }
   openTemplate(): void {
     const d = this.templateDialog()?.nativeElement;
     if (d) openDialog(d);
