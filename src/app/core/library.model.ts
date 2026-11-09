@@ -91,10 +91,10 @@ export function tasksUnder(lib: Library, id: string): LibNode[] {
   return descendants(lib, id).filter((child) => child.kind === 'task');
 }
 
-/** Whether `parentId` may hold a node of this kind (null = Free Space, or the top for an area). */
+/** Whether `parentId` may hold a node of this kind (null = Free Space, never for an epic; the top for an area). */
 export function canParent(lib: Library, kind: Kind, parentId: string | null): boolean {
   if (kind === 'area') return parentId === null;
-  if (parentId === null) return true;
+  if (parentId === null) return kind !== 'epic';                         // an epic always needs an area
   return nodeById(lib, parentId)?.kind === PARENT_KIND[kind];
 }
 
