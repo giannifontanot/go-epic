@@ -75,4 +75,12 @@ describe('library model', () => {
     expect(merged.some((x) => x.id === 'a')).toBe(true);
     expect(rebaseLibrary(base, mine, base).some((x) => x.id === 'a')).toBe(false);   // still empty: deleted
   });
+
+  it('keeps a container deleted elsewhere when the draft filed something in it', () => {
+    const base = [n('a', 'area', null)];
+    const mine = [...base, n('e', 'epic', 'a')];                          // the draft adds an epic to area "a"
+    const merged = rebaseLibrary(base, mine, []);                         // another tab deleted "a" (empty then)
+    expect(merged.find((x) => x.id === 'e')?.parentId).toBe('a');
+    expect(merged.some((x) => x.id === 'a')).toBe(true);
+  });
 });

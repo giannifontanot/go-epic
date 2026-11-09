@@ -223,17 +223,19 @@ export function rebaseLibrary(base: LibNode[], mine: LibNode[], theirs: LibNode[
     else out.push(same(node, was) ? now : node);                  // the draft's change wins, else theirs
   }
   const mineIds = new Set(mine.map((n) => n.id));
+  const mineById = new Map(mine.map((n) => [n.id, n]));
   for (const node of theirs) {
     if (!mineIds.has(node.id) && !baseById.has(node.id)) out.push(node);   // added elsewhere
   }
-  // A container the draft deleted while it was empty stays when something was filed in it elsewhere meanwhile
-  // (only empty containers can go): never leave those children without their parent.
+  // A container deleted on one side while the other side filed something in it stays (only empty containers can go):
+  // never leave children without their parent. Their copy wins, else the draft's, else the base's.
   for (let changed = true; changed;) {
     changed = false;
     const ids = new Set(out.map((n) => n.id));
     for (const node of out) {
-      const parent = node.parentId && !ids.has(node.parentId) ? theirsById.get(node.parentId) : undefined;
-      if (parent && baseById.has(parent.id)) { out.push(parent); changed = true; break; }
+      if (!node.parentId || ids.has(node.parentId)) continue;
+      const parent = theirsById.get(node.parentId) ?? mineById.get(node.parentId) ?? baseById.get(node.parentId);
+      if (parent) { out.push(parent); changed = true; break; }
     }
   }
   return sanitizeLibrary({ nodes: out }).nodes;

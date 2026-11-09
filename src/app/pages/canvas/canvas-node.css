@@ -8,15 +8,15 @@ header { display:flex; align-items:center; gap:5px; min-width:0; }
 strong { display:block; font-size:14px; line-height:1.35; overflow-wrap:anywhere; font-weight:650; }
 small { font-size:9px; text-transform:uppercase; letter-spacing:.11em; opacity:.7; }
 .task small { display:none; }.task strong { font-size:13px; font-weight:550; }
-button { color:inherit; border:0; border-radius:12px; background:transparent; min-width:30px; min-height:36px; cursor:pointer; padding:4px; }
+button { color:inherit; border:0; border-radius:12px; background:transparent; min-width:36px; min-height:40px; cursor:pointer; padding:4px; }
 button:hover { background:#fff6; }button:focus-visible { outline:3px solid #173f74; outline-offset:2px; }
 button:disabled { opacity:.4; cursor:default; }.grip { touch-action:none; cursor:grab; font-size:23px; }.grip:active { cursor:grabbing; }
 .more { letter-spacing:1px; }.fold { font-size:21px; }.children { display:flex; flex-direction:column; gap:12px; margin-top:10px; }
-.add { align-self:flex-start; font-size:12px; padding:6px 12px; border:1px dashed #23395155; min-height:36px; }
+.add { align-self:flex-start; font-size:12px; padding:6px 12px; border:1px dashed #23395155; min-height:40px; }
 .count { display:block; margin:5px 35px; font-size:12px; }
 .object.drop-hot { outline:3px solid #fff; box-shadow:0 0 0 6px #78d8c65e,0 12px 30px #0003; }
 .object.is-carried { opacity:.2; }
-@media (pointer:coarse) { button { min-width:40px; min-height:44px; }.feature { padding:9px; }.story { padding:8px; } }
+@media (pointer:coarse) { button, .add { min-width:40px; min-height:44px; }.feature { padding:9px; }.story { padding:8px; } }
 @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
 
 @media(max-width:680px) { .object { translate:none!important; } }
