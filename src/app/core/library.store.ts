@@ -1,8 +1,9 @@
 import { Injectable, effect, inject, signal } from '@angular/core';
-import { Unsubscribe, doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { Unsubscribe, doc, onSnapshot, writeBatch } from 'firebase/firestore';
 import { AuthService } from './auth.service';
 import { firebase } from './firebase';
 import { Library, emptyLibrary, sanitizeLibrary } from './library.model';
+import type { WeekWrite } from './week.store';
 
 /**
  * The signed-in user's library (Area → Epic → Feature → User story → Task), one Firestore document:
@@ -38,8 +39,8 @@ export class LibraryStore {
     });
   }
 
-  /** Replaces the whole library: shown at once, saved to Firestore (queued on the device when offline). */
-  save(lib: Library): boolean {
+  /** Replaces the whole library (with any staged week days, atomically): shown at once, saved to Firestore (queued offline). */
+  save(lib: Library, weekWrites: WeekWrite[] = []): boolean {
     if (!this.ready()) return false;
     const clean = sanitizeLibrary(lib);
     this.library.set(clean);
@@ -47,7 +48,11 @@ export class LibraryStore {
     const uid = this.auth.user()?.uid;
     if (!fb || !uid) return true;
     this.pending.push(JSON.stringify(clean));
-    setDoc(doc(fb.db, 'users', uid, 'library', 'tree'), clean).catch((error) => {
+    // One batch: the library and the week days it changed are saved together or not at all.
+    const batch = writeBatch(fb.db);
+    batch.set(doc(fb.db, 'users', uid, 'library', 'tree'), clean);
+    for (const write of weekWrites) batch.set(doc(fb.db, write.path), write.data);
+    batch.commit().catch((error) => {
       if (this.auth.user()?.uid !== uid) return;                // signed out (or another account) meanwhile
       this.rejected.set(clean);
       this.fail(error);

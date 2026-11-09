@@ -4,6 +4,9 @@ import { AuthService } from './auth.service';
 import { firebase } from './firebase';
 import { Block, DAYS, Day, DayPlan, Week, dateKey, dayOf, emptyWeek, minutesOfDay, validMinutes } from './week.model';
 
+/** A day document write, staged for a batch. */
+export interface WeekWrite { path: string; data: { blocks: Block[] }; }
+
 /**
  * The signed-in user's week and today's done marks, kept in Firestore:
  *   users/{uid}/week/{DAY}       { blocks: Block[] }           one document per weekday
@@ -69,14 +72,23 @@ export class WeekStore {
 
   /** Replaces a day's blocks: shown at once, saved to Firestore (queued on the device when offline). */
   setBlocks(day: Day, blocks: Block[]): void {
-    if (!this.ready.has(day)) return;
+    const write = this.stage(day, blocks);
+    const fb = firebase();
+    if (write && fb) setDoc(doc(fb.db, write.path), write.data).catch((error) => this.fail(error));
+  }
+
+  /**
+   * Shows a day's new blocks at once and returns the write for the caller to commit (in a batch with other
+   * documents, so they succeed or fail together); null when there is nothing to write (day not loaded, no user).
+   */
+  stage(day: Day, blocks: Block[]): WeekWrite | null {
+    if (!this.ready.has(day)) return null;
     const clean = blocks.map(sanitizeBlock);
     this.week.update((week) => ({ ...week, [day]: { blocks: clean } }));
-    const fb = firebase();
     const uid = this.auth.user()?.uid;
-    if (!fb || !uid) return;
+    if (!firebase() || !uid) return null;
     (this.pending[day] ??= []).push(JSON.stringify(clean));
-    setDoc(doc(fb.db, 'users', uid, 'week', day), { blocks: clean }).catch((error) => this.fail(error));
+    return { path: `users/${uid}/week/${day}`, data: { blocks: clean } };
   }
 
   /** Changes a day's blocks through a function that receives a private copy. */

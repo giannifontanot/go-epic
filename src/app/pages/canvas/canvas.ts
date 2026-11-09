@@ -5,7 +5,7 @@ import { AuthService } from '../../core/auth.service';
 import { Kind, LibNode, PARENT_KIND, emptyLibrary, rebaseLibrary } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
 import { COLOR_CHOICES, DAYS } from '../../core/week.model';
-import { WeekStore } from '../../core/week.store';
+import { WeekStore, WeekWrite } from '../../core/week.store';
 import { CanvasMotion } from './canvas-motion';
 import { CanvasNode } from './canvas-node';
 import { CanvasLayout, CanvasState } from './canvas-state';
@@ -119,12 +119,13 @@ export class Canvas {
     const current = this.libraryStore.library().nodes;
     const before = new Map(current.map((n) => [n.id, n]));
     const nodes = rebaseLibrary(this.state.saved, this.state.nodes, current);
-    if (!this.libraryStore.save({ nodes })) {
+    if (!this.libraryStore.ready()) {
       this.error = this.i18n.t('canvas.saveError');
       this.saving = false;
       return;
     }
-    this.syncWeek(before, new Map(nodes.map((n) => [n.id, n])));
+    // The week days it changes go in the same batch: a refused save leaves neither side half done.
+    this.libraryStore.save({ nodes }, this.syncWeek(before, new Map(nodes.map((n) => [n.id, n]))));
     this.writeLayout(this.state.layout);
     this.state.load({ nodes }, this.state.layout);
     this.saving = false;
@@ -133,7 +134,8 @@ export class Canvas {
   }
 
   /** The week follows the library: a renamed or recoloured task changes in every block, a deleted one leaves the week. */
-  private syncWeek(before: Map<string, LibNode>, after: Map<string, LibNode>): void {
+  private syncWeek(before: Map<string, LibNode>, after: Map<string, LibNode>): WeekWrite[] {
+    const writes: WeekWrite[] = [];
     for (const day of DAYS) {
       const blocks = this.week.week()[day].blocks;
       let changed = false;
@@ -149,8 +151,10 @@ export class Canvas {
           }),
         }))
         .filter((block) => block.tasks.length > 0);
-      if (changed) this.week.setBlocks(day, next);
+      const write = changed ? this.week.stage(day, next) : null;
+      if (write) writes.push(write);
     }
+    return writes;
   }
 
   /** The server refused the last save (the library went back to its saved copy): the refused changes return as a draft. */
