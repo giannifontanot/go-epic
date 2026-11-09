@@ -32,3 +32,13 @@ button:hover { background:rgba(255,255,255,.45); }button:focus-visible { outline
 .add { border-color:rgba(54,38,67,.4); }
 .object.drop-hot { outline:3px solid #76e0d0; box-shadow:0 0 0 6px rgba(118,224,208,.35), 0 12px 30px rgba(1,6,29,.35); }
 
+
+/* Features and Stories: grip · LABEL · fold on the label line (40px hit areas pulled in by negative margins), the title on the whole width below */
+header.stacked { display:block; }
+.node-bar { display:flex; align-items:center; gap:2px; margin:-8px -6px -6px -8px; }
+.node-bar small { flex:1; min-width:0; }
+.node-bar .grip { font-size:18px; min-width:40px; }
+.fold { font-size:22px; line-height:1; min-width:40px; transition:rotate .25s cubic-bezier(.22,1,.36,1); }
+.fold.closed { rotate:-90deg; }
+.title { display:block; width:100%; min-height:40px; padding:2px 2px 4px; text-align:left; border-radius:10px; }
+.title strong { font-size:15px; }
