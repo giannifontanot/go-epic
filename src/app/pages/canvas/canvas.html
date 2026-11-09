@@ -190,7 +190,9 @@
                   @for (f of epic.features; track f.title) {
                     <li><span [class.has]="templateHas('feature', f.title)">{{ f.title }}</span>
                       @if (templateRenamedFrom('feature', f.title); as from) { <em class="renamed">↻ {{ i18n.t('template.was', { name: from }) }}</em> }
-                      <small>› <span [class.has]="templateHas('story', f.story)">{{ f.story }}</span> › <span [class.has]="templateHas('task', f.beat)">{{ f.beat }}</span></small></li>
+                      <small>› <span [class.has]="templateHas('story', f.story)">{{ f.story }}</span>
+                        @if (templateRenamedFrom('story', f.story); as from) { <em class="renamed">↻ {{ i18n.t('template.was', { name: from }) }}</em> }
+                        › <span [class.has]="templateHas('task', f.activity)">{{ f.activity }}</span></small></li>
                   }
                 </ul></li>
             }

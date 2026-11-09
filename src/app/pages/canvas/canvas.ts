@@ -203,8 +203,7 @@ export class Canvas {
   // --- Starter template: the structure Gianni chose (4 areas, 8 epics, 13 features), added to the draft ---
 
   protected readonly template = STARTER_TEMPLATE;
-  /** What the template would add now (nothing that already exists with the same name and place). */
-  /** What the template would change now: Features of an old name renamed, then whatever is still missing. */
+  /** What the template would change now: Epics, Features and Stories of an old name renamed, then whatever is still missing. */
   get templateChanges(): { renames: TemplateRename[]; add: LibNode[] } {
     let i = 0;
     return planTemplateChanges(this.state.nodes, STARTER_TEMPLATE, () => `preview-${i++}`);
@@ -215,8 +214,8 @@ export class Canvas {
     const c = this.templateChanges;
     return !c.add.some((n) => n.kind === kind && n.title === title) && !c.renames.some((r) => r.kind === kind && r.title === title);
   }
-  /** The old name an Epic or Feature will be renamed from (↻ in the preview), if any. */
-  templateRenamedFrom(kind: 'epic' | 'feature', title: string): string {
+  /** The old name an Epic, Feature or Story will be renamed from (↻ in the preview), if any. */
+  templateRenamedFrom(kind: TemplateRename['kind'], title: string): string {
     return this.templateChanges.renames.find((r) => r.kind === kind && r.title === title)?.from ?? '';
   }
   openTemplate(): void {

@@ -324,10 +324,10 @@ html.tilt { transition: --tilt-r .45s cubic-bezier(.22, 1, .36, 1), --tilt-x .45
 html.tilt button { rotate: var(--tilt-r); translate: var(--tilt-x) 0; }
 @media (prefers-reduced-motion: reduce) { html.tilt button { rotate: none; translate: none; } }
 
-/* "Update" (new version ready): a soft yellow halo flashes around the button so it gets noticed (a still halo under reduced motion) */
-.update-bar button.primary { animation: update-halo 2.4s ease-in-out infinite; }
+/* New version ready: a soft yellow halo flashes around the whole update bar so it gets noticed (a still halo under reduced motion) */
+.update-bar { animation: update-halo 2.4s ease-in-out infinite; }
 @keyframes update-halo {
-  0%, 55%, 100% { box-shadow: 0 0 0 0 rgba(255, 223, 119, 0); }
-  20% { box-shadow: 0 0 0 4px rgba(255, 223, 119, .85), 0 0 18px 6px rgba(255, 223, 119, .45); }
+  0%, 55%, 100% { box-shadow: 0 12px 40px #0008, 0 0 0 0 rgba(255, 223, 119, 0); }
+  20% { box-shadow: 0 12px 40px #0008, 0 0 0 3px rgba(255, 223, 119, .85), 0 0 24px 8px rgba(255, 223, 119, .4); }
 }
-@media (prefers-reduced-motion: reduce) { .update-bar button.primary { animation: none !important; box-shadow: 0 0 0 3px rgba(255, 223, 119, .8); } }
+@media (prefers-reduced-motion: reduce) { .update-bar { animation: none !important; box-shadow: 0 12px 40px #0008, 0 0 0 3px rgba(255, 223, 119, .8); } }
