@@ -101,6 +101,8 @@ describe('library model', () => {
     expect(all.filter((x) => x.kind === 'area').length).toBe(4);
     expect(all.filter((x) => x.kind === 'epic').length).toBe(8);
     expect(all.filter((x) => x.kind === 'feature').length).toBe(13);
+    expect(all.filter((x) => x.kind === 'story').length).toBe(13);
+    expect(all.filter((x) => x.kind === 'task').length).toBe(13);
     expect(sanitizeLibrary({ nodes: all }).nodes).toEqual(all);              // every parent is of the right kind
     expect(planTemplate(all, STARTER_TEMPLATE, id)).toEqual([]);             // twice: nothing more
     const mine = [n('t', 'area', null, ' el templo ')];                      // an area made by hand, other spacing/case

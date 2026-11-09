@@ -241,24 +241,29 @@ export function rebaseLibrary(base: LibNode[], mine: LibNode[], theirs: LibNode[
   return sanitizeLibrary({ nodes: out }).nodes;
 }
 
-/** The starter structure (Gianni's choice): 4 areas, 8 epics, 13 features, names in Spanish. */
-export interface TemplateArea { area: string; epics: { title: string; features: string[] }[] }
+/**
+ * The starter structure (Gianni's choice, names in Spanish): 4 Areas, 8 Epics, 13 Features, and in each Feature a first
+ * Story with one small Beat (start small; Beats are library tasks, planned in the Week via "Existing Beat").
+ */
+export interface TemplateFeature { title: string; story: string; beat: string }
+export interface TemplateArea { area: string; epics: { title: string; features: TemplateFeature[] }[] }
+const f = (title: string, story: string, beat: string): TemplateFeature => ({ title, story, beat });
 export const STARTER_TEMPLATE: TemplateArea[] = [
   { area: 'El Templo', epics: [
-    { title: 'Cuerpo Fuerte', features: ['Ejercicio y comida', 'Descanso'] },
-    { title: 'Fe Viva', features: ['Oración y Biblia'] },
-    { title: 'Finanzas Sanas', features: ['Presupuesto y ahorro'] },
+    { title: 'Cuerpo Fuerte', features: [f('Ejercicio y comida', 'Moverme cada día', 'Caminar 10 min'), f('Descanso', 'Dormir bien', 'Apagar pantallas a las 10 pm')] },
+    { title: 'Fe Viva', features: [f('Oración y Biblia', 'Leer la Biblia', 'Leer 1 versículo y orar 2 min')] },
+    { title: 'Finanzas Sanas', features: [f('Presupuesto y ahorro', 'Revisar gastos', 'Revisar gastos 10 min')] },
   ] },
   { area: 'El Castillo', epics: [
-    { title: 'Hogar y Familia', features: ['Casa', 'Tiempo juntos'] },
-    { title: 'Amigos y Comunidad', features: ['Amistades', 'Servir a otros'] },
+    { title: 'Hogar y Familia', features: [f('Casa', 'Casa en orden', 'Ordenar 10 min'), f('Tiempo juntos', 'Tiempo en familia', 'Cenar juntos sin teléfono')] },
+    { title: 'Amigos y Comunidad', features: [f('Amistades', 'Cuidar amistades', 'Escribir a un amigo'), f('Servir a otros', 'Servir', 'Un acto de servicio')] },
   ] },
   { area: 'La Torre', epics: [
-    { title: 'Subir de Nivel', features: ['Trabajo', 'Aprender'] },
+    { title: 'Subir de Nivel', features: [f('Trabajo', 'Trabajo profundo', 'Bloque de trabajo profundo 50 min'), f('Aprender', 'Aprender algo nuevo', 'Estudiar 20 min')] },
   ] },
   { area: 'La Arena', epics: [
-    { title: 'Recargar Energía', features: ['Diversión'] },
-    { title: 'Crear y Explorar', features: ['Pasatiempos', 'Viajes y aventuras'] },
+    { title: 'Recargar Energía', features: [f('Diversión', 'Descansar y divertirme', 'Ver un episodio')] },
+    { title: 'Crear y Explorar', features: [f('Pasatiempos', 'Practicar un pasatiempo', 'Practicar 15 min'), f('Viajes y aventuras', 'Planear aventuras', 'Planear la próxima salida')] },
   ] },
 ];
 
@@ -281,7 +286,11 @@ export function planTemplate(nodes: LibNode[], template: TemplateArea[], makeId:
     const areaId = ensure('area', area, null);
     for (const epic of epics) {
       const epicId = ensure('epic', epic.title, areaId);
-      for (const feature of epic.features) ensure('feature', feature, epicId);
+      for (const feature of epic.features) {
+        const featureId = ensure('feature', feature.title, epicId);
+        const storyId = ensure('story', feature.story, featureId);
+        ensure('task', feature.beat, storyId);
+      }
     }
   }
   return out;
