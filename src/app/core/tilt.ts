@@ -3,7 +3,8 @@ import { Injectable, signal } from '@angular/core';
 /*
  * Buttons with weight (Gianni, a visual detail only): when the phone leans to one side, every button leans a little
  * and slides down towards the lower side, the farther ones more, so they pile up on top of each other against that
- * edge; held upright, they spring back into place. Read from the device's
+ * edge; held upright, they spring back into place. Everything has weight: blocks, cards, Canvas objects and notes
+ * (`TILT_BODIES`) lean and slide too, more gently than the buttons. Read from the device's
  * orientation (`deviceorientation`, gamma = left/right tilt), only in portrait. Nothing changes under reduced motion.
  * iPhone asks for permission (motion and orientation) the first time, after a tap; Android does not ask.
  * The choice is a per-device view preference (`go-epic-tilt`, '0' = off; on by default).
@@ -37,6 +38,9 @@ export function tiltOf(gamma: number | null | undefined, screenAngle = 0): { deg
 export function pileShift(k: number, roomLeft: number, roomRight: number): number {
   return (Math.max(k, 0) * Math.max(0, roomRight) + Math.min(k, 0) * Math.max(0, roomLeft)) * TILT_PILE;
 }
+
+/** Everything that has weight: the buttons, and the bodies styles.css lists under `html.tilt :is(…)`. */
+export const TILT_BODIES = 'button, .block, .task, .now-card, .habit, .capture-list li, .epics-label, .object, .pc-feature, .pc-story, .pc-activity';
 
 const STORAGE_KEY = 'go-epic-tilt';
 type PermissionFn = () => Promise<'granted' | 'denied'>;
@@ -136,10 +140,15 @@ export class Tilt {
     this.measuredAt = performance.now();
     const width = document.documentElement.clientWidth || innerWidth;
     const bounds = new Map<Element, { left: number; right: number }>();
-    for (const b of Array.from(document.querySelectorAll<HTMLElement>('button'))) {
+    // In document order, so a body's slide is known before the bodies inside it: what an element has moved is its own
+    // slide plus that of every leaning body around it (a card inside its block), all taken off to find its resting place.
+    const slides = new Map<Element, number>();
+    for (const b of Array.from(document.querySelectorAll<HTMLElement>(TILT_BODIES))) {
       const r = b.getBoundingClientRect();
       if (!r.width) continue;
-      const slid = parseFloat(getComputedStyle(b).translate) || 0;
+      const outer = b.parentElement?.closest(TILT_BODIES);
+      const slid = (parseFloat(getComputedStyle(b).translate) || 0) + ((outer && slides.get(outer)) || 0);
+      slides.set(b, slid);
       const box = clipBox(b, width, bounds);
       b.style.setProperty('--tilt-rl', Math.max(0, Math.round(r.left - slid - box.left)) + 'px');
       b.style.setProperty('--tilt-rr', Math.max(0, Math.round(box.right - r.right + slid)) + 'px');

@@ -33,7 +33,7 @@ export interface TaskSave {
 @Component({
   selector: 'app-task-dialog',
   template: `
-    <dialog #dialog class="editor" [class.new-block]="newBlock()" aria-labelledby="task-dialog-title" (cancel)="$event.preventDefault(); leave()"
+    <dialog #dialog class="editor" [class.new-block]="newBlock()" [class.new-activity]="edit().isNew && !newBlock()" aria-labelledby="task-dialog-title" (cancel)="$event.preventDefault(); leave()"
             (click)="onBackdrop($event)">
       <header>
         <div>
