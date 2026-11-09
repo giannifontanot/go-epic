@@ -49,6 +49,8 @@ export class TransferDialog implements AfterViewInit {
   readonly cancel = output<void>();
 
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
+  /** Closing (shrinking away): further presses are ignored, so a double click never saves or leaves twice. */
+  private leaving = false;
   protected readonly days = DAYS;
   protected readonly mode = signal<'copy' | 'move'>('copy');
   protected readonly picked = signal<Day[]>([]);
@@ -75,11 +77,15 @@ export class TransferDialog implements AfterViewInit {
   }
 
   protected leave(): void {
+    if (this.leaving) return;
+    this.leaving = true;
     void closeDialog(this.dialog().nativeElement).then(() => this.cancel.emit());
   }
 
   protected done(): void {
+    if (this.leaving) return;
     const transfer = { mode: this.mode(), days: this.picked() };
+    this.leaving = true;
     void closeDialog(this.dialog().nativeElement).then(() => this.apply.emit(transfer));
   }
 }

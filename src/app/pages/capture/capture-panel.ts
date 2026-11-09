@@ -38,7 +38,7 @@ import { CaptureUi } from './capture-ui';
                 (keydown.enter)="$event.preventDefault(); saveEdit(task, $any($event.target).value)"
                 (keydown.escape)="$event.stopPropagation(); editing.set('')" (blur)="saveEdit(task, $any($event.target).value)" />
             } @else {
-              <button type="button" class="c-text" [attr.aria-label]="i18n.t('capture.edit') + ': ' + task.title" (click)="startEdit(task)">{{ task.title }}</button>
+              <button type="button" class="c-text" [disabled]="!canChange()" [attr.aria-label]="i18n.t('capture.edit') + ': ' + task.title" (click)="startEdit(task)">{{ task.title }}</button>
             }
             @if (filing() === task.id) {
               <select class="c-where" [attr.aria-label]="i18n.t('capture.where')" (change)="file(task, $any($event.target).value)" (blur)="filing.set('')">
@@ -49,7 +49,7 @@ import { CaptureUi } from './capture-ui';
               <button type="button" class="c-icon c-file" [disabled]="!library.ready()" [attr.aria-label]="i18n.t('capture.where')" [title]="i18n.t('capture.where')"
                 (click)="startFiling(task)">{{ i18n.t('capture.whereShort') }}</button>
             }
-            <button type="button" class="c-icon" [disabled]="!library.ready()" [attr.aria-label]="i18n.t('capture.delete')" [title]="i18n.t('capture.delete')"
+            <button type="button" class="c-icon" [disabled]="!canChange()" [attr.aria-label]="i18n.t('capture.delete')" [title]="i18n.t('capture.delete')"
               (click)="remove(task)">×</button>
           </li>
         } @empty {
@@ -67,6 +67,8 @@ export class CapturePanel {
   private readonly panel = viewChild.required<ElementRef<HTMLDialogElement>>('panel');
   private readonly input = viewChild.required<ElementRef<HTMLInputElement>>('input');
 
+  /** Renaming and deleting reach the week's cards: they wait until the library and all seven days are loaded. */
+  protected readonly canChange = computed(() => this.library.ready() && this.week.loaded());
   protected readonly inbox = computed(() => inboxTasks(this.library.library()));
   protected readonly stories = computed(() => storyOptions(this.library.library()));
   protected readonly editing = signal('');
@@ -111,6 +113,7 @@ export class CapturePanel {
   }
 
   protected startEdit(task: LibNode): void {
+    if (!this.canChange()) return;
     this.editing.set(task.id);
     queueMicrotask(() => this.panel().nativeElement.querySelector<HTMLInputElement>('.c-edit')?.focus());
   }
@@ -139,6 +142,7 @@ export class CapturePanel {
 
   /** Delete: a task already planned in the week asks first, and its cards leave the week with it (same batch). */
   protected remove(task: LibNode): void {
+    if (!this.canChange()) return;                                         // the planned-places count needs every day
     const places = DAYS.reduce((n, day) => n + this.week.week()[day].blocks.reduce((m, b) => m + b.tasks.filter((t) => t.ref === task.id).length, 0), 0);
     if (places && !confirm(this.i18n.t('canvas.confirmDeleteTask', { n: places }))) return;
     if (!nodeById(this.library.library(), task.id)) return;

@@ -236,7 +236,11 @@ export class Canvas {
 
   // --- The action dialog (create / edit / move / colour / delete) ---
 
+  /** The editor is shrinking away: nothing more is applied (a double click on Apply must not create twice). */
+  editorClosing = false;
+
   open(kind: Kind, parentId: string | null = null, node?: LibNode): void {
+    this.editorClosing = false;
     this.modal = { kind, parentId, node };
     this.title = node?.title || '';
     this.parentId = node?.parentId || parentId || (kind === 'epic' ? this.areaFilter || this.state.areas[0]?.id || '' : '');
@@ -247,8 +251,12 @@ export class Canvas {
   addChild(node: LibNode): void { this.open(node.kind === 'feature' ? 'story' : 'task', node.id); }
   close(): void {
     const d = this.editor()?.nativeElement;
-    if (d?.open) void closeDialog(d);                                       // its close event clears the modal
-    else this.modal = null;
+    if (d?.open) {
+      this.editorClosing = true;
+      void closeDialog(d).then(() => (this.editorClosing = false));        // its close event clears the modal
+    } else {
+      this.modal = null;
+    }
   }
   onBackdrop(event: MouseEvent): void {
     const d = this.editor()?.nativeElement;
@@ -334,7 +342,7 @@ export class Canvas {
   }
 
   get canApply(): boolean {
-    if (!this.modal || !this.title.trim() || this.saving || this.cascadeIncomplete) return false;
+    if (!this.modal || this.editorClosing || !this.title.trim() || this.saving || this.cascadeIncomplete) return false;
     return this.modal.kind !== 'epic' || !!this.parentId;
   }
 
@@ -371,6 +379,7 @@ export class Canvas {
 
   arrange(delta: number): void {
     const node = this.modal?.node;
+    if (this.editorClosing) return;
     if (!node || node.kind === 'epic' || node.kind === 'area') return;
     const siblings = this.state.children(node.parentId);
     const index = siblings.findIndex((n) => n.id === node.id);
@@ -388,7 +397,7 @@ export class Canvas {
 
   remove(): void {
     const node = this.modal?.node;
-    if (!node || this.saving) return;
+    if (!node || this.saving || this.editorClosing) return;
     if (!this.state.canDelete(node.id)) { alert(this.i18n.t('canvas.deleteHint')); return; }
     const places = node.kind === 'task' ? this.weekPlaces(node.id) : 0;
     const question = places ? this.i18n.t('canvas.confirmDeleteTask', { n: places }) : this.i18n.t('canvas.confirmDelete');

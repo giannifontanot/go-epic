@@ -71,7 +71,7 @@ export class LibraryStore {
    * ones leave) and both are saved in one batch.
    */
   updateWithWeek(change: (lib: Library) => Library): boolean {
-    if (!this.ready()) return false;
+    if (!this.ready() || !this.week.loaded()) return false;               // every day must be there to follow the change
     const before = this.library();
     const after = sanitizeLibrary(change(structuredClone(before)));
     const ids = new Set(before.nodes.map((n) => n.id));

@@ -128,6 +128,8 @@ export class TaskDialog implements AfterViewInit {
   readonly remove = output<void>();
 
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
+  /** Closing (shrinking away): further presses are ignored, so a double click never saves or leaves twice. */
+  private leaving = false;
   protected readonly days = DAYS;
   protected readonly colors = COLOR_CHOICES;
   protected readonly validMinutes = validMinutes;
@@ -274,6 +276,7 @@ export class TaskDialog implements AfterViewInit {
   }
 
   protected done(): void {
+    if (this.leaving) return;
     const title = this.title().trim();
     if (!title) {
       this.problem.set(this.i18n.t('task.nameRequired'));
@@ -300,18 +303,23 @@ export class TaskDialog implements AfterViewInit {
       parentId: this.where().story || null,
       colorPicked: this.colorPicked(),
     };
+    this.leaving = true;
     void closeDialog(this.dialog().nativeElement).then(() => this.save.emit(save));
   }
 
   /** Cancel, Esc or the backdrop: the window shrinks back to where it came from, then the draft is dropped. */
   protected leave(): void {
+    if (this.leaving) return;
+    this.leaving = true;
     void closeDialog(this.dialog().nativeElement).then(() => this.cancel.emit());
   }
 
   /** Delete (asks first for a saved task; a + task was never saved), then closes smoothly. */
   protected askRemove(): void {
+    if (this.leaving) return;
     const { task, isNew } = this.edit();
     if (!isNew && !confirm(this.i18n.t('week.confirmDeleteTask', { task: task.title }))) return;
+    this.leaving = true;
     void closeDialog(this.dialog().nativeElement).then(() => this.remove.emit());
   }
 }
