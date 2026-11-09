@@ -21,11 +21,11 @@ users/{uid}/days/{YYYY-MM-DD}     { done: { [taskId]: millis } }
 1. In the [Firebase console](https://console.firebase.google.com) create a project (the free Spark plan is enough).
 2. **Build → Authentication → Get started → Sign-in method → Google → Enable.**
 3. **Build → Firestore Database → Create database** (production mode, a region near you).
-4. **Project settings → Your apps → Web (</>)**: register an app and copy its `firebaseConfig` into `src/app/firebase.config.ts`. These values are not secrets.
-5. Put the project id in `.firebaserc`.
+4. **Project settings → Your apps → Web (</>)**: register an app and copy its `firebaseConfig` into `src/app/firebase.config.ts`. These values are not secrets. (Done: the project is `go-epic`.)
+5. Put the project id in `.firebaserc` (done: `go-epic`).
 6. Deploy: `npx firebase login`, then `npm run deploy` (builds, publishes the site and the rules). Or let GitHub do it: add the repository secret `FIREBASE_SERVICE_ACCOUNT` and every push to `main` deploys (`.github/workflows/deploy.yml`).
 
-The app is then at `https://<project-id>.web.app`.
+The app is then at `https://go-epic.web.app`.
 
 ## Develop
 
