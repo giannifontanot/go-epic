@@ -101,7 +101,7 @@
 </section>
 
 @if (editing(); as edit) {
-  <app-task-dialog [edit]="edit" [week]="dialogWeek()" (save)="saveTask($event)" (cancel)="cancelTask()" (remove)="removeEditing()" />
+  <app-task-dialog [edit]="edit" [week]="dialogWeek()" [library]="library.library()" [libraryReady]="library.ready()" (save)="saveTask($event)" (cancel)="cancelTask()" (remove)="removeEditing()" />
 }
 @if (transferring(); as tr) {
   <app-transfer-dialog [day]="tr.day" [blockName]="tr.block.name" (apply)="applyTransfer($event)" (cancel)="transferring.set(null)" />

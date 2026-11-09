@@ -13,6 +13,8 @@ export interface Task {
   /** A picked colour; null = the automatic pastel. */
   color: string | null;
   active: boolean;
+  /** The library task this is a scheduled place of (one task can be in many blocks and days); null for an unfiled one. */
+  ref: string | null;
 }
 
 export interface Block {

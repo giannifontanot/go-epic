@@ -4,6 +4,8 @@ import {
   Block, DAYS, Day, NEW_TASK_MINUTES, Task, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId,
   nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
 } from '../../core/week.model';
+import { fileTask, followLibrary, nodeById, updateNode } from '../../core/library.model';
+import { LibraryStore } from '../../core/library.store';
 import { WeekStore } from '../../core/week.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
 import { Transfer, TransferDialog } from './transfer-dialog';
@@ -20,6 +22,7 @@ import { Transfer, TransferDialog } from './transfer-dialog';
 export class WeekBoard {
   protected readonly store = inject(WeekStore);
   protected readonly i18n = inject(I18n);
+  protected readonly library = inject(LibraryStore);
   protected readonly days = DAYS;
 
   protected readonly arranging = signal(false);
@@ -98,7 +101,7 @@ export class WeekBoard {
   // --- Blocks ---
 
   protected addBlock(day: Day): void {
-    const task: Task = { id: newId(), title: '', minutes: NEW_TASK_MINUTES, color: null, active: true };
+    const task: Task = { id: newId(), title: '', minutes: NEW_TASK_MINUTES, color: null, active: true, ref: null };
     const name = uniqueName(this.blocks(day).map((b) => b.name), this.i18n.t('week.newBlock'));
     this.draftBlock.set({ id: newId(), name, start: null, end: null, tasks: [] });   // saved (at the top of the day) only on Done
     this.editing.set({ day, blockId: this.draftBlock()!.id, task, isNew: true });
@@ -156,7 +159,7 @@ export class WeekBoard {
 
   protected addTask(day: Day, block: Block): void {
     const free = freeMinutes(block);
-    const task: Task = { id: newId(), title: '', minutes: free === null ? NEW_TASK_MINUTES : Math.max(0, Math.min(NEW_TASK_MINUTES, free)), color: null, active: true };
+    const task: Task = { id: newId(), title: '', minutes: free === null ? NEW_TASK_MINUTES : Math.max(0, Math.min(NEW_TASK_MINUTES, free)), color: null, active: true, ref: null };
     this.draftBlock.set(null);
     this.editing.set({ day, blockId: block.id, task, isNew: true });        // a draft: added to the block only on Done
   }
@@ -166,8 +169,12 @@ export class WeekBoard {
     if (!title) return;
     const free = freeMinutes(block);
     const minutes = free === null ? NEW_TASK_MINUTES : Math.max(0, Math.min(NEW_TASK_MINUTES, free));
-    const task: Task = { id: newId(), title, minutes, color: null, active: true };
-    this.store.update(day, (blocks) => blocks.map((b) => (b.id === block.id ? { ...b, tasks: [...b.tasks, task] } : b)));
+    const task: Task = { id: newId(), title, minutes, color: null, active: true, ref: null };
+    // Filed with the previous task of the block (its user story), as in Epic Manager's quick-add; else in Free Space.
+    const previous = [...block.tasks].reverse().find((t) => t.ref && nodeById(this.library.library(), t.ref));
+    const filed = this.fileInLibrary(task, nodeById(this.library.library(), previous?.ref)?.parentId ?? null);
+    this.store.update(day, (blocks) => blocks.map((b) => (b.id === block.id ? { ...b, tasks: [...b.tasks, filed] } : b)));
+    this.followLibrary();
     input.value = '';
   }
 
@@ -195,7 +202,38 @@ export class WeekBoard {
     );
   }
 
-  protected saveTask(save: TaskSave): void {
+  /**
+   * Every week task schedules a library task (Floating Canvas): the linked one, the same-titled task of the chosen
+   * story (or Free Space), or a new one there. A colour picked here is the library task's colour, in every block.
+   */
+  private fileInLibrary(task: Task, parentId: string | null): Task {
+    if (!this.library.ready() || !task.title.trim()) return task;
+    let lib = this.library.library();
+    let id = task.ref && nodeById(lib, task.ref)?.kind === 'task' ? task.ref : '';
+    if (!id) ({ lib, id } = fileTask(lib, task.title, parentId, task.color));
+    const node = nodeById(lib, id)!;
+    if (node.color !== task.color) lib = updateNode(lib, id, { color: task.color });
+    if (lib !== this.library.library()) this.library.save(lib);
+    return { ...task, title: node.title, ref: id };
+  }
+
+  /** The other places of a library task follow its title and colour. */
+  private followLibrary(): void {
+    if (!this.library.ready()) return;
+    const lib = this.library.library();
+    for (const day of DAYS) {
+      const blocks = this.blocks(day);
+      const next = blocks.map((b) => {
+        const tasks = followLibrary(b.tasks, lib);
+        return tasks.some((t, i) => t !== b.tasks[i]) ? { ...b, tasks } : b;
+      });
+      if (next.some((b, i) => b !== blocks[i])) this.store.setBlocks(day, next);
+    }
+  }
+
+  protected saveTask(raw: TaskSave): void {
+    const save = { ...raw, task: this.fileInLibrary(raw.task, raw.parentId) };
+    queueMicrotask(() => this.followLibrary());
     const edit = this.editing();
     const draft = this.draftBlock();
     this.editing.set(null);

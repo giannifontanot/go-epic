@@ -3,7 +3,7 @@ import {
   parseClock, placeBlock, taskStarts, taskTotal, timeline, uniqueName, validMinutes, windowError,
 } from './week.model';
 
-const task = (id: string, minutes: number, extra: Partial<Task> = {}): Task => ({ id, title: id, minutes, color: null, active: true, ...extra });
+const task = (id: string, minutes: number, extra: Partial<Task> = {}): Task => ({ id, title: id, minutes, color: null, active: true, ref: null, ...extra });
 const block = (id: string, start: string | null, end: string | null, tasks: Task[]): Block => ({ id, name: id, start, end, tasks });
 
 describe('week model', () => {

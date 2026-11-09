@@ -14,6 +14,7 @@ import { WeekStore } from './core/week.store';
         <a class="brand" routerLink="/">Go&nbsp;Epic</a>
         <a routerLink="/" routerLinkActive="on" [routerLinkActiveOptions]="{ exact: true }">{{ i18n.t('nav.week') }}</a>
         <a routerLink="/focus" routerLinkActive="on">{{ i18n.t('nav.focus') }}</a>
+        <a routerLink="/canvas" routerLinkActive="on">{{ i18n.t('nav.canvas') }}</a>
         <span class="spacer"></span>
         <button type="button" class="chip quiet" (click)="i18n.toggle()" [attr.aria-label]="i18n.lang() === 'en' ? 'Español' : 'English'">
           {{ i18n.lang() === 'en' ? 'ES' : 'EN' }}</button>

@@ -164,6 +164,7 @@ function sanitizeBlock(block: Block): Block {
       minutes: validMinutes(task.minutes),
       color: task.color || null,
       active: task.active !== false,
+      ref: typeof task.ref === 'string' && task.ref ? task.ref : null,
     })),
   };
 }

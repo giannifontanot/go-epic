@@ -1,0 +1,160 @@
+@let v = version();
+<section class="canvas-page" [attr.data-v]="v">
+  <header class="page-header">
+    <h1>Floating Canvas<span class="title-dot">✦</span></h1>
+    <div class="toolbar">
+      <span class="status" [class.dirty]="state.dirty" [title]="i18n.t(state.dirty ? 'canvas.unsaved' : 'canvas.saved')">
+        <span class="status-text">{{ i18n.t(state.dirty ? 'canvas.unsaved' : 'canvas.saved') }}</span></span>
+      <button type="button" [disabled]="!state.canUndo || saving" (click)="undo()" [attr.aria-label]="i18n.t('canvas.undo')" [title]="i18n.t('canvas.undo')">↶<span class="btn-label"> {{ i18n.t('canvas.undo') }}</span></button>
+      <button type="button" [disabled]="!state.canRedo || saving" (click)="redo()" [attr.aria-label]="i18n.t('canvas.redo')" [title]="i18n.t('canvas.redo')">↷<span class="btn-label"> {{ i18n.t('canvas.redo') }}</span></button>
+      <button type="button" [disabled]="!state.dirty || saving" (click)="discard()">{{ i18n.t('canvas.discard') }}</button>
+      <button type="button" class="primary" [disabled]="!ready() || !state.dirty || saving || !!dragState" (click)="save()">{{ i18n.t('canvas.save') }}</button>
+      <button type="button" class="free-toggle" role="switch" [attr.aria-checked]="showFree" [class.on]="showFree" (click)="toggleFree()" [title]="i18n.t('canvas.showFree')">
+        <span class="switch" aria-hidden="true"></span><span class="free-label">{{ i18n.t('canvas.freeSpace') }}</span></button>
+    </div>
+  </header>
+  @if (error) { <div class="error" role="alert">{{ error }}</div> }
+  @if (!ready()) {
+    <p class="loading" role="status">{{ i18n.t('loading') }}</p>
+  } @else {
+    <div class="split" [class.no-free]="!showFree" [class.resizing]="resizing" [style.--free-width]="freeWidth + '%'" [class.dragging]="!!dragState?.ghost">
+      <section class="epic-space" aria-labelledby="workspace-title">
+        <div class="panel-heading"><h2 id="workspace-title">{{ i18n.t('canvas.workspace') }}</h2>
+          @if (active; as a) {
+            <button type="button" [disabled]="saving" (click)="open('epic', a.parentId, a)">{{ i18n.t('canvas.editEpic') }}</button>
+            <button type="button" [disabled]="saving" (click)="open('feature', activeId)">+ {{ i18n.t('canvas.feature') }}</button>
+          }
+          <span class="heading-spacer"></span>
+          <label class="area-filter"><span class="sr-only">{{ i18n.t('canvas.area') }}</span>
+            <select (change)="setAreaFilter($any($event.target).value)">
+              <option value="" [selected]="!areaFilter">{{ i18n.t('canvas.allAreas') }}</option>
+              @for (area of state.areas; track area.id) { <option [value]="area.id" [selected]="area.id === areaFilter">{{ area.title }}</option> }
+            </select></label>
+          @if (areaFilter && state.node(areaFilter); as area) {
+            <button type="button" [disabled]="saving" (click)="open('area', null, area)">{{ i18n.t('canvas.editArea') }}</button>
+          }
+          <button type="button" [disabled]="saving" (click)="open('area')">+ {{ i18n.t('canvas.area') }}</button>
+          <button type="button" [disabled]="saving || !state.areas.length" (click)="open('epic')">+ {{ i18n.t('canvas.epic') }}</button>
+        </div>
+        <div class="epic-tabs" role="tablist" [attr.aria-label]="i18n.t('canvas.epics')">
+          @for (epic of epics; track epic.id; let index = $index) {
+            <button type="button" role="tab" [attr.id]="'tab-' + epic.id" [attr.data-tab]="epic.id" data-drop-kind="epic" [attr.data-parent]="epic.id"
+              [class.active]="activeId === epic.id" [attr.aria-selected]="activeId === epic.id" aria-controls="epic-panel"
+              [attr.tabindex]="activeId === epic.id ? 0 : -1" (keydown)="tabKey($event, index)" (click)="selectEpic(epic.id)">
+              <span>{{ epic.title }}</span><small>{{ areaName(epic.parentId) }}</small>
+            </button>
+          }
+        </div>
+        <div class="scroll-panel epic-objects" id="epic-panel" role="tabpanel" [attr.aria-labelledby]="activeId ? 'tab-' + activeId : 'workspace-title'"
+          [attr.data-drop-kind]="activeId ? 'epic' : null" [attr.data-parent]="activeId || null" tabindex="0">
+          @if (active; as a) {
+            <div class="workspace-context"><span>{{ areaName(a.parentId) }} <span aria-hidden="true">/</span> {{ a.title }}</span></div>
+          }
+          <div class="objects">
+            @for (node of roots; track node.id) {
+              <app-canvas-node [node]="node" [state]="state" [version]="v" [disabled]="saving"
+                (drag)="startDrag($event)" (action)="open($event.kind, $event.parentId, $event)" (add)="addChild($event)" />
+            }
+          </div>
+          @if (!roots.length) {
+            <div class="empty"><span aria-hidden="true">✧</span>
+              <h3>{{ i18n.t(active ? 'canvas.emptyEpic' : 'canvas.noEpic') }}</h3>
+              <p>{{ i18n.t(active ? 'canvas.emptyEpicHint' : state.areas.length ? 'canvas.noEpicHint' : 'canvas.noAreaHint') }}</p>
+            </div>
+          }
+        </div>
+      </section>
+      <div class="divider" role="separator" tabindex="0" aria-orientation="vertical" [attr.aria-label]="i18n.t('canvas.resize')"
+        [attr.aria-valuenow]="freeWidth" aria-valuemin="20" aria-valuemax="50" (pointerdown)="resizeStart($event)" (keydown)="resizeKey($event)"><span></span></div>
+      <aside class="free-space" data-drop-kind="FREE" aria-labelledby="free-title">
+        <div class="free-header"><div class="free-title"><span aria-hidden="true">◌</span><div><h2 id="free-title">{{ i18n.t('canvas.freeSpace') }}</h2><p>{{ i18n.t('canvas.freeHint') }}</p></div></div>
+          <label class="search"><span aria-hidden="true">⌕</span>
+            <input type="search" [value]="search" (input)="search = $any($event.target).value" [placeholder]="i18n.t('canvas.search')" [attr.aria-label]="i18n.t('canvas.search')" /></label>
+          <div class="create-actions">
+            <button type="button" [disabled]="saving" (click)="open('feature')">+ {{ i18n.t('canvas.feature') }}</button>
+            <button type="button" [disabled]="saving" (click)="open('story')">+ {{ i18n.t('canvas.story') }}</button>
+            <button type="button" [disabled]="saving" (click)="open('task')">+ {{ i18n.t('canvas.task') }}</button></div>
+        </div>
+        <div class="scroll-panel free-objects" tabindex="0" [attr.aria-label]="i18n.t('canvas.freeSpace')">
+          @for (node of freeRoots; track node.id) {
+            <app-canvas-node [node]="node" [state]="state" [version]="v" [disabled]="saving"
+              (drag)="startDrag($event)" (action)="open($event.kind, $event.parentId, $event)" (add)="addChild($event)" />
+          }
+          @if (!freeRoots.length) {
+            <div class="empty"><span aria-hidden="true">◌</span><h3>{{ i18n.t(search ? 'canvas.noResults' : 'canvas.emptyFree') }}</h3><p>{{ i18n.t('canvas.emptyFreeHint') }}</p></div>
+          }
+        </div>
+      </aside>
+    </div>
+  }
+  <span class="sr-only" role="status" aria-live="polite">{{ announcement }}</span>
+</section>
+
+<dialog #editor class="editor canvas-editor" aria-labelledby="canvas-editor-title" (click)="onBackdrop($event)" (close)="modal = null">
+  @if (modal; as m) {
+    <header>
+      <h2 id="canvas-editor-title">{{ i18n.t(m.node ? 'canvas.edit' : 'canvas.create') }} · {{ i18n.t('canvas.' + m.kind) }}</h2>
+      @if (m.node) { <button type="button" class="danger" [disabled]="saving" (click)="remove()">{{ i18n.t('task.delete') }}</button> }
+    </header>
+    <form (submit)="$event.preventDefault(); submit()">
+      <label class="field">{{ i18n.t('canvas.name') }}
+        <input [value]="title" (input)="title = $any($event.target).value" autocomplete="off" autofocus /></label>
+      @if (m.kind === 'epic') {
+        <label class="field">{{ i18n.t('canvas.area') }}
+          <select (change)="parentId = $any($event.target).value">
+            <option value="" disabled [selected]="!parentId">{{ i18n.t('canvas.choose') }}</option>
+            @for (area of areaOptions; track area.id) { <option [value]="area.id" [selected]="area.id === parentId">{{ area.title }}</option> }
+          </select></label>
+      } @else if (m.kind !== 'area') {
+        <fieldset class="cascade"><legend>{{ i18n.t('canvas.moveTo') }}</legend>
+          <label>{{ i18n.t('canvas.area') }}
+            <select (change)="pickCascade('area', $any($event.target).value)">
+              <option value="" disabled [selected]="!cascade.area">{{ i18n.t('canvas.choose') }}</option>
+              <option [value]="FREE" [selected]="cascade.area === FREE">{{ i18n.t('canvas.freeSpace') }}</option>
+              @for (area of state.areas; track area.id) { <option [value]="area.id" [selected]="area.id === cascade.area">{{ area.title }}</option> }
+            </select></label>
+          @if (cascade.area === FREE) {
+            @if (freeOptions.length) {
+              <label>{{ i18n.t('canvas.inFreeSpace') }}
+                <select (change)="pickFree($any($event.target).value)">
+                  <option value="" [selected]="!freeParent">{{ i18n.t('canvas.freeSpace') }}</option>
+                  @for (option of freeOptions; track option.id) { <option [value]="option.id" [selected]="option.id === freeParent">{{ option.title }}</option> }
+                </select></label>
+            }
+          } @else if (cascade.area) {
+            @for (level of cascadeLevels; track level; let i = $index) {
+              @if (i === 0 || cascade[cascadeLevels[i - 1]]) {
+                <label>{{ i18n.t('canvas.' + level) }}
+                  <select (change)="pickCascade(level, $any($event.target).value)">
+                    <option value="" disabled [selected]="!cascade[level]">{{ i18n.t(cascadeOptions(level).length ? 'canvas.choose' : 'canvas.noneHere') }}</option>
+                    @for (option of cascadeOptions(level); track option.id) { <option [value]="option.id" [selected]="option.id === cascade[level]">{{ option.title }}</option> }
+                  </select></label>
+              }
+            }
+          }
+        </fieldset>
+      }
+      @if (m.node && m.kind === 'task') {
+        <div class="color-pick" role="group" [attr.aria-label]="i18n.t('task.color')">
+          <span>{{ i18n.t('task.color') }}</span>
+          <button type="button" class="swatch auto" [class.on]="!colorOf(m.node)" [attr.aria-pressed]="!colorOf(m.node)" (click)="setColor(null)">{{ i18n.t('task.auto') }}</button>
+          @for (choice of colorChoices; track choice.color) {
+            <button type="button" class="swatch" [style.background]="choice.color" [class.on]="colorOf(m.node) === choice.color"
+              [attr.aria-pressed]="colorOf(m.node) === choice.color" [attr.aria-label]="i18n.t(choice.label)" [title]="i18n.t(choice.label)" (click)="setColor(choice.color)"></button>
+          }
+        </div>
+      }
+      @if (m.node && m.kind !== 'epic' && m.kind !== 'area') {
+        <div class="arrange-actions">
+          <button type="button" class="chip quiet" [disabled]="saving" (click)="arrange(-1)">↑ {{ i18n.t('canvas.earlier') }}</button>
+          <button type="button" class="chip quiet" [disabled]="saving" (click)="arrange(1)">↓ {{ i18n.t('canvas.later') }}</button>
+        </div>
+      }
+      <p class="hint">{{ i18n.t('canvas.draftHint') }}</p>
+      <footer>
+        <button type="button" (click)="close()">{{ i18n.t('task.cancel') }}</button>
+        <button type="submit" class="primary" [disabled]="!canApply">{{ i18n.t('canvas.apply') }}</button>
+      </footer>
+    </form>
+  }
+</dialog>
