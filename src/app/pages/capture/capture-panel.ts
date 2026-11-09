@@ -1,7 +1,7 @@
 import { Component, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
-import { LibNode, addNode, inboxTasks, moveNode, newNodeId, nodeById, removeNode, storyOptions, updateNode } from '../../core/library.model';
+import { LibNode, addNode, inboxTasks, paperAge, moveNode, newNodeId, nodeById, removeNode, storyOptions, updateNode } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
 import { DAYS } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
@@ -16,8 +16,12 @@ import { CaptureUi } from './capture-ui';
 @Component({
   selector: 'app-capture-panel',
   template: `
-    <button type="button" class="capture-fab" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')"
-      (click)="ui.open.set(true)">✎</button>
+    @if (ui.fab(); as fab) {
+      @if (!fab.hidden) { <button type="button" class="capture-fab" [attr.aria-label]="fab.label" [title]="fab.label" (click)="fab.run()">✎</button> }
+    } @else {
+      <button type="button" class="capture-fab" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')"
+        (click)="ui.open.set(true)">✎</button>
+    }
     <dialog #panel class="capture-panel" aria-labelledby="capture-title" (click)="onBackdrop($event)" (close)="unfollow?.(); ui.open.set(false)">
       <header>
         <h2 id="capture-title">{{ i18n.t('capture.title') }}</h2>
@@ -32,7 +36,7 @@ import { CaptureUi } from './capture-ui';
       @if (library.error()) { <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ library.error() }}</p> }
       <ul class="capture-list">
         @for (task of inbox(); track task.id) {
-          <li>
+          <li [attr.data-paper]="paper(task)">
             @if (editing() === task.id) {
               <input class="c-edit" type="text" [value]="task.title" [attr.aria-label]="i18n.t('capture.edit')"
                 (keydown.enter)="$event.preventDefault(); saveEdit(task, $any($event.target).value)"
@@ -119,6 +123,11 @@ export class CapturePanel {
     };
   }
 
+  /** How old this idea's paper looks: a captured idea left alone turns to parchment, then old stained paper. */
+  protected paper(task: LibNode): 0 | 1 | 2 | null {
+    return paperAge(task, this.week.now().getTime());
+  }
+
   protected close(): void {
     this.ui.open.set(false);
   }
@@ -131,7 +140,7 @@ export class CapturePanel {
   protected add(input: HTMLInputElement): void {
     const title = input.value.trim();
     if (!title) return;
-    const added = this.library.update((lib) => addNode(lib, { id: newNodeId(), kind: 'task', title, parentId: null, color: null }));
+    const added = this.library.update((lib) => addNode(lib, { id: newNodeId(), kind: 'task', title, parentId: null, color: null, created: Date.now() }));
     if (!added) return;
     input.value = '';
     this.message.set('');

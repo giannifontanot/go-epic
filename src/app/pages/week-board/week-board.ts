@@ -1,11 +1,12 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { I18n } from '../../core/i18n';
 import {
   Block, DAYS, Day, NEW_TASK_MINUTES, Task, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId,
   nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
 } from '../../core/week.model';
-import { Library, fileTask, followLibrary, nodeById, updateNode } from '../../core/library.model';
+import { Library, fileTask, followLibrary, nodeById, paperAge, updateNode } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
+import { CaptureUi } from '../capture/capture-ui';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
 import { Transfer, TransferDialog } from './transfer-dialog';
@@ -23,6 +24,7 @@ export class WeekBoard {
   protected readonly store = inject(WeekStore);
   protected readonly i18n = inject(I18n);
   protected readonly library = inject(LibraryStore);
+  protected readonly capture = inject(CaptureUi);
   protected readonly days = DAYS;
 
   protected readonly arranging = signal(false);
@@ -30,6 +32,12 @@ export class WeekBoard {
   constructor() {
     // Arranging files tasks in the library: it stops while the library is not loaded (sign-out, another account).
     effect(() => { if (!this.library.ready()) this.arranging.set(false); });
+    // On the Week board the floating ✎ arranges the week (Capture is the 💡 at the top); hidden while arranging.
+    effect(() => {
+      const hidden = this.arranging() || !this.store.loaded() || !this.library.ready();
+      this.capture.fab.set({ label: this.i18n.t('week.arrange'), run: () => this.toggleArrange(), hidden });
+    });
+    inject(DestroyRef).onDestroy(() => this.capture.fab.set(null));
   }
   protected readonly mobileDay = signal<Day>(this.store.today());
   protected readonly notice = signal('');
@@ -53,6 +61,11 @@ export class WeekBoard {
   /** Where today's now-line sits: the running task and the share of it already gone. */
   protected readonly now = computed(() => nowPosition(this.store.week()[this.store.today()], this.store.nowMinutes()));
   protected readonly nowLabel = computed(() => formatClock(this.store.nowMinutes()));
+
+  /** The details belong to a day's + (a new block with its first activity), not to a block's own +. */
+  protected isNewBlock(edit: TaskEdit): boolean {
+    return edit.isNew && !!this.draftBlock() && edit.blockId === this.draftBlock()!.id;
+  }
 
   protected blocks(day: Day): Block[] {
     return this.store.week()[day].blocks;
@@ -91,6 +104,11 @@ export class WeekBoard {
     const total = windowLength(block) ?? taskTotal(block);
     if (start === null) return total ? `${total} min` : '';
     return `${formatClock(start)}–${formatClock(start + total)} · ${total} min`;
+  }
+
+  /** A captured task's paper age (0 fresh, 1 parchment, 2 old stained), from its library task; null keeps the pastel. */
+  protected paper(task: Task): 0 | 1 | 2 | null {
+    return paperAge(nodeById(this.library.library(), task.ref), this.store.now().getTime());
   }
 
   protected isDone(day: Day, task: Task): boolean {

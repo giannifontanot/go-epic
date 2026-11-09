@@ -1,5 +1,5 @@
 import {
-  LibNode, Library, STARTER_TEMPLATE, canParent, planTemplateChanges, followDay, inboxTasks, planTemplate, storyOptions, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, tasksWithin, twinTask,
+  LibNode, Library, STARTER_TEMPLATE, paperAge, canParent, planTemplateChanges, followDay, inboxTasks, planTemplate, storyOptions, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, tasksWithin, twinTask,
 } from './library.model';
 
 const n = (id: string, kind: LibNode['kind'], parentId: string | null, title = id): LibNode => ({ id, kind, title, parentId, color: null });
@@ -146,5 +146,28 @@ describe('library model', () => {
     expect(add).toEqual([]);                                                // Activities are found under the renamed Stories
     const after = before.map((x) => { const r = renames.find((y) => y.id === x.id); return r ? { ...x, title: r.title } : x; });
     expect(planTemplateChanges(after, STARTER_TEMPLATE, id)).toEqual({ renames: [], add: [] });
+  });
+
+  it('paper ages: fresh, parchment from 5 days, old stained paper from 21; none without a creation time', () => {
+    const day = 86_400_000, now = 100 * day;
+    expect(paperAge({ created: now }, now)).toBe(0);
+    expect(paperAge({ created: now - 4.9 * day }, now)).toBe(0);
+    expect(paperAge({ created: now - 5 * day }, now)).toBe(1);
+    expect(paperAge({ created: now - 20.9 * day }, now)).toBe(1);
+    expect(paperAge({ created: now - 21 * day }, now)).toBe(2);
+    expect(paperAge({ created: now + day }, now)).toBe(0);               // a clock ahead never goes negative
+    expect(paperAge({}, now)).toBeNull();
+    expect(paperAge(undefined, now)).toBeNull();
+  });
+
+  it('keeps a task\'s creation time and never writes undefined', () => {
+    const lib = sanitizeLibrary({ nodes: [
+      { id: 't', kind: 'task', title: 'Call', parentId: null, color: null, created: 123 },
+      { id: 'u', kind: 'task', title: 'Old', parentId: null, color: null },
+      { id: 'a', kind: 'area', title: 'A', parentId: null, color: null, created: 5 },
+    ] });
+    expect(lib.nodes[0].created).toBe(123);
+    expect('created' in lib.nodes[1]).toBe(false);
+    expect('created' in lib.nodes[2]).toBe(false);                       // only tasks age
   });
 });

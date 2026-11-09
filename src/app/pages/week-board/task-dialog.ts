@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, computed, effect, inject, input, output, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
-import { Kind, LibNode, Library, nodeById, pathOf, taskByTitle, tasksWithin, twinTask } from '../../core/library.model';
+import { Kind, LibNode, Library, nodeById, paperAge, pathOf, taskByTitle, tasksWithin, twinTask } from '../../core/library.model';
 import { Block, COLOR_CHOICES, DAYS, Day, Task, Week, fits, freeMinutes, validMinutes } from '../../core/week.model';
 
 type Level = 'area' | 'epic' | 'feature' | 'story';
@@ -33,12 +33,12 @@ export interface TaskSave {
 @Component({
   selector: 'app-task-dialog',
   template: `
-    <dialog #dialog class="editor" aria-labelledby="task-dialog-title" (cancel)="$event.preventDefault(); leave()"
+    <dialog #dialog class="editor" [class.new-block]="newBlock()" aria-labelledby="task-dialog-title" (cancel)="$event.preventDefault(); leave()"
             (click)="onBackdrop($event)">
       <header>
         <div>
           <p class="eyebrow">{{ i18n.t('day.' + edit().day) }} · {{ blockName() }}</p>
-          <h2 id="task-dialog-title" tabindex="-1" autofocus>{{ i18n.t(edit().isNew ? 'task.newTitle' : 'task.title') }}</h2>
+          <h2 id="task-dialog-title" tabindex="-1" autofocus>{{ i18n.t(newBlock() ? 'task.newBlockTitle' : edit().isNew ? 'task.newTitle' : 'task.title') }}</h2>
         </div>
         <button type="button" class="danger" (click)="askRemove()">{{ i18n.t('task.delete') }}</button>
       </header>
@@ -61,10 +61,7 @@ export interface TaskSave {
             <span class="linked-chip" [style.background]="color() || node.color || '#ffd5bd'">{{ node.title }}
               <button type="button" [attr.aria-label]="i18n.t('task.unlink')" [title]="i18n.t('task.unlink')" (click)="unlink(name)">×</button></span>
           } @else if (existing().length) {
-            <select (change)="useLibraryTask($any($event.target).value)">
-              <option value="" selected>{{ i18n.t('canvas.choose') }}</option>
-              @for (option of existing(); track option.node.id) { <option [value]="option.node.id">{{ option.label }}</option> }
-            </select>
+            <button type="button" class="pick-open" (click)="openPicker()">{{ i18n.t('task.pickActivity', { n: existing().length }) }} ›</button>
           } @else {
             <span class="hint">{{ i18n.t('task.noTasksHere') }}</span>
           }
@@ -114,6 +111,39 @@ export interface TaskSave {
         <button type="button" class="primary" (click)="done()">{{ i18n.t('task.done') }}</button>
       </footer>
     </dialog>
+
+    <!-- Existing activities, each drawn as in the Canvas: the Epic (plum), its Feature (yellow jelly), its Story (cream)
+         and the Activity itself (its pastel) at the bottom. The Where filters above shorten the list. -->
+    <dialog #picker class="editor activity-picker" aria-labelledby="picker-title" (click)="onPickerBackdrop($event)">
+      <header>
+        <h2 id="picker-title">{{ i18n.t('task.pickTitle') }}</h2>
+        <button type="button" class="pick-close" [attr.aria-label]="i18n.t('nav.close')" (click)="closePicker()">×</button>
+      </header>
+      <ul class="pick-list">
+        @for (option of pickCards(); track option.node.id) {
+          <li><button type="button" class="pick-card" (click)="pickActivity(option.node.id)">
+            @if (option.epic) {
+              <span class="pc-epic"><small>{{ i18n.t('canvas.epic') }}</small><strong>{{ option.epic }}</strong></span>
+            } @else {
+              <span class="pc-epic pc-free"><small>{{ i18n.t('canvas.freeSpace') }}</small></span>
+            }
+            <span class="pc-nest">
+              @if (option.story) {
+                <span class="pc-feature"><small>{{ i18n.t('canvas.feature') }}</small><strong>{{ option.feature }}</strong>
+                  <span class="pc-story"><small>{{ i18n.t('canvas.story') }}</small><strong>{{ option.story }}</strong>
+                    <span class="pc-activity" [style.background]="option.paper === null ? option.tone : null" [attr.data-paper]="option.paper">
+                      <small>{{ i18n.t('canvas.task') }}</small><strong>{{ option.node.title }}</strong></span>
+                  </span>
+                </span>
+              } @else {
+                <span class="pc-activity" [style.background]="option.paper === null ? option.tone : null" [attr.data-paper]="option.paper">
+                  <small>{{ i18n.t('canvas.task') }}</small><strong>{{ option.node.title }}</strong></span>
+              }
+            </span>
+          </button></li>
+        }
+      </ul>
+    </dialog>
   `,
 })
 export class TaskDialog implements AfterViewInit {
@@ -123,11 +153,14 @@ export class TaskDialog implements AfterViewInit {
   readonly library = input.required<Library>();
   /** The saved library has arrived: the Where and the Existing task show only then (a task is filed on Done). */
   readonly libraryReady = input(false);
+  /** Opened by a day's +: it creates a new block with its first activity, so the window is block yellow (Gianni). */
+  readonly newBlock = input(false);
   readonly save = output<TaskSave>();
   readonly cancel = output<void>();
   readonly remove = output<void>();
 
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
+  private readonly picker = viewChild.required<ElementRef<HTMLDialogElement>>('picker');
   /** Closing (shrinking away): further presses are ignored, so a double click never saves or leaves twice. */
   private leaving = false;
   protected readonly days = DAYS;
@@ -176,6 +209,16 @@ export class TaskDialog implements AfterViewInit {
         return { node, label: w.story ? node.title : `${node.title} · ${where}` };
       })
       .sort((a, b) => a.label.localeCompare(b.label));
+  });
+  /** The same activities as cards for the picker: Epic › Feature › Story › Activity, each with its Canvas colour. */
+  protected readonly pickCards = computed(() => {
+    const lib = this.library();
+    const now = Date.now();
+    return this.existing().map(({ node }) => {
+      const path = pathOf(lib, node.id).slice(0, -1);
+      const of = (kind: string) => path.find((n) => n.kind === kind)?.title ?? '';
+      return { node, epic: of('epic'), feature: of('feature'), story: of('story'), tone: node.color || '#ffd5bd', paper: paperAge(node, now) };
+    });
   });
   /** A typed name that already exists in the chosen story (or Free Space): Done links to it. */
   protected readonly twin = computed(() => (this.linkedNode() ? undefined : twinTask(this.library(), this.title(), this.where().story || null)));
@@ -241,6 +284,20 @@ export class TaskDialog implements AfterViewInit {
     if (node && !(deepest ? pathOf(this.library(), node.id).some((n) => n.id === deepest) && (!w.story || node.parentId === w.story) : node.parentId === null)) {
       this.linked.set('');                                                   // another place: the name box names a task there
     }
+  }
+
+  protected openPicker(): void {
+    openDialog(this.picker().nativeElement);
+  }
+  protected closePicker(): void {
+    void closeDialog(this.picker().nativeElement);
+  }
+  protected onPickerBackdrop(event: MouseEvent): void {
+    if (isBackdropClick(event, this.picker().nativeElement)) this.closePicker();
+  }
+  /** A card picked: the details link to that activity, and the list shrinks back into the button. */
+  protected pickActivity(id: string): void {
+    void closeDialog(this.picker().nativeElement).then(() => this.useLibraryTask(id));
   }
 
   protected useLibraryTask(id: string): void {

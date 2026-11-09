@@ -24,6 +24,24 @@ export interface LibNode {
   parentId: string | null;
   /** Tasks only: a picked colour, null = the automatic pastel. */
   color: string | null;
+  /** Tasks only, optional: when it was captured or created (millis). Its paper ages from then (`paperAge`). */
+  created?: number;
+}
+
+/** Days a task stays fresh paper, and from when it is old stained paper (as in Epic Manager's Capture). */
+export const PAPER_PARCHMENT_DAYS = 5;
+export const PAPER_OLD_DAYS = 21;
+
+/**
+ * How old a task's paper looks (Gianni: a captured idea left alone should look neglected): 0 fresh (under 5 days),
+ * 1 parchment (5 to 20 days), 2 old stained paper (21 days or more); null when the task has no creation time
+ * (made before this existed, or by the starter template), which keeps its pastel.
+ */
+export function paperAge(node: Pick<LibNode, 'created'> | undefined | null, now: number): 0 | 1 | 2 | null {
+  const created = node?.created;
+  if (typeof created !== 'number' || !Number.isFinite(created)) return null;
+  const days = Math.max(0, now - created) / 86_400_000;
+  return days >= PAPER_OLD_DAYS ? 2 : days >= PAPER_PARCHMENT_DAYS ? 1 : 0;
 }
 
 export interface Library {
@@ -162,13 +180,16 @@ export function sanitizeLibrary(raw: unknown): Library {
   for (const item of list) {
     const n = item as Partial<LibNode>;
     if (!n || typeof n.id !== 'string' || !KINDS.includes(n.kind as Kind)) continue;
-    nodes.push({
+    const node: LibNode = {
       id: n.id,
       kind: n.kind as Kind,
       title: String(n.title ?? ''),
       parentId: typeof n.parentId === 'string' ? n.parentId : null,
       color: n.kind === 'task' && typeof n.color === 'string' && n.color ? n.color : null,
-    });
+    };
+    // Only when present: Firestore refuses undefined fields.
+    if (n.kind === 'task' && typeof n.created === 'number' && Number.isFinite(n.created)) node.created = n.created;
+    nodes.push(node);
   }
   // A parent that no longer exists, or of the wrong kind, sends the node to Free Space instead of hiding it.
   const lib = { nodes };
@@ -189,7 +210,7 @@ export function fileTask(lib: Library, title: string, parentId: string | null, c
   const story = parentId && nodeById(lib, parentId)?.kind === 'story' ? parentId : null;
   const twin = twinTask(lib, title, story);
   if (twin) return { lib, id: twin.id };
-  const node: LibNode = { id: newNodeId(), kind: 'task', title: title.trim(), parentId: story, color };
+  const node: LibNode = { id: newNodeId(), kind: 'task', title: title.trim(), parentId: story, color, created: Date.now() };
   return { lib: addNode(lib, node), id: node.id };
 }
 
