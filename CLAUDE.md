@@ -7,7 +7,7 @@ Every pull request:
 3. carries the PR Checklist below.
 
 ## Overview
-Go Epic is the Week board and Focus mode of Epic Manager (`giannifontanot/epic-manager`), rebuilt on Firebase with no server of its own. Only those two screens exist on purpose: no hierarchy (areas/stories), no seed editor, no variants, no sync queue. The owner is Gianni.
+Go Epic is the Week board, Focus mode and Floating Canvas of Epic Manager (`giannifontanot/epic-manager`), rebuilt on Firebase with no server of its own. Only those three screens exist on purpose: no seed editor, no variants, no sync queue. The owner is Gianni.
 
 - **Stack:** Angular 22 (standalone components, signals, new control flow, zoneless), TypeScript strict, Firebase JS SDK 13 (Auth + Firestore), Firebase Hosting, Vitest.
 - **Cost:** must stay on the free **Spark** plan: no Cloud Functions, no Cloud Run, nothing that needs the Blaze plan.
@@ -18,10 +18,12 @@ Go Epic is the Week board and Focus mode of Epic Manager (`giannifontanot/epic-m
 ```
 users/{uid}/week/{DAY}         { blocks: Block[] }                 DAY = MONDAY…SUNDAY
 users/{uid}/days/{YYYY-MM-DD}  { done: { [taskId]: millis } }      today's done marks (local date)
+users/{uid}/library/tree       { nodes: LibNode[] }                the task library (Floating Canvas)
 ```
+- `LibNode { id, kind: 'area'|'epic'|'feature'|'story'|'task', title, parentId: string|null, color }`: five levels, Area → Epic → Feature → User story → Task, each parent of the kind above (`PARENT_KIND`). `parentId` null = an area (the top) or an object waiting in **Free Space** (never an epic). Every task exists once in the library; a container can be deleted only when empty, a task always (its week places go on Save).
 - `Block { id, name, start: 'HH:mm'|null, end: 'HH:mm'|null, tasks: Task[] }`: the start anchors the first task, later starts cascade by minutes; the end is a hard limit (the tasks' minutes never pass `end - start`).
-- `Task { id, title, minutes, color: string|null, active }`: `color` null = automatic pastel (`blockColors`: FNV-1a of the title, never like the card above).
-- `firestore.rules`: each user reads/writes only `users/{uid}/**`. Update the rules with any new collection.
+- `Task { id, title, minutes, color: string|null, active, ref: string|null }`: `color` null = automatic pastel (`blockColors`: FNV-1a of the title, never like the card above). `ref` = the library task this card schedules (one library task can sit in many blocks); the library is the truth for its title and colour (`followLibrary`).
+- `firestore.rules`: each user reads/writes only `users/{uid}/**` (week, days and library). Update the rules with any new collection.
 - Firestore refuses `undefined`: `WeekStore` sanitizes every block on the way in and out.
 - `WeekStore.setBlocks` writes a whole day; an echo of an older local write must not undo a newer one (`pending` queue per day). Keep that when touching the store.
 
@@ -33,6 +35,9 @@ users/{uid}/days/{YYYY-MM-DD}  { done: { [taskId]: millis } }      today's done 
 - `src/app/core/i18n.ts`: EN/ES labels (`I18n.t`); every key needs both languages (a spec checks it).
 - `src/app/pages/week-board/`: Week board, `TaskDialog` (Floating Canvas look: Delete top, Cancel/Done bottom, edits a draft), `TransferDialog` (white Copy/Move card).
 - `src/app/pages/focus/focus.ts`: today's tasks, the running/next one large, tap to mark done.
+- `src/app/core/library.model.ts` (pure rules, with specs) + `library.store.ts` (the library document, same pending-echo and `ready` rules as `WeekStore`).
+- `src/app/pages/canvas/`: **Floating Canvas** (`/canvas`), as in Epic Manager: Epic tabs filtered by area (+ Area, Edit area, + Epic), the Epic workspace (Feature jelly boxes → cream Story containers → pastel Task capsules, ± fold, ••• actions), Free Space (search, + Feature/Story/Task) behind a resizable divider and a Free Space switch (`go-epic-canvas-free-space`). Every change is a draft (`CanvasState`, undo/redo up to 80 steps) until **Save**; Discard returns to the saved library; leaving with a draft asks (`canDeactivate` + `beforeunload`). Drag by the grip (`CanvasMotion` ghost, landing and FLIP; drops only on the right parent kind, `data-drop-kind`); positions/order are this device's view preference (`go-epic-canvas-layout`), never hierarchy. The ••• dialog renames, moves (Move to cascade Area → Epic → Feature → Story, a single choice filled in, Free Space + "Inside"), arranges ↑/↓, colours tasks and deletes. Save writes the library, then the week follows: renamed/recoloured tasks change in every block, deleted ones leave it (an emptied block goes).
+- Week task details: **Where** (Area → Epic → Feature → Story, empty = Free Space) and **Existing task** (the library tasks under the chosen level, "title · story"); picking one links the card (pastel chip with ×, name read-only). Done files the card: the linked task, the same-titled task of that story (or Free Space, "Already exists. Linked to it."), else a new library task there; a colour picked here is the library task's colour everywhere. Quick-add files under the story of the block's previous linked task.
 - `src/styles.css`: all styles (global, Epic Manager palette: navy `#101b42`, cream `#fff4e9`, plum days, yellow jelly blocks, pastel cards, pink `#f4a8b7` primary, teal `#76e0d0` focus).
 
 ## Conventions

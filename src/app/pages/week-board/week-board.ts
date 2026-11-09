@@ -1,10 +1,12 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { I18n } from '../../core/i18n';
 import {
   Block, DAYS, Day, NEW_TASK_MINUTES, Task, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId,
   nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
 } from '../../core/week.model';
-import { WeekStore } from '../../core/week.store';
+import { Library, fileTask, followLibrary, nodeById, updateNode } from '../../core/library.model';
+import { LibraryStore } from '../../core/library.store';
+import { WeekStore, WeekWrite } from '../../core/week.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
 import { Transfer, TransferDialog } from './transfer-dialog';
 
@@ -20,9 +22,15 @@ import { Transfer, TransferDialog } from './transfer-dialog';
 export class WeekBoard {
   protected readonly store = inject(WeekStore);
   protected readonly i18n = inject(I18n);
+  protected readonly library = inject(LibraryStore);
   protected readonly days = DAYS;
 
   protected readonly arranging = signal(false);
+
+  constructor() {
+    // Arranging files tasks in the library: it stops while the library is not loaded (sign-out, another account).
+    effect(() => { if (!this.library.ready()) this.arranging.set(false); });
+  }
   protected readonly mobileDay = signal<Day>(this.store.today());
   protected readonly notice = signal('');
   protected readonly windowErrors = signal<Record<string, string>>({});
@@ -90,7 +98,7 @@ export class WeekBoard {
   }
 
   protected toggleArrange(): void {
-    if (!this.store.loaded()) return;                                        // edits wait for the saved week
+    if (!this.store.loaded() || !this.library.ready()) return;               // edits wait for the saved week and library
     this.arranging.update((on) => !on);
     this.notice.set('');
   }
@@ -98,7 +106,7 @@ export class WeekBoard {
   // --- Blocks ---
 
   protected addBlock(day: Day): void {
-    const task: Task = { id: newId(), title: '', minutes: NEW_TASK_MINUTES, color: null, active: true };
+    const task: Task = { id: newId(), title: '', minutes: NEW_TASK_MINUTES, color: null, active: true, ref: null };
     const name = uniqueName(this.blocks(day).map((b) => b.name), this.i18n.t('week.newBlock'));
     this.draftBlock.set({ id: newId(), name, start: null, end: null, tasks: [] });   // saved (at the top of the day) only on Done
     this.editing.set({ day, blockId: this.draftBlock()!.id, task, isNew: true });
@@ -156,7 +164,7 @@ export class WeekBoard {
 
   protected addTask(day: Day, block: Block): void {
     const free = freeMinutes(block);
-    const task: Task = { id: newId(), title: '', minutes: free === null ? NEW_TASK_MINUTES : Math.max(0, Math.min(NEW_TASK_MINUTES, free)), color: null, active: true };
+    const task: Task = { id: newId(), title: '', minutes: free === null ? NEW_TASK_MINUTES : Math.max(0, Math.min(NEW_TASK_MINUTES, free)), color: null, active: true, ref: null };
     this.draftBlock.set(null);
     this.editing.set({ day, blockId: block.id, task, isNew: true });        // a draft: added to the block only on Done
   }
@@ -166,8 +174,12 @@ export class WeekBoard {
     if (!title) return;
     const free = freeMinutes(block);
     const minutes = free === null ? NEW_TASK_MINUTES : Math.max(0, Math.min(NEW_TASK_MINUTES, free));
-    const task: Task = { id: newId(), title, minutes, color: null, active: true };
-    this.store.update(day, (blocks) => blocks.map((b) => (b.id === block.id ? { ...b, tasks: [...b.tasks, task] } : b)));
+    const task: Task = { id: newId(), title, minutes, color: null, active: true, ref: null };
+    // Filed with the previous task of the block (its user story), as in Epic Manager's quick-add; else in Free Space.
+    const previous = [...block.tasks].reverse().find((t) => t.ref && nodeById(this.library.library(), t.ref));
+    const filed = this.fileInLibrary(task, nodeById(this.library.library(), previous?.ref)?.parentId ?? null, false);
+    this.inBatch(filed.lib, () =>
+      this.updateDay(day, (blocks) => blocks.map((b) => (b.id === block.id ? { ...b, tasks: [...b.tasks, filed.task] } : b))));
     input.value = '';
   }
 
@@ -188,14 +200,74 @@ export class WeekBoard {
 
   /** A block lives only through its tasks: removing its last task removes the block. */
   private removeTask(day: Day, blockId: string, taskId: string): void {
-    this.store.update(day, (blocks) =>
+    this.updateDay(day, (blocks) =>
       blocks
         .map((b) => (b.id === blockId ? { ...b, tasks: b.tasks.filter((t) => t.id !== taskId) } : b))
         .filter((b) => b.id !== blockId || b.tasks.length > 0),
     );
   }
 
-  protected saveTask(save: TaskSave): void {
+  /**
+   * Every week task schedules a library task (Floating Canvas): the linked one, the same-titled task of the chosen
+   * story (or Free Space), or a new one there. A colour picked here is the library task's colour, in every block.
+   * Returns the filed task and the library to save (null when unchanged); `inBatch` saves both together.
+   */
+  private fileInLibrary(task: Task, parentId: string | null, colorPicked: boolean): { task: Task; lib: Library | null } {
+    if (!this.library.ready() || !task.title.trim()) return { task, lib: null };
+    const current = this.library.library();
+    let lib = current;
+    let id = task.ref && nodeById(lib, task.ref)?.kind === 'task' ? task.ref : '';
+    if (!id) ({ lib, id } = fileTask(lib, task.title, parentId, task.color));
+    const node = nodeById(lib, id)!;
+    if (colorPicked && node.color !== task.color) lib = updateNode(lib, id, { color: task.color });
+    return { task: { ...task, title: node.title, color: colorPicked ? task.color : node.color, ref: id }, lib: lib === current ? null : lib };
+  }
+
+  /** Day changes collected while `inBatch` runs (null: writes go straight to the store). */
+  private batch: Partial<Record<Day, Block[]>> | null = null;
+
+  /** Changes a day now, or inside the current batch. */
+  private updateDay(day: Day, change: (blocks: Block[]) => Block[]): void {
+    if (!this.batch) { this.store.update(day, change); return; }
+    this.batch[day] = change(structuredClone(this.batch[day] ?? this.blocks(day)));
+  }
+
+  /**
+   * Runs the day changes of one action; with a changed library, every day that changes (the action's, and the other
+   * places of its library tasks that follow their title and colour) is committed in ONE batch with the library, so a
+   * refused library write can never leave week cards pointing at a task (or colour) the library does not have.
+   */
+  private inBatch(lib: Library | null, action: () => void): void {
+    this.batch = {};
+    try { action(); } finally {
+      const days = this.batch;
+      this.batch = null;
+      if (!lib) {
+        for (const day of DAYS) if (days[day]) this.store.setBlocks(day, days[day]);
+      } else {
+        const writes: WeekWrite[] = [];
+        for (const day of DAYS) {
+          const blocks = days[day] ?? this.blocks(day);
+          let changed = !!days[day];
+          const next = blocks.map((b) => {
+            const tasks = followLibrary(b.tasks, lib);
+            if (tasks.some((t, i) => t !== b.tasks[i])) { changed = true; return { ...b, tasks }; }
+            return b;
+          });
+          const write = changed ? this.store.stage(day, next) : null;
+          if (write) writes.push(write);
+        }
+        this.library.save(lib, writes);
+      }
+    }
+  }
+
+  protected saveTask(raw: TaskSave): void {
+    const filed = this.fileInLibrary(raw.task, raw.parentId, raw.colorPicked);
+    this.inBatch(filed.lib, () => this.applySave({ ...raw, task: filed.task }));
+  }
+
+  private applySave(save: TaskSave): void {
     const edit = this.editing();
     const draft = this.draftBlock();
     this.editing.set(null);
@@ -206,14 +278,14 @@ export class WeekBoard {
     }
     const sameBlock = save.fromDay === save.day && save.fromBlockId === save.blockId;
     if (sameBlock) {
-      this.store.update(save.day, (blocks) =>
+      this.updateDay(save.day, (blocks) =>
         blocks.map((b) => (b.id === save.blockId ? { ...b, tasks: b.tasks.map((t) => (t.id === save.task.id ? save.task : t)) } : b)));
       return;
     }
     // Moved: out of its old block (which goes away when emptied), to the end of the new one.
     const oldName = this.blocks(save.fromDay).find((b) => b.id === save.fromBlockId)?.name ?? this.i18n.t('week.newBlock');
     this.removeTask(save.fromDay, save.fromBlockId, save.task.id);
-    this.store.update(save.day, (blocks) => {
+    this.updateDay(save.day, (blocks) => {
       if (blocks.some((b) => b.id === save.blockId)) {
         return blocks.map((b) => (b.id === save.blockId ? { ...b, tasks: [...b.tasks, save.task] } : b));
       }
@@ -224,7 +296,7 @@ export class WeekBoard {
 
   /** Done on a + task: it joins the latest saved week (other changes made meanwhile stay). */
   private addSaved(save: TaskSave, draft: Block | null): void {
-    this.store.update(save.day, (blocks) => {
+    this.updateDay(save.day, (blocks) => {
       if (blocks.some((b) => b.id === save.blockId)) {
         return blocks.map((b) => (b.id === save.blockId ? { ...b, tasks: [...b.tasks, save.task] } : b));
       }

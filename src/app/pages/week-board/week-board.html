@@ -1,7 +1,7 @@
 <section class="board" [class.locked]="!arranging()">
   <header class="board-top">
     <h1>{{ i18n.t('nav.week') }}</h1>
-    <button type="button" class="chip quiet" [class.on]="arranging()" [disabled]="!store.loaded()" (click)="toggleArrange()">
+    <button type="button" class="chip quiet" [class.on]="arranging()" [disabled]="!store.loaded() || !library.ready()" (click)="toggleArrange()">
       {{ arranging() ? '✓ ' + i18n.t('week.finish') : '✎ ' + i18n.t('week.arrange') }}</button>
   </header>
 
@@ -101,7 +101,7 @@
 </section>
 
 @if (editing(); as edit) {
-  <app-task-dialog [edit]="edit" [week]="dialogWeek()" (save)="saveTask($event)" (cancel)="cancelTask()" (remove)="removeEditing()" />
+  <app-task-dialog [edit]="edit" [week]="dialogWeek()" [library]="library.library()" [libraryReady]="library.ready()" (save)="saveTask($event)" (cancel)="cancelTask()" (remove)="removeEditing()" />
 }
 @if (transferring(); as tr) {
   <app-transfer-dialog [day]="tr.day" [blockName]="tr.block.name" (apply)="applyTransfer($event)" (cancel)="transferring.set(null)" />
