@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { I18n } from '../../core/i18n';
 import {
   Block, DAYS, Day, NEW_TASK_MINUTES, Task, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId,
@@ -26,6 +26,11 @@ export class WeekBoard {
   protected readonly days = DAYS;
 
   protected readonly arranging = signal(false);
+
+  constructor() {
+    // Arranging files tasks in the library: it stops while the library is not loaded (sign-out, another account).
+    effect(() => { if (!this.library.ready()) this.arranging.set(false); });
+  }
   protected readonly mobileDay = signal<Day>(this.store.today());
   protected readonly notice = signal('');
   protected readonly windowErrors = signal<Record<string, string>>({});
@@ -93,7 +98,7 @@ export class WeekBoard {
   }
 
   protected toggleArrange(): void {
-    if (!this.store.loaded()) return;                                        // edits wait for the saved week
+    if (!this.store.loaded() || !this.library.ready()) return;               // edits wait for the saved week and library
     this.arranging.update((on) => !on);
     this.notice.set('');
   }

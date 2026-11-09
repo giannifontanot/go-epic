@@ -1,7 +1,8 @@
 import { Component, DestroyRef, ElementRef, HostListener, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { isBackdropClick } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
-import { Kind, LibNode, PARENT_KIND, rebaseLibrary } from '../../core/library.model';
+import { AuthService } from '../../core/auth.service';
+import { Kind, LibNode, PARENT_KIND, emptyLibrary, rebaseLibrary } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
 import { COLOR_CHOICES, DAYS } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
@@ -35,6 +36,9 @@ export class Canvas {
   protected readonly i18n = inject(I18n);
   protected readonly libraryStore = inject(LibraryStore);
   private readonly week = inject(WeekStore);
+  private readonly auth = inject(AuthService);
+  /** The account the draft belongs to. */
+  private owner: string | null | undefined;
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly editor = viewChild<ElementRef<HTMLDialogElement>>('editor');
 
@@ -65,6 +69,18 @@ export class Canvas {
     // The saved library arrives (or changes on another device): load it, unless there is an unsaved draft.
     effect(() => {
       const lib = this.libraryStore.library();
+      const uid = this.auth.user()?.uid ?? null;
+      untracked(() => {
+        // Another account (or none): the previous account's draft never survives, dirty or not.
+        if (uid !== this.owner) {
+          this.owner = uid;
+          this.cancelDrag();
+          this.close();
+          this.state.load(emptyLibrary(), {});
+          this.activeId = '';
+          this.bump();
+        }
+      });
       if (!this.libraryStore.ready()) return;
       untracked(() => {
         if (this.state.dirty || this.saving) return;
