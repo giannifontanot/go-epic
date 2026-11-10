@@ -2,7 +2,7 @@ import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angul
 import { Unsubscribe, collection, deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { AuthService } from './auth.service';
 import { firebase } from './firebase';
-import { Todo, doneTodos, openTodos, repeats, sanitizeTodo } from './todo.model';
+import { Todo, checkTodo, doneTodos, openTodos, sanitizeTodo } from './todo.model';
 import { Task, blockColors, newId } from './week.model';
 
 /**
@@ -58,16 +58,13 @@ export class TodoStore {
   }
 
   /**
-   * The check. A single task: done (it leaves the open list for the finished one) or open again. A repeating task is
-   * checked for one date only (`date`, the board's day or today), so the next time it comes round it is open again.
+   * The check (`checkTodo`). A single task: done (it leaves the open list for the finished one; checked after rolling
+   * over, it moves to the day it was ticked) or open again. A repeating task is checked for one date only (`date`, the
+   * board's day or today), so the next time it comes round it is open again.
    */
   setDone(id: string, done: boolean, date: string): void {
     const todo = this.todos().find((t) => t.id === id);
-    if (!todo) return;
-    if (!repeats(todo)) { this.save({ ...todo, done: done ? Date.now() : null }); return; }
-    const doneOn = { ...todo.doneOn };
-    if (done) doneOn[date] = Date.now(); else delete doneOn[date];
-    this.save({ ...todo, doneOn });
+    if (todo) this.save(checkTodo(todo, done, date, Date.now()));
   }
 
   remove(id: string): void {

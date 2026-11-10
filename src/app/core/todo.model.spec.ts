@@ -1,4 +1,4 @@
-import { Todo, doneTodos, openTodos, overdueTodos, pinTodos, sanitizeTodo, stackPins, todosForDate, weekDate } from './todo.model';
+import { Todo, checkTodo, doneTodos, openTodos, overdueTodos, pinTodos, sanitizeTodo, stackPins, todosForDate, weekDate } from './todo.model';
 import { DayPlan } from './week.model';
 
 const todo = (id: string, extra: Partial<Todo> = {}): Todo => ({ id, title: id, date: '2026-11-10', time: null, done: null, created: 1, repeat: [], doneOn: {}, ...extra });
@@ -61,5 +61,14 @@ describe('todo model', () => {
     const list = [todo('mon', { date: '2026-11-09', time: '10:00' }), todo('sun', { date: '2026-11-08' }), todo('done', { date: '2026-11-09', done: 1 }),
       todo('today', { date: '2026-11-10' }), todo('rep', { date: '2026-11-01', repeat: ['MONDAY'] }), todo('none', { date: null })];
     expect(overdueTodos(list, '2026-11-10').map((t) => t.id)).toEqual(['sun', 'mon']);
+  });
+
+  it('checks a rolled-over task on the day it is ticked, and a repeating one per date', () => {
+    expect(checkTodo(todo('late', { date: '2026-11-09' }), true, '2026-11-10', 5)).toEqual(expect.objectContaining({ done: 5, date: '2026-11-10' }));
+    expect(checkTodo(todo('now', { date: '2026-11-12' }), true, '2026-11-10', 5)).toEqual(expect.objectContaining({ done: 5, date: '2026-11-12' }));
+    expect(checkTodo(todo('x', { done: 5 }), false, '2026-11-10', 6)).toEqual(expect.objectContaining({ done: null, date: '2026-11-10' }));
+    const gym = todo('gym', { repeat: ['MONDAY'], doneOn: { '2026-11-02': 1 } });
+    expect(checkTodo(gym, true, '2026-11-09', 7).doneOn).toEqual({ '2026-11-02': 1, '2026-11-09': 7 });
+    expect(checkTodo(gym, false, '2026-11-02', 7).doneOn).toEqual({});
   });
 });

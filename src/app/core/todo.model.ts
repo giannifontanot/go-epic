@@ -131,3 +131,17 @@ export function overdueTodos(todos: Todo[], today: string): Todo[] {
     .filter((t) => !repeats(t) && t.done === null && t.date !== null && t.date < today)
     .sort((a, b) => `${a.date} ${a.time ?? '99:99'}`.localeCompare(`${b.date} ${b.time ?? '99:99'}`));
 }
+
+/**
+ * The check, as a pure step. A single task checked on a later day than its own (it had rolled over to today) moves
+ * to that day, so its checked note stays where it was ticked; a repeating task is checked for that date only.
+ */
+export function checkTodo(todo: Todo, done: boolean, date: string, now: number): Todo {
+  if (repeats(todo)) {
+    const doneOn = { ...todo.doneOn };
+    if (done) doneOn[date] = now; else delete doneOn[date];
+    return { ...todo, doneOn };
+  }
+  const moved = done && todo.date !== null && todo.date < date ? date : todo.date;
+  return { ...todo, done: done ? now : null, date: moved };
+}
