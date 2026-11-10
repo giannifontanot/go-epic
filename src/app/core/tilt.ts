@@ -15,6 +15,8 @@ export const TILT_DEAD_ZONE = 4;
 /** The most a button turns (degrees), and the share of its distance to the lower edge it slides at full tilt. */
 export const TILT_MAX_DEG = 5;
 export const TILT_PILE = 0.55;
+/** Bodies (blocks, cards, notes) lean this share of a button's angle (styles.css: `rotate: calc(var(--tilt-r) * .3)`). */
+export const TILT_BODY_LEAN = 0.3;
 
 /**
  * How much the buttons lean for a device tilt (`gamma`, degrees, + = right side down) and screen angle (0 = portrait):
@@ -151,12 +153,29 @@ export class Tilt {
       // A body inside another body (a card in its block, a button on a card) slides within that body, which itself
       // slides within its own room: the slides add up but nothing ever passes the edge that clips the outermost one.
       // (Both rects carry the outer bodies' slides, so only this body's own slide is taken off.)
-      const outer = b.parentElement?.closest(TILT_BODIES);
-      const box = outer ? rectOf(outer) : clipBox(b, width, bounds);
-      b.style.setProperty('--tilt-rl', Math.max(0, Math.round(r.left - slid - box.left)) + 'px');
-      b.style.setProperty('--tilt-rr', Math.max(0, Math.round(box.right - r.right + slid)) + 'px');
+      const outer = b.parentElement?.closest<HTMLElement>(TILT_BODIES);
+      const box = outer ? upright(outer, rectOf(outer), 0) : clipBox(b, width, bounds);
+      // Its upright edges (the rect is widened by its own lean), and the most its corners swing out when it leans: a
+      // tall card turning even 1.5° reaches several px past its sides, so that room is kept free too (Gianni).
+      const own = upright(b, r, slid);
+      const swing = leanSwing(b.offsetWidth, b.offsetHeight, b.tagName === 'BUTTON' ? TILT_MAX_DEG : TILT_MAX_DEG * TILT_BODY_LEAN);
+      b.style.setProperty('--tilt-rl', Math.max(0, Math.round(own.left - box.left - swing)) + 'px');
+      b.style.setProperty('--tilt-rr', Math.max(0, Math.round(box.right - own.right - swing)) + 'px');
     }
   }
+}
+
+/** An element's horizontal edges as if it stood upright (its rect's centre, less `slid`, ± half its layout width). */
+function upright(el: HTMLElement, r: DOMRect, slid: number): { left: number; right: number } {
+  const cx = r.left + r.width / 2 - slid;
+  const half = (el.offsetWidth || r.width) / 2;
+  return { left: cx - half, right: cx + half };
+}
+
+/** The horizontal distance (px) a box's corners swing past its upright sides when it turns by `deg`. */
+export function leanSwing(width: number, height: number, deg: number): number {
+  const a = (Math.abs(deg) * Math.PI) / 180;
+  return Math.max(0, (width / 2) * Math.cos(a) + (height / 2) * Math.sin(a) - width / 2);
 }
 
 /** The horizontal edges of the nearest ancestor that clips `el` (overflow other than visible, or a dialog), within the screen. */
