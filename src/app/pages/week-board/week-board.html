@@ -37,9 +37,16 @@
       <article class="day" [attr.data-day]="day" [class.mobile-on]="day === mobileDay()" [class.today]="day === store.today()" [class.empty]="!blocks(day).length">
         <header class="day-head">
           <h2>{{ i18n.t('day.' + day) }}</h2>
-          @if (arranging()) {
-            <button type="button" class="round" [attr.aria-label]="i18n.t('week.addBlock')" [title]="i18n.t('week.addBlock')" (click)="addBlock(day)">+</button>
-          }
+          <span class="day-actions">
+            <!-- Open / close every block at once (Gianni), beside the + -->
+            @if (blocks(day).length) {
+              <button type="button" class="round fold-all" [attr.aria-pressed]="folded()" [attr.aria-label]="i18n.t(folded() ? 'week.unfoldAll' : 'week.foldAll')"
+                      [title]="i18n.t(folded() ? 'week.unfoldAll' : 'week.foldAll')" (click)="toggleFolded()">{{ folded() ? '⊞' : '⊟' }}</button>
+            }
+            @if (arranging()) {
+              <button type="button" class="round" [attr.aria-label]="i18n.t('week.addBlock')" [title]="i18n.t('week.addBlock')" (click)="addBlock(day)">+</button>
+            }
+          </span>
         </header>
 
         @for (block of blocks(day); track block.id; let bi = $index, bfirst = $first, blast = $last) {
@@ -74,6 +81,9 @@
               <p class="summary">{{ summary(block) }}</p>
             }
 
+            <!-- The block's body (cards, free time, handle) folds away smoothly; folded it is inert -->
+            <div class="block-body" [class.closed]="folded()" [attr.inert]="folded() ? '' : null">
+            <div class="block-inner">
             <ul class="tasks">
               @for (task of block.tasks; track task.id; let ti = $index, tfirst = $first, tlast = $last) {
                 <li class="task" [attr.data-flip]="task.id" [attr.data-task]="task.id" [style.--tone]="tones[ti]" [style.--mins]="task.minutes" [attr.data-paper]="paper(task)" [class.done]="isDone(day, task)" [attr.data-status]="day === store.today() ? store.status(task.id) : null" [class.off]="!task.active"
@@ -120,6 +130,8 @@
                 @if (stretching()?.blockId === block.id) { <span class="end-badge">{{ shownEnd(block) }}</span> }
               </div>
             }
+            </div>
+            </div>
 
           </section>
         }

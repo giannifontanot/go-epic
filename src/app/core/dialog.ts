@@ -48,6 +48,15 @@ function frames(dialog: HTMLDialogElement, from: Point): Keyframe[] {
   return [{ transform: 'scale(.05)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }];
 }
 
+/**
+ * Closing: the window shrinks back into its point fully visible, so the eye follows its shape home (Gianni); only at the
+ * very end, already small, it fades the last step, so it never pops out as a tiny box.
+ */
+function closeFrames(dialog: HTMLDialogElement, to: Point): Keyframe[] {
+  frames(dialog, to);                                                    // sets the transform origin
+  return [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(.18)', opacity: 1, offset: 0.82 }, { transform: 'scale(.05)', opacity: 0 }];
+}
+
 function animateBackdrop(dialog: HTMLDialogElement, show: boolean, duration: number): Animation | null {
   try {
     return dialog.animate(show ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 1 }, { opacity: 0 }],
@@ -81,7 +90,7 @@ export function closeDialog(dialog: HTMLDialogElement | undefined | null): Promi
   if (reducedMotion() || typeof dialog.animate !== 'function') { dialog.close(); return Promise.resolve(); }
   const from = origins.get(dialog) ?? pressPoint();
   const done = new Promise<void>((resolve) => {
-    const animation = dialog.animate([...frames(dialog, from)].reverse(), { duration: CLOSE_MS, easing: EASE_IN, fill: 'forwards' });
+    const animation = dialog.animate(closeFrames(dialog, from), { duration: CLOSE_MS, easing: EASE_IN, fill: 'forwards' });
     const backdrop = animateBackdrop(dialog, false, CLOSE_MS);
     const finish = () => {
       closing.delete(dialog);

@@ -17,6 +17,11 @@ import { Transfer, TransferDialog } from './transfer-dialog';
  * The week in seven columns of blocks and task cards. Locked by default (a calm view of the week);
  * "Arrange the week" unlocks editing: block windows, ▲▼, ⇄ copy/move, + and quick-add, and each card's ••• details.
  */
+const FOLD_KEY = 'go-epic-week-folded';
+function readFolded(): boolean {
+  try { return localStorage.getItem(FOLD_KEY) === '1'; } catch { return false; }
+}
+
 @Component({
   selector: 'app-week-board',
   imports: [TaskDialog, TransferDialog],
@@ -32,6 +37,13 @@ export class WeekBoard {
   protected readonly days = DAYS;
 
   protected readonly arranging = signal(false);
+  /** All blocks folded to their heads (one switch for every day, remembered on this device): a quick look at the day. */
+  protected readonly folded = signal(readFolded());
+  protected toggleFolded(): void {
+    const next = !this.folded();
+    this.folded.set(next);
+    try { localStorage.setItem(FOLD_KEY, next ? '1' : '0'); } catch { /* a view preference */ }
+  }
 
   constructor() {
     // Arranging files tasks in the library: it stops while the library is not loaded (sign-out, another account).
