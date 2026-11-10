@@ -1,4 +1,4 @@
-import { Todo, doneTodos, openTodos, pinTodos, sanitizeTodo, weekDate } from './todo.model';
+import { Todo, doneTodos, openTodos, pinTodos, sanitizeTodo, stackPins, weekDate } from './todo.model';
 import { DayPlan } from './week.model';
 
 const todo = (id: string, extra: Partial<Todo> = {}): Todo => ({ id, title: id, date: '2026-11-10', time: null, done: null, created: 1, ...extra });
@@ -33,5 +33,13 @@ describe('todo model', () => {
     expect(onTask.get('t1')).toEqual([{ todo: expect.objectContaining({ id: 'a' }), fraction: 0.5 }]);
     expect(onTask.get('t2')).toEqual([{ todo: expect.objectContaining({ id: 'b' }), fraction: 0.5 }]);
     expect(loose.map((t) => t.id)).toEqual(['c', 'd']);
+  });
+
+  it('stacks pinned notes that would cover each other', () => {
+    const pin = (id: string, fraction: number) => ({ todo: todo(id), fraction });
+    const stacks = stackPins([pin('c', 0.9), pin('a', 0.5), pin('b', 0.5), pin('d', 0.55)], 0.1);
+    expect(stacks.map((s) => [s.fraction, s.todos.map((t) => t.id)])).toEqual([[0.5, ['a', 'b', 'd']], [0.9, ['c']]]);
+    expect(stackPins([pin('a', 0.1), pin('b', 0.6)], 0.2).length).toBe(2);
+    expect(stackPins([pin('a', 0.5), pin('b', 0.5), pin('c', 0.65)], 0.1).map((s) => s.todos.length)).toEqual([3]);   // c would sit under the stack's notes
   });
 });

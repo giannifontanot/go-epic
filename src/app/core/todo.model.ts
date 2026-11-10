@@ -74,3 +74,18 @@ export function pinTodos(plan: DayPlan, todos: Todo[]): { onTask: Map<string, Pi
   }
   return { onTask, loose };
 }
+
+/**
+ * Pinned notes that would cover each other (closer than `minGap`, a share of the card's height) go together in one
+ * stack, at the first one's place; the stack lists them one under another, so every note can be read and checked.
+ */
+export function stackPins(pins: PinnedTodo[], minGap: number): { fraction: number; todos: Todo[] }[] {
+  const stacks: { fraction: number; todos: Todo[]; last: number }[] = [];
+  for (const pin of [...pins].sort((a, b) => a.fraction - b.fraction)) {
+    const top = stacks[stacks.length - 1];
+    // a stack grows downwards: the next note fits only below the space its notes already take
+    if (top && pin.fraction < top.last + minGap) { top.todos.push(pin.todo); top.last += minGap; }
+    else stacks.push({ fraction: pin.fraction, todos: [pin.todo], last: pin.fraction });
+  }
+  return stacks.map(({ fraction, todos }) => ({ fraction, todos }));
+}

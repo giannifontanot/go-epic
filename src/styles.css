@@ -548,7 +548,7 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 
 /* Capture's tasks (todo.model): a ☐ that checks them; in the Week a small yellow sticky note, pinned over the activity
    at its hour (top = that hour's share of the card) or, without one, in a strip at the top of the day. */
-.c-check, .todo-check { flex: none; width: 28px; height: 28px; min-height: 28px; padding: 0; border: 2px solid rgba(48, 39, 70, .55); border-radius: 8px;
+.c-check, .todo-check { flex: none; width: 40px; height: 40px; min-height: 40px; padding: 0; border: 2px solid rgba(48, 39, 70, .55); border-radius: 8px;
   background: rgba(255, 255, 255, .7); color: #0d9488; font-size: 18px; font-weight: 900; line-height: 1; display: grid; place-items: center; }
 .c-check { margin: 6px 4px 6px 0; }
 .c-check.on { background: #d9f5ef; border-color: #0d9488; }
@@ -559,12 +559,13 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .todo-strip { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 6px; }
 .todo-note { display: flex; align-items: center; gap: 8px; padding: 4px 10px 4px 6px; border-radius: 10px 12px 12px 4px; color: #3b2c0b;
   background: linear-gradient(160deg, #fff6a8, #ffe066); box-shadow: 0 3px 8px rgba(0, 0, 0, .25); font-size: 14px; font-weight: 700; }
-.todo-note .todo-check { width: 32px; height: 32px; min-height: 32px; }
 .todo-note .todo-title { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .todo-note .todo-time { flex: none; font-size: 12px; opacity: .75; }
 .todo-note.checked { opacity: .65; }
 .todo-note.checked .todo-title { text-decoration: line-through; }
-.todo-note.pinned { position: absolute; right: 10px; left: 30%; z-index: 3; translate: 0 -50%; rotate: -1.5deg; cursor: default; }
+.todo-stack { position: absolute; right: 10px; left: 30%; z-index: 3; display: grid; gap: 4px; translate: 0 -22px; cursor: default; }
+.todo-note.pinned { rotate: -1.5deg; }
+.todo-note.pinned:nth-child(even) { rotate: 1deg; }
 
 /* Today's state on a Week card (tap = Done, long press = menu): a badge in the middle of the card */
 .t-status { position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 2; padding: 4px 12px; border-radius: 999px; white-space: nowrap;

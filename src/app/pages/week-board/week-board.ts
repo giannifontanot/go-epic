@@ -12,7 +12,7 @@ import { CaptureUi } from '../capture/capture-ui';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { STATUSES, Status } from '../../core/status.model';
-import { PinnedTodo, Todo, pinTodos, weekDate } from '../../core/todo.model';
+import { PinnedTodo, Todo, pinTodos, stackPins, weekDate } from '../../core/todo.model';
 import { TodoStore } from '../../core/todo.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
 import { Transfer, TransferDialog } from './transfer-dialog';
@@ -93,6 +93,15 @@ export class WeekBoard {
    * activity running at their hour; the others (no hour, or an hour no activity covers) at the top of the day.
    */
   protected readonly todos = inject(TodoStore);
+  /**
+   * A card's pinned notes, grouped so none covers another: a note is about 48px tall and a card is
+   * 46px + 1.6px per minute (styles.css), so notes closer than that share one stack.
+   */
+  protected noteStacks(day: Day, task: Task): { fraction: number; todos: Todo[] }[] {
+    const pins = this.pins()[day].onTask.get(task.id);
+    if (!pins?.length) return [];
+    return stackPins(pins, 48 / (46 + validMinutes(task.minutes) * WEEK_PX_PER_MIN));
+  }
   protected readonly pins = computed(() => {
     const now = this.store.now();
     const all = this.todos.todos();
