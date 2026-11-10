@@ -13,8 +13,8 @@ export function isBackdropClick(event: MouseEvent, dialog: HTMLDialogElement): b
  */
 interface Point { x: number; y: number; }
 
-const OPEN_MS = 300;
-const CLOSE_MS = 220;
+const OPEN_MS = 460;          // a little slower, so the eye can follow the window growing out of its point (Gianni)
+const CLOSE_MS = 300;
 const EASE_OUT = 'cubic-bezier(.22, 1, .36, 1)';
 const EASE_IN = 'cubic-bezier(.4, 0, 1, 1)';
 

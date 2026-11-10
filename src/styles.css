@@ -524,3 +524,12 @@ dialog.editor.color-window { width: min(340px, calc(100vw - 32px)); height: fit-
 .block-body:not(.closed) > .block-inner { animation: block-unclip 0s .4s forwards; }
 @keyframes block-unclip { to { overflow: visible; } }
 @media (prefers-reduced-motion: reduce) { .block-body { transition: none; } .block-body:not(.closed) > .block-inner { overflow: visible; } }
+
+/* Each block's own fold ⌄ (beside its name): turns up while closed */
+.block-fold { flex: none; margin-left: auto; font-size: 18px; line-height: 1; transition: rotate .3s ease; }
+.block-fold.closed { rotate: -90deg; }
+.block-head .free + .block-fold { margin-left: 4px; }
+/* The time range: a soft grey dash, so the two hours read easily */
+.summary .dash { margin: 0 .25em; color: rgba(54, 38, 67, .45); font-weight: 400; }
+/* Capture: when the keyboard moves the visible screen, the panel follows smoothly instead of jumping */
+dialog.capture-panel { transition: margin-top .25s ease, max-height .25s ease; }

@@ -18,8 +18,12 @@ import { Transfer, TransferDialog } from './transfer-dialog';
  * "Arrange the week" unlocks editing: block windows, ▲▼, ⇄ copy/move, + and quick-add, and each card's ••• details.
  */
 const FOLD_KEY = 'go-epic-week-folded';
-function readFolded(): boolean {
-  try { return localStorage.getItem(FOLD_KEY) === '1'; } catch { return false; }
+/** The ids of the blocks shown folded on this device (a view preference). */
+function readFolded(): Set<string> {
+  try {
+    const raw = JSON.parse(localStorage.getItem(FOLD_KEY) ?? '[]');
+    return new Set(Array.isArray(raw) ? raw.filter((x): x is string => typeof x === 'string') : []);
+  } catch { return new Set(); }
 }
 
 @Component({
@@ -37,12 +41,29 @@ export class WeekBoard {
   protected readonly days = DAYS;
 
   protected readonly arranging = signal(false);
-  /** All blocks folded to their heads (one switch for every day, remembered on this device): a quick look at the day. */
-  protected readonly folded = signal(readFolded());
+  /**
+   * Folded blocks (remembered on this device): each block has its own ⌄ (Gianni), and the day's ⊟/⊞ folds or opens
+   * every block of the week at once (⊞ while all are folded).
+   */
+  private readonly foldedIds = signal(readFolded());
+  protected isFolded(block: Block): boolean {
+    return this.foldedIds().has(block.id);
+  }
+  protected readonly allFolded = computed(() => {
+    const ids = DAYS.flatMap((day) => this.blocks(day).map((b) => b.id));
+    return ids.length > 0 && ids.every((id) => this.foldedIds().has(id));
+  });
+  protected toggleBlockFold(block: Block): void {
+    const next = new Set(this.foldedIds());
+    if (!next.delete(block.id)) next.add(block.id);
+    this.setFolded(next);
+  }
   protected toggleFolded(): void {
-    const next = !this.folded();
-    this.folded.set(next);
-    try { localStorage.setItem(FOLD_KEY, next ? '1' : '0'); } catch { /* a view preference */ }
+    this.setFolded(this.allFolded() ? new Set() : new Set(DAYS.flatMap((day) => this.blocks(day).map((b) => b.id))));
+  }
+  private setFolded(ids: Set<string>): void {
+    this.foldedIds.set(ids);
+    try { localStorage.setItem(FOLD_KEY, JSON.stringify([...ids])); } catch { /* a view preference */ }
   }
 
   constructor() {
@@ -187,12 +208,12 @@ export class WeekBoard {
     return (freeMinutes(block) ?? 0) < 0;
   }
 
-  protected summary(block: Block): string {
+  /** The block's time range (Gianni: no minutes on it); drawn as from – to with a soft grey dash. */
+  protected summary(block: Block): { from: string; to: string } | null {
     const start = parseClock(block.start);
     const total = windowLength(block) ?? taskTotal(block);
-    // Only the time range (Gianni: the block's minutes are not shown on it)
-    if (start === null) return '';
-    return `${formatClock(start)}–${formatClock(start + total)}`;
+    if (start === null) return null;
+    return { from: formatClock(start), to: formatClock(start + total) };
   }
 
   /** A captured task's paper age (0 fresh, 1 parchment, 2 old stained), from its library task; null keeps the pastel. */

@@ -92,7 +92,7 @@ export class CapturePanel {
           this.message.set('');
           this.followViewport(d);
           openDialog(d);
-          queueMicrotask(() => this.input().nativeElement.focus());
+          queueMicrotask(() => this.input().nativeElement.focus({ preventScroll: true }));   // no page jump while it grows
         } else if (!open && d.open) {
           this.unfollow?.();
           void closeDialog(d);
