@@ -111,6 +111,10 @@ export class WeekBoard {
     for (const day of DAYS) out[day] = pinTodos(week[day], todosForDate(all, this.dates()[day], day).filter((t) => !rolled.has(t.id)));
     return out;
   });
+  /** A task's paper on the board, as in Capture: fresh, parchment from 5 days, old stained paper from 21. */
+  protected todoPaper(todo: Todo): 0 | 1 | 2 {
+    return paperAge(todo, this.store.now().getTime()) ?? 0;
+  }
   /** Single tasks left open on earlier days: they roll over to the top of today's column (Gianni). */
   protected readonly overdue = computed(() => overdueTodos(this.todos.todos(), this.store.todayKey()));
   /** "from Mon 9": the day an overdue task was for. */

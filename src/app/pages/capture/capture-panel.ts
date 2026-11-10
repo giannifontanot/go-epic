@@ -4,7 +4,7 @@ import { I18n } from '../../core/i18n';
 import { paperAge } from '../../core/library.model';
 import { Todo, doneOnDate, repeats } from '../../core/todo.model';
 import { TodoStore } from '../../core/todo.store';
-import { Task, blockColors, dateKey } from '../../core/week.model';
+import { dateKey } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
 import { CaptureUi } from './capture-ui';
 import { TodoDialog, TodoSave } from './todo-dialog';
@@ -92,12 +92,8 @@ export class CapturePanel {
   private readonly week = inject(WeekStore);
   private readonly panel = viewChild.required<ElementRef<HTMLDialogElement>>('panel');
 
-  /** Each task on its own pastel (never like the one above), multiplied into its paper. */
-  protected readonly tones = computed(() => {
-    const open = this.todos.open();
-    const colors = blockColors(open.map((t) => ({ title: t.title, color: null })) as unknown as Task[]);
-    return new Map(open.map((t, i) => [t.id, colors[i]]));
-  });
+  /** Each task on its own pastel (TodoStore.tones, shared with the Week board), multiplied into its paper. */
+  protected readonly tones = this.todos.tones;
   protected readonly editing = signal('');
   /** The task whose day and hour are being set (✎). */
   protected readonly editingTodo = signal<Todo | null>(null);

@@ -563,9 +563,9 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .todo-note .todo-time { flex: none; font-size: 12px; opacity: .75; }
 .todo-note.checked { opacity: .65; }
 .todo-note.checked .todo-title { text-decoration: line-through; }
-.todo-stack { position: absolute; right: 10px; left: 30%; z-index: 3; display: grid; gap: 4px; translate: 0 -22px; cursor: default; }
-.todo-note.pinned { rotate: -1.5deg; }
-.todo-note.pinned:nth-child(even) { rotate: 1deg; }
+.todo-stack { position: absolute; right: -10px; left: -10px; z-index: 3; display: grid; gap: 4px; translate: 0 -22px; cursor: default; }
+.todo-note.pinned { rotate: -0.6deg; }
+.todo-note.pinned:nth-child(even) { rotate: 0.5deg; }
 
 /* Today's state on a Week card (tap = Done, long press = menu): a badge in the middle of the card */
 .t-status { position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 2; padding: 4px 12px; border-radius: 999px; white-space: nowrap;
@@ -590,3 +590,7 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .todo-note.overdue { box-shadow: inset 4px 0 0 #dc2626, 0 3px 8px rgba(0, 0, 0, .25); }
 .todo-from { display: block; font-size: 11px; font-weight: 700; color: #b91c1c; }
 .c-when.late { color: #b91c1c; opacity: 1; }
+
+/* A task at the top of a day keeps its own colour on its paper, as in Capture (not the yellow of a pinned note) */
+.todo-note.own { background: var(--tone, #f7efe2); color: #2a2018; }
+.todo-note.own[data-paper] { background-color: var(--tone, #f7efe2) !important; background-blend-mode: multiply; }

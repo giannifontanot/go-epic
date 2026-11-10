@@ -3,7 +3,7 @@ import { Unsubscribe, collection, deleteDoc, doc, onSnapshot, setDoc } from 'fir
 import { AuthService } from './auth.service';
 import { firebase } from './firebase';
 import { Todo, doneTodos, openTodos, repeats, sanitizeTodo } from './todo.model';
-import { newId } from './week.model';
+import { Task, blockColors, newId } from './week.model';
 
 /**
  * The signed-in user's Capture tasks (todo.model), one document each: users/{uid}/todos/{id}.
@@ -17,6 +17,15 @@ export class TodoStore {
   readonly error = signal('');
   readonly open = computed(() => openTodos(this.todos()));
   readonly finished = computed(() => doneTodos(this.todos()));
+  /**
+   * Each task's own colour: an automatic pastel by its place in Capture's open list (never like the one above), the
+   * same in Capture and on the Week board (Gianni: a task keeps its colour, not a yellow note).
+   */
+  readonly tones = computed(() => {
+    const open = this.open();
+    const colors = blockColors(open.map((t) => ({ title: t.title, color: null })) as unknown as Task[]);
+    return new Map(open.map((t, i) => [t.id, colors[i]]));
+  });
   private sub: Unsubscribe | null = null;
 
   constructor() {
