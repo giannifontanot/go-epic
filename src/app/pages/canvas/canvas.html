@@ -2,6 +2,7 @@
 <section class="canvas-page" [attr.data-v]="v">
   <header class="page-header">
     <h1>Floating Canvas<span class="title-dot">✦</span></h1>
+    <button type="button" class="idea" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')" (click)="capture.open.set(true)">💡</button>
     <div class="toolbar">
       <span class="status" [class.dirty]="state.dirty" [title]="i18n.t(state.dirty ? 'canvas.unsaved' : 'canvas.saved')">
         <span class="status-text">{{ i18n.t(state.dirty ? 'canvas.unsaved' : 'canvas.saved') }}</span></span>

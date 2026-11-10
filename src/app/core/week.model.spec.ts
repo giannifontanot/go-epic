@@ -1,6 +1,6 @@
 import {
   Block, PASTELS, Task, blockColors, cloneBlock, dateKey, dayOf, fits, formatClock, freeMinutes, moveItem, nowPosition,
-  parseClock, placeBlock, taskStarts, taskTotal, timeline, uniqueName, validMinutes, windowError,
+  parseClock, placeBlock, stretchedEnd, taskStarts, taskTotal, timeline, uniqueName, validMinutes, windowError,
 } from './week.model';
 
 const task = (id: string, minutes: number, extra: Partial<Task> = {}): Task => ({ id, title: id, minutes, color: null, active: true, ref: null, ...extra });
@@ -94,5 +94,16 @@ describe('week model', () => {
     expect(nowPosition(plan, 450)).toEqual({ taskId: 'd', fraction: 0.5 });
     expect(nowPosition(plan, 600)).toEqual({ taskId: 'd', fraction: 1 });        // after the last: its bottom
     expect(nowPosition({ blocks: [block('n', null, null, [task('a', 10)])] }, 400)).toBeNull();
+  });
+
+  it('stretches a block\'s end with the handle, never before its tasks end nor past 23:59', () => {
+    const block = (start: string | null, end: string | null, minutes: number[]) =>
+      ({ id: 'b', name: 'B', start, end, tasks: minutes.map((m, i) => ({ id: 't' + i, title: 'T', minutes: m, color: null, active: true, ref: null })) });
+    expect(stretchedEnd(block('20:00', '21:03', [23, 19]), 10)).toBe('21:13');
+    expect(stretchedEnd(block('20:00', '21:03', [23, 19]), -30)).toBe('20:42');   // tasks end at 20:42: no further
+    expect(stretchedEnd(block('20:00', null, [30]), 15)).toBe('20:45');          // no end yet: from the tasks' end
+    expect(stretchedEnd(block('23:30', '23:50', [10]), 60)).toBe('23:59');
+    expect(stretchedEnd(block('08:00', '08:30', []), -60)).toBe('08:01');        // an empty block keeps one minute
+    expect(stretchedEnd(block(null, null, [10]), 10)).toBeNull();
   });
 });

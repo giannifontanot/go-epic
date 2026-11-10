@@ -405,3 +405,17 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 .pc-activity { margin-top: 8px; padding: 8px 12px; border-radius: 14px 18px 13px 18px; color: #302746; background: #ffd5bd; box-shadow: 0 4px 0 rgba(78, 57, 88, .16); }
 .pc-activity strong { font-size: 15px; }
 .pc-nest > .pc-activity { margin-top: 0; }
+
+/* A block's free time: a striped band over its own yellow, as tall as its minutes (1.6px each, like the cards) */
+.free-band { height: calc(var(--free) * 1.6px); min-height: 6px; border-radius: 12px;
+  background: repeating-linear-gradient(135deg, rgba(54, 38, 67, .16) 0 10px, transparent 10px 20px); }
+/* The handle at the block's foot: pull it down or up to move the block's end; a badge shows the end while pulling */
+.end-handle { position: relative; display: grid; place-items: center; height: 40px; margin: -10px 0 -10px; cursor: ns-resize; touch-action: none; border-radius: 10px; }
+.end-handle:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+.end-handle .grip-bar { width: 56px; height: 6px; border-radius: 999px; background: rgba(54, 38, 67, .45); }
+.end-handle:hover .grip-bar, .end-handle:active .grip-bar { background: #0d9488; }
+.end-badge { position: absolute; right: 8px; top: 50%; translate: 0 -50%; padding: 3px 10px; border-radius: 999px; background: #0d9488; color: #fff; font-size: 14px; font-weight: 800; }
+
+/* Canvas: Capture is a 💡 at the top right of the title row (the toolbar wraps below it on phones) */
+.page-header > .idea { order: 0; margin-left: auto; flex: none; width: 44px; height: 44px; padding: 0; display: grid; place-items: center;
+  border-radius: 50%; font-size: 22px; background: rgba(255, 255, 255, .1); border: 1.5px solid rgba(255, 244, 233, .25); }
