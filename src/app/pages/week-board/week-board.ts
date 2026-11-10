@@ -41,7 +41,7 @@ export class WeekBoard {
       const hidden = this.arranging() || !this.store.loaded() || !this.library.ready();
       this.capture.fab.set({ label: this.i18n.t('week.arrange'), run: () => this.toggleArrange(), hidden });
     });
-    inject(DestroyRef).onDestroy(() => this.capture.fab.set(null));
+    inject(DestroyRef).onDestroy(() => { this.capture.fab.set(null); this.cancelDrag?.(); });
   }
   protected readonly mobileDay = signal<Day>(this.store.today());
   protected readonly notice = signal('');
@@ -292,10 +292,15 @@ export class WeekBoard {
       if (next) next.classList.add('drop-before'); else under.querySelector('ul.tasks')?.classList.add('drop-end');
       target = { blockId: under.dataset['block']!, index: next ? cards.indexOf(next) : cards.length };
     };
+    let done = false;
     const finish = (commit: boolean) => () => {
+      if (done) return;
+      done = true;
+      this.cancelDrag = null;
       grip.removeEventListener('pointermove', move);
       grip.removeEventListener('pointerup', up);
       grip.removeEventListener('pointercancel', cancel);
+      grip.removeEventListener('lostpointercapture', cancel);
       removeEventListener('keydown', esc, true);
       clearMarks();
       ghost.remove();
@@ -308,8 +313,14 @@ export class WeekBoard {
     grip.addEventListener('pointermove', move);
     grip.addEventListener('pointerup', up);
     grip.addEventListener('pointercancel', cancel);
+    // The card (and its grip) can vanish mid-drag (another tab deletes or moves it): the capture is lost, so cancel
+    // then; leaving the page cancels too (cancelDrag on destroy). After a normal release `done` makes this a no-op.
+    grip.addEventListener('lostpointercapture', cancel);
     addEventListener('keydown', esc, true);
+    this.cancelDrag = cancel;
   }
+  /** Cancels a card drag in progress (the page is leaving). */
+  private cancelDrag: (() => void) | null = null;
 
   /**
    * Puts a dragged card at `index` among the other cards of the target block (same day); it must fit there. The card
