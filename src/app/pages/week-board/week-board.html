@@ -6,6 +6,21 @@
       <button type="button" class="chip quiet on finish" (click)="toggleArrange()">✓ {{ i18n.t('week.finish') }}</button>
     } @else { <span></span> }
     <button type="button" class="round idea" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')" (click)="capture.open.set(true)">💡</button>
+      @if (arranging()) {
+      <!-- Aa / AV, as in Epic Manager: the activities' text size and the space between letters, seen at once on the cards -->
+      <div class="text-steppers">
+        <div class="stepper" role="group" [attr.aria-label]="i18n.t('settings.size')">
+          <button type="button" [disabled]="!text.canStep('size', -1)" [attr.aria-label]="i18n.t('settings.smaller')" (click)="text.stepSize(-1)">−</button>
+          <span>Aa</span>
+          <button type="button" [disabled]="!text.canStep('size', 1)" [attr.aria-label]="i18n.t('settings.bigger')" (click)="text.stepSize(1)">+</button>
+        </div>
+        <div class="stepper" role="group" [attr.aria-label]="i18n.t('settings.spacing')">
+          <button type="button" [disabled]="!text.canStep('spacing', -1)" [attr.aria-label]="i18n.t('settings.tighter')" (click)="text.stepSpacing(-1)">−</button>
+          <span>AV</span>
+          <button type="button" [disabled]="!text.canStep('spacing', 1)" [attr.aria-label]="i18n.t('settings.wider')" (click)="text.stepSpacing(1)">+</button>
+        </div>
+      </div>
+    }
   </header>
 
   <nav class="day-tabs" role="tablist">
@@ -19,7 +34,7 @@
 
   <div class="week">
     @for (day of days; track day) {
-      <article class="day" [class.mobile-on]="day === mobileDay()" [class.today]="day === store.today()" [class.empty]="!blocks(day).length">
+      <article class="day" [attr.data-day]="day" [class.mobile-on]="day === mobileDay()" [class.today]="day === store.today()" [class.empty]="!blocks(day).length">
         <header class="day-head">
           <h2>{{ i18n.t('day.' + day) }}</h2>
           @if (arranging()) {
@@ -29,7 +44,7 @@
 
         @for (block of blocks(day); track block.id; let bi = $index, bfirst = $first, blast = $last) {
           @let tones = colors(block);
-          <section class="block" [class.over]="isOver(block)">
+          <section class="block" [class.over]="isOver(block)" [attr.data-flip]="block.id" [attr.data-block]="block.id">
             <div class="block-head">
               @if (arranging()) {
                 <input class="block-name" type="text" [value]="block.name" [attr.aria-label]="i18n.t('week.blockName')"
@@ -53,7 +68,7 @@
                 <button type="button" class="round" [disabled]="blast" [attr.aria-label]="i18n.t('week.blockDown')" [title]="i18n.t('week.blockDown')" (click)="moveBlock(day, bi, 1)">▼</button>
                 <button type="button" class="round" [attr.aria-label]="i18n.t('week.transfer')" [title]="i18n.t('week.transfer')" (click)="openTransfer(day, block)">⇄</button>
                 <button type="button" class="round" [disabled]="!canAddTo(block)" [attr.aria-label]="i18n.t('week.addTask')" [title]="i18n.t('week.addTask')" (click)="addTask(day, block)">+</button>
-                <button type="button" class="round danger" [attr.aria-label]="i18n.t('week.deleteBlock')" [title]="i18n.t('week.deleteBlock')" (click)="deleteBlock(day, block)">🗑</button>
+                <button type="button" class="round danger-x" [attr.aria-label]="i18n.t('week.deleteBlock')" [title]="i18n.t('week.deleteBlock')" (click)="deleteBlock(day, block)">✕</button>
               </div>
             } @else if (summary(block)) {
               <p class="summary">{{ summary(block) }}</p>
@@ -61,21 +76,26 @@
 
             <ul class="tasks">
               @for (task of block.tasks; track task.id; let ti = $index, tfirst = $first, tlast = $last) {
-                <li class="task" [style.--tone]="tones[ti]" [style.--mins]="task.minutes" [attr.data-paper]="paper(task)" [class.done]="isDone(day, task)" [attr.data-status]="day === store.today() ? store.status(task.id) : null" [class.off]="!task.active"
+                <li class="task" [attr.data-flip]="task.id" [attr.data-task]="task.id" [style.--tone]="tones[ti]" [style.--mins]="task.minutes" [attr.data-paper]="paper(task)" [class.done]="isDone(day, task)" [attr.data-status]="day === store.today() ? store.status(task.id) : null" [class.off]="!task.active"
                     (click)="openTask(day, block, task)">
                   <div class="task-row">
+                    @if (arranging()) {
+                      <!-- Grip: drag the card to another place in this block or another block of the day -->
+                      <button type="button" class="t-grip" [attr.aria-label]="i18n.t('week.dragTask') + ': ' + task.title" [title]="i18n.t('week.dragTask')"
+                              (click)="$event.stopPropagation()" (pointerdown)="startTaskDrag($event, day, block, task)">⠿</button>
+                    }
                     <span class="t-time">{{ startLabel(block, ti) }}</span>
                     <span class="t-title" [title]="task.title">{{ task.title || i18n.t('week.newTask') }}</span>
                     @if (arranging()) {
                       <span class="t-tools">
-                        <button type="button" class="round" [attr.aria-label]="i18n.t('week.taskActions') + ': ' + task.title" [title]="i18n.t('week.taskActions')"
-                                (click)="$event.stopPropagation(); openTask(day, block, task)">•••</button>
-                        <button type="button" class="round" [attr.aria-label]="i18n.t('week.deleteTask') + ': ' + task.title" [title]="i18n.t('week.deleteTask')"
-                                (click)="$event.stopPropagation(); deleteTask(day, block, task)">×</button>
                         <button type="button" class="round" [disabled]="tfirst" [attr.aria-label]="i18n.t('week.taskUp')" [title]="i18n.t('week.taskUp')"
                                 (click)="$event.stopPropagation(); moveTask(day, block, ti, -1)">▲</button>
                         <button type="button" class="round" [disabled]="tlast" [attr.aria-label]="i18n.t('week.taskDown')" [title]="i18n.t('week.taskDown')"
                                 (click)="$event.stopPropagation(); moveTask(day, block, ti, 1)">▼</button>
+                        <button type="button" class="round" [attr.aria-label]="i18n.t('week.taskActions') + ': ' + task.title" [title]="i18n.t('week.taskActions')"
+                                (click)="$event.stopPropagation(); openTask(day, block, task)">✎</button>
+                        <button type="button" class="round danger-x" [attr.aria-label]="i18n.t('week.deleteTask') + ': ' + task.title" [title]="i18n.t('week.deleteTask')"
+                                (click)="$event.stopPropagation(); deleteTask(day, block, task)">✕</button>
                       </span>
                     }
                   </div>
@@ -114,7 +134,7 @@
 </section>
 
 @if (editing(); as edit) {
-  <app-task-dialog [edit]="edit" [newBlock]="isNewBlock(edit)" [week]="dialogWeek()" [library]="library.library()" [libraryReady]="library.ready()" (save)="saveTask($event)" (cancel)="cancelTask()" (remove)="removeEditing()" />
+  <app-task-dialog [edit]="edit" [newBlock]="isNewBlock(edit)" [week]="dialogWeek()" [library]="library.library()" [libraryReady]="library.ready()" (save)="saveTask($event)" (cancel)="cancelTask()" />
 }
 @if (transferring(); as tr) {
   <app-transfer-dialog [day]="tr.day" [blockName]="tr.block.name" (apply)="applyTransfer($event)" (cancel)="transferring.set(null)" />
