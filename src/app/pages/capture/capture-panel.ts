@@ -10,8 +10,8 @@ import { CaptureUi } from './capture-ui';
 import { TodoDialog, TodoSave } from './todo-dialog';
 
 /**
- * Capture = tasks (Gianni): one-off to-dos, not Activities. The floating ✎ (or the menu's Capture) opens the panel with
- * the cursor in the box: type and press Enter, as many as you like; each new task is for today, any hour. The panel
+ * Capture = tasks (Gianni): one-off to-dos, not Activities. The floating ✎ (or the menu's Capture) opens the panel
+ * without putting the cursor in the box (you may only want to look); tap the box, type and press Enter, as many as you like; each new task is for today, any hour. The panel
  * lists the open tasks soonest first, on aged paper tinted with their colour; ☐ checks one (it moves down to
  * "Finished", where ☑ opens it again), ✎ sets its name, day and hour, ✕ deletes it (asks first). In the Week a task
  * shows over the activity running at its hour (todo.model `pinTodos`).
@@ -27,7 +27,7 @@ import { TodoDialog, TodoSave } from './todo-dialog';
     }
     <dialog #panel class="capture-panel" aria-labelledby="capture-title" (click)="onBackdrop($event)" (close)="unfollow?.(); ui.open.set(false)">
       <header>
-        <h2 id="capture-title">{{ i18n.t('capture.title') }}</h2>
+        <h2 id="capture-title" tabindex="-1">{{ i18n.t('capture.title') }}</h2>
         <button type="button" class="drawer-close" [attr.aria-label]="i18n.t('nav.close')" (click)="close()">×</button>
       </header>
       <form class="capture-add" (submit)="$event.preventDefault(); add(input)">
@@ -86,7 +86,6 @@ export class CapturePanel {
   protected readonly todos = inject(TodoStore);
   private readonly week = inject(WeekStore);
   private readonly panel = viewChild.required<ElementRef<HTMLDialogElement>>('panel');
-  private readonly input = viewChild.required<ElementRef<HTMLInputElement>>('input');
 
   /** Each task on its own pastel (never like the one above), multiplied into its paper. */
   protected readonly tones = computed(() => {
@@ -99,8 +98,7 @@ export class CapturePanel {
   protected readonly editingTodo = signal<Todo | null>(null);
 
   constructor() {
-    // Open / closed follows the shared flag (the ✎ and the menu both set it); the dialog grows from the press point
-    // and the cursor goes straight to the box, so writing a task is one tap away.
+    // Open / closed follows the shared flag (the ✎ and the menu both set it); the dialog grows from the press point.
     effect(() => {
       const open = this.ui.open();
       untracked(() => {
@@ -108,7 +106,8 @@ export class CapturePanel {
         if (open && !d.open) {
           this.followViewport(d);
           openDialog(d);
-          queueMicrotask(() => this.input().nativeElement.focus({ preventScroll: true }));   // no page jump while it grows
+          // No cursor in the box on opening (Gianni): you may only want to look at the tasks; a tap on the box writes.
+          queueMicrotask(() => d.querySelector<HTMLElement>('#capture-title')?.focus({ preventScroll: true }));
         } else if (!open && d.open) {
           this.unfollow?.();
           void closeDialog(d);
