@@ -4,7 +4,7 @@ import { TextSettings } from '../../core/text-settings';
 import { I18n } from '../../core/i18n';
 import {
   Block, DAYS, Day, NEW_TASK_MINUTES, Task, WEEK_PX_PER_MIN, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId, stretchedEnd,
-  nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
+  moveToHour, nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
 } from '../../core/week.model';
 import { Library, fileTask, followLibrary, nodeById, paperAge, updateNode } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
@@ -372,7 +372,10 @@ export class WeekBoard {
       return next;
     });
     if (problem) return;
-    this.store.update(day, (blocks) => blocks.map((b) => (b.id === block.id ? { ...b, start: start || null, end: end || null } : b)));
+    const set = (blocks: Block[]) => blocks.map((b) => (b.id === block.id ? { ...b, start: start || null, end: end || null } : b));
+    if ((start || null) === block.start) { this.store.update(day, set); return; }
+    // A new start: the block glides to its hour among the day's blocks (Gianni)
+    flip(document, this.injector, () => this.store.update(day, (blocks) => moveToHour(set(blocks), block.id)));
   }
 
   protected moveBlock(day: Day, index: number, offset: number): void {

@@ -1,6 +1,6 @@
 import {
   Block, PASTELS, Task, blockColors, cloneBlock, dateKey, dayOf, fits, formatClock, freeMinutes, moveItem, nowPosition,
-  parseClock, placeBlock, stretchedEnd, taskStarts, taskTotal, timeline, uniqueName, validMinutes, windowError,
+  parseClock, placeBlock, stretchedEnd, taskStarts, taskTotal, timeline, uniqueName, validMinutes, windowError, moveToHour,
 } from './week.model';
 
 const task = (id: string, minutes: number, extra: Partial<Task> = {}): Task => ({ id, title: id, minutes, color: null, active: true, ref: null, ...extra });
@@ -105,5 +105,13 @@ describe('week model', () => {
     expect(stretchedEnd(block('23:30', '23:50', [10]), 60)).toBe('23:59');
     expect(stretchedEnd(block('08:00', '08:30', []), -60)).toBe('08:01');        // an empty block keeps one minute
     expect(stretchedEnd(block(null, null, [10]), 10)).toBeNull();
+  });
+
+  it('moves a block whose start changed to its hour; a block with no start stays', () => {
+    const b = (id: string, start: string | null): Block => ({ id, name: id, start, end: null, tasks: [] });
+    const day = [b('a', '07:00'), b('x', '12:00'), b('c', '09:00'), b('n', null)];
+    expect(moveToHour(day, 'x').map((x) => x.id)).toEqual(['a', 'c', 'n', 'x']);   // later than every timed block: to the end, as placeBlock does
+    expect(moveToHour([b('a', '07:00'), b('n', null), b('c', '09:00')], 'n').map((x) => x.id)).toEqual(['a', 'n', 'c']);
+    expect(moveToHour([b('a', '07:00'), b('c', '06:00')], 'c').map((x) => x.id)).toEqual(['c', 'a']);
   });
 });

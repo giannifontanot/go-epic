@@ -177,6 +177,16 @@ export function placeBlock(blocks: Block[], block: Block): Block[] {
   return copy;
 }
 
+/**
+ * A block whose start changed goes to its hour among the day's blocks (Gianni): taken out and placed again before the
+ * first block that starts later. A block with no start stays where it is.
+ */
+export function moveToHour(blocks: Block[], id: string): Block[] {
+  const block = blocks.find((b) => b.id === id);
+  if (!block || parseClock(block.start) === null) return blocks;
+  return placeBlock(blocks.filter((b) => b.id !== id), block);
+}
+
 /** A deep, independent copy of a block (new ids), for copying it to another day. */
 export function cloneBlock(block: Block, name: string): Block {
   return { ...block, id: newId(), name, tasks: block.tasks.map((task) => ({ ...task, id: newId() })) };
