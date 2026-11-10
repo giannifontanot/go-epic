@@ -107,7 +107,8 @@
             <ul class="tasks">
               @for (task of block.tasks; track task.id; let ti = $index, tfirst = $first, tlast = $last) {
                 <li class="task" [attr.data-flip]="task.id" [attr.data-task]="task.id" [style.--tone]="tones[ti]" [style.--mins]="task.minutes" [attr.data-paper]="paper(task)" [class.done]="isDone(day, task)" [attr.data-status]="day === store.today() ? store.status(task.id) : null" [class.off]="!task.active"
-                    (click)="openTask(day, block, task)">
+                    (click)="cardTap(day, block, task)" (pointerdown)="pressStart($event, day, task)" (pointermove)="pressMove($event)"
+                    (pointerup)="pressEnd()" (pointerleave)="pressEnd()" (pointercancel)="pressEnd()" (contextmenu)="cardMenu($event, day, task)">
                   <div class="task-row">
                     @if (arranging()) {
                       <!-- Grip: drag the card to another place in this block or another block of the day -->
@@ -130,9 +131,13 @@
                     }
                   </div>
                   <span class="t-dur">{{ durationLabel(task.minutes) }}</span>
+                  <!-- Today's state, in the middle of the card (Gianni) -->
+                  @if (cardStatus(day, task); as st) {
+                    @if (st !== 'todo') { <span class="t-status" [attr.data-status]="st">{{ statusIcon(st) }} {{ i18n.t('status.' + st) }}</span> }
+                  }
                   <!-- Capture's tasks at an hour inside this activity: a note pinned over it, at that hour -->
                   @for (pin of pins()[day].onTask.get(task.id) ?? []; track pin.todo.id) {
-                    <span class="todo-note pinned" [class.checked]="pin.todo.done !== null" [style.top.%]="pin.fraction * 100" (click)="$event.stopPropagation()">
+                    <span class="todo-note pinned" [class.checked]="pin.todo.done !== null" [style.top.%]="pin.fraction * 100" (click)="$event.stopPropagation()" (pointerdown)="$event.stopPropagation()">
                       <button type="button" class="todo-check" role="checkbox" [attr.aria-checked]="pin.todo.done !== null"
                               [attr.aria-label]="i18n.t(pin.todo.done !== null ? 'capture.uncheck' : 'capture.check') + ': ' + pin.todo.title"
                               (click)="todos.setDone(pin.todo.id, pin.todo.done === null)">{{ pin.todo.done !== null ? '✓' : '' }}</button>
@@ -177,3 +182,17 @@
 @if (transferring(); as tr) {
   <app-transfer-dialog [day]="tr.day" [blockName]="tr.block.name" (apply)="applyTransfer($event)" (cancel)="transferring.set(null)" />
 }
+
+<!-- Today's state of an activity: a long press (or right click) on its card opens this menu -->
+<dialog #statusDialog class="status-menu" [attr.aria-label]="i18n.t('status.title')" (click)="onStatusBackdrop($event)" (close)="picking.set(null)">
+  @if (picking(); as task) {
+    <h2>{{ task.title }}</h2>
+    <div class="status-options" role="radiogroup" [attr.aria-label]="i18n.t('status.title')">
+      @for (s of statuses; track s) {
+        <button type="button" role="radio" [attr.data-status]="s" [attr.aria-checked]="store.status(task.id) === s"
+                [class.on]="store.status(task.id) === s" (click)="pickStatus(s)">
+          <span aria-hidden="true">{{ statusIcon(s) }}</span> {{ i18n.t('status.' + s) }}</button>
+      }
+    </div>
+  }
+</dialog>

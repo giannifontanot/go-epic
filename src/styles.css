@@ -565,3 +565,12 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .todo-note.checked { opacity: .65; }
 .todo-note.checked .todo-title { text-decoration: line-through; }
 .todo-note.pinned { position: absolute; right: 10px; left: 30%; z-index: 3; translate: 0 -50%; rotate: -1.5deg; cursor: default; }
+
+/* Today's state on a Week card (tap = Done, long press = menu): a badge in the middle of the card */
+.t-status { position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 2; padding: 4px 12px; border-radius: 999px; white-space: nowrap;
+  background: rgba(255, 255, 255, .92); color: #302746; font-size: 14px; font-weight: 800; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); pointer-events: none; }
+.t-status[data-status='done'] { color: #0d7a70; }
+.t-status[data-status='late'] { color: #b45309; }
+.t-status[data-status='progress'] { color: #1d4ed8; }
+.t-status[data-status='skipped'] { color: #6b7280; }
+.board.locked .task { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
