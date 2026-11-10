@@ -410,7 +410,7 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 .free-band { height: calc(var(--free) * 1.6px); min-height: 6px; border-radius: 12px;
   background: repeating-linear-gradient(135deg, rgba(54, 38, 67, .16) 0 10px, transparent 10px 20px); }
 /* The handle at the block's foot: pull it down or up to move the block's end; a badge shows the end while pulling */
-.end-handle { position: relative; display: grid; place-items: center; height: 28px; margin: -4px 0 -6px; cursor: ns-resize; touch-action: none; border-radius: 10px; }
+.end-handle { position: relative; display: grid; place-items: center; height: 40px; margin: -10px 0 -10px; cursor: ns-resize; touch-action: none; border-radius: 10px; }
 .end-handle:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
 .end-handle .grip-bar { width: 56px; height: 6px; border-radius: 999px; background: rgba(54, 38, 67, .45); }
 .end-handle:hover .grip-bar, .end-handle:active .grip-bar { background: #0d9488; }
