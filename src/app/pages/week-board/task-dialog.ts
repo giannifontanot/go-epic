@@ -35,12 +35,15 @@ export interface TaskSave {
   template: `
     <dialog #dialog class="editor" [class.new-block]="newBlock()" [class.new-activity]="edit().isNew && !newBlock()" aria-labelledby="task-dialog-title" (cancel)="$event.preventDefault(); leave()"
             (click)="onBackdrop($event)">
+      <!-- One box across the whole width: the level being made (coloured for a new Block or Activity) with Delete inside it -->
       <header>
-        <div>
-          <p class="eyebrow">{{ i18n.t('day.' + edit().day) }} · {{ blockName() }}</p>
-          <h2 id="task-dialog-title" tabindex="-1" autofocus>{{ i18n.t(newBlock() ? 'task.newBlockTitle' : edit().isNew ? 'task.newTitle' : 'task.title') }}</h2>
+        <div class="head-box">
+          <div class="head-text">
+            <p class="eyebrow">{{ i18n.t('day.' + edit().day) }} · {{ blockName() }}</p>
+            <h2 id="task-dialog-title" tabindex="-1" autofocus>{{ i18n.t(newBlock() ? 'task.newBlockTitle' : edit().isNew ? 'task.newTitle' : 'task.title') }}</h2>
+          </div>
+          <button type="button" class="danger" (click)="askRemove()">{{ i18n.t('task.delete') }}</button>
         </div>
-        <button type="button" class="danger" (click)="askRemove()">{{ i18n.t('task.delete') }}</button>
       </header>
 
       @if (libraryReady()) {
@@ -121,7 +124,9 @@ export interface TaskSave {
       </header>
       <ul class="pick-list">
         @for (option of pickCards(); track option.node.id) {
-          <li><button type="button" class="pick-card" (click)="pickActivity(option.node.id)">
+          <li><div class="pick-card">
+            <!-- Picking needs its own button (Gianni: a tap anywhere on the card was too sensitive) -->
+            <button type="button" class="pick-choose" [attr.aria-label]="i18n.t('task.choose') + ': ' + option.node.title" (click)="pickActivity(option.node.id)">{{ i18n.t('task.choose') }}</button>
             @if (option.epic) {
               <span class="pc-epic"><small>{{ i18n.t('canvas.epic') }}</small><strong>{{ option.epic }}</strong></span>
             } @else {
@@ -140,7 +145,7 @@ export interface TaskSave {
                   <small>{{ i18n.t('canvas.task') }}</small><strong>{{ option.node.title }}</strong></span>
               }
             </span>
-          </button></li>
+          </div></li>
         }
       </ul>
     </dialog>

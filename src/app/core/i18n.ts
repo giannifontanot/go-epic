@@ -109,6 +109,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'task.newBlockTitle': { en: 'Create new Block + Activity', es: 'Crear nuevo Block + Actividad' },
   'task.pickActivity': { en: 'See the {n} activities', es: 'Ver las {n} actividades' },
   'task.pickTitle': { en: 'Pick an activity', es: 'Elige una actividad' },
+  'task.choose': { en: 'Choose', es: 'Elegir' },
   'task.name': { en: 'Name', es: 'Nombre' },
   'task.minutes': { en: 'Minutes', es: 'Minutos' },
   'task.day': { en: 'Day', es: 'Día' },
