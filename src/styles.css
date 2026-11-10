@@ -541,3 +541,7 @@ html.vt-grow::view-transition-new(root) { animation: vt-grow 300ms cubic-bezier(
 html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300ms cubic-bezier(.4, 0, 1, 1) both; }
 @keyframes vt-grow { from { clip-path: circle(0 at var(--vt-x) var(--vt-y)); } to { clip-path: circle(var(--vt-r) at var(--vt-x) var(--vt-y)); } }
 @keyframes vt-shrink { from { clip-path: circle(var(--vt-r) at var(--vt-x) var(--vt-y)); } to { clip-path: circle(0 at var(--vt-x) var(--vt-y)); } }
+
+/* Capture: every idea on paper, as in Epic Manager (fresh paper, parchment from 5 days, old stained paper from 21),
+   and the paper takes the idea's own colour (multiplied), so each one still has its colour and the old ones look old. */
+.capture-list li[data-paper] { background-color: var(--tone, #f7efe2) !important; background-blend-mode: multiply; }
