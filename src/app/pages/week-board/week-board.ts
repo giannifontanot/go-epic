@@ -1,5 +1,5 @@
-import { Component, DestroyRef, Injector, computed, effect, inject, signal } from '@angular/core';
-import { flip } from '../../core/flip';
+import { Component, DestroyRef, Injector, afterNextRender, computed, effect, inject, signal, untracked } from '@angular/core';
+import { flip, flipNow } from '../../core/flip';
 import { TextSettings } from '../../core/text-settings';
 import { I18n } from '../../core/i18n';
 import {
@@ -42,6 +42,13 @@ export class WeekBoard {
       this.capture.fab.set({ label: this.i18n.t('week.arrange'), run: () => this.toggleArrange(), hidden });
     });
     inject(DestroyRef).onDestroy(() => { this.capture.fab.set(null); this.cancelDrag?.(); });
+    // On entering the Week board, the view centres on now (the red line in today's column), as in Epic Manager.
+    let centred = false;
+    effect(() => {
+      if (centred || !this.store.loaded()) return;
+      centred = true;
+      untracked(() => afterNextRender({ read: () => this.centreOnNow() }, { injector: this.injector }));
+    });
   }
   protected readonly mobileDay = signal<Day>(this.store.today());
   protected readonly notice = signal('');
@@ -65,6 +72,15 @@ export class WeekBoard {
   /** Where today's now-line sits: the running task and the share of it already gone. */
   protected readonly now = computed(() => nowPosition(this.store.week()[this.store.today()], this.store.nowMinutes()));
   protected readonly nowLabel = computed(() => formatClock(this.store.nowMinutes()));
+
+  /** Scrolls so today's now-line (or else today's column) sits in the middle of the screen. */
+  private centreOnNow(): void {
+    const today = document.querySelector<HTMLElement>('article.day.today');
+    const target = today?.querySelector<HTMLElement>('.now-line') ?? today;
+    if (!target) return;
+    const smooth = typeof matchMedia === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    target.scrollIntoView({ block: 'center', inline: 'center', behavior: smooth ? 'smooth' : 'auto' });
+  }
 
   /** The details belong to a day's + (a new block with its first activity), not to a block's own +. */
   protected isNewBlock(edit: TaskEdit): boolean {
@@ -162,8 +178,9 @@ export class WeekBoard {
   protected summary(block: Block): string {
     const start = parseClock(block.start);
     const total = windowLength(block) ?? taskTotal(block);
-    if (start === null) return total ? `${total} min` : '';
-    return `${formatClock(start)}–${formatClock(start + total)} · ${total} min`;
+    // Only the time range (Gianni: the block's minutes are not shown on it)
+    if (start === null) return '';
+    return `${formatClock(start)}–${formatClock(start + total)}`;
   }
 
   /** A captured task's paper age (0 fresh, 1 parchment, 2 old stained), from its library task; null keeps the pastel. */
@@ -259,9 +276,10 @@ export class WeekBoard {
   }
 
   /**
-   * Drag a card by its grip ⠿: a tilted copy follows the pointer (so it shows it is held), a teal line marks where it
-   * will land, in its block or another block of the same day; on release the cards glide into their new order (FLIP).
-   * A block whose end would be passed refuses it. Esc or a lost pointer cancels.
+   * Drag a card by its grip ⠿ (Gianni): a tilted copy follows the pointer so it shows it is held; where it would land
+   * a dashed gap opens and the other cards glide aside to make room (in its block or another block of the same day).
+   * On release the copy settles into the gap and the cards take their new order smoothly. A block that has no room
+   * refuses it (the card goes back). Esc, a lost pointer or leaving the page cancels.
    */
   protected startTaskDrag(event: PointerEvent, day: Day, block: Block, task: Task): void {
     if (event.button !== 0) return;
@@ -270,81 +288,134 @@ export class WeekBoard {
     const grip = event.currentTarget as HTMLElement;
     const card = grip.closest<HTMLElement>('li.task');
     const dayEl = grip.closest<HTMLElement>('article.day');
-    if (!card || !dayEl) return;
-    grip.setPointerCapture(event.pointerId);
+    const home = card?.parentElement;
+    if (!card || !dayEl || !home) return;
     const rect = card.getBoundingClientRect();
     const ghost = card.cloneNode(true) as HTMLElement;
     ghost.classList.add('drag-ghost');
     Object.assign(ghost.style, { left: rect.left + 'px', top: rect.top + 'px', width: rect.width + 'px', height: rect.height + 'px' });
     document.body.appendChild(ghost);
+    // The gap: a dashed slot as tall as the card, first where the card was (the card itself is hidden meanwhile)
+    const slot = document.createElement('li');
+    slot.className = 'drop-slot';
+    slot.style.height = rect.height + 'px';
+    home.insertBefore(slot, card);
     card.classList.add('drag-src');
-    const x0 = event.clientX, y0 = event.clientY;
-    let target: { blockId: string; index: number } | null = null;
-    const clearMarks = () => dayEl.querySelectorAll('.drop-before, .drop-end').forEach((el) => el.classList.remove('drop-before', 'drop-end'));
+    const moving = 'li.task:not(.drag-src), li.drop-slot, section.block';
+    const x0 = event.clientX, y0 = event.clientY, pointerId = event.pointerId;
+    let dx = 0, dy = 0;
+    let valid = true;                                           // the pointer is over a block of this day
     const move = (e: PointerEvent) => {
-      ghost.style.transform = `translate(${e.clientX - x0}px, ${e.clientY - y0}px) rotate(-3deg) scale(1.04)`;
-      clearMarks();
-      target = null;
+      if (!card.isConnected) { cancel(); return; }              // another tab deleted or moved it meanwhile
+      dx = e.clientX - x0; dy = e.clientY - y0;
+      ghost.style.transform = `translate(${dx}px, ${dy}px) rotate(-3deg) scale(1.04)`;
       const under = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>('section.block[data-block]');
-      if (!under || !dayEl.contains(under)) return;
-      const cards = Array.from(under.querySelectorAll<HTMLElement>('li.task[data-task]')).filter((c) => c !== card);
-      const next = cards.find((c) => { const r = c.getBoundingClientRect(); return e.clientY < r.top + r.height / 2; });
-      if (next) next.classList.add('drop-before'); else under.querySelector('ul.tasks')?.classList.add('drop-end');
-      target = { blockId: under.dataset['block']!, index: next ? cards.indexOf(next) : cards.length };
+      const list = under && dayEl.contains(under) ? under.querySelector<HTMLElement>('ul.tasks') : null;
+      valid = !!list;
+      if (!list) {                                                // outside the day's blocks: the gap goes back home
+        if (slot.nextElementSibling !== card) flipNow(dayEl, moving, () => home.insertBefore(slot, card));
+        return;
+      }
+      const cards = Array.from(list.querySelectorAll<HTMLElement>('li.task:not(.drag-src)'));
+      const next = cards.find((c) => { const r = c.getBoundingClientRect(); return e.clientY < r.top + r.height / 2; }) ?? null;
+      if (slot.parentElement === list && slot.nextElementSibling === next) return;
+      if (next && next.previousElementSibling === slot) return;
+      flipNow(dayEl, moving, () => list.insertBefore(slot, next));
     };
     let done = false;
     const finish = (commit: boolean) => () => {
       if (done) return;
       done = true;
       this.cancelDrag = null;
-      grip.removeEventListener('pointermove', move);
-      grip.removeEventListener('pointerup', up);
-      grip.removeEventListener('pointercancel', cancel);
-      grip.removeEventListener('lostpointercapture', cancel);
+      removeEventListener('pointermove', move);
+      removeEventListener('pointerup', up);
+      removeEventListener('pointercancel', cancel);
       removeEventListener('keydown', esc, true);
-      clearMarks();
-      ghost.remove();
-      card.classList.remove('drag-src');
-      if (commit && target) this.dropTask(day, block.id, task.id, target.blockId, target.index);
+      removeEventListener('blur', cancel);
+      dayEl.removeEventListener('lostpointercapture', cancel);
+      if (dayEl.hasPointerCapture?.(pointerId)) dayEl.releasePointerCapture(pointerId);
+      // Where it lands: the gap's block and its index among the other cards; a refused or cancelled drop goes home
+      let target: { blockId: string; index: number } | null = null;
+      const list = slot.parentElement;
+      const toEl = list?.closest<HTMLElement>('section.block[data-block]');
+      if (commit && valid && list && toEl && card.isConnected) {
+        const index = Array.from(list.children).filter((c) => c === slot || (c.matches('li.task') && c !== card)).indexOf(slot);
+        target = { blockId: toEl.dataset['block']!, index };
+        if (!this.canDrop(day, block.id, task.id, target.blockId)) target = null;
+      }
+      if (!target && card.isConnected) flipNow(dayEl, moving, () => home.insertBefore(slot, card));
+      const end = () => {
+        const landed = slot.getBoundingClientRect();
+        ghost.remove();
+        if (!target) { slot.remove(); card.classList.remove('drag-src'); return; }
+        const t = target;
+        flip(document, this.injector, () => {
+          slot.remove();
+          card.classList.remove('drag-src');
+          this.dropTask(day, block.id, task.id, t.blockId, t.index);
+        }, new Map([[task.id, landed]]));
+      };
+      // The copy settles into the gap (rotation and lift go away), then the board takes the new order
+      const to = slot.getBoundingClientRect();
+      const reduced = typeof matchMedia !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduced || !slot.isConnected) { end(); return; }
+      const anim = ghost.animate([
+        { transform: `translate(${dx}px, ${dy}px) rotate(-3deg) scale(1.04)` },
+        { transform: `translate(${to.left - rect.left}px, ${to.top - rect.top}px) rotate(0deg) scale(1)` },
+      ], { duration: 220, easing: 'cubic-bezier(.22, 1, .36, 1)', fill: 'forwards' });
+      anim.finished.then(end, end);
     };
     const up = finish(true);
     const cancel = finish(false);
     const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') cancel(); };
-    grip.addEventListener('pointermove', move);
-    grip.addEventListener('pointerup', up);
-    grip.addEventListener('pointercancel', cancel);
-    // The card (and its grip) can vanish mid-drag (another tab deletes or moves it): the capture is lost, so cancel
-    // then; leaving the page cancels too (cancelDrag on destroy). After a normal release `done` makes this a no-op.
-    grip.addEventListener('lostpointercapture', cancel);
+    // Listened on the window (the card is hidden while dragged); a card that vanishes mid-drag (another tab deleted it)
+    // cancels on the next move, and leaving the page cancels too (cancelDrag on destroy). `done` makes repeats no-ops.
+    addEventListener('pointermove', move);
+    addEventListener('pointerup', up);
+    addEventListener('pointercancel', cancel);
     addEventListener('keydown', esc, true);
+    // The pointer is captured on the day column (visible all along), so a release outside the window still arrives;
+    // if tracking is lost anyway (capture taken away, the window loses focus) the card goes home.
+    addEventListener('blur', cancel);
+    try { dayEl.setPointerCapture(pointerId); } catch { /* not capturable: the window listeners still work */ }
+    dayEl.addEventListener('lostpointercapture', cancel);
     this.cancelDrag = cancel;
   }
   /** Cancels a card drag in progress (the page is leaving). */
   private cancelDrag: (() => void) | null = null;
 
+  /** Whether the card can land in that block: it still exists, and another block must have room for it. */
+  private canDrop(day: Day, fromId: string, taskId: string, toId: string): boolean {
+    const blocks = this.blocks(day);
+    const task = blocks.find((b) => b.id === fromId)?.tasks.find((t) => t.id === taskId);
+    const to = blocks.find((b) => b.id === toId);
+    if (!task || !to) return false;
+    if (fromId !== toId && !fits(to, task.minutes)) {
+      this.notice.set(this.i18n.t('week.noRoom', { block: to.name, n: Math.max(0, freeMinutes(to) ?? 0) }));
+      return false;
+    }
+    this.notice.set('');
+    return true;
+  }
+
   /**
-   * Puts a dragged card at `index` among the other cards of the target block (same day); it must fit there. The card
-   * is read again from the current week (another tab may have renamed, recoloured or deleted it meanwhile): a card
-   * that is gone is not brought back, and the latest version is the one moved.
+   * Puts a dragged card at `index` among the other cards of the target block (same day). The card is read again from
+   * the current week (another tab may have renamed, recoloured or deleted it meanwhile): a card that is gone is not
+   * brought back, and the latest version is the one moved.
    */
   private dropTask(day: Day, fromId: string, taskId: string, toId: string, index: number): void {
-    const blocks = this.blocks(day);
-    const from = blocks.find((b) => b.id === fromId);
-    const to = blocks.find((b) => b.id === toId);
-    const task = from?.tasks.find((t) => t.id === taskId);
-    if (!from || !to || !task) return;
-    if (fromId !== toId && !fits(to, task.minutes)) { this.notice.set(this.i18n.t('week.noRoom', { block: to.name, n: Math.max(0, freeMinutes(to) ?? 0) })); return; }
-    if (fromId === toId && from.tasks.findIndex((t) => t.id === taskId) === index) return;
-    this.notice.set('');
-    flip(document, this.injector, () => this.store.update(day, (list) => {
+    this.store.update(day, (list) => {
       const current = list.find((b) => b.id === fromId)?.tasks.find((t) => t.id === taskId);
-      if (!current || !list.some((b) => b.id === toId)) return list;
+      const to = list.find((b) => b.id === toId);
+      if (!current || !to) return list;
+      if (fromId !== toId && !fits(to, current.minutes)) return list;
+      if (fromId === toId && to.tasks.findIndex((t) => t.id === taskId) === index) return list;
       return list.map((b) => {
         let tasks = b.tasks.filter((t) => t.id !== taskId);
         if (b.id === toId) tasks = [...tasks.slice(0, index), current, ...tasks.slice(index)];
         return b.id === fromId || b.id === toId ? { ...b, tasks } : b;
       }).filter((b) => b.tasks.length > 0);
-    }));
+    });
   }
 
   protected deleteTask(day: Day, block: Block, task: Task): void {

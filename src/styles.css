@@ -440,9 +440,12 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 @media (pointer: coarse) { .t-grip { width: 40px; min-height: 40px; } }
 .drag-ghost { position: fixed; z-index: 1000; margin: 0; pointer-events: none; transform: rotate(-3deg) scale(1.04); transform-origin: 30% 50%;
   box-shadow: 0 18px 40px rgba(1, 6, 29, .45), 0 5px 0 rgba(48, 39, 70, .25); opacity: .95; transition: none; }
-li.task.drag-src { opacity: .3; }
-li.task.drop-before { box-shadow: 0 -4px 0 -1px var(--teal), 0 5px 0 rgba(48, 39, 70, .25); }
-ul.tasks.drop-end { box-shadow: 0 4px 0 -1px var(--teal); border-radius: 4px; }
+li.task.drag-src { display: none; }
+/* The gap where the card will land: dashed, as tall as the card */
+li.drop-slot { list-style: none; box-sizing: border-box; border: 2.5px dashed rgba(54, 38, 67, .55); border-radius: 16px; background: rgba(255, 255, 255, .25); }
+/* The copy in hand keeps its text on one line (its tools are hidden) */
+.drag-ghost .t-tools { display: none; }
+.drag-ghost .t-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* Ajustes › Letra (core/text-settings.ts): activities and stories take --act-fs and --act-ls; every other label grows
    gently with --esc and takes --app-ls. Defaults (15px, 1×, normal) keep today's look. !important beats the
@@ -469,3 +472,21 @@ body { letter-spacing: var(--app-ls); }
 .stepper span { min-width: 34px; text-align: center; font-weight: 800; color: var(--ink-soft); }
 .stepper button { width: 40px; height: 40px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font-size: 22px; line-height: 1; }
 .stepper button:disabled { opacity: .35; }
+
+/* Task details: Active at the top right of the header box; the guide card under Where; Existing activity and the
+   Color button on one line; the palette as 4 + 4 colours with Automatic across the third row */
+dialog.editor header .head-switch { flex: none; min-height: 40px; font-weight: 700; }
+.where-card { margin: 0 0 14px; cursor: default; }
+.where-card .pc-epic { padding-right: 6px; }
+.exist-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: end; }
+.exist-row .field { min-width: 0; }
+.color-open { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-bottom: 14px; padding: 0 14px; border: 1px solid rgba(255, 255, 255, .2);
+  border-radius: 999px; background: var(--page); color: var(--ink); font-size: 14px; font-weight: 700; }
+.color-open[aria-expanded='true'] { border-color: var(--teal); }
+.color-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .5); }
+.color-dot.auto { background: conic-gradient(#a7e7e3, #e1f3d0, #e1d7ff, #ffd5bd, #a7e7e3); }
+.color-pick { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 10px !important; }
+.color-pick .swatch:not(.auto) { max-width: 44px; }
+.color-pick .swatch.auto { grid-column: 1 / -1 !important; justify-self: stretch !important; width: 100%; min-height: 44px; }
+/* The search box's matches, highlighted in the picker's cards */
+.pick-card mark { background: #ffe066; color: #302746; border-radius: 3px; padding: 0 1px; }
