@@ -45,7 +45,7 @@
                 <label>{{ i18n.t('week.start') }}
                   <input #winStart type="time" step="60" [value]="block.start ?? ''" (change)="setWindow(day, block, winStart.value, winEnd.value)" /></label>
                 <label>{{ i18n.t('week.end') }}
-                  <input #winEnd type="time" step="60" [value]="block.end ?? ''" (change)="setWindow(day, block, winStart.value, winEnd.value)" /></label>
+                  <input #winEnd type="time" step="60" [value]="stretching()?.blockId === block.id ? shownEnd(block) : (block.end ?? '')" (change)="setWindow(day, block, winStart.value, winEnd.value)" /></label>
               </div>
               @if (windowErrors()[block.id]) { <p class="window-error">{{ windowErrors()[block.id] }}</p> }
               <div class="block-tools">
@@ -101,10 +101,6 @@
               </div>
             }
 
-            @if (arranging()) {
-              <input #quick class="quick-add" type="text" [placeholder]="i18n.t('week.quickAdd')" [attr.aria-label]="i18n.t('week.quickAdd')"
-                     [disabled]="!canAddTo(block)" (keydown.enter)="quickAdd(day, block, quick)" />
-            }
           </section>
         }
 

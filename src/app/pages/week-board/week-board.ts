@@ -243,20 +243,6 @@ export class WeekBoard {
     this.editing.set({ day, blockId: block.id, task, isNew: true });        // a draft: added to the block only on Done
   }
 
-  protected quickAdd(day: Day, block: Block, input: HTMLInputElement): void {
-    const title = input.value.trim();
-    if (!title) return;
-    const free = freeMinutes(block);
-    const minutes = free === null ? NEW_TASK_MINUTES : Math.max(0, Math.min(NEW_TASK_MINUTES, free));
-    const task: Task = { id: newId(), title, minutes, color: null, active: true, ref: null };
-    // Filed with the previous task of the block (its user story), as in Epic Manager's quick-add; else in Free Space.
-    const previous = [...block.tasks].reverse().find((t) => t.ref && nodeById(this.library.library(), t.ref));
-    const filed = this.fileInLibrary(task, nodeById(this.library.library(), previous?.ref)?.parentId ?? null, false);
-    this.inBatch(filed.lib, () =>
-      this.updateDay(day, (blocks) => blocks.map((b) => (b.id === block.id ? { ...b, tasks: [...b.tasks, filed.task] } : b))));
-    input.value = '';
-  }
-
   protected openTask(day: Day, block: Block, task: Task): void {
     if (!this.arranging()) return;
     this.draftBlock.set(null);
