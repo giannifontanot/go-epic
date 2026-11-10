@@ -1,10 +1,11 @@
 import { Component, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
-import { LibNode, addNode, inboxTasks, paperAge, newNodeId, nodeById, removeNode, updateNode } from '../../core/library.model';
+import { LibNode, addNode, inboxTasks, moveNode, newNodeId, nodeById, paperAge, placeLabel, removeNode, updateNode } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
 import { DAYS, Task, blockColors } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
+import { ActivityDialog, ActivitySave } from './activity-dialog';
 import { CaptureUi } from './capture-ui';
 
 /**
@@ -45,7 +46,7 @@ import { CaptureUi } from './capture-ui';
               <button type="button" class="c-text" [disabled]="!canChange()" [attr.aria-label]="i18n.t('capture.edit') + ': ' + task.title" (click)="startEdit(task)">{{ task.title }}</button>
             }
             <button type="button" class="c-icon" [disabled]="!canChange()" [attr.aria-label]="i18n.t('capture.edit') + ': ' + task.title" [title]="i18n.t('capture.edit')"
-              (click)="startEdit(task)">✎</button>
+              (click)="openActivity(task)">✎</button>
             <button type="button" class="c-icon" [disabled]="!canChange()" [attr.aria-label]="i18n.t('capture.delete')" [title]="i18n.t('capture.delete')"
               (click)="remove(task)">✕</button>
           </li>
@@ -54,7 +55,11 @@ import { CaptureUi } from './capture-ui';
         }
       </ul>
     </dialog>
+    @if (activity(); as task) {
+      <app-activity-dialog [task]="task" [library]="library.library()" (save)="saveActivity($event)" (closed)="activity.set(null)" />
+    }
   `,
+  imports: [ActivityDialog],
 })
 export class CapturePanel {
   protected readonly i18n = inject(I18n);
@@ -148,6 +153,26 @@ export class CapturePanel {
     if (!this.canChange()) return;
     this.editing.set(task.id);
     queueMicrotask(() => this.panel().nativeElement.querySelector<HTMLInputElement>('.c-edit')?.focus());
+  }
+
+  /** ✎: the idea opens as an Activity (Where, name, colour), not just its name (Gianni). */
+  protected readonly activity = signal<LibNode | null>(null);
+  protected openActivity(task: LibNode): void {
+    if (this.canChange()) this.activity.set(task);
+  }
+
+  /** Done in the activity editor: name and colour (its week cards follow), and filed in a Story when one was chosen. */
+  protected saveActivity(change: ActivitySave): void {
+    const before = nodeById(this.library.library(), change.id);
+    if (!before) return;
+    const saved = this.library.updateWithWeek((lib) => {
+      let next = updateNode(lib, change.id, { title: change.title, color: change.color });
+      if (change.parentId !== before.parentId) next = moveNode(next, change.id, change.parentId);
+      return next;
+    });
+    if (saved && change.parentId && change.parentId !== before.parentId) {
+      this.message.set(this.i18n.t('capture.filed', { task: change.title, place: placeLabel(this.library.library(), change.id) }));
+    }
   }
 
   /** A rename also renames its cards in the week (same batch). */

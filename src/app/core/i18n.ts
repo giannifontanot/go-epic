@@ -11,6 +11,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'capture.open': { en: 'Capture an idea', es: 'Capturar una idea' },
   'capture.placeholder': { en: 'An idea, a to-do… (Enter)', es: 'Una idea, un pendiente… (Enter)' },
   'capture.inboxHint': { en: 'Each idea waits in Free Space until you place it in the Canvas or plan it in the Week.', es: 'Cada idea espera en el Espacio libre hasta que la acomodes en el Canvas o la planees en la Semana.' },
+  'capture.filed': { en: '"{task}" is now in {place}.', es: '"{task}" ya está en {place}.' },
   'capture.confirmPlanned': { en: '"{task}" is planned {n} time(s) in your week. Delete it everywhere?', es: '"{task}" está {n} vez/veces en tu semana. ¿Eliminarla de todos lados?' },
   'capture.empty': { en: 'Free Space is empty. Write your first idea above.', es: 'El Espacio libre está vacío. Escribe arriba tu primera idea.' },
   'capture.add': { en: 'Add', es: 'Agregar' },
