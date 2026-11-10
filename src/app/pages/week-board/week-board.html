@@ -87,6 +87,20 @@
               }
             </ul>
 
+            <!-- The block's free time: a striped band as tall as the minutes it holds (Gianni, as in Epic Manager) -->
+            @if (freeShown(block) > 0) {
+              <div class="free-band" [style.--free]="freeShown(block)" aria-hidden="true"></div>
+            }
+            <!-- Pull the handle to stretch or shrink the block: its end time follows (never before its tasks end) -->
+            @if (arranging() && block.start) {
+              <div class="end-handle" role="slider" tabindex="0" [attr.aria-label]="i18n.t('week.stretch') + ': ' + block.name"
+                   [attr.aria-valuetext]="shownEnd(block)" [title]="i18n.t('week.stretch')"
+                   (pointerdown)="startStretch($event, day, block)" (keydown)="stretchKey($event, day, block)">
+                <span class="grip-bar"></span>
+                @if (stretching()?.blockId === block.id) { <span class="end-badge">{{ shownEnd(block) }}</span> }
+              </div>
+            }
+
             @if (arranging()) {
               <input #quick class="quick-add" type="text" [placeholder]="i18n.t('week.quickAdd')" [attr.aria-label]="i18n.t('week.quickAdd')"
                      [disabled]="!canAddTo(block)" (keydown.enter)="quickAdd(day, block, quick)" />

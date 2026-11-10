@@ -1,7 +1,7 @@
 import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
 import { I18n } from '../../core/i18n';
 import {
-  Block, DAYS, Day, NEW_TASK_MINUTES, Task, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId,
+  Block, DAYS, Day, NEW_TASK_MINUTES, Task, WEEK_PX_PER_MIN, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId, stretchedEnd,
   nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
 } from '../../core/week.model';
 import { Library, fileTask, followLibrary, nodeById, paperAge, updateNode } from '../../core/library.model';
@@ -93,6 +93,62 @@ export class WeekBoard {
     if (free === null) return '';
     if (free === 0) return this.i18n.t('week.full');
     return free > 0 ? this.i18n.t('week.free', { n: free }) : this.i18n.t('week.over', { n: -free });
+  }
+
+  /** The block being stretched by its handle, and the end it would have now (shown live, saved on release). */
+  protected readonly stretching = signal<{ blockId: string; end: string } | null>(null);
+
+  /** The block as it looks now: while its handle is pulled, with the end it would get. */
+  private live(block: Block): Block {
+    const s = this.stretching();
+    return s && s.blockId === block.id ? { ...block, end: s.end } : block;
+  }
+  /** Free minutes drawn as the striped band (live while stretching). */
+  protected freeShown(block: Block): number {
+    return Math.max(0, freeMinutes(this.live(block)) ?? 0);
+  }
+  protected shownEnd(block: Block): string {
+    const b = this.live(block);
+    return b.end ?? formatClock((parseClock(b.start) ?? 0) + taskTotal(b));
+  }
+
+  /** The handle at a block's foot: dragging it by n px moves the end by n / 1.6 minutes, live; release saves it. */
+  protected startStretch(event: PointerEvent, day: Day, block: Block): void {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    const handle = event.currentTarget as HTMLElement;
+    handle.setPointerCapture(event.pointerId);
+    const y0 = event.clientY;
+    const first = stretchedEnd(block, 0);
+    if (!first) return;
+    this.stretching.set({ blockId: block.id, end: first });
+    const move = (e: PointerEvent) => {
+      const end = stretchedEnd(block, (e.clientY - y0) / WEEK_PX_PER_MIN);
+      if (end) this.stretching.set({ blockId: block.id, end });
+    };
+    const done = (commit: boolean) => () => {
+      handle.removeEventListener('pointermove', move);
+      handle.removeEventListener('pointerup', up);
+      handle.removeEventListener('pointercancel', cancel);
+      const end = this.stretching()?.end;
+      this.stretching.set(null);
+      if (commit && end && end !== block.end) this.setWindow(day, block, block.start ?? '', end);
+    };
+    const up = done(true);
+    const cancel = done(false);
+    handle.addEventListener('pointermove', move);
+    handle.addEventListener('pointerup', up);
+    handle.addEventListener('pointercancel', cancel);
+  }
+
+  /** Keys on the handle: ↓/→ one minute longer, ↑/← shorter, Shift five, PageUp/PageDown fifteen. */
+  protected stretchKey(event: KeyboardEvent, day: Day, block: Block): void {
+    const step = event.shiftKey ? 5 : 1;
+    const delta = ({ ArrowDown: step, ArrowRight: step, ArrowUp: -step, ArrowLeft: -step, PageDown: 15, PageUp: -15 } as Record<string, number>)[event.key];
+    if (!delta) return;
+    event.preventDefault();
+    const end = stretchedEnd(block, delta);
+    if (end && end !== block.end) this.setWindow(day, block, block.start ?? '', end);
   }
 
   protected isOver(block: Block): boolean {

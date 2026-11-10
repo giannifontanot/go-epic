@@ -6,6 +6,7 @@ import { Kind, LibNode, PARENT_KIND, STARTER_TEMPLATE, TemplateRename, emptyLibr
 import { LibraryStore } from '../../core/library.store';
 import { COLOR_CHOICES, DAYS } from '../../core/week.model';
 import { WeekStore, WeekWrite } from '../../core/week.store';
+import { CaptureUi } from '../capture/capture-ui';
 import { CanvasMotion } from './canvas-motion';
 import { CanvasNode } from './canvas-node';
 import { CanvasLayout, CanvasState } from './canvas-state';
@@ -34,6 +35,7 @@ const FREE_KEY = 'go-epic-canvas-free-space';
 })
 export class Canvas {
   protected readonly i18n = inject(I18n);
+  protected readonly capture = inject(CaptureUi);
   protected readonly libraryStore = inject(LibraryStore);
   private readonly week = inject(WeekStore);
   private readonly auth = inject(AuthService);
@@ -90,7 +92,9 @@ export class Canvas {
         this.bump();
       });
     });
-    inject(DestroyRef).onDestroy(() => { this.cancelDrag(); this.motion.destroy(); });
+    // Capture is the 💡 at the top right here, as on the Week; the floating ✎ (an edit button) is not shown on the Canvas.
+    this.capture.fab.set({ label: '', run: () => undefined, hidden: true });
+    inject(DestroyRef).onDestroy(() => { this.cancelDrag(); this.motion.destroy(); this.capture.fab.set(null); });
   }
 
   // --- What the page shows ---

@@ -84,6 +84,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'week.end': { en: 'End', es: 'Fin' },
   'week.free': { en: '{n} min free', es: '{n} min libres' },
   'week.full': { en: '✓ Full', es: '✓ Lleno' },
+  'week.stretch': { en: 'Pull to change the block\'s end', es: 'Jala para cambiar el fin del bloque' },
   'week.over': { en: '⚠ {n} min over', es: '⚠ {n} min de más' },
   'week.blockUp': { en: 'Move block up', es: 'Subir bloque' },
   'week.blockDown': { en: 'Move block down', es: 'Bajar bloque' },

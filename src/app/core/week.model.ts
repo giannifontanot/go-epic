@@ -100,6 +100,24 @@ export function freeMinutes(block: Block): number | null {
   return length === null ? null : length - taskTotal(block);
 }
 
+/** Pixels per minute on the Week board: a card is 46px + minutes × this, and a block's free time a band of the same scale. */
+export const WEEK_PX_PER_MIN = 1.6;
+
+/**
+ * The block's end after the handle at its bottom is pulled by `delta` minutes (Gianni: pull and the hours follow): from
+ * its current end (or the end of its tasks when it has no end yet), never before its tasks end (at least one minute
+ * after the start) and never past 23:59. Null when the block has no start to anchor it.
+ */
+export function stretchedEnd(block: Block, delta: number): string | null {
+  const start = parseClock(block.start);
+  if (start === null) return null;
+  const total = taskTotal(block);
+  const length = windowLength(block);
+  const current = start + (length ?? total);
+  const next = Math.min(1439, Math.max(start + Math.max(total, 1), Math.round(current + delta)));
+  return formatClock(next);
+}
+
 /** Start time of each task: the block's start plus the minutes of the tasks before it. */
 export function taskStarts(block: Block): (number | null)[] {
   const start = parseClock(block.start);
