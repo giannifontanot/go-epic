@@ -17,6 +17,30 @@ export interface Todo {
   done: number | null;
   /** When it was captured (millis): its paper ages from then. */
   created: number;
+  /** The weekdays it repeats on (Gianni: Mo…Su buttons); empty = once, on `date`. */
+  repeat: Day[];
+  /** A repeating task's checks, one per date: 'YYYY-MM-DD' → when (millis). */
+  doneOn: Record<string, number>;
+}
+
+/** Repeats on some weekday: then it shows every week on those days and is checked per date. */
+export function repeats(todo: Todo): boolean {
+  return todo.repeat.length > 0;
+}
+
+/** Whether a task falls on a date (its own date, or one of its repeat weekdays). */
+export function onDate(todo: Todo, date: string, day: Day): boolean {
+  return repeats(todo) ? todo.repeat.includes(day) : todo.date === date;
+}
+
+/** Checked on that date: a repeating task by its check for that date, a single one by its own check. */
+export function doneOnDate(todo: Todo, date: string): number | null {
+  return repeats(todo) ? todo.doneOn[date] ?? null : todo.done;
+}
+
+/** The tasks of a date, as that date sees them (a repeating one carries that date's check in `done`). */
+export function todosForDate(todos: Todo[], date: string, day: Day): Todo[] {
+  return todos.filter((t) => onDate(t, date, day)).map((t) => (repeats(t) ? { ...t, done: doneOnDate(t, date) } : t));
 }
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -31,18 +55,26 @@ export function sanitizeTodo(id: string, raw: unknown): Todo | null {
   const time = typeof r['time'] === 'string' && parseClock(r['time']) !== null ? r['time'] : null;
   const done = typeof r['done'] === 'number' && Number.isFinite(r['done']) ? r['done'] : null;
   const created = typeof r['created'] === 'number' && Number.isFinite(r['created']) ? r['created'] : 0;
-  return { id, title, date, time, done, created };
+  const repeat = Array.isArray(r['repeat']) ? DAYS.filter((d) => (r['repeat'] as unknown[]).includes(d)) : [];
+  const doneOn: Record<string, number> = {};
+  if (r['doneOn'] && typeof r['doneOn'] === 'object') {
+    for (const [k, v] of Object.entries(r['doneOn'] as Record<string, unknown>)) if (DATE.test(k) && typeof v === 'number' && Number.isFinite(v)) doneOn[k] = v;
+  }
+  return { id, title, date, time, done, created, repeat, doneOn };
 }
 
-/** The open todos, soonest first (by day, then hour; no hour after the hours, no day last), then newest captured. */
+/**
+ * The open todos: the repeating ones first (they never finish: each date has its own check), by hour, then the single
+ * ones soonest first (by day, then hour; no hour after the hours, no day last), then newest captured.
+ */
 export function openTodos(todos: Todo[]): Todo[] {
-  const at = (t: Todo) => `${t.date ?? '9999-99-99'} ${t.time ?? '99:99'}`;
-  return todos.filter((t) => t.done === null).sort((a, b) => at(a).localeCompare(at(b)) || b.created - a.created);
+  const at = (t: Todo) => `${repeats(t) ? '0000-00-00' : t.date ?? '9999-99-99'} ${t.time ?? '99:99'}`;
+  return todos.filter((t) => repeats(t) || t.done === null).sort((a, b) => at(a).localeCompare(at(b)) || b.created - a.created);
 }
 
-/** The finished todos, last checked first. */
+/** The finished single todos, last checked first (a repeating task is never finished). */
 export function doneTodos(todos: Todo[]): Todo[] {
-  return todos.filter((t) => t.done !== null).sort((a, b) => (b.done as number) - (a.done as number));
+  return todos.filter((t) => !repeats(t) && t.done !== null).sort((a, b) => (b.done as number) - (a.done as number));
 }
 
 /** The date of a weekday in the week (Monday to Sunday) that holds `today`. */
@@ -88,4 +120,14 @@ export function stackPins(pins: PinnedTodo[], minGap: number): { fraction: numbe
     else stacks.push({ fraction: pin.fraction, todos: [pin.todo], last: pin.fraction });
   }
   return stacks.map(({ fraction, todos }) => ({ fraction, todos }));
+}
+
+/**
+ * The single tasks left open on an earlier day (Gianni): they roll over to today and wait at the top of today's column,
+ * since they no longer belong to any block; oldest first.
+ */
+export function overdueTodos(todos: Todo[], today: string): Todo[] {
+  return todos
+    .filter((t) => !repeats(t) && t.done === null && t.date !== null && t.date < today)
+    .sort((a, b) => `${a.date} ${a.time ?? '99:99'}`.localeCompare(`${b.date} ${b.time ?? '99:99'}`));
 }

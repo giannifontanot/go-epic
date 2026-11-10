@@ -12,7 +12,8 @@ import { CaptureUi } from '../capture/capture-ui';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { STATUSES, Status } from '../../core/status.model';
-import { PinnedTodo, Todo, pinTodos, stackPins, weekDate } from '../../core/todo.model';
+import { PinnedTodo, Todo, overdueTodos, pinTodos, stackPins, todosForDate, weekDate } from '../../core/todo.model';
+import { TodoDialog, TodoSave } from '../capture/todo-dialog';
 import { TodoStore } from '../../core/todo.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
 import { Transfer, TransferDialog } from './transfer-dialog';
@@ -32,7 +33,7 @@ function readFolded(): Set<string> {
 
 @Component({
   selector: 'app-week-board',
-  imports: [TaskDialog, TransferDialog],
+  imports: [TaskDialog, TransferDialog, TodoDialog],
   templateUrl: './week-board.html',
 })
 export class WeekBoard {
@@ -103,15 +104,33 @@ export class WeekBoard {
     return stackPins(pins, 48 / (46 + validMinutes(task.minutes) * WEEK_PX_PER_MIN));
   }
   protected readonly pins = computed(() => {
-    const now = this.store.now();
     const all = this.todos.todos();
     const week = this.store.week();
     const out = {} as Record<Day, { onTask: Map<string, PinnedTodo[]>; loose: Todo[] }>;
-    for (const day of DAYS) {
-      const date = weekDate(now, day);
-      out[day] = pinTodos(week[day], all.filter((t) => t.date === date));
-    }
+    const rolled = new Set(this.overdue().map((t) => t.id));                // they moved on to today (top of its column)
+    for (const day of DAYS) out[day] = pinTodos(week[day], todosForDate(all, this.dates()[day], day).filter((t) => !rolled.has(t.id)));
     return out;
+  });
+  /** Single tasks left open on earlier days: they roll over to the top of today's column (Gianni). */
+  protected readonly overdue = computed(() => overdueTodos(this.todos.todos(), this.store.todayKey()));
+  /** "from Mon 9": the day an overdue task was for. */
+  protected fromLabel(todo: Todo): string {
+    const [y, m, d] = (todo.date ?? '').split('-').map(Number);
+    const day = new Date(y, m - 1, d).toLocaleDateString(this.i18n.lang(), { weekday: 'short', day: 'numeric' });
+    return this.i18n.t('week.todoFrom', { day });
+  }
+  /** Every task on the board keeps its ✎ (Gianni): it opens the same editor as Capture (name, day, hour, repeat). */
+  protected readonly editingTodo = signal<Todo | null>(null);
+  protected editTodo(todo: Todo): void {
+    this.editingTodo.set(this.todos.todos().find((t) => t.id === todo.id) ?? null);   // the stored task, not a date's view
+  }
+  protected saveTodo(change: TodoSave): void {
+    this.todos.update(change.id, { title: change.title, date: change.date, time: change.time, repeat: change.repeat });
+  }
+  /** The date of each day of this week (Monday first): a repeating task is checked for that date. */
+  protected readonly dates = computed(() => {
+    const now = this.store.now();
+    return Object.fromEntries(DAYS.map((day) => [day, weekDate(now, day)])) as Record<Day, string>;
   });
   protected readonly notice = signal('');
   protected readonly windowErrors = signal<Record<string, string>>({});

@@ -49,15 +49,20 @@
           </span>
         </header>
 
-        <!-- Capture's tasks for this day that no activity holds (no hour, or an hour outside the blocks) -->
-        @if (pins()[day].loose.length) {
+        <!-- Capture's tasks for this day that no activity holds (no hour, or an hour outside the blocks), and in today's
+             column the ones left open on earlier days, first (Gianni: they roll over and no longer belong to a block) -->
+        @let strip = day === store.today() ? overdue().concat(pins()[day].loose) : pins()[day].loose;
+        @if (strip.length) {
           <ul class="todo-strip" [attr.aria-label]="i18n.t('week.todos')">
-            @for (todo of pins()[day].loose; track todo.id) {
-              <li class="todo-note" [class.checked]="todo.done !== null">
+            @for (todo of strip; track todo.id) {
+              @let late = day === store.today() && todo.date !== null && todo.date < dates()[day] && !todo.repeat.length;
+              <li class="todo-note" [class.checked]="todo.done !== null" [class.overdue]="late">
                 <button type="button" class="todo-check" role="checkbox" [attr.aria-checked]="todo.done !== null"
                         [attr.aria-label]="i18n.t(todo.done !== null ? 'capture.uncheck' : 'capture.check') + ': ' + todo.title"
-                        (click)="$event.stopPropagation(); todos.setDone(todo.id, todo.done === null)">{{ todo.done !== null ? '✓' : '' }}</button>
-                <span class="todo-title">{{ todo.title }}</span>@if (todo.time) { <span class="todo-time">{{ todo.time }}</span> }
+                        (click)="$event.stopPropagation(); todos.setDone(todo.id, todo.done === null, dates()[day])">{{ todo.done !== null ? '✓' : '' }}</button>
+                <span class="todo-title">{{ todo.title }}@if (late) { <small class="todo-from">{{ fromLabel(todo) }}</small> }</span>@if (todo.time) { <span class="todo-time">{{ todo.time }}</span> }
+                <button type="button" class="todo-edit" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
+                        (click)="$event.stopPropagation(); editTodo(todo)">✎</button>
               </li>
             }
           </ul>
@@ -142,8 +147,10 @@
                         <span class="todo-note pinned" [class.checked]="todo.done !== null">
                           <button type="button" class="todo-check" role="checkbox" [attr.aria-checked]="todo.done !== null"
                                   [attr.aria-label]="i18n.t(todo.done !== null ? 'capture.uncheck' : 'capture.check') + ': ' + todo.title"
-                                  (click)="todos.setDone(todo.id, todo.done === null)">{{ todo.done !== null ? '✓' : '' }}</button>
+                                  (click)="todos.setDone(todo.id, todo.done === null, dates()[day])">{{ todo.done !== null ? '✓' : '' }}</button>
                           <span class="todo-title">{{ todo.title }}</span><span class="todo-time">{{ todo.time }}</span>
+                          <button type="button" class="todo-edit" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
+                                  (click)="editTodo(todo)">✎</button>
                         </span>
                       }
                     </span>
@@ -200,3 +207,7 @@
     </div>
   }
 </dialog>
+
+@if (editingTodo(); as todo) {
+  <app-todo-dialog [todo]="todo" (save)="saveTodo($event)" (closed)="editingTodo.set(null)" />
+}

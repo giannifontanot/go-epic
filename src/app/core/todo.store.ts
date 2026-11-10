@@ -2,7 +2,7 @@ import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angul
 import { Unsubscribe, collection, deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { AuthService } from './auth.service';
 import { firebase } from './firebase';
-import { Todo, doneTodos, openTodos, sanitizeTodo } from './todo.model';
+import { Todo, doneTodos, openTodos, repeats, sanitizeTodo } from './todo.model';
 import { newId } from './week.model';
 
 /**
@@ -40,18 +40,25 @@ export class TodoStore {
   add(title: string, date: string | null, time: string | null = null): void {
     const clean = title.trim();
     if (!clean) return;
-    this.save({ id: newId(), title: clean, date, time, done: null, created: Date.now() });
+    this.save({ id: newId(), title: clean, date, time, done: null, created: Date.now(), repeat: [], doneOn: {} });
   }
 
-  update(id: string, change: Partial<Pick<Todo, 'title' | 'date' | 'time'>>): void {
+  update(id: string, change: Partial<Pick<Todo, 'title' | 'date' | 'time' | 'repeat'>>): void {
     const todo = this.todos().find((t) => t.id === id);
     if (todo) this.save({ ...todo, ...change });
   }
 
-  /** The check: done (it leaves the open list for the finished one) or open again. */
-  setDone(id: string, done: boolean): void {
+  /**
+   * The check. A single task: done (it leaves the open list for the finished one) or open again. A repeating task is
+   * checked for one date only (`date`, the board's day or today), so the next time it comes round it is open again.
+   */
+  setDone(id: string, done: boolean, date: string): void {
     const todo = this.todos().find((t) => t.id === id);
-    if (todo) this.save({ ...todo, done: done ? Date.now() : null });
+    if (!todo) return;
+    if (!repeats(todo)) { this.save({ ...todo, done: done ? Date.now() : null }); return; }
+    const doneOn = { ...todo.doneOn };
+    if (done) doneOn[date] = Date.now(); else delete doneOn[date];
+    this.save({ ...todo, doneOn });
   }
 
   remove(id: string): void {

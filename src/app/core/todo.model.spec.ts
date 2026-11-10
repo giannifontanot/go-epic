@@ -1,13 +1,13 @@
-import { Todo, doneTodos, openTodos, pinTodos, sanitizeTodo, stackPins, weekDate } from './todo.model';
+import { Todo, doneTodos, openTodos, overdueTodos, pinTodos, sanitizeTodo, stackPins, todosForDate, weekDate } from './todo.model';
 import { DayPlan } from './week.model';
 
-const todo = (id: string, extra: Partial<Todo> = {}): Todo => ({ id, title: id, date: '2026-11-10', time: null, done: null, created: 1, ...extra });
+const todo = (id: string, extra: Partial<Todo> = {}): Todo => ({ id, title: id, date: '2026-11-10', time: null, done: null, created: 1, repeat: [], doneOn: {}, ...extra });
 
 describe('todo model', () => {
   it('sanitizes what Firestore holds', () => {
     expect(sanitizeTodo('a', { title: ' Pay ', date: '2026-11-10', time: '9:30', done: null, created: 5 }))
-      .toEqual({ id: 'a', title: 'Pay', date: '2026-11-10', time: '9:30', done: null, created: 5 });
-    expect(sanitizeTodo('b', { title: 'x', date: 'tomorrow', time: '25:00' })).toEqual({ id: 'b', title: 'x', date: null, time: null, done: null, created: 0 });
+      .toEqual({ id: 'a', title: 'Pay', date: '2026-11-10', time: '9:30', done: null, created: 5, repeat: [], doneOn: {} });
+    expect(sanitizeTodo('b', { title: 'x', date: 'tomorrow', time: '25:00' })).toEqual({ id: 'b', title: 'x', date: null, time: null, done: null, created: 0, repeat: [], doneOn: {} });
     expect(sanitizeTodo('c', { title: '  ' })).toBeNull();
   });
 
@@ -41,5 +41,25 @@ describe('todo model', () => {
     expect(stacks.map((s) => [s.fraction, s.todos.map((t) => t.id)])).toEqual([[0.5, ['a', 'b', 'd']], [0.9, ['c']]]);
     expect(stackPins([pin('a', 0.1), pin('b', 0.6)], 0.2).length).toBe(2);
     expect(stackPins([pin('a', 0.5), pin('b', 0.5), pin('c', 0.65)], 0.1).map((s) => s.todos.length)).toEqual([3]);   // c would sit under the stack's notes
+  });
+
+  it('reads repeat days and per-date checks, dropping anything invalid', () => {
+    expect(sanitizeTodo('r', { title: 'Gym', repeat: ['FRIDAY', 'MONDAY', 'NOPE'], doneOn: { '2026-11-09': 5, bad: 1, '2026-11-13': 'x' } }))
+      .toEqual(expect.objectContaining({ repeat: ['MONDAY', 'FRIDAY'], doneOn: { '2026-11-09': 5 } }));
+  });
+
+  it('puts a repeating task on its weekdays, checked per date, and never in Finished', () => {
+    const gym = todo('gym', { date: null, repeat: ['MONDAY', 'WEDNESDAY'], doneOn: { '2026-11-09': 7 } });
+    expect(todosForDate([gym], '2026-11-09', 'MONDAY')).toEqual([expect.objectContaining({ id: 'gym', done: 7 })]);
+    expect(todosForDate([gym], '2026-11-11', 'WEDNESDAY')).toEqual([expect.objectContaining({ id: 'gym', done: null })]);
+    expect(todosForDate([gym], '2026-11-10', 'TUESDAY')).toEqual([]);
+    expect(openTodos([gym, todo('one', { done: 3 })]).map((t) => t.id)).toEqual(['gym']);
+    expect(doneTodos([gym, todo('one', { done: 3 })]).map((t) => t.id)).toEqual(['one']);
+  });
+
+  it('rolls the open single tasks of earlier days over to today, oldest first', () => {
+    const list = [todo('mon', { date: '2026-11-09', time: '10:00' }), todo('sun', { date: '2026-11-08' }), todo('done', { date: '2026-11-09', done: 1 }),
+      todo('today', { date: '2026-11-10' }), todo('rep', { date: '2026-11-01', repeat: ['MONDAY'] }), todo('none', { date: null })];
+    expect(overdueTodos(list, '2026-11-10').map((t) => t.id)).toEqual(['sun', 'mon']);
   });
 });

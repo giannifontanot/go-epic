@@ -2,7 +2,7 @@ import { Component, ElementRef, computed, effect, inject, signal, untracked, vie
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { paperAge } from '../../core/library.model';
-import { Todo } from '../../core/todo.model';
+import { Todo, doneOnDate, repeats } from '../../core/todo.model';
 import { TodoStore } from '../../core/todo.store';
 import { Task, blockColors, dateKey } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
@@ -40,15 +40,18 @@ import { TodoDialog, TodoSave } from './todo-dialog';
       <ul class="capture-list">
         @for (todo of todos.open(); track todo.id) {
           <li [attr.data-paper]="paper(todo)" [style.--tone]="tones().get(todo.id)">
-            <button type="button" class="c-check" role="checkbox" aria-checked="false" [attr.aria-label]="i18n.t('capture.check') + ': ' + todo.title"
-              [title]="i18n.t('capture.check')" (click)="todos.setDone(todo.id, true)"></button>
+            <!-- A repeating task is checked for today only (when today is one of its days); a single one leaves the list -->
+            @let checked = checkedToday(todo);
+            <button type="button" class="c-check" [class.on]="checked" role="checkbox" [attr.aria-checked]="checked"
+              [disabled]="!checkableToday(todo)" [attr.aria-label]="i18n.t(checked ? 'capture.uncheck' : 'capture.check') + ': ' + todo.title"
+              [title]="i18n.t(checked ? 'capture.uncheck' : 'capture.check')" (click)="todos.setDone(todo.id, !checked, today())">{{ checked ? '✓' : '' }}</button>
             @if (editing() === todo.id) {
               <input class="c-edit" type="text" [value]="todo.title" [attr.aria-label]="i18n.t('capture.task')"
                 (keydown.enter)="$event.preventDefault(); saveEdit(todo, $any($event.target).value)"
                 (keydown.escape)="$event.stopPropagation(); editing.set('')" (blur)="saveEdit(todo, $any($event.target).value)" />
             } @else {
               <button type="button" class="c-text" [attr.aria-label]="i18n.t('capture.task') + ': ' + todo.title" (click)="startEdit(todo)">{{ todo.title }}
-                <small class="c-when">{{ when(todo) }}</small></button>
+                <small class="c-when" [class.late]="isLate(todo)">{{ when(todo) }}</small></button>
             }
             <button type="button" class="c-icon" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
               (click)="editingTodo.set(todo)">✎</button>
@@ -65,8 +68,10 @@ import { TodoDialog, TodoSave } from './todo-dialog';
           @for (todo of todos.finished(); track todo.id) {
             <li>
               <button type="button" class="c-check on" role="checkbox" aria-checked="true" [attr.aria-label]="i18n.t('capture.uncheck') + ': ' + todo.title"
-                [title]="i18n.t('capture.uncheck')" (click)="todos.setDone(todo.id, false)">✓</button>
+                [title]="i18n.t('capture.uncheck')" (click)="todos.setDone(todo.id, false, today())">✓</button>
               <span class="c-text">{{ todo.title }} <small class="c-when">{{ when(todo) }}</small></span>
+              <button type="button" class="c-icon" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
+                (click)="editingTodo.set(todo)">✎</button>
               <button type="button" class="c-icon" [attr.aria-label]="i18n.t('capture.delete') + ': ' + todo.title" [title]="i18n.t('capture.delete')"
                 (click)="remove(todo)">✕</button>
             </li>
@@ -146,7 +151,25 @@ export class CapturePanel {
   }
 
   /** "Today · 09:30", "Tomorrow", "Thu 12 Nov", or "No day". */
+  protected readonly today = computed(() => dateKey(this.week.now()));
+  /** Left open on an earlier day: it has rolled over to today (its day shows in red). */
+  protected isLate(todo: Todo): boolean {
+    return !repeats(todo) && todo.done === null && todo.date !== null && todo.date < this.today();
+  }
+  /** A repeating task can be checked here only on one of its days (for today); a single task always. */
+  protected checkableToday(todo: Todo): boolean {
+    return !repeats(todo) || todo.repeat.includes(this.week.today());
+  }
+  protected checkedToday(todo: Todo): boolean {
+    return repeats(todo) ? doneOnDate(todo, this.today()) !== null : todo.done !== null;
+  }
+
+  /** "Today · 09:30", "Tomorrow", "Thu 12 Nov", "No day", or for a repeating task its days: "Mo We Fr · 07:00". */
   protected when(todo: Todo): string {
+    if (repeats(todo)) {
+      const days = todo.repeat.map((d) => this.i18n.t('dayMini.' + d)).join(' ');
+      return todo.time ? `${days} · ${todo.time}` : days;
+    }
     if (!todo.date) return this.i18n.t('capture.noDay');
     const now = this.week.now();
     const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
@@ -186,7 +209,7 @@ export class CapturePanel {
   }
 
   protected saveTodo(change: TodoSave): void {
-    this.todos.update(change.id, { title: change.title, date: change.date, time: change.time });
+    this.todos.update(change.id, { title: change.title, date: change.date, time: change.time, repeat: change.repeat });
   }
 
   protected remove(todo: Todo): void {
