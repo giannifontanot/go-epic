@@ -1,17 +1,17 @@
 import { Component, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
-import { LibNode, addNode, inboxTasks, paperAge, moveNode, newNodeId, nodeById, removeNode, storyOptions, updateNode } from '../../core/library.model';
+import { LibNode, addNode, inboxTasks, paperAge, newNodeId, nodeById, removeNode, updateNode } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
-import { DAYS } from '../../core/week.model';
+import { DAYS, Task, blockColors } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
 import { CaptureUi } from './capture-ui';
 
 /**
  * Capture = the quick way into Free Space (GTD: one inbox). The floating ✎ (or the menu's Capture) opens the panel
- * with the cursor in the box: type and press Enter, as many times as you like. Every idea is a task in the Floating
- * Canvas's Free Space (no story yet). The panel lists those tasks, newest first: edit (tap the text), file it in a
- * story ("Where →", it then leaves the inbox), or delete it. The Week's "Existing task" picker also offers them.
+ * with the cursor in the box: type and press Enter, as many times as you like. Every idea is a task in the
+ * Canvas's Free Space (no story yet). The panel lists those tasks, newest first, each on its own colour in a white box:
+ * edit (tap the text or ✎) or delete (✕, asks first). Placing it in a story is done in the Canvas. The Week's "Existing task" picker also offers them.
  */
 @Component({
   selector: 'app-capture-panel',
@@ -36,7 +36,7 @@ import { CaptureUi } from './capture-ui';
       @if (library.error()) { <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ library.error() }}</p> }
       <ul class="capture-list">
         @for (task of inbox(); track task.id) {
-          <li [attr.data-paper]="paper(task)">
+          <li [attr.data-paper]="paper(task) || null" [style.background]="tones().get(task.id)">
             @if (editing() === task.id) {
               <input class="c-edit" type="text" [value]="task.title" [attr.aria-label]="i18n.t('capture.edit')"
                 (keydown.enter)="$event.preventDefault(); saveEdit(task, $any($event.target).value)"
@@ -44,17 +44,10 @@ import { CaptureUi } from './capture-ui';
             } @else {
               <button type="button" class="c-text" [disabled]="!canChange()" [attr.aria-label]="i18n.t('capture.edit') + ': ' + task.title" (click)="startEdit(task)">{{ task.title }}</button>
             }
-            @if (filing() === task.id) {
-              <select class="c-where" [attr.aria-label]="i18n.t('capture.where')" (change)="file(task, $any($event.target).value)" (blur)="filing.set('')">
-                <option value="" selected>{{ stories().length ? i18n.t('canvas.choose') : i18n.t('capture.noStories') }}</option>
-                @for (s of stories(); track s.node.id) { <option [value]="s.node.id">{{ s.place }}</option> }
-              </select>
-            } @else {
-              <button type="button" class="c-icon c-file" [disabled]="!library.ready()" [attr.aria-label]="i18n.t('capture.where')" [title]="i18n.t('capture.where')"
-                (click)="startFiling(task)">{{ i18n.t('capture.whereShort') }}</button>
-            }
+            <button type="button" class="c-icon" [disabled]="!canChange()" [attr.aria-label]="i18n.t('capture.edit') + ': ' + task.title" [title]="i18n.t('capture.edit')"
+              (click)="startEdit(task)">✎</button>
             <button type="button" class="c-icon" [disabled]="!canChange()" [attr.aria-label]="i18n.t('capture.delete')" [title]="i18n.t('capture.delete')"
-              (click)="remove(task)">×</button>
+              (click)="remove(task)">✕</button>
           </li>
         } @empty {
           <li class="c-empty">{{ i18n.t(library.ready() ? 'capture.empty' : 'loading') }}</li>
@@ -74,9 +67,13 @@ export class CapturePanel {
   /** Renaming and deleting reach the week's cards: they wait until the library and all seven days are loaded. */
   protected readonly canChange = computed(() => this.library.ready() && this.week.loaded());
   protected readonly inbox = computed(() => inboxTasks(this.library.library()));
-  protected readonly stories = computed(() => storyOptions(this.library.library()));
+  /** Each idea has its colour (its own, else the automatic pastel, never like the one above), as in the Canvas. */
+  protected readonly tones = computed(() => {
+    const inbox = this.inbox();
+    const colors = blockColors(inbox as unknown as Task[]);
+    return new Map(inbox.map((t, i) => [t.id, colors[i]]));
+  });
   protected readonly editing = signal('');
-  protected readonly filing = signal('');
   protected readonly message = signal('');
 
   constructor() {
@@ -161,25 +158,12 @@ export class CapturePanel {
     if (title && title !== task.title) this.library.updateWithWeek((lib) => updateNode(lib, task.id, { title }));
   }
 
-  protected startFiling(task: LibNode): void {
-    this.filing.set(task.id);
-    queueMicrotask(() => this.panel().nativeElement.querySelector<HTMLSelectElement>('.c-where')?.focus());
-  }
-
-  /** "Where →": the task moves into a story (it leaves the inbox; the Canvas shows it there). */
-  protected file(task: LibNode, storyId: string): void {
-    this.filing.set('');
-    if (!storyId) return;
-    if (!this.library.update((lib) => moveNode(lib, task.id, storyId))) return;
-    const place = this.stories().find((s) => s.node.id === storyId)?.place ?? '';
-    this.message.set(this.i18n.t('capture.filed', { task: task.title, place }));
-  }
-
-  /** Delete: a task already planned in the week asks first, and its cards leave the week with it (same batch). */
+  /** Delete (✕) always asks first; a task already planned in the week says so, and its cards leave the week with it (same batch). */
   protected remove(task: LibNode): void {
     if (!this.canChange()) return;                                         // the planned-places count needs every day
     const places = DAYS.reduce((n, day) => n + this.week.week()[day].blocks.reduce((m, b) => m + b.tasks.filter((t) => t.ref === task.id).length, 0), 0);
-    if (places && !confirm(this.i18n.t('canvas.confirmDeleteTask', { n: places }))) return;
+    const question = places ? this.i18n.t('capture.confirmPlanned', { task: task.title, n: places }) : this.i18n.t('week.confirmDeleteTask', { task: task.title });
+    if (!confirm(question)) return;
     if (!nodeById(this.library.library(), task.id)) return;
     this.library.updateWithWeek((lib) => removeNode(lib, task.id));
   }
