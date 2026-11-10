@@ -8,6 +8,7 @@ import { closeDialog, isBackdropClick, openDialog } from './core/dialog';
 import { I18n } from './core/i18n';
 import { LibraryStore } from './core/library.store';
 import { Tilt } from './core/tilt';
+import { TextSettings } from './core/text-settings';
 import { WeekStore } from './core/week.store';
 
 @Component({
@@ -67,6 +68,8 @@ export class App {
   protected readonly store = inject(WeekStore);
   protected readonly library = inject(LibraryStore);
   protected readonly tilt = inject(Tilt);
+  /** The text size and letter spacing chosen on the Week board (Aa / AV) apply everywhere from the start. */
+  protected readonly text = inject(TextSettings);
   private readonly capture = inject(CaptureUi);
   private readonly router = inject(Router);
   /** The installed app (service worker) has downloaded a newer version: offer to switch to it. */

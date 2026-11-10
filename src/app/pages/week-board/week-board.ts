@@ -1,4 +1,6 @@
-import { Component, DestroyRef, computed, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, Injector, computed, effect, inject, signal } from '@angular/core';
+import { flip } from '../../core/flip';
+import { TextSettings } from '../../core/text-settings';
 import { I18n } from '../../core/i18n';
 import {
   Block, DAYS, Day, NEW_TASK_MINUTES, Task, WEEK_PX_PER_MIN, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId, stretchedEnd,
@@ -25,6 +27,8 @@ export class WeekBoard {
   protected readonly i18n = inject(I18n);
   protected readonly library = inject(LibraryStore);
   protected readonly capture = inject(CaptureUi);
+  private readonly injector = inject(Injector);
+  protected readonly text = inject(TextSettings);
   protected readonly days = DAYS;
 
   protected readonly arranging = signal(false);
@@ -37,7 +41,7 @@ export class WeekBoard {
       const hidden = this.arranging() || !this.store.loaded() || !this.library.ready();
       this.capture.fab.set({ label: this.i18n.t('week.arrange'), run: () => this.toggleArrange(), hidden });
     });
-    inject(DestroyRef).onDestroy(() => this.capture.fab.set(null));
+    inject(DestroyRef).onDestroy(() => { this.capture.fab.set(null); this.cancelDrag?.(); });
   }
   protected readonly mobileDay = signal<Day>(this.store.today());
   protected readonly notice = signal('');
@@ -205,7 +209,7 @@ export class WeekBoard {
   }
 
   protected moveBlock(day: Day, index: number, offset: number): void {
-    this.store.update(day, (blocks) => moveItem(blocks, index, index + offset));
+    flip(document, this.injector, () => this.store.update(day, (blocks) => moveItem(blocks, index, index + offset)));
   }
 
   protected deleteBlock(day: Day, block: Block): void {
@@ -250,7 +254,97 @@ export class WeekBoard {
   }
 
   protected moveTask(day: Day, block: Block, index: number, offset: number): void {
-    this.store.update(day, (blocks) => blocks.map((b) => (b.id === block.id ? { ...b, tasks: moveItem(b.tasks, index, index + offset) } : b)));
+    flip(document, this.injector, () =>
+      this.store.update(day, (blocks) => blocks.map((b) => (b.id === block.id ? { ...b, tasks: moveItem(b.tasks, index, index + offset) } : b))));
+  }
+
+  /**
+   * Drag a card by its grip ⠿: a tilted copy follows the pointer (so it shows it is held), a teal line marks where it
+   * will land, in its block or another block of the same day; on release the cards glide into their new order (FLIP).
+   * A block whose end would be passed refuses it. Esc or a lost pointer cancels.
+   */
+  protected startTaskDrag(event: PointerEvent, day: Day, block: Block, task: Task): void {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const grip = event.currentTarget as HTMLElement;
+    const card = grip.closest<HTMLElement>('li.task');
+    const dayEl = grip.closest<HTMLElement>('article.day');
+    if (!card || !dayEl) return;
+    grip.setPointerCapture(event.pointerId);
+    const rect = card.getBoundingClientRect();
+    const ghost = card.cloneNode(true) as HTMLElement;
+    ghost.classList.add('drag-ghost');
+    Object.assign(ghost.style, { left: rect.left + 'px', top: rect.top + 'px', width: rect.width + 'px', height: rect.height + 'px' });
+    document.body.appendChild(ghost);
+    card.classList.add('drag-src');
+    const x0 = event.clientX, y0 = event.clientY;
+    let target: { blockId: string; index: number } | null = null;
+    const clearMarks = () => dayEl.querySelectorAll('.drop-before, .drop-end').forEach((el) => el.classList.remove('drop-before', 'drop-end'));
+    const move = (e: PointerEvent) => {
+      ghost.style.transform = `translate(${e.clientX - x0}px, ${e.clientY - y0}px) rotate(-3deg) scale(1.04)`;
+      clearMarks();
+      target = null;
+      const under = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>('section.block[data-block]');
+      if (!under || !dayEl.contains(under)) return;
+      const cards = Array.from(under.querySelectorAll<HTMLElement>('li.task[data-task]')).filter((c) => c !== card);
+      const next = cards.find((c) => { const r = c.getBoundingClientRect(); return e.clientY < r.top + r.height / 2; });
+      if (next) next.classList.add('drop-before'); else under.querySelector('ul.tasks')?.classList.add('drop-end');
+      target = { blockId: under.dataset['block']!, index: next ? cards.indexOf(next) : cards.length };
+    };
+    let done = false;
+    const finish = (commit: boolean) => () => {
+      if (done) return;
+      done = true;
+      this.cancelDrag = null;
+      grip.removeEventListener('pointermove', move);
+      grip.removeEventListener('pointerup', up);
+      grip.removeEventListener('pointercancel', cancel);
+      grip.removeEventListener('lostpointercapture', cancel);
+      removeEventListener('keydown', esc, true);
+      clearMarks();
+      ghost.remove();
+      card.classList.remove('drag-src');
+      if (commit && target) this.dropTask(day, block.id, task.id, target.blockId, target.index);
+    };
+    const up = finish(true);
+    const cancel = finish(false);
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') cancel(); };
+    grip.addEventListener('pointermove', move);
+    grip.addEventListener('pointerup', up);
+    grip.addEventListener('pointercancel', cancel);
+    // The card (and its grip) can vanish mid-drag (another tab deletes or moves it): the capture is lost, so cancel
+    // then; leaving the page cancels too (cancelDrag on destroy). After a normal release `done` makes this a no-op.
+    grip.addEventListener('lostpointercapture', cancel);
+    addEventListener('keydown', esc, true);
+    this.cancelDrag = cancel;
+  }
+  /** Cancels a card drag in progress (the page is leaving). */
+  private cancelDrag: (() => void) | null = null;
+
+  /**
+   * Puts a dragged card at `index` among the other cards of the target block (same day); it must fit there. The card
+   * is read again from the current week (another tab may have renamed, recoloured or deleted it meanwhile): a card
+   * that is gone is not brought back, and the latest version is the one moved.
+   */
+  private dropTask(day: Day, fromId: string, taskId: string, toId: string, index: number): void {
+    const blocks = this.blocks(day);
+    const from = blocks.find((b) => b.id === fromId);
+    const to = blocks.find((b) => b.id === toId);
+    const task = from?.tasks.find((t) => t.id === taskId);
+    if (!from || !to || !task) return;
+    if (fromId !== toId && !fits(to, task.minutes)) { this.notice.set(this.i18n.t('week.noRoom', { block: to.name, n: Math.max(0, freeMinutes(to) ?? 0) })); return; }
+    if (fromId === toId && from.tasks.findIndex((t) => t.id === taskId) === index) return;
+    this.notice.set('');
+    flip(document, this.injector, () => this.store.update(day, (list) => {
+      const current = list.find((b) => b.id === fromId)?.tasks.find((t) => t.id === taskId);
+      if (!current || !list.some((b) => b.id === toId)) return list;
+      return list.map((b) => {
+        let tasks = b.tasks.filter((t) => t.id !== taskId);
+        if (b.id === toId) tasks = [...tasks.slice(0, index), current, ...tasks.slice(index)];
+        return b.id === fromId || b.id === toId ? { ...b, tasks } : b;
+      }).filter((b) => b.tasks.length > 0);
+    }));
   }
 
   protected deleteTask(day: Day, block: Block, task: Task): void {
@@ -370,15 +464,6 @@ export class WeekBoard {
   protected cancelTask(): void {
     this.editing.set(null);
     this.draftBlock.set(null);
-  }
-
-  protected removeEditing(): void {
-    const edit = this.editing();
-    if (!edit) return;
-    this.editing.set(null);
-    this.draftBlock.set(null);
-    if (edit.isNew) return;                                                  // a + task was never saved
-    this.removeTask(edit.day, edit.blockId, edit.task.id);
   }
 
   protected canAddTo(block: Block): boolean {

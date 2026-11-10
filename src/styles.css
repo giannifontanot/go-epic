@@ -423,3 +423,49 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 /* Canvas: Capture is a 💡 at the top right of the title row (the toolbar wraps below it on phones) */
 .page-header > .idea { order: 0; margin-left: auto; flex: none; width: 44px; height: 44px; padding: 0; display: grid; place-items: center;
   border-radius: 50%; font-size: 22px; background: rgba(255, 255, 255, .1); border: 1.5px solid rgba(255, 244, 233, .25); }
+
+/* Task details: the name and the minutes share one line (minutes is a small box) */
+.name-row { display: grid; grid-template-columns: minmax(0, 1fr) 88px; gap: 10px; align-items: start; }
+.name-row .field { min-width: 0; }
+/* Red ✕: deletes (always asks first), the same for a card and for a block */
+.round.danger-x { color: #dc2626; border-color: rgba(220, 38, 38, .55); font-weight: 900; }
+.round.danger-x:hover:not(:disabled) { color: #fff; background: #dc2626; border-color: #dc2626; }
+/* The activity picker's search box, under its title */
+.pick-search { width: 100%; box-sizing: border-box; min-height: 44px; margin: 0 0 14px; padding: 8px 14px; border: 1px solid rgba(255, 255, 255, .2);
+  border-radius: 999px; background: var(--page); color: var(--ink); font-size: 16px; }
+/* Dragging a card: its grip, the tilted copy in hand, the faded place it left and the teal line where it will land */
+.t-grip { flex: none; display: grid; place-items: center; width: 32px; min-height: 32px; margin: -4px -4px -4px -6px; padding: 0; border: 0; border-radius: 8px;
+  background: transparent; color: inherit; font-size: 20px; line-height: 1; cursor: grab; touch-action: none; opacity: .7; }
+.t-grip:active { cursor: grabbing; }
+@media (pointer: coarse) { .t-grip { width: 40px; min-height: 40px; } }
+.drag-ghost { position: fixed; z-index: 1000; margin: 0; pointer-events: none; transform: rotate(-3deg) scale(1.04); transform-origin: 30% 50%;
+  box-shadow: 0 18px 40px rgba(1, 6, 29, .45), 0 5px 0 rgba(48, 39, 70, .25); opacity: .95; transition: none; }
+li.task.drag-src { opacity: .3; }
+li.task.drop-before { box-shadow: 0 -4px 0 -1px var(--teal), 0 5px 0 rgba(48, 39, 70, .25); }
+ul.tasks.drop-end { box-shadow: 0 4px 0 -1px var(--teal); border-radius: 4px; }
+
+/* Ajustes › Letra (core/text-settings.ts): activities and stories take --act-fs and --act-ls; every other label grows
+   gently with --esc and takes --app-ls. Defaults (15px, 1×, normal) keep today's look. !important beats the
+   components' own encapsulated sizes. */
+:root { --act-fs: 15px; --act-ls: 0em; --esc: 1; --app-ls: normal; }
+body { letter-spacing: var(--app-ls); }
+:is(.t-title, .now-card h2, .object.task strong, .object.story strong, .pc-activity strong, .pc-story strong, .c-text, .h-head strong, .linked-chip, .text-preview .t-title) {
+  font-size: var(--act-fs) !important; letter-spacing: var(--act-ls) !important; }
+.now-card h2 { font-size: calc(var(--act-fs) * 2) !important; }
+:is(.object.feature > header strong, .pc-feature > strong, .pc-epic strong, .epic-tabs button > span) { font-size: calc(var(--act-fs) * 1.07) !important; letter-spacing: var(--act-ls) !important; }
+:is(.object small, .pick-card small, .text-preview small) { font-size: calc(9px * var(--esc)) !important; }
+.eyebrow { font-size: calc(12px * var(--esc)) !important; }
+.t-time, .free { font-size: calc(13px * var(--esc)) !important; }
+.t-dur { font-size: calc(11px * var(--esc)) !important; }
+.summary { font-size: calc(14px * var(--esc)) !important; }
+.block-name { font-size: calc(16px * var(--esc)) !important; }
+.day-head h2 { font-size: calc(22px * var(--esc)); }
+.chip { font-size: calc(14px * var(--esc)); }
+.drawer-capture, .drawer-links a { font-size: calc(17px * var(--esc)); }
+
+/* Aa / AV steppers on the Week board's top while arranging (as in Epic Manager) */
+.text-steppers { grid-column: 1 / -1; display: flex; justify-content: center; gap: 10px; margin-top: 4px; }
+.stepper { display: inline-flex; align-items: center; gap: 2px; padding: 0 4px; border: 1.5px solid rgba(255, 244, 233, .3); border-radius: 12px; }
+.stepper span { min-width: 34px; text-align: center; font-weight: 800; color: var(--ink-soft); }
+.stepper button { width: 40px; height: 40px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font-size: 22px; line-height: 1; }
+.stepper button:disabled { opacity: .35; }

@@ -42,7 +42,6 @@ export interface TaskSave {
             <p class="eyebrow">{{ i18n.t('day.' + edit().day) }} · {{ blockName() }}</p>
             <h2 id="task-dialog-title" tabindex="-1" autofocus>{{ i18n.t(newBlock() ? 'task.newBlockTitle' : edit().isNew ? 'task.newTitle' : 'task.title') }}</h2>
           </div>
-          <button type="button" class="danger" (click)="askRemove()">{{ i18n.t('task.delete') }}</button>
         </div>
       </header>
 
@@ -70,6 +69,7 @@ export interface TaskSave {
           }
         </label>
       }
+      <div class="name-row">
       <label class="field">{{ i18n.t('task.name') }}
         <input #name type="text" [value]="title()" [readOnly]="!!linkedNode()" [class.locked]="!!linkedNode()"
           (input)="title.set($any($event.target).value)" (keydown.enter)="done()" />
@@ -78,6 +78,7 @@ export interface TaskSave {
       <label class="field">{{ i18n.t('task.minutes') }}
         <input type="number" inputmode="numeric" min="0" max="1440" [value]="minutes()" (input)="minutes.set(validMinutes($any($event.target).value))" />
       </label>
+      </div>
       <div class="row2">
         <label class="field">{{ i18n.t('task.day') }}
           <select (change)="pickDay($any($event.target).value)">
@@ -122,6 +123,9 @@ export interface TaskSave {
         <h2 id="picker-title">{{ i18n.t('task.pickTitle') }}</h2>
         <button type="button" class="pick-close" [attr.aria-label]="i18n.t('nav.close')" (click)="closePicker()">×</button>
       </header>
+      <input class="pick-search" type="search" [placeholder]="i18n.t('task.pickSearch')" [attr.aria-label]="i18n.t('task.pickSearch')"
+        [value]="pickQuery()" (input)="pickQuery.set($any($event.target).value)" />
+      @if (!pickCards().length) { <p class="hint">{{ i18n.t('task.noTasksHere') }}</p> }
       <ul class="pick-list">
         @for (option of pickCards(); track option.node.id) {
           <li><div class="pick-card">
@@ -162,7 +166,6 @@ export class TaskDialog implements AfterViewInit {
   readonly newBlock = input(false);
   readonly save = output<TaskSave>();
   readonly cancel = output<void>();
-  readonly remove = output<void>();
 
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
   private readonly picker = viewChild.required<ElementRef<HTMLDialogElement>>('picker');
@@ -216,13 +219,19 @@ export class TaskDialog implements AfterViewInit {
       .sort((a, b) => a.label.localeCompare(b.label));
   });
   /** The same activities as cards for the picker: Epic › Feature › Story › Activity, each with its Canvas colour. */
+  protected readonly pickQuery = signal('');
   protected readonly pickCards = computed(() => {
     const lib = this.library();
     const now = Date.now();
+    const words = this.pickQuery().toLowerCase().split(/\s+/).filter(Boolean);
     return this.existing().map(({ node }) => {
       const path = pathOf(lib, node.id).slice(0, -1);
       const of = (kind: string) => path.find((n) => n.kind === kind)?.title ?? '';
       return { node, epic: of('epic'), feature: of('feature'), story: of('story'), tone: node.color || '#ffd5bd', paper: paperAge(node, now) };
+    }).filter((c) => {
+      // The search box matches every word anywhere in the card: activity, story, feature or epic.
+      const text = [c.node.title, c.story, c.feature, c.epic].join(' ').toLowerCase();
+      return words.every((w) => text.includes(w));
     });
   });
   /** A typed name that already exists in the chosen story (or Free Space): Done links to it. */
@@ -292,6 +301,7 @@ export class TaskDialog implements AfterViewInit {
   }
 
   protected openPicker(): void {
+    this.pickQuery.set('');
     openDialog(this.picker().nativeElement);
   }
   protected closePicker(): void {
@@ -377,11 +387,4 @@ export class TaskDialog implements AfterViewInit {
   }
 
   /** Delete (asks first for a saved task; a + task was never saved), then closes smoothly. */
-  protected askRemove(): void {
-    if (this.leaving) return;
-    const { task, isNew } = this.edit();
-    if (!isNew && !confirm(this.i18n.t('week.confirmDeleteTask', { task: task.title }))) return;
-    this.leaving = true;
-    void closeDialog(this.dialog().nativeElement).then(() => this.remove.emit());
-  }
 }
