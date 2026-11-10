@@ -42,11 +42,16 @@ export interface TaskSave {
             <p class="eyebrow">{{ i18n.t('day.' + edit().day) }} · {{ blockName() }}</p>
             <h2 id="task-dialog-title" tabindex="-1" autofocus>{{ i18n.t(newBlock() ? 'task.newBlockTitle' : edit().isNew ? 'task.newTitle' : 'task.title') }}</h2>
           </div>
+          <!-- Active, at the top where Delete used to be (Gianni) -->
+          <label class="switch-row head-switch">
+            <input type="checkbox" role="switch" [checked]="active()" (change)="active.set($any($event.target).checked)" />
+            <span>{{ i18n.t('task.active') }}</span>
+          </label>
         </div>
       </header>
 
       @if (libraryReady()) {
-        <fieldset class="where"><legend>{{ i18n.t('task.where') }}</legend>
+        <fieldset class="where" [attr.aria-label]="i18n.t('task.where')">
           @for (level of levels; track level; let i = $index) {
             @if (i === 0 || where()[levels[i - 1]]) {
               <label>{{ i18n.t('canvas.' + level) }}
@@ -58,6 +63,29 @@ export interface TaskSave {
           }
           @if (!where().story) { <p class="hint">{{ i18n.t('task.freeHint') }}</p> }
         </fieldset>
+        <!-- A guide: where this activity lives, drawn as in the Canvas (Area · Epic plum › Feature jelly › Story cream › Activity) -->
+        @let g = guide();
+        <div class="pick-card where-card" aria-hidden="true">
+          @if (g.area) {
+            <span class="pc-epic"><small>{{ i18n.t('canvas.area') }} · {{ i18n.t('canvas.epic') }}</small><strong>{{ g.area }}{{ g.epic ? ' · ' + g.epic : '' }}</strong></span>
+          } @else {
+            <span class="pc-epic pc-free"><small>{{ i18n.t('canvas.freeSpace') }}</small></span>
+          }
+          <span class="pc-nest">
+            @if (g.feature) {
+              <span class="pc-feature"><small>{{ i18n.t('canvas.feature') }}</small><strong>{{ g.feature }}</strong>
+                @if (g.story) {
+                  <span class="pc-story"><small>{{ i18n.t('canvas.story') }}</small><strong>{{ g.story }}</strong>
+                    <span class="pc-activity" [style.background]="color() || '#ffd5bd'"><small>{{ i18n.t('canvas.task') }}</small><strong>{{ title() || i18n.t('task.newTitle') }}</strong></span>
+                  </span>
+                }
+              </span>
+            } @else {
+              <span class="pc-activity" [style.background]="color() || '#ffd5bd'"><small>{{ i18n.t('canvas.task') }}</small><strong>{{ title() || i18n.t('task.newTitle') }}</strong></span>
+            }
+          </span>
+        </div>
+        <div class="exist-row">
         <label class="field">{{ i18n.t('task.existing') }}
           @if (linkedNode(); as node) {
             <span class="linked-chip" [style.background]="color() || node.color || '#ffd5bd'">{{ node.title }}
@@ -68,6 +96,10 @@ export interface TaskSave {
             <span class="hint">{{ i18n.t('task.noTasksHere') }}</span>
           }
         </label>
+        <!-- Colour: a button on the same line opens the palette -->
+        <button type="button" class="color-open" [attr.aria-expanded]="colorOpen()" [attr.aria-label]="i18n.t('task.color')" [title]="i18n.t('task.color')"
+                (click)="colorOpen.set(!colorOpen())"><span class="color-dot" [class.auto]="!color()" [style.background]="color()"></span>{{ i18n.t('task.color') }}</button>
+        </div>
       }
       <div class="name-row">
       <label class="field">{{ i18n.t('task.name') }}
@@ -93,20 +125,17 @@ export interface TaskSave {
         </label>
       </div>
 
-      <div class="color-pick" role="group" [attr.aria-label]="i18n.t('task.color')">
-        <span>{{ i18n.t('task.color') }}</span>
-        <button type="button" class="swatch auto" [class.on]="!color()" [attr.aria-pressed]="!color()" (click)="pickColor(null)">{{ i18n.t('task.auto') }}</button>
-        @for (choice of colors; track choice.color) {
-          <button type="button" class="swatch" [style.background]="choice.color" [class.on]="color() === choice.color"
-                  [attr.aria-pressed]="color() === choice.color" [attr.aria-label]="i18n.t(choice.label)" [title]="i18n.t(choice.label)"
-                  (click)="pickColor(choice.color)"></button>
-        }
-      </div>
-
-      <label class="switch-row">
-        <input type="checkbox" role="switch" [checked]="active()" (change)="active.set($any($event.target).checked)" />
-        <span>{{ i18n.t('task.active') }}</span>
-      </label>
+      @if (colorOpen()) {
+        <!-- The palette: eight colours in two rows, Automatic (preselected when nothing is picked) across the third -->
+        <div class="color-pick" role="group" [attr.aria-label]="i18n.t('task.color')">
+          @for (choice of colors; track choice.color) {
+            <button type="button" class="swatch" [style.background]="choice.color" [class.on]="color() === choice.color"
+                    [attr.aria-pressed]="color() === choice.color" [attr.aria-label]="i18n.t(choice.label)" [title]="i18n.t(choice.label)"
+                    (click)="pickColor(choice.color)"></button>
+          }
+          <button type="button" class="swatch auto" [class.on]="!color()" [attr.aria-pressed]="!color()" (click)="pickColor(null)">{{ i18n.t('task.auto') }}</button>
+        </div>
+      }
 
       @if (problem()) { <p class="app-error" role="alert">{{ problem() }}</p> }
 
@@ -132,21 +161,21 @@ export interface TaskSave {
             <!-- Picking needs its own button (Gianni: a tap anywhere on the card was too sensitive) -->
             <button type="button" class="pick-choose" [attr.aria-label]="i18n.t('task.choose') + ': ' + option.node.title" (click)="pickActivity(option.node.id)">{{ i18n.t('task.choose') }}</button>
             @if (option.epic) {
-              <span class="pc-epic"><small>{{ i18n.t('canvas.epic') }}</small><strong>{{ option.epic }}</strong></span>
+              <span class="pc-epic"><small>{{ i18n.t('canvas.epic') }}</small><strong>@for (part of hits(option.epic); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong></span>
             } @else {
               <span class="pc-epic pc-free"><small>{{ i18n.t('canvas.freeSpace') }}</small></span>
             }
             <span class="pc-nest">
               @if (option.story) {
-                <span class="pc-feature"><small>{{ i18n.t('canvas.feature') }}</small><strong>{{ option.feature }}</strong>
-                  <span class="pc-story"><small>{{ i18n.t('canvas.story') }}</small><strong>{{ option.story }}</strong>
+                <span class="pc-feature"><small>{{ i18n.t('canvas.feature') }}</small><strong>@for (part of hits(option.feature); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong>
+                  <span class="pc-story"><small>{{ i18n.t('canvas.story') }}</small><strong>@for (part of hits(option.story); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong>
                     <span class="pc-activity" [style.background]="option.paper === null ? option.tone : null" [attr.data-paper]="option.paper">
-                      <small>{{ i18n.t('canvas.task') }}</small><strong>{{ option.node.title }}</strong></span>
+                      <small>{{ i18n.t('canvas.task') }}</small><strong>@for (part of hits(option.node.title); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong></span>
                   </span>
                 </span>
               } @else {
                 <span class="pc-activity" [style.background]="option.paper === null ? option.tone : null" [attr.data-paper]="option.paper">
-                  <small>{{ i18n.t('canvas.task') }}</small><strong>{{ option.node.title }}</strong></span>
+                  <small>{{ i18n.t('canvas.task') }}</small><strong>@for (part of hits(option.node.title); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong></span>
               }
             </span>
           </div></li>
@@ -180,6 +209,15 @@ export class TaskDialog implements AfterViewInit {
   protected readonly day$ = signal<Day>('MONDAY');
   protected readonly blockId = signal('');
   protected readonly color = signal<string | null>(null);
+  /** The colour palette, opened by the Color button beside Existing activity. */
+  protected readonly colorOpen = signal(false);
+  /** The names along the chosen Where, for the guide card. */
+  protected readonly guide = computed(() => {
+    const lib = this.library();
+    const w = this.where();
+    const name = (id: string) => (id ? nodeById(lib, id)?.title ?? '' : '');
+    return { area: name(w.area), epic: name(w.epic), feature: name(w.feature), story: name(w.story) };
+  });
   protected readonly active = signal(true);
   protected readonly problem = signal('');
   protected readonly levels = LEVELS;
@@ -298,6 +336,21 @@ export class TaskDialog implements AfterViewInit {
     if (node && !(deepest ? pathOf(this.library(), node.id).some((n) => n.id === deepest) && (!w.story || node.parentId === w.story) : node.parentId === null)) {
       this.linked.set('');                                                   // another place: the name box names a task there
     }
+  }
+
+  /** A title cut into the parts the search box matches (shown highlighted) and the rest. */
+  protected hits(text: string): { t: string; hit: boolean }[] {
+    const words = this.pickQuery().toLowerCase().split(/\s+/).filter(Boolean);
+    if (!words.length || !text) return [{ t: text, hit: false }];
+    const lower = text.toLowerCase();
+    const marked = new Array<boolean>(text.length).fill(false);
+    for (const w of words) for (let i = lower.indexOf(w); i >= 0; i = lower.indexOf(w, i + 1)) marked.fill(true, i, i + w.length);
+    const parts: { t: string; hit: boolean }[] = [];
+    for (let i = 0; i < text.length; i++) {
+      const last = parts[parts.length - 1];
+      if (last && last.hit === marked[i]) last.t += text[i]; else parts.push({ t: text[i], hit: marked[i] });
+    }
+    return parts;
   }
 
   protected openPicker(): void {
