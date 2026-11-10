@@ -2,8 +2,8 @@ import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angul
 import { Unsubscribe, collection, deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { AuthService } from './auth.service';
 import { firebase } from './firebase';
-import { Todo, doneTodos, openTodos, sanitizeTodo } from './todo.model';
-import { newId } from './week.model';
+import { Todo, checkTodo, doneTodos, openTodos, sanitizeTodo } from './todo.model';
+import { Task, blockColors, newId } from './week.model';
 
 /**
  * The signed-in user's Capture tasks (todo.model), one document each: users/{uid}/todos/{id}.
@@ -17,6 +17,15 @@ export class TodoStore {
   readonly error = signal('');
   readonly open = computed(() => openTodos(this.todos()));
   readonly finished = computed(() => doneTodos(this.todos()));
+  /**
+   * Each task's own colour: an automatic pastel by its place in Capture's open list (never like the one above), the
+   * same in Capture and on the Week board (Gianni: a task keeps its colour, not a yellow note).
+   */
+  readonly tones = computed(() => {
+    const open = this.open();
+    const colors = blockColors(open.map((t) => ({ title: t.title, color: null })) as unknown as Task[]);
+    return new Map(open.map((t, i) => [t.id, colors[i]]));
+  });
   private sub: Unsubscribe | null = null;
 
   constructor() {
@@ -40,18 +49,22 @@ export class TodoStore {
   add(title: string, date: string | null, time: string | null = null): void {
     const clean = title.trim();
     if (!clean) return;
-    this.save({ id: newId(), title: clean, date, time, done: null, created: Date.now() });
+    this.save({ id: newId(), title: clean, date, time, done: null, created: Date.now(), repeat: [], doneOn: {} });
   }
 
-  update(id: string, change: Partial<Pick<Todo, 'title' | 'date' | 'time'>>): void {
+  update(id: string, change: Partial<Pick<Todo, 'title' | 'date' | 'time' | 'repeat'>>): void {
     const todo = this.todos().find((t) => t.id === id);
     if (todo) this.save({ ...todo, ...change });
   }
 
-  /** The check: done (it leaves the open list for the finished one) or open again. */
-  setDone(id: string, done: boolean): void {
+  /**
+   * The check (`checkTodo`). A single task: done (it leaves the open list for the finished one; checked after rolling
+   * over, it moves to the day it was ticked) or open again. A repeating task is checked for one date only (`date`, the
+   * board's day or today), so the next time it comes round it is open again.
+   */
+  setDone(id: string, done: boolean, date: string): void {
     const todo = this.todos().find((t) => t.id === id);
-    if (todo) this.save({ ...todo, done: done ? Date.now() : null });
+    if (todo) this.save(checkTodo(todo, done, date, Date.now()));
   }
 
   remove(id: string): void {

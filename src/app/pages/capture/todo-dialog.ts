@@ -2,9 +2,9 @@ import { AfterViewInit, Component, ElementRef, inject, input, output, signal, vi
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { Todo } from '../../core/todo.model';
-import { parseClock } from '../../core/week.model';
+import { DAYS, Day, parseClock } from '../../core/week.model';
 
-export interface TodoSave { id: string; title: string; date: string | null; time: string | null; }
+export interface TodoSave { id: string; title: string; date: string | null; time: string | null; repeat: Day[]; }
 
 /**
  * Capture's ✎: a task's name, day and hour (the hour is optional: empty = any time that day). Nothing changes until
@@ -20,9 +20,19 @@ export interface TodoSave { id: string; title: string; date: string | null; time
       </div></div></header>
       <label class="field">{{ i18n.t('task.name') }}
         <input type="text" [value]="title()" (input)="title.set($any($event.target).value)" (keydown.enter)="done()" /></label>
+      <!-- Repeat: Mo Tu We Th Fr Sa Su (Gianni); with any day on, it repeats every week and the date is not used -->
+      <div class="repeat-days" role="group" [attr.aria-label]="i18n.t('capture.repeat')">
+        <span class="repeat-label">{{ i18n.t('capture.repeat') }}</span>
+        @for (d of days; track d) {
+          <button type="button" class="repeat-day" [class.on]="repeat().includes(d)" [attr.aria-pressed]="repeat().includes(d)"
+                  [attr.aria-label]="i18n.t('day.' + d)" [title]="i18n.t('day.' + d)" (click)="toggleDay(d)">{{ i18n.t('dayMini.' + d) }}</button>
+        }
+      </div>
       <div class="row2">
+        @if (!repeat().length) {
         <label class="field">{{ i18n.t('capture.day') }}
           <input type="date" [value]="date()" (input)="date.set($any($event.target).value)" /></label>
+        }
         <label class="field">{{ i18n.t('capture.hour') }}
           <input type="time" step="60" [value]="time()" (input)="time.set($any($event.target).value)" /></label>
       </div>
@@ -44,6 +54,14 @@ export class TodoDialog implements AfterViewInit {
   protected readonly title = signal('');
   protected readonly date = signal('');
   protected readonly time = signal('');
+  protected readonly repeat = signal<Day[]>([]);
+  protected readonly days = DAYS;
+  /** A day on or off; kept in week order. */
+  protected toggleDay(day: Day): void {
+    const on = new Set(this.repeat());
+    if (!on.delete(day)) on.add(day);
+    this.repeat.set(DAYS.filter((d) => on.has(d)));
+  }
   protected readonly problem = signal('');
   private leaving = false;
 
@@ -52,6 +70,7 @@ export class TodoDialog implements AfterViewInit {
     this.title.set(todo.title);
     this.date.set(todo.date ?? '');
     this.time.set(todo.time ?? '');
+    this.repeat.set([...todo.repeat]);
     openDialog(this.dialog().nativeElement);
   }
 
@@ -72,7 +91,7 @@ export class TodoDialog implements AfterViewInit {
     const date = /^\d{4}-\d{2}-\d{2}$/.test(this.date()) ? this.date() : null;
     const time = parseClock(this.time()) !== null ? this.time() : null;
     this.leaving = true;
-    this.save.emit({ id: this.todo().id, title, date, time });
+    this.save.emit({ id: this.todo().id, title, date, time, repeat: this.repeat() });
     void closeDialog(this.dialog().nativeElement);
   }
 }

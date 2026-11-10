@@ -563,9 +563,9 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .todo-note .todo-time { flex: none; font-size: 12px; opacity: .75; }
 .todo-note.checked { opacity: .65; }
 .todo-note.checked .todo-title { text-decoration: line-through; }
-.todo-stack { position: absolute; right: 10px; left: 30%; z-index: 3; display: grid; gap: 4px; translate: 0 -22px; cursor: default; }
-.todo-note.pinned { rotate: -1.5deg; }
-.todo-note.pinned:nth-child(even) { rotate: 1deg; }
+.todo-stack { position: absolute; right: -10px; left: -10px; z-index: 3; display: grid; gap: 4px; translate: 0 -22px; cursor: default; }
+.todo-note.pinned { rotate: -0.6deg; }
+.todo-note.pinned:nth-child(even) { rotate: 0.5deg; }
 
 /* Today's state on a Week card (tap = Done, long press = menu): a badge in the middle of the card */
 .t-status { position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 2; padding: 4px 12px; border-radius: 999px; white-space: nowrap;
@@ -575,3 +575,22 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .t-status[data-status='progress'] { color: #1d4ed8; }
 .t-status[data-status='skipped'] { color: #6b7280; }
 .board.locked .task { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+
+/* Capture task editor: Mo…Su repeat buttons (pressed = teal), 40px each, in one row that wraps on narrow phones */
+.repeat-days { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0 12px; }
+.repeat-label { flex: 1 0 100%; font-size: 13px; font-weight: 700; }
+.repeat-day { width: 40px; height: 40px; padding: 0; border: 1.5px solid rgba(255, 255, 255, .3); border-radius: 50%; background: rgba(255, 255, 255, .06);
+  color: var(--ink); font-size: 14px; font-weight: 800; }
+.repeat-day.on { background: var(--teal); border-color: var(--teal); color: #10303a; }
+.c-check:disabled { opacity: .35; }
+
+/* Every task note keeps its ✎ (40px); an overdue one (rolled over from an earlier day) has a red edge and says its day */
+.todo-edit { flex: none; width: 40px; height: 40px; min-height: 40px; padding: 0; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .55);
+  color: #3b2c0b; font-size: 16px; }
+.todo-note.overdue { box-shadow: inset 4px 0 0 #dc2626, 0 3px 8px rgba(0, 0, 0, .25); }
+.todo-from { display: block; font-size: 11px; font-weight: 700; color: #b91c1c; }
+.c-when.late { color: #b91c1c; opacity: 1; }
+
+/* A task at the top of a day keeps its own colour on its paper, as in Capture (not the yellow of a pinned note) */
+.todo-note.own { background: var(--tone, #f7efe2); color: #2a2018; }
+.todo-note.own[data-paper] { background-color: var(--tone, #f7efe2) !important; background-blend-mode: multiply; }
