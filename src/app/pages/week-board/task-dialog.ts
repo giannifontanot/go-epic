@@ -1,11 +1,11 @@
 import { AfterViewInit, Component, ElementRef, computed, effect, inject, input, output, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
-import { Kind, LibNode, Library, nodeById, paperAge, pathOf, taskByTitle, tasksWithin, twinTask } from '../../core/library.model';
-import { Block, COLOR_CHOICES, DAYS, Day, Task, Week, fits, freeMinutes, validMinutes } from '../../core/week.model';
+import { LibNode, Library, Where, WhereLevel, emptyWhere, nodeById, paperAge, pathOf, pickWhere, taskByTitle, tasksWithin, twinTask, whereOf } from '../../core/library.model';
+import { ColorWindow } from '../../shared/color-window';
+import { WhereCard } from '../../shared/where-card';
+import { Block, DAYS, Day, Task, Week, fits, freeMinutes, validMinutes } from '../../core/week.model';
 
-type Level = 'area' | 'epic' | 'feature' | 'story';
-const LEVELS: Level[] = ['area', 'epic', 'feature', 'story'];
 
 export interface TaskEdit {
   day: Day;
@@ -66,50 +66,8 @@ export interface TaskSave {
       </div>
 
       @if (libraryReady()) {
-        <!-- Where, drawn as in the Canvas (Area · Epic plum › Feature jelly › Story cream › Activity). Every level is
-             tapped to choose it (a native list opens over it); an empty level says «Choose». No separate combos (Gianni). -->
-        <div class="pick-card where-card" role="group" [attr.aria-label]="i18n.t('task.where')">
-          <span class="pc-epic">
-            <span class="pc-head pc-tap"><small>{{ i18n.t('canvas.area') }}</small><strong [class.pc-empty]="!levelName('area')">{{ levelName('area') || i18n.t('canvas.freeSpace') + ' · ' + i18n.t('task.choose') + ' ›' }}</strong>
-              <select [attr.aria-label]="i18n.t('canvas.area')" (change)="pick('area', $any($event.target).value)">
-                <option value="" [selected]="!where().area">{{ i18n.t('canvas.freeSpace') }}</option>
-                @for (option of options('area'); track option.id) { <option [value]="option.id" [selected]="option.id === where().area">{{ option.title }}</option> }
-              </select></span>
-            @if (where().area) {
-              <span class="pc-head pc-tap"><small>{{ i18n.t('canvas.epic') }}</small><strong [class.pc-empty]="!levelName('epic')">{{ levelName('epic') || i18n.t('task.choose') + ' ›' }}</strong>
-                <select [attr.aria-label]="i18n.t('canvas.epic')" (change)="pick('epic', $any($event.target).value)">
-                  <option value="" [selected]="!where().epic">{{ i18n.t('task.none') }}</option>
-                  @for (option of options('epic'); track option.id) { <option [value]="option.id" [selected]="option.id === where().epic">{{ option.title }}</option> }
-                </select></span>
-            }
-          </span>
-          <span class="pc-nest">
-            @if (where().epic) {
-              <span class="pc-feature">
-                <span class="pc-head pc-tap"><small>{{ i18n.t('canvas.feature') }}</small><strong [class.pc-empty]="!levelName('feature')">{{ levelName('feature') || i18n.t('task.choose') + ' ›' }}</strong>
-                  <select [attr.aria-label]="i18n.t('canvas.feature')" (change)="pick('feature', $any($event.target).value)">
-                    <option value="" [selected]="!where().feature">{{ i18n.t('task.none') }}</option>
-                    @for (option of options('feature'); track option.id) { <option [value]="option.id" [selected]="option.id === where().feature">{{ option.title }}</option> }
-                  </select></span>
-                @if (where().feature) {
-                  <span class="pc-story">
-                    <span class="pc-head pc-tap"><small>{{ i18n.t('canvas.story') }}</small><strong [class.pc-empty]="!levelName('story')">{{ levelName('story') || i18n.t('task.choose') + ' ›' }}</strong>
-                      <select [attr.aria-label]="i18n.t('canvas.story')" (change)="pick('story', $any($event.target).value)">
-                        <option value="" [selected]="!where().story">{{ i18n.t('task.none') }}</option>
-                        @for (option of options('story'); track option.id) { <option [value]="option.id" [selected]="option.id === where().story">{{ option.title }}</option> }
-                      </select></span>
-                    <span class="pc-activity" [style.background]="color() || '#ffd5bd'"><small>{{ i18n.t('canvas.task') }}</small><strong>{{ title() || i18n.t('task.newTitle') }}</strong></span>
-                  </span>
-                } @else {
-                  <span class="pc-activity" [style.background]="color() || '#ffd5bd'"><small>{{ i18n.t('canvas.task') }}</small><strong>{{ title() || i18n.t('task.newTitle') }}</strong></span>
-                }
-              </span>
-            } @else {
-              <span class="pc-activity" [style.background]="color() || '#ffd5bd'"><small>{{ i18n.t('canvas.task') }}</small><strong>{{ title() || i18n.t('task.newTitle') }}</strong></span>
-            }
-          </span>
-        </div>
-        @if (!where().story) { <p class="hint where-hint">{{ i18n.t('task.freeHint') }}</p> }
+        <!-- Where: the card is the chooser (tap a level), as in the Canvas (shared with Capture's editor) -->
+        <app-where-card [library]="library()" [where]="where()" [title]="title()" [color]="color()" (pick)="pick($event.level, $event.id)" />
         <div class="exist-row">
         <label class="field">{{ i18n.t('task.existing') }}
           @if (linkedNode(); as node) {
@@ -123,7 +81,7 @@ export interface TaskSave {
         </label>
         <!-- Colour: this button opens a small window with the colours; choosing one closes it -->
         <button type="button" class="color-open" aria-haspopup="dialog" [attr.aria-label]="i18n.t('task.color')" [title]="i18n.t('task.color')"
-                (click)="openColors()"><span class="color-dot" [class.auto]="!color()" [style.background]="color()"></span>{{ i18n.t('task.color') }}</button>
+                (click)="colorWindow.open()"><span class="color-dot" [class.auto]="!color()" [style.background]="color()"></span>{{ i18n.t('task.color') }}</button>
         </div>
       }
       <div class="name-row">
@@ -144,22 +102,7 @@ export interface TaskSave {
       </footer>
     </dialog>
 
-    <!-- The colour window: eight colours in two rows, Automatic (chosen when nothing is picked) across the third.
-         A choice closes it. -->
-    <dialog #colorDialog class="editor color-window" aria-labelledby="color-title" (click)="onColorBackdrop($event)">
-      <header>
-        <h2 id="color-title">{{ i18n.t('task.color') }}</h2>
-        <button type="button" class="pick-close" [attr.aria-label]="i18n.t('nav.close')" (click)="closeColors()">×</button>
-      </header>
-      <div class="color-pick" role="group" [attr.aria-label]="i18n.t('task.color')">
-        @for (choice of colors; track choice.color) {
-          <button type="button" class="swatch" [style.background]="choice.color" [class.on]="color() === choice.color"
-                  [attr.aria-pressed]="color() === choice.color" [attr.aria-label]="i18n.t(choice.label)" [title]="i18n.t(choice.label)"
-                  (click)="pickColor(choice.color)"></button>
-        }
-        <button type="button" class="swatch auto" [class.on]="!color()" [attr.aria-pressed]="!color()" (click)="pickColor(null)">{{ i18n.t('task.auto') }}</button>
-      </div>
-    </dialog>
+    <app-color-window #colorWindow [color]="color()" (picked)="pickColor($event)" />
 
     <!-- Existing activities, each drawn as in the Canvas: the Epic (plum), its Feature (yellow jelly), its Story (cream)
          and the Activity itself (its pastel) at the bottom. The Where filters above shorten the list. -->
@@ -199,6 +142,7 @@ export interface TaskSave {
       </ul>
     </dialog>
   `,
+  imports: [WhereCard, ColorWindow],
 })
 export class TaskDialog implements AfterViewInit {
   protected readonly i18n = inject(I18n);
@@ -214,11 +158,9 @@ export class TaskDialog implements AfterViewInit {
 
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
   private readonly picker = viewChild.required<ElementRef<HTMLDialogElement>>('picker');
-  private readonly colorDialog = viewChild.required<ElementRef<HTMLDialogElement>>('colorDialog');
   /** Closing (shrinking away): further presses are ignored, so a double click never saves or leaves twice. */
   private leaving = false;
   protected readonly days = DAYS;
-  protected readonly colors = COLOR_CHOICES;
   protected readonly validMinutes = validMinutes;
 
   protected readonly title = signal('');
@@ -228,8 +170,7 @@ export class TaskDialog implements AfterViewInit {
   protected readonly color = signal<string | null>(null);
   protected readonly active = signal(true);
   protected readonly problem = signal('');
-  protected readonly levels = LEVELS;
-  protected readonly where = signal<Record<Level, string>>({ area: '', epic: '', feature: '', story: '' });
+  protected readonly where = signal<Where>(emptyWhere());
   /** The library task these details are linked to ('' = a new one, named in the name box). */
   protected readonly linked = signal('');
   private readonly colorPicked = signal(false);
@@ -312,49 +253,15 @@ export class TaskDialog implements AfterViewInit {
     if (node && !this.linked()) this.link(node);
   }
 
-  /** The name chosen at a level of the Where card ('' = nothing chosen yet: it says «Choose»). */
-  protected levelName(level: Level): string {
-    const id = this.where()[level];
-    return id ? nodeById(this.library(), id)?.title ?? '' : '';
-  }
-
-  protected openColors(): void {
-    openDialog(this.colorDialog().nativeElement);
-  }
-  protected closeColors(): Promise<void> {
-    return closeDialog(this.colorDialog().nativeElement);
-  }
-  protected onColorBackdrop(event: MouseEvent): void {
-    if (isBackdropClick(event, this.colorDialog().nativeElement)) void this.closeColors();
-  }
-  /** A colour chosen: it is set and the window shrinks back into the Color button. */
+  /** A colour chosen in the colour window (which closes itself). */
   protected pickColor(color: string | null): void {
     this.color.set(color);
     this.colorPicked.set(true);
-    void this.closeColors();
-  }
-
-  protected options(level: Level): LibNode[] {
-    const lib = this.library();
-    const index = LEVELS.indexOf(level);
-    const parent = index === 0 ? null : this.where()[LEVELS[index - 1]];
-    if (index > 0 && !parent) return [];
-    return lib.nodes.filter((n) => n.kind === (level as Kind) && n.parentId === parent);
   }
 
   /** Choosing a level empties the ones below (a level with one choice is chosen for you); a link is kept only while it is still inside. */
-  protected pick(level: Level, id: string): void {
-    const next = { ...this.where(), [level]: id };
-    const from = LEVELS.indexOf(level) + 1;
-    for (const below of LEVELS.slice(from)) next[below] = '';
-    this.where.set(next);
-    if (id) {
-      for (const below of LEVELS.slice(from)) {
-        const options = this.options(below);
-        if (options.length !== 1) break;
-        this.where.update((w) => ({ ...w, [below]: options[0].id }));
-      }
-    }
+  protected pick(level: WhereLevel, id: string): void {
+    this.where.set(pickWhere(this.library(), this.where(), level, id));
     const node = this.linkedNode();
     const w = this.where();
     const deepest = w.story || w.feature || w.epic || w.area;
@@ -402,9 +309,7 @@ export class TaskDialog implements AfterViewInit {
     this.linked.set(node.id);
     this.title.set(node.title);
     if (!this.colorPicked()) this.color.set(node.color);
-    const where: Record<Level, string> = { area: '', epic: '', feature: '', story: '' };
-    for (const n of pathOf(this.library(), node.id)) if (n.kind !== 'task') where[n.kind as Level] = n.id;
-    this.where.set(where);
+    this.where.set(whereOf(this.library(), node.id));
   }
 
   /** × on the linked chip: back to a new task (empty name, the Where kept). */

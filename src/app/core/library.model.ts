@@ -437,3 +437,41 @@ export function storyOptions(lib: Library): { node: LibNode; place: string }[] {
 export function inboxTasks(lib: Library): LibNode[] {
   return lib.nodes.filter((n) => n.kind === 'task' && n.parentId === null).reverse();
 }
+
+/** The four places a task's Where card chooses, top to bottom ('' = not chosen). */
+export type WhereLevel = 'area' | 'epic' | 'feature' | 'story';
+export const WHERE_LEVELS: WhereLevel[] = ['area', 'epic', 'feature', 'story'];
+export type Where = Record<WhereLevel, string>;
+export function emptyWhere(): Where {
+  return { area: '', epic: '', feature: '', story: '' };
+}
+
+/** The choices at one level of a Where: the children of the level above (areas at the top; none while the parent is empty). */
+export function whereOptions(lib: Library, where: Where, level: WhereLevel): LibNode[] {
+  const index = WHERE_LEVELS.indexOf(level);
+  const parent = index === 0 ? null : where[WHERE_LEVELS[index - 1]];
+  if (index > 0 && !parent) return [];
+  return lib.nodes.filter((n) => n.kind === level && n.parentId === parent);
+}
+
+/** Choosing a level empties the ones below; a level below with a single choice is then chosen for you. */
+export function pickWhere(lib: Library, where: Where, level: WhereLevel, id: string): Where {
+  const next = { ...where, [level]: id };
+  const from = WHERE_LEVELS.indexOf(level) + 1;
+  for (const below of WHERE_LEVELS.slice(from)) next[below] = '';
+  if (id) {
+    for (const below of WHERE_LEVELS.slice(from)) {
+      const options = whereOptions(lib, next, below);
+      if (options.length !== 1) break;
+      next[below] = options[0].id;
+    }
+  }
+  return next;
+}
+
+/** The Where of a library node: the ids along its path (a task in Free Space has none). */
+export function whereOf(lib: Library, id: string): Where {
+  const where = emptyWhere();
+  for (const n of pathOf(lib, id)) if (n.kind !== 'task') where[n.kind as WhereLevel] = n.id;
+  return where;
+}

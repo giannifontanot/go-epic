@@ -1,5 +1,6 @@
 import {
   LibNode, Library, STARTER_TEMPLATE, paperAge, canParent, planTemplateChanges, followDay, inboxTasks, planTemplate, storyOptions, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, tasksWithin, twinTask,
+  emptyWhere, pickWhere, whereOf, whereOptions,
 } from './library.model';
 
 const n = (id: string, kind: LibNode['kind'], parentId: string | null, title = id): LibNode => ({ id, kind, title, parentId, color: null });
@@ -11,6 +12,25 @@ const lib = (): Library => ({
 });
 
 describe('library model', () => {
+  it('lists the choices of each Where level under the level above', () => {
+    const w = { ...emptyWhere(), area: 'a' };
+    expect(whereOptions(lib(), emptyWhere(), 'area').map((x) => x.id)).toEqual(['a']);
+    expect(whereOptions(lib(), emptyWhere(), 'epic')).toEqual([]);                // no area yet
+    expect(whereOptions(lib(), w, 'epic').map((x) => x.id)).toEqual(['e']);
+  });
+
+  it('picks a Where level: the levels below empty, single choices fill in', () => {
+    expect(pickWhere(lib(), emptyWhere(), 'area', 'a')).toEqual({ area: 'a', epic: 'e', feature: 'f', story: 's' });
+    expect(pickWhere(lib(), { area: 'a', epic: 'e', feature: 'f', story: 's' }, 'area', '')).toEqual(emptyWhere());
+    const two: Library = { nodes: [...lib().nodes, n('s2', 'story', 'f', 'Rest')] };
+    expect(pickWhere(two, emptyWhere(), 'area', 'a')).toEqual({ area: 'a', epic: 'e', feature: 'f', story: '' });
+  });
+
+  it('reads the Where of a task from its path (Free Space has none)', () => {
+    expect(whereOf(lib(), 't')).toEqual({ area: 'a', epic: 'e', feature: 'f', story: 's' });
+    expect(whereOf(lib(), 'free')).toEqual(emptyWhere());
+  });
+
   it('checks parents level by level', () => {
     expect(canParent(lib(), 'area', null)).toBe(true);
     expect(canParent(lib(), 'epic', null)).toBe(false);
