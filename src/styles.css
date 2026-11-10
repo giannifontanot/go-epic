@@ -325,7 +325,16 @@ dialog.capture-panel h2 { margin: 0; font-size: 22px; }
 html.tilt { transition: --tilt-r .55s cubic-bezier(.34, 1.4, .64, 1), --tilt-k .55s cubic-bezier(.34, 1.4, .64, 1); }
 html.tilt button { rotate: var(--tilt-r);
   translate: calc((max(var(--tilt-k), 0) * var(--tilt-rr, 0px) + min(var(--tilt-k), 0) * var(--tilt-rl, 0px)) * .55) 0; }
-@media (prefers-reduced-motion: reduce) { html.tilt button { rotate: none; translate: none; } }
+/* Everything has weight (Gianni): blocks, cards, Canvas objects, habits and notes lean and slide too, less than the
+   buttons since they nest (a card leans inside its leaning block). TILT_BODIES in tilt.ts lists the same elements. */
+html.tilt :is(.block, .task, .now-card, .habit, .capture-list li, .epics-label, .object, .pc-feature, .pc-story, .pc-activity) {
+  rotate: calc(var(--tilt-r) * .3);
+  translate: calc((max(var(--tilt-k), 0) * var(--tilt-rr, 0px) + min(var(--tilt-k), 0) * var(--tilt-rl, 0px)) * .55) var(--tilt-y, 0px); }
+html.tilt .task.done { --tilt-y: 4px; }
+/* A Canvas object keeps its place on this device (--ox / --oy, canvas-node) and adds the slide to it */
+html.tilt .object { translate: calc(var(--ox, 0px) + (max(var(--tilt-k), 0) * var(--tilt-rr, 0px) + min(var(--tilt-k), 0) * var(--tilt-rl, 0px)) * .55) var(--oy, 0px); }
+@media (prefers-reduced-motion: reduce) { html.tilt :is(button, .block, .task, .now-card, .habit, .capture-list li, .epics-label, .pc-feature, .pc-story, .pc-activity) { rotate: none; translate: none; }
+  html.tilt .object { rotate: none; translate: var(--ox, 0px) var(--oy, 0px); } }
 
 /* New version ready: a soft yellow halo flashes around the whole update bar so it gets noticed (a still halo under reduced motion) */
 .update-bar { animation: update-halo 2.4s ease-in-out infinite; }
@@ -361,19 +370,18 @@ html.tilt button { rotate: var(--tilt-r);
   .week-top .finish { grid-column: 1 / -1; grid-row: 2; }
 }
 
-/* A day's + makes a new block with its first activity: the window is block yellow, so the level shows */
-dialog.editor.new-block { background: linear-gradient(150deg, var(--jelly-a), var(--jelly-b)); color: var(--jelly-ink);
-  box-shadow: inset 0 5px 0 rgba(255, 255, 255, .36), inset 0 -8px 0 rgba(211, 157, 37, .23), 0 25px 90px #0008; }
-dialog.editor.new-block :is(.eyebrow, .hint, legend, label) { color: var(--jelly-ink); }
-dialog.editor.new-block .hint { opacity: .8; }
-dialog.editor.new-block header .danger { background: rgba(54, 38, 67, .1); color: #9f1239; }
-dialog.editor.new-block footer > button:not(.primary) { background: rgba(54, 38, 67, .12); color: var(--jelly-ink); }
-dialog.editor.new-block .swatch.auto { background: rgba(54, 38, 67, .12); color: var(--jelly-ink); }
+/* The details' header carries the level being created, in its Canvas colour, on the usual navy window: a day's + (new
+   Block + Activity) wears a yellow jelly block header and a yellow rim; a block's own + (just an Activity) a peach capsule. */
+dialog.editor.new-block { box-shadow: 0 0 0 3px var(--jelly-b), 0 25px 90px #0008; }
+dialog.editor:is(.new-block, .new-activity) header > div { flex: 1; min-width: 0; padding: 10px 14px 12px; }
+dialog.editor:is(.new-block, .new-activity) header > div :is(.eyebrow, h2) { color: inherit; }
+dialog.editor.new-block header > div { border-radius: 18px 22px 15px 24px; color: var(--jelly-ink); background: linear-gradient(150deg, var(--jelly-a), var(--jelly-b));
+  box-shadow: inset 0 4px 0 rgba(255, 255, 255, .36), inset 0 -6px 0 rgba(211, 157, 37, .23), 0 5px 0 rgba(41, 10, 40, .23); }
+dialog.editor.new-activity header > div { border-radius: 14px 18px 13px 18px; color: #302746; background: #ffd5bd; box-shadow: 0 4px 0 rgba(78, 57, 88, .25); }
 
 /* "See the n activities" opens the picker */
 .pick-open { width: 100%; min-height: 44px; padding: 10px 14px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px;
   background: var(--page); color: var(--ink); font-size: 15px; font-weight: 700; text-align: left; }
-dialog.editor.new-block .pick-open { border-color: rgba(54, 38, 67, .25); }
 
 /* The activity picker: navy window; each activity as in the Canvas: Epic (plum), Feature (yellow jelly), Story (cream),
    Activity (its pastel, or its aged paper) at the bottom */

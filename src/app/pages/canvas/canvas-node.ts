@@ -13,7 +13,7 @@ import { CanvasState } from './canvas-state';
   template: `
     @let n = node();
     <article class="object" [class.feature]="n.kind === 'feature'" [class.story]="n.kind === 'story'" [class.task]="n.kind === 'task'"
-      [attr.data-node]="n.id" [attr.data-drop-kind]="n.kind" [attr.data-parent]="n.id" [style.translate]="offset()"
+      [attr.data-node]="n.id" [attr.data-drop-kind]="n.kind" [attr.data-parent]="n.id" [style.--ox]="offset().x" [style.--oy]="offset().y"
       [style.background]="tone()" [attr.aria-label]="n.title">
       @if (n.kind === 'task') {
         <header>
@@ -93,9 +93,10 @@ export class CanvasNode {
     return colors[siblings.findIndex((n) => n.id === node.id)] ?? null;
   }
 
-  protected offset(): string {
+  /** Where the object sits on this device, as --ox / --oy (the CSS adds the tilt slide to them: core/tilt.ts). */
+  protected offset(): { x: string; y: string } {
     this.version();
     const p = this.state().layout[this.node().id];
-    return p ? `${p.x}px ${p.y}px` : '0px 0px';
+    return { x: `${p?.x ?? 0}px`, y: `${p?.y ?? 0}px` };
   }
 }

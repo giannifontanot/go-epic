@@ -3,7 +3,8 @@ import { Injectable, signal } from '@angular/core';
 /*
  * Buttons with weight (Gianni, a visual detail only): when the phone leans to one side, every button leans a little
  * and slides down towards the lower side, the farther ones more, so they pile up on top of each other against that
- * edge; held upright, they spring back into place. Read from the device's
+ * edge; held upright, they spring back into place. Everything has weight: blocks, cards, Canvas objects and notes
+ * (`TILT_BODIES`) lean and slide too, more gently than the buttons. Read from the device's
  * orientation (`deviceorientation`, gamma = left/right tilt), only in portrait. Nothing changes under reduced motion.
  * iPhone asks for permission (motion and orientation) the first time, after a tap; Android does not ask.
  * The choice is a per-device view preference (`go-epic-tilt`, '0' = off; on by default).
@@ -37,6 +38,9 @@ export function tiltOf(gamma: number | null | undefined, screenAngle = 0): { deg
 export function pileShift(k: number, roomLeft: number, roomRight: number): number {
   return (Math.max(k, 0) * Math.max(0, roomRight) + Math.min(k, 0) * Math.max(0, roomLeft)) * TILT_PILE;
 }
+
+/** Everything that has weight: the buttons, and the bodies styles.css lists under `html.tilt :is(…)`. */
+export const TILT_BODIES = 'button, .block, .task, .now-card, .habit, .capture-list li, .epics-label, .object, .pc-feature, .pc-story, .pc-activity';
 
 const STORAGE_KEY = 'go-epic-tilt';
 type PermissionFn = () => Promise<'granted' | 'denied'>;
@@ -128,19 +132,27 @@ export class Tilt {
   };
 
   /**
-   * Writes each button's free room to the left and right at rest (`--tilt-rl`/`--tilt-rr`, px, its current slide taken
-   * off), up to the nearest box that clips it (a panel with overflow hidden/auto, a dialog) or else the screen, so a
-   * sliding button never disappears behind its panel's edge.
+   * Writes each body's free room to the left and right at rest (`--tilt-rl`/`--tilt-rr`, px, its current slide taken
+   * off): inside the body that holds it, else up to the nearest box that clips it (a panel with overflow hidden/auto,
+   * a dialog) or the screen, so nothing sliding ever disappears behind an edge.
    */
   private measure(): void {
     this.measuredAt = performance.now();
     const width = document.documentElement.clientWidth || innerWidth;
     const bounds = new Map<Element, { left: number; right: number }>();
-    for (const b of Array.from(document.querySelectorAll<HTMLElement>('button'))) {
-      const r = b.getBoundingClientRect();
+    const rects = new Map<Element, DOMRect>();
+    const rectOf = (el: Element) => { let r = rects.get(el); if (!r) rects.set(el, (r = el.getBoundingClientRect())); return r; };
+    for (const b of Array.from(document.querySelectorAll<HTMLElement>(TILT_BODIES))) {
+      const r = rectOf(b);
       if (!r.width) continue;
-      const slid = parseFloat(getComputedStyle(b).translate) || 0;
-      const box = clipBox(b, width, bounds);
+      const style = getComputedStyle(b);
+      // A Canvas object's translate also carries its place on this device (--ox): that is not slide.
+      const slid = (parseFloat(style.translate) || 0) - (b.classList.contains('object') ? parseFloat(style.getPropertyValue('--ox')) || 0 : 0);
+      // A body inside another body (a card in its block, a button on a card) slides within that body, which itself
+      // slides within its own room: the slides add up but nothing ever passes the edge that clips the outermost one.
+      // (Both rects carry the outer bodies' slides, so only this body's own slide is taken off.)
+      const outer = b.parentElement?.closest(TILT_BODIES);
+      const box = outer ? rectOf(outer) : clipBox(b, width, bounds);
       b.style.setProperty('--tilt-rl', Math.max(0, Math.round(r.left - slid - box.left)) + 'px');
       b.style.setProperty('--tilt-rr', Math.max(0, Math.round(box.right - r.right + slid)) + 'px');
     }
