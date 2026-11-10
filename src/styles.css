@@ -117,7 +117,7 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 .task-row { display: flex; align-items: flex-start; gap: 8px; }
 .t-time { flex: none; font-size: 13px; opacity: .75; font-variant-numeric: tabular-nums; padding-top: 2px; }
 .t-title { flex: 1 1 0; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
-.board.locked .t-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.board.locked .t-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }   /* long titles wrap (up to 3 lines), Gianni */
 .t-dur { align-self: flex-end; font-size: 11px; font-weight: 800; letter-spacing: .04em; opacity: .7; }
 .t-tools { flex: none; display: flex; gap: 4px; }
 .t-tools .round { --tap: 30px; }
@@ -517,9 +517,9 @@ dialog.editor.color-window { width: min(340px, calc(100vw - 32px)); height: fit-
 /* Week: one switch opens / closes every block (beside the day's +); the body folds smoothly (grid rows 1fr ↔ 0fr) */
 .day-actions { display: inline-flex; align-items: center; gap: 8px; }
 .fold-all { font-size: 20px; line-height: 1; }
-.block-body { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .4s cubic-bezier(.22, 1, .36, 1), opacity .3s ease; }
+.block-body { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr; transition: grid-template-rows .4s cubic-bezier(.22, 1, .36, 1), opacity .3s ease; }
 .block-body.closed { grid-template-rows: 0fr; opacity: 0; }
-.block-inner { min-height: 0; overflow: hidden; }
+.block-inner { min-width: 0; min-height: 0; overflow: hidden; }   /* min-width 0: a long one-line title shrinks to the block (ellipsis) instead of stretching the card past it */
 /* Open, the body stops clipping once it has grown (the now-line and lifted cards may reach past it) */
 .block-body:not(.closed) > .block-inner { animation: block-unclip 0s .4s forwards; }
 @keyframes block-unclip { to { overflow: visible; } }
