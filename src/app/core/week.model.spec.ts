@@ -110,7 +110,7 @@ describe('week model', () => {
   it('moves a block whose start changed to its hour; a block with no start stays', () => {
     const b = (id: string, start: string | null): Block => ({ id, name: id, start, end: null, tasks: [] });
     const day = [b('a', '07:00'), b('x', '12:00'), b('c', '09:00'), b('n', null)];
-    expect(moveToHour(day, 'x').map((x) => x.id)).toEqual(['a', 'c', 'x', 'n']);
+    expect(moveToHour(day, 'x').map((x) => x.id)).toEqual(['a', 'c', 'n', 'x']);   // later than every timed block: to the end, as placeBlock does
     expect(moveToHour([b('a', '07:00'), b('n', null), b('c', '09:00')], 'n').map((x) => x.id)).toEqual(['a', 'n', 'c']);
     expect(moveToHour([b('a', '07:00'), b('c', '06:00')], 'c').map((x) => x.id)).toEqual(['c', 'a']);
   });
