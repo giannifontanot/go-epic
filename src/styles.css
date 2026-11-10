@@ -490,3 +490,26 @@ dialog.editor header .head-switch { flex: none; min-height: 40px; font-weight: 7
 .color-pick .swatch.auto { grid-column: 1 / -1 !important; justify-self: stretch !important; width: 100%; min-height: 44px; }
 /* The search box's matches, highlighted in the picker's cards */
 .pick-card mark { background: #ffe066; color: #302746; border-radius: 3px; padding: 0 1px; }
+
+/* Task details: the Where card is the chooser. Each level's line is tapped to choose it: a native list sits invisibly over
+   it (so phones show their own picker); an empty level says «Choose ›» (Gianni: no duplicated combos above the card). */
+.where-card { margin: 4px 0 8px; }
+.pc-head { position: relative; display: block; margin: 0 -6px; padding: 4px 6px; border-radius: 12px; }
+.pc-tap { cursor: pointer; }
+.pc-tap::after { content: '⌄'; position: absolute; right: 8px; top: 50%; translate: 0 -50%; font-size: 15px; opacity: .55; pointer-events: none; }
+.pc-tap > strong { padding-right: 22px; }
+.pc-tap:hover { background: rgba(255, 255, 255, .12); }
+.pc-feature .pc-tap:hover, .pc-story .pc-tap:hover { background: rgba(54, 38, 67, .08); }
+.pc-tap:focus-within { outline: 2px solid var(--teal); outline-offset: 1px; }
+.pc-head > select { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 40px; opacity: 0; cursor: pointer; font-size: 16px; }
+.pc-head > select option { color: var(--card-ink); background: var(--ink); }
+.pc-empty { color: var(--pink); font-style: italic; }
+.pc-feature .pc-empty, .pc-story .pc-empty { color: #8b3a62; }
+.where-card .pc-epic { padding: 0 6px 8px; min-height: 0; }
+.where-card .pc-epic .pc-head + .pc-head { margin-top: 2px; }
+.where-hint { margin: 0 0 12px; }
+/* The colour window: a small card, never full screen */
+dialog.editor.color-window { width: min(340px, calc(100vw - 32px)); height: fit-content; max-height: calc(100dvh - 32px); border-radius: 22px; padding: 16px 18px 18px; }
+.color-window header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.color-window h2 { margin: 0; font-size: 18px; }
+.color-window .color-pick { margin: 0; }
