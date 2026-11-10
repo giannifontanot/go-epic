@@ -1,4 +1,4 @@
-import { ApplicationRef, Component, DestroyRef, Injector, afterNextRender, computed, effect, inject, signal, untracked } from '@angular/core';
+import { ApplicationRef, Component, DestroyRef, ElementRef, Injector, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { flip, flipNow } from '../../core/flip';
 import { TextSettings } from '../../core/text-settings';
 import { I18n } from '../../core/i18n';
@@ -10,7 +10,10 @@ import { Library, fileTask, followLibrary, nodeById, paperAge, updateNode } from
 import { LibraryStore } from '../../core/library.store';
 import { CaptureUi } from '../capture/capture-ui';
 import { WeekStore, WeekWrite } from '../../core/week.store';
-import { pressPoint } from '../../core/dialog';
+import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
+import { STATUSES, Status } from '../../core/status.model';
+import { PinnedTodo, Todo, pinTodos, stackPins, weekDate } from '../../core/todo.model';
+import { TodoStore } from '../../core/todo.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
 import { Transfer, TransferDialog } from './transfer-dialog';
 
@@ -85,6 +88,31 @@ export class WeekBoard {
     });
   }
   protected readonly mobileDay = signal<Day>(this.store.today());
+  /**
+   * Capture's tasks on the board (Gianni): each day of this week shows the tasks dated that day, pinned over the
+   * activity running at their hour; the others (no hour, or an hour no activity covers) at the top of the day.
+   */
+  protected readonly todos = inject(TodoStore);
+  /**
+   * A card's pinned notes, grouped so none covers another: a note is about 48px tall and a card is
+   * 46px + 1.6px per minute (styles.css), so notes closer than that share one stack.
+   */
+  protected noteStacks(day: Day, task: Task): { fraction: number; todos: Todo[] }[] {
+    const pins = this.pins()[day].onTask.get(task.id);
+    if (!pins?.length) return [];
+    return stackPins(pins, 48 / (46 + validMinutes(task.minutes) * WEEK_PX_PER_MIN));
+  }
+  protected readonly pins = computed(() => {
+    const now = this.store.now();
+    const all = this.todos.todos();
+    const week = this.store.week();
+    const out = {} as Record<Day, { onTask: Map<string, PinnedTodo[]>; loose: Todo[] }>;
+    for (const day of DAYS) {
+      const date = weekDate(now, day);
+      out[day] = pinTodos(week[day], all.filter((t) => t.date === date));
+    }
+    return out;
+  });
   protected readonly notice = signal('');
   protected readonly windowErrors = signal<Record<string, string>>({});
   protected readonly editing = signal<TaskEdit | null>(null);
@@ -220,6 +248,74 @@ export class WeekBoard {
   /** A captured task's paper age (0 fresh, 1 parchment, 2 old stained), from its library task; null keeps the pastel. */
   protected paper(task: Task): 0 | 1 | 2 | null {
     return paperAge(nodeById(this.library.library(), task.ref), this.store.now().getTime());
+  }
+
+  // --- Today's states on the board (Gianni): a tap on a card of today marks it Done (again: To do); a long press
+  //     (500 ms, or a right click) opens the state menu. The state shows in the middle of the card. ---
+  protected readonly statuses = STATUSES;
+  protected readonly picking = signal<Task | null>(null);
+  private readonly statusDialog = viewChild<ElementRef<HTMLDialogElement>>('statusDialog');
+  private pressTimer: ReturnType<typeof setTimeout> | null = null;
+  private pressAt: { x: number; y: number } | null = null;
+  private longPressed = false;
+
+  protected statusIcon(status: Status): string {
+    return { todo: '', done: '✓', late: '⏰', progress: '▶', skipped: '⤼' }[status];
+  }
+  /** Today's state of a card, or null on other days (states are kept per date). */
+  protected cardStatus(day: Day, task: Task): Status | null {
+    return day === this.store.today() ? this.store.status(task.id) : null;
+  }
+
+  protected pressStart(event: PointerEvent, day: Day, task: Task): void {
+    if (event.button !== 0 || this.arranging() || day !== this.store.today()) return;
+    this.longPressed = false;
+    this.pressEnd();
+    this.pressAt = { x: event.clientX, y: event.clientY };
+    this.pressTimer = setTimeout(() => {
+      this.longPressed = true;
+      navigator.vibrate?.(15);
+      this.openStatus(task);
+    }, 500);
+  }
+  /** A finger that moves (a scroll) is not a long press. */
+  protected pressMove(event: PointerEvent): void {
+    if (this.pressAt && Math.hypot(event.clientX - this.pressAt.x, event.clientY - this.pressAt.y) > 10) this.pressEnd();
+  }
+  protected pressEnd(): void {
+    if (this.pressTimer) clearTimeout(this.pressTimer);
+    this.pressTimer = null;
+    this.pressAt = null;
+  }
+
+  /** A card tapped: while arranging it opens its details; on the board, today's card toggles Done. */
+  protected cardTap(day: Day, block: Block, task: Task): void {
+    if (this.arranging()) { this.openTask(day, block, task); return; }
+    if (this.longPressed) { this.longPressed = false; return; }          // the long press already opened the menu
+    if (day !== this.store.today()) return;
+    this.store.setDone(task.id, !this.store.isDone(task.id));
+  }
+
+  protected cardMenu(event: Event, day: Day, task: Task): void {
+    if (this.arranging() || day !== this.store.today()) return;
+    event.preventDefault();
+    this.openStatus(task);
+  }
+
+  private openStatus(task: Task): void {
+    this.pressEnd();
+    this.picking.set(task);
+    const d = this.statusDialog()?.nativeElement;
+    if (d) openDialog(d);
+  }
+  protected pickStatus(status: Status): void {
+    const task = this.picking();
+    if (task) this.store.setStatus(task.id, status);
+    void closeDialog(this.statusDialog()?.nativeElement);
+  }
+  protected onStatusBackdrop(event: MouseEvent): void {
+    const d = this.statusDialog()?.nativeElement;
+    if (d && isBackdropClick(event, d)) void closeDialog(d);
   }
 
   protected isDone(day: Day, task: Task): boolean {

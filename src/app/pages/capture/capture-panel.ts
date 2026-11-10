@@ -1,18 +1,20 @@
 import { Component, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
-import { LibNode, addNode, inboxTasks, moveNode, newNodeId, nodeById, paperAge, placeLabel, removeNode, updateNode } from '../../core/library.model';
-import { LibraryStore } from '../../core/library.store';
-import { DAYS, Task, blockColors } from '../../core/week.model';
+import { paperAge } from '../../core/library.model';
+import { Todo } from '../../core/todo.model';
+import { TodoStore } from '../../core/todo.store';
+import { Task, blockColors, dateKey } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
-import { ActivityDialog, ActivitySave } from './activity-dialog';
 import { CaptureUi } from './capture-ui';
+import { TodoDialog, TodoSave } from './todo-dialog';
 
 /**
- * Capture = the quick way into Free Space (GTD: one inbox). The floating ✎ (or the menu's Capture) opens the panel
- * with the cursor in the box: type and press Enter, as many times as you like. Every idea is a task in the
- * Canvas's Free Space (no story yet). The panel lists those tasks, newest first, each on its own colour in a white box:
- * edit (tap the text or ✎) or delete (✕, asks first). Placing it in a story is done in the Canvas. The Week's "Existing task" picker also offers them.
+ * Capture = tasks (Gianni): one-off to-dos, not Activities. The floating ✎ (or the menu's Capture) opens the panel
+ * without putting the cursor in the box (you may only want to look); tap the box, type and press Enter, as many as you like; each new task is for today, any hour. The panel
+ * lists the open tasks soonest first, on aged paper tinted with their colour; ☐ checks one (it moves down to
+ * "Finished", where ☑ opens it again), ✎ sets its name, day and hour, ✕ deletes it (asks first). In the Week a task
+ * shows over the activity running at its hour (todo.model `pinTodos`).
  */
 @Component({
   selector: 'app-capture-panel',
@@ -25,74 +27,87 @@ import { CaptureUi } from './capture-ui';
     }
     <dialog #panel class="capture-panel" aria-labelledby="capture-title" (click)="onBackdrop($event)" (close)="unfollow?.(); ui.open.set(false)">
       <header>
-        <h2 id="capture-title">{{ i18n.t('capture.title') }}</h2>
+        <h2 id="capture-title" tabindex="-1">{{ i18n.t('capture.title') }}</h2>
         <button type="button" class="drawer-close" [attr.aria-label]="i18n.t('nav.close')" (click)="close()">×</button>
       </header>
       <form class="capture-add" (submit)="$event.preventDefault(); add(input)">
         <input #input type="text" enterkeyhint="send" autocomplete="off" [placeholder]="i18n.t('capture.placeholder')"
-          [attr.aria-label]="i18n.t('capture.placeholder')" [disabled]="!library.ready()" />
-        <button type="submit" class="primary" [disabled]="!library.ready()">{{ i18n.t('capture.add') }}</button>
+          [attr.aria-label]="i18n.t('capture.placeholder')" [disabled]="!todos.ready()" />
+        <button type="submit" class="primary" [disabled]="!todos.ready()">{{ i18n.t('capture.add') }}</button>
       </form>
-      <p class="hint">{{ message() || i18n.t('capture.inboxHint') }}</p>
-      @if (library.error()) { <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ library.error() }}</p> }
+      <p class="hint">{{ i18n.t('capture.inboxHint') }}</p>
+      @if (todos.error()) { <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ todos.error() }}</p> }
       <ul class="capture-list">
-        @for (task of inbox(); track task.id) {
-          <li [attr.data-paper]="paper(task) ?? 0" [style.--tone]="tones().get(task.id)">
-            @if (editing() === task.id) {
-              <input class="c-edit" type="text" [value]="task.title" [attr.aria-label]="i18n.t('capture.edit')"
-                (keydown.enter)="$event.preventDefault(); saveEdit(task, $any($event.target).value)"
-                (keydown.escape)="$event.stopPropagation(); editing.set('')" (blur)="saveEdit(task, $any($event.target).value)" />
+        @for (todo of todos.open(); track todo.id) {
+          <li [attr.data-paper]="paper(todo)" [style.--tone]="tones().get(todo.id)">
+            <button type="button" class="c-check" role="checkbox" aria-checked="false" [attr.aria-label]="i18n.t('capture.check') + ': ' + todo.title"
+              [title]="i18n.t('capture.check')" (click)="todos.setDone(todo.id, true)"></button>
+            @if (editing() === todo.id) {
+              <input class="c-edit" type="text" [value]="todo.title" [attr.aria-label]="i18n.t('capture.task')"
+                (keydown.enter)="$event.preventDefault(); saveEdit(todo, $any($event.target).value)"
+                (keydown.escape)="$event.stopPropagation(); editing.set('')" (blur)="saveEdit(todo, $any($event.target).value)" />
             } @else {
-              <button type="button" class="c-text" [disabled]="!canChange()" [attr.aria-label]="i18n.t('capture.edit') + ': ' + task.title" (click)="startEdit(task)">{{ task.title }}</button>
+              <button type="button" class="c-text" [attr.aria-label]="i18n.t('capture.task') + ': ' + todo.title" (click)="startEdit(todo)">{{ todo.title }}
+                <small class="c-when">{{ when(todo) }}</small></button>
             }
-            <button type="button" class="c-icon" [disabled]="!canChange()" [attr.aria-label]="i18n.t('capture.edit') + ': ' + task.title" [title]="i18n.t('capture.edit')"
-              (click)="openActivity(task)">✎</button>
-            <button type="button" class="c-icon" [disabled]="!canChange()" [attr.aria-label]="i18n.t('capture.delete')" [title]="i18n.t('capture.delete')"
-              (click)="remove(task)">✕</button>
+            <button type="button" class="c-icon" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
+              (click)="editingTodo.set(todo)">✎</button>
+            <button type="button" class="c-icon" [attr.aria-label]="i18n.t('capture.delete') + ': ' + todo.title" [title]="i18n.t('capture.delete')"
+              (click)="remove(todo)">✕</button>
           </li>
         } @empty {
-          <li class="c-empty">{{ i18n.t(library.ready() ? 'capture.empty' : 'loading') }}</li>
+          <li class="c-empty">{{ i18n.t(todos.ready() ? 'capture.empty' : 'loading') }}</li>
         }
       </ul>
+      @if (todos.finished().length) {
+        <h3 class="c-finished-title">{{ i18n.t('capture.finished') }}</h3>
+        <ul class="capture-list finished">
+          @for (todo of todos.finished(); track todo.id) {
+            <li>
+              <button type="button" class="c-check on" role="checkbox" aria-checked="true" [attr.aria-label]="i18n.t('capture.uncheck') + ': ' + todo.title"
+                [title]="i18n.t('capture.uncheck')" (click)="todos.setDone(todo.id, false)">✓</button>
+              <span class="c-text">{{ todo.title }} <small class="c-when">{{ when(todo) }}</small></span>
+              <button type="button" class="c-icon" [attr.aria-label]="i18n.t('capture.delete') + ': ' + todo.title" [title]="i18n.t('capture.delete')"
+                (click)="remove(todo)">✕</button>
+            </li>
+          }
+        </ul>
+      }
     </dialog>
-    @if (activity(); as task) {
-      <app-activity-dialog [task]="task" [library]="library.library()" (save)="saveActivity($event)" (closed)="activity.set(null)" />
+    @if (editingTodo(); as todo) {
+      <app-todo-dialog [todo]="todo" (save)="saveTodo($event)" (closed)="editingTodo.set(null)" />
     }
   `,
-  imports: [ActivityDialog],
+  imports: [TodoDialog],
 })
 export class CapturePanel {
   protected readonly i18n = inject(I18n);
   protected readonly ui = inject(CaptureUi);
-  protected readonly library = inject(LibraryStore);
+  protected readonly todos = inject(TodoStore);
   private readonly week = inject(WeekStore);
   private readonly panel = viewChild.required<ElementRef<HTMLDialogElement>>('panel');
-  private readonly input = viewChild.required<ElementRef<HTMLInputElement>>('input');
 
-  /** Renaming and deleting reach the week's cards: they wait until the library and all seven days are loaded. */
-  protected readonly canChange = computed(() => this.library.ready() && this.week.loaded());
-  protected readonly inbox = computed(() => inboxTasks(this.library.library()));
-  /** Each idea has its colour (its own, else the automatic pastel, never like the one above), as in the Canvas. */
+  /** Each task on its own pastel (never like the one above), multiplied into its paper. */
   protected readonly tones = computed(() => {
-    const inbox = this.inbox();
-    const colors = blockColors(inbox as unknown as Task[]);
-    return new Map(inbox.map((t, i) => [t.id, colors[i]]));
+    const open = this.todos.open();
+    const colors = blockColors(open.map((t) => ({ title: t.title, color: null })) as unknown as Task[]);
+    return new Map(open.map((t, i) => [t.id, colors[i]]));
   });
   protected readonly editing = signal('');
-  protected readonly message = signal('');
+  /** The task whose day and hour are being set (✎). */
+  protected readonly editingTodo = signal<Todo | null>(null);
 
   constructor() {
-    // Open / closed follows the shared flag (the ✎ and the menu both set it); the dialog grows from the press point
-    // and the cursor goes straight to the box, so writing an idea is one tap away.
+    // Open / closed follows the shared flag (the ✎ and the menu both set it); the dialog grows from the press point.
     effect(() => {
       const open = this.ui.open();
       untracked(() => {
         const d = this.panel().nativeElement;
         if (open && !d.open) {
-          this.message.set('');
           this.followViewport(d);
           openDialog(d);
-          queueMicrotask(() => this.input().nativeElement.focus({ preventScroll: true }));   // no page jump while it grows
+          // No cursor in the box on opening (Gianni): you may only want to look at the tasks; a tap on the box writes.
+          queueMicrotask(() => d.querySelector<HTMLElement>('#capture-title')?.focus({ preventScroll: true }));
         } else if (!open && d.open) {
           this.unfollow?.();
           void closeDialog(d);
@@ -105,7 +120,7 @@ export class CapturePanel {
 
   /**
    * While open, the panel tracks the visible part of the screen (the keyboard shrinks it on phones): it stays at the
-   * top of what is visible and never taller than it, so the box and the newest ideas are never under the keyboard.
+   * top of what is visible and never taller than it, so the box and the newest tasks are never under the keyboard.
    */
   private followViewport(d: HTMLDialogElement): void {
     this.unfollow?.();
@@ -125,9 +140,21 @@ export class CapturePanel {
     };
   }
 
-  /** How old this idea's paper looks: a captured idea left alone turns to parchment, then old stained paper. */
-  protected paper(task: LibNode): 0 | 1 | 2 | null {
-    return paperAge(task, this.week.now().getTime());
+  /** How old the task's paper looks: fresh, then parchment from 5 days, old stained paper from 21. */
+  protected paper(todo: Todo): 0 | 1 | 2 {
+    return paperAge(todo, this.week.now().getTime()) ?? 0;
+  }
+
+  /** "Today · 09:30", "Tomorrow", "Thu 12 Nov", or "No day". */
+  protected when(todo: Todo): string {
+    if (!todo.date) return this.i18n.t('capture.noDay');
+    const now = this.week.now();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const [y, m, d] = todo.date.split('-').map(Number);
+    const day = todo.date === dateKey(now) ? this.i18n.t('capture.today')
+      : todo.date === dateKey(tomorrow) ? this.i18n.t('capture.tomorrow')
+      : new Date(y, m - 1, d).toLocaleDateString(this.i18n.lang(), { weekday: 'short', day: 'numeric', month: 'short' });
+    return todo.time ? `${day} · ${todo.time}` : day;
   }
 
   protected close(): void {
@@ -138,58 +165,31 @@ export class CapturePanel {
     if (isBackdropClick(event, this.panel().nativeElement)) this.close();
   }
 
-  /** Enter: a new task in Free Space; the box empties and keeps the cursor for the next idea. */
+  /** Enter: a new task for today (any hour); the box empties and keeps the cursor for the next one. */
   protected add(input: HTMLInputElement): void {
-    const title = input.value.trim();
-    if (!title) return;
-    const added = this.library.update((lib) => addNode(lib, { id: newNodeId(), kind: 'task', title, parentId: null, color: null, created: Date.now() }));
-    if (!added) return;
+    if (!input.value.trim()) return;
+    this.todos.add(input.value, dateKey(this.week.now()));
     input.value = '';
-    this.message.set('');
     input.focus();
   }
 
-  protected startEdit(task: LibNode): void {
-    if (!this.canChange()) return;
-    this.editing.set(task.id);
+  protected startEdit(todo: Todo): void {
+    this.editing.set(todo.id);
     queueMicrotask(() => this.panel().nativeElement.querySelector<HTMLInputElement>('.c-edit')?.focus());
   }
 
-  /** ✎: the idea opens as an Activity (Where, name, colour), not just its name (Gianni). */
-  protected readonly activity = signal<LibNode | null>(null);
-  protected openActivity(task: LibNode): void {
-    if (this.canChange()) this.activity.set(task);
-  }
-
-  /** Done in the activity editor: name and colour (its week cards follow), and filed in a Story when one was chosen. */
-  protected saveActivity(change: ActivitySave): void {
-    const before = nodeById(this.library.library(), change.id);
-    if (!before) return;
-    const saved = this.library.updateWithWeek((lib) => {
-      let next = updateNode(lib, change.id, { title: change.title, color: change.color });
-      if (change.parentId !== before.parentId) next = moveNode(next, change.id, change.parentId);
-      return next;
-    });
-    if (saved && change.parentId && change.parentId !== before.parentId) {
-      this.message.set(this.i18n.t('capture.filed', { task: change.title, place: placeLabel(this.library.library(), change.id) }));
-    }
-  }
-
-  /** A rename also renames its cards in the week (same batch). */
-  protected saveEdit(task: LibNode, text: string): void {
-    if (this.editing() !== task.id) return;
+  protected saveEdit(todo: Todo, text: string): void {
+    if (this.editing() !== todo.id) return;
     this.editing.set('');
     const title = text.trim();
-    if (title && title !== task.title) this.library.updateWithWeek((lib) => updateNode(lib, task.id, { title }));
+    if (title && title !== todo.title) this.todos.update(todo.id, { title });
   }
 
-  /** Delete (✕) always asks first; a task already planned in the week says so, and its cards leave the week with it (same batch). */
-  protected remove(task: LibNode): void {
-    if (!this.canChange()) return;                                         // the planned-places count needs every day
-    const places = DAYS.reduce((n, day) => n + this.week.week()[day].blocks.reduce((m, b) => m + b.tasks.filter((t) => t.ref === task.id).length, 0), 0);
-    const question = places ? this.i18n.t('capture.confirmPlanned', { task: task.title, n: places }) : this.i18n.t('week.confirmDeleteTask', { task: task.title });
-    if (!confirm(question)) return;
-    if (!nodeById(this.library.library(), task.id)) return;
-    this.library.updateWithWeek((lib) => removeNode(lib, task.id));
+  protected saveTodo(change: TodoSave): void {
+    this.todos.update(change.id, { title: change.title, date: change.date, time: change.time });
+  }
+
+  protected remove(todo: Todo): void {
+    if (confirm(this.i18n.t('week.confirmDeleteTask', { task: todo.title }))) this.todos.remove(todo.id);
   }
 }
