@@ -5,7 +5,7 @@ import { Task, blockColors } from '../../core/week.model';
 import { CanvasState } from './canvas-state';
 
 /**
- * A Feature box, a Story container or an Activity capsule (Floating Canvas). Activities: grip, title, •••. Features and
+ * A Feature box, a Story container or an Activity capsule (Floating Canvas). Activities: grip, title, ✎ edit. Features and
  * Stories: grip, label and fold ⌄ on the small label line, the title below on the whole width (a tap on it opens the actions).
  */
 @Component({
@@ -21,7 +21,7 @@ import { CanvasState } from './canvas-state';
             (pointerdown)="drag.emit({ event: $event, node: n })">⠿</button>
           <div class="name"><strong>{{ n.title }}</strong></div>
           <button type="button" class="more" [disabled]="disabled()" [attr.aria-label]="i18n.t('canvas.actions') + ' ' + n.title"
-            (click)="action.emit(n)">•••</button>
+            [title]="i18n.t('canvas.edit')" (click)="action.emit(n)">✎</button>
         </header>
       } @else {
         <!-- Features and Stories: the controls live on the small label line, so the title gets the whole width;

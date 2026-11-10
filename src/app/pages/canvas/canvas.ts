@@ -186,6 +186,22 @@ export class Canvas {
   toggleFree(): void {
     this.showFree = !this.showFree;
     try { localStorage.setItem(FREE_KEY, this.showFree ? '1' : '0'); } catch { /* a view preference */ }
+    if (this.showFree) this.revealFree();
+  }
+
+  /**
+   * Switched on, Free Space opens (on phones it grows under the Epic workspace), then the page glides down until it is
+   * wholly on screen (Gianni). Nothing moves when it is already visible (side by side on wide screens).
+   */
+  private revealFree(): void {
+    const reduced = this.motion.reduced();
+    setTimeout(() => {
+      const free = this.host.nativeElement.querySelector<HTMLElement>('.free-space');
+      if (!free || !this.showFree) return;
+      const r = free.getBoundingClientRect();
+      if (r.top >= 0 && r.bottom <= innerHeight) return;
+      free.scrollIntoView({ block: r.height > innerHeight ? 'start' : 'end', behavior: reduced ? 'auto' : 'smooth' });
+    }, reduced ? 0 : 420);                                                 // after the 400 ms opening
   }
 
   selectEpic(id: string): void {

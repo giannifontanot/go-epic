@@ -11,7 +11,7 @@ small { font-size:9px; text-transform:uppercase; letter-spacing:.11em; opacity:.
 button { color:inherit; border:0; border-radius:12px; background:transparent; min-width:36px; min-height:40px; cursor:pointer; padding:4px; }
 button:hover { background:#fff6; }button:focus-visible { outline:3px solid #173f74; outline-offset:2px; }
 button:disabled { opacity:.4; cursor:default; }.grip { touch-action:none; cursor:grab; font-size:23px; }.grip:active { cursor:grabbing; }
-.more { letter-spacing:1px; }.fold { font-size:21px; }.children { display:flex; flex-direction:column; gap:12px; margin-top:10px; }
+.more { font-size:17px; }.fold { font-size:21px; }.children { display:flex; flex-direction:column; gap:12px; margin-top:10px; }
 .add { align-self:flex-start; font-size:12px; padding:6px 12px; border:1px dashed #23395155; min-height:40px; }
 .count { display:block; margin:5px 35px; font-size:12px; }
 .object.drop-hot { outline:3px solid #fff; box-shadow:0 0 0 6px #78d8c65e,0 12px 30px #0003; }

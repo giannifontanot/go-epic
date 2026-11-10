@@ -22,6 +22,7 @@
 html, body { margin: 0; min-height: 100%; background: var(--page); color: var(--ink); }
 body { font: 15px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
 main { padding: max(8px, env(safe-area-inset-top)) 16px max(88px, calc(env(safe-area-inset-bottom) + 80px)); }   /* top: level with the ☰ */
+main:has(.canvas-page) { padding-bottom: max(16px, env(safe-area-inset-bottom)); }   /* the Canvas has no floating ✎ to clear: no empty band under Free Space */
 h1, h2, h3 { font-family: Georgia, 'Times New Roman', serif; letter-spacing: -.02em; }
 button, input, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
@@ -270,15 +271,14 @@ dialog.capture-panel header { display: flex; align-items: center; justify-conten
 dialog.capture-panel h2 { margin: 0; font-size: 22px; }
 .capture-add { display: flex; gap: 8px; margin-bottom: 10px; }
 .capture-add input, .c-edit { flex: 1; min-width: 0; min-height: 44px; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px; background: var(--page); color: var(--ink); font-size: 16px; }
-.capture-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.capture-list li { display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 10px; border-radius: 14px; background: rgba(255, 255, 255, .06); }
-.c-text { flex: 1; min-width: 0; min-height: 40px; border: 0; background: transparent; color: var(--ink); font-size: 15px; text-align: left; overflow-wrap: anywhere; }
-.c-icon { flex: none; width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent; color: var(--ink-soft); font-size: 18px; }
-.c-icon:hover:not(:disabled) { background: rgba(255, 255, 255, .1); color: var(--ink); }
-.c-file { width: auto; padding: 0 10px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; }
-.c-where { flex: 0 1 55%; min-width: 0; min-height: 40px; padding: 6px 8px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px; background: var(--page); color: var(--ink); font-size: 16px; }
-.c-where option { color: var(--card-ink); background: var(--ink); }
-.c-empty { justify-content: center; padding: 16px !important; color: var(--ink-soft); }
+.capture-list { list-style: none; margin: 0; padding: 10px; display: grid; gap: 8px; border-radius: 18px; background: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, .25); }
+.capture-list li { display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 12px; border-radius: 14px; background: var(--peach, #ffd5bd); color: var(--card-ink); box-shadow: 0 3px 0 rgba(48, 39, 70, .14); }
+.c-text { flex: 1; min-width: 0; min-height: 40px; border: 0; background: transparent; color: var(--card-ink); font-size: 15px; font-weight: 600; text-align: left; overflow-wrap: anywhere; }
+.c-icon { flex: none; width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .45); color: var(--card-ink); font-size: 17px; }
+.c-icon:hover:not(:disabled) { background: rgba(255, 255, 255, .8); }
+.c-icon:last-child { color: #c2263a; }
+.capture-list .c-edit { background: #fff; color: var(--card-ink); border-color: rgba(48, 39, 70, .25); }
+.capture-list .c-empty { justify-content: center; padding: 16px !important; background: transparent; box-shadow: none; color: #5c5966; }
 
 /* Progress: one row per habit, its streak and the last 14 days as dots */
 .progress-page { max-width: 720px; margin: 0 auto; }
@@ -351,7 +351,7 @@ html.tilt .object { translate: calc(var(--ox, 0px) + (max(var(--tilt-k), 0) * va
 [data-paper='1'] { background-color: #ecd5a6 !important; background-image: url('/paper/parchment-paper.webp') !important; }
 [data-paper='2'] { background-color: #d8c09a !important; background-image: url('/paper/old-paper.webp') !important; }
 .task[data-paper]:not(.done):not(.off), .capture-list li[data-paper], .pc-activity[data-paper] { color: #2a2018; }
-.task[data-paper]:not(.done):not(.off) :is(.t-title, .t-time, .t-dur), .capture-list li[data-paper] :is(.c-text, .c-icon, .c-file), .pc-activity[data-paper] strong {
+.task[data-paper]:not(.done):not(.off) :is(.t-title, .t-time, .t-dur), .capture-list li[data-paper] :is(.c-text, .c-icon), .pc-activity[data-paper] strong {
   color: #2a2018; text-shadow: 0 1px 2px rgba(255, 255, 255, .65); }
 .task.done[data-paper] { background-image: none !important; background-color: #d6d6dc !important; }
 .task.off[data-paper] { background-image: none !important; background-color: #d9d3e3 !important; }
