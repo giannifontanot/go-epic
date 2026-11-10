@@ -1,4 +1,4 @@
-import { Component, DestroyRef, Injector, afterNextRender, computed, effect, inject, signal, untracked } from '@angular/core';
+import { ApplicationRef, Component, DestroyRef, Injector, afterNextRender, computed, effect, inject, signal, untracked } from '@angular/core';
 import { flip, flipNow } from '../../core/flip';
 import { TextSettings } from '../../core/text-settings';
 import { I18n } from '../../core/i18n';
@@ -10,6 +10,7 @@ import { Library, fileTask, followLibrary, nodeById, paperAge, updateNode } from
 import { LibraryStore } from '../../core/library.store';
 import { CaptureUi } from '../capture/capture-ui';
 import { WeekStore, WeekWrite } from '../../core/week.store';
+import { pressPoint } from '../../core/dialog';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
 import { Transfer, TransferDialog } from './transfer-dialog';
 
@@ -225,11 +226,31 @@ export class WeekBoard {
     return day === this.store.today() && this.store.isDone(task.id);
   }
 
+  /**
+   * Edit mode opens like every window (Gianni: nothing appears all at once): the arranging board grows out of the ✎ in
+   * a widening circle and, on Finish, shrinks back into the same point, at the dialogs' rate (300 ms, mirrored curves).
+   * Uses a View Transition where the browser has one; elsewhere (or under reduced motion) it simply switches.
+   */
   protected toggleArrange(): void {
     if (!this.store.loaded() || !this.library.ready()) return;               // edits wait for the saved week and library
-    this.arranging.update((on) => !on);
-    this.notice.set('');
+    const opening = !this.arranging();
+    const change = () => { this.arranging.set(opening); this.notice.set(''); };
+    const doc = document as Document & { startViewTransition?: (update: () => void) => { finished: Promise<void> } };
+    const reduced = typeof matchMedia !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || typeof doc.startViewTransition !== 'function') { change(); return; }
+    if (opening) this.arrangeFrom = pressPoint();                            // the ✎ pressed; Finish shrinks back into it
+    const { x, y } = this.arrangeFrom ?? pressPoint();
+    const root = document.documentElement;
+    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    root.style.setProperty('--vt-x', x + 'px');
+    root.style.setProperty('--vt-y', y + 'px');
+    root.style.setProperty('--vt-r', Math.ceil(radius) + 'px');
+    root.classList.add(opening ? 'vt-grow' : 'vt-shrink');
+    const done = () => root.classList.remove('vt-grow', 'vt-shrink');
+    doc.startViewTransition(() => { change(); this.appRef.tick(); }).finished.then(done, done);
   }
+  private arrangeFrom: { x: number; y: number } | null = null;
+  private readonly appRef = inject(ApplicationRef);
 
   // --- Blocks ---
 

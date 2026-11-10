@@ -60,10 +60,12 @@
                 <h3 class="block-name">{{ block.name }}</h3>
               }
               <span class="free">{{ freeLabel(block) }}</span>
-              <!-- This block's own open / close (Gianni), the same smooth fold as the day's ⊟/⊞ -->
+              <!-- This block's own open / close (Gianni), the same smooth fold as the day's ⊟/⊞; only while arranging -->
+              @if (arranging()) {
               <button type="button" class="round block-fold" [class.closed]="isFolded(block)" [attr.aria-expanded]="!isFolded(block)"
                       [attr.aria-label]="i18n.t(isFolded(block) ? 'week.unfoldBlock' : 'week.foldBlock') + ': ' + block.name"
                       [title]="i18n.t(isFolded(block) ? 'week.unfoldBlock' : 'week.foldBlock')" (click)="toggleBlockFold(block)">⌄</button>
+              }
             </div>
 
             @if (arranging()) {

@@ -533,3 +533,11 @@ dialog.editor.color-window { width: min(340px, calc(100vw - 32px)); height: fit-
 .summary .dash { margin: 0 .25em; color: rgba(54, 38, 67, .45); font-weight: 400; }
 /* Capture: when the keyboard moves the visible screen, the panel follows smoothly instead of jumping */
 dialog.capture-panel { transition: margin-top .25s ease, max-height .25s ease; }
+
+/* Edit mode grows out of the ✎ and shrinks back into it (week-board toggleArrange, View Transitions): a circle from
+   the pressed point, 300 ms with the dialogs' mirrored curves; the other half of the pair stays still underneath. */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+html.vt-grow::view-transition-new(root) { animation: vt-grow 300ms cubic-bezier(0, 0, .6, 1) both; }
+html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300ms cubic-bezier(.4, 0, 1, 1) both; }
+@keyframes vt-grow { from { clip-path: circle(0 at var(--vt-x) var(--vt-y)); } to { clip-path: circle(var(--vt-r) at var(--vt-x) var(--vt-y)); } }
+@keyframes vt-shrink { from { clip-path: circle(var(--vt-r) at var(--vt-x) var(--vt-y)); } to { clip-path: circle(0 at var(--vt-x) var(--vt-y)); } }
