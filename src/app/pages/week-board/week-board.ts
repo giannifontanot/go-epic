@@ -11,6 +11,8 @@ import { LibraryStore } from '../../core/library.store';
 import { CaptureUi } from '../capture/capture-ui';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { pressPoint } from '../../core/dialog';
+import { PinnedTodo, Todo, pinTodos, weekDate } from '../../core/todo.model';
+import { TodoStore } from '../../core/todo.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
 import { Transfer, TransferDialog } from './transfer-dialog';
 
@@ -85,6 +87,22 @@ export class WeekBoard {
     });
   }
   protected readonly mobileDay = signal<Day>(this.store.today());
+  /**
+   * Capture's tasks on the board (Gianni): each day of this week shows the tasks dated that day, pinned over the
+   * activity running at their hour; the others (no hour, or an hour no activity covers) at the top of the day.
+   */
+  protected readonly todos = inject(TodoStore);
+  protected readonly pins = computed(() => {
+    const now = this.store.now();
+    const all = this.todos.todos();
+    const week = this.store.week();
+    const out = {} as Record<Day, { onTask: Map<string, PinnedTodo[]>; loose: Todo[] }>;
+    for (const day of DAYS) {
+      const date = weekDate(now, day);
+      out[day] = pinTodos(week[day], all.filter((t) => t.date === date));
+    }
+    return out;
+  });
   protected readonly notice = signal('');
   protected readonly windowErrors = signal<Record<string, string>>({});
   protected readonly editing = signal<TaskEdit | null>(null);

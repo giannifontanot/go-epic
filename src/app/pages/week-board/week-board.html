@@ -49,6 +49,20 @@
           </span>
         </header>
 
+        <!-- Capture's tasks for this day that no activity holds (no hour, or an hour outside the blocks) -->
+        @if (pins()[day].loose.length) {
+          <ul class="todo-strip" [attr.aria-label]="i18n.t('week.todos')">
+            @for (todo of pins()[day].loose; track todo.id) {
+              <li class="todo-note" [class.checked]="todo.done !== null">
+                <button type="button" class="todo-check" role="checkbox" [attr.aria-checked]="todo.done !== null"
+                        [attr.aria-label]="i18n.t(todo.done !== null ? 'capture.uncheck' : 'capture.check') + ': ' + todo.title"
+                        (click)="$event.stopPropagation(); todos.setDone(todo.id, todo.done === null)">{{ todo.done !== null ? '✓' : '' }}</button>
+                <span class="todo-title">{{ todo.title }}</span>@if (todo.time) { <span class="todo-time">{{ todo.time }}</span> }
+              </li>
+            }
+          </ul>
+        }
+
         @for (block of blocks(day); track block.id; let bi = $index, bfirst = $first, blast = $last) {
           @let tones = colors(block);
           <section class="block" [class.over]="isOver(block)" [attr.data-flip]="block.id" [attr.data-block]="block.id">
@@ -116,6 +130,15 @@
                     }
                   </div>
                   <span class="t-dur">{{ durationLabel(task.minutes) }}</span>
+                  <!-- Capture's tasks at an hour inside this activity: a note pinned over it, at that hour -->
+                  @for (pin of pins()[day].onTask.get(task.id) ?? []; track pin.todo.id) {
+                    <span class="todo-note pinned" [class.checked]="pin.todo.done !== null" [style.top.%]="pin.fraction * 100" (click)="$event.stopPropagation()">
+                      <button type="button" class="todo-check" role="checkbox" [attr.aria-checked]="pin.todo.done !== null"
+                              [attr.aria-label]="i18n.t(pin.todo.done !== null ? 'capture.uncheck' : 'capture.check') + ': ' + pin.todo.title"
+                              (click)="todos.setDone(pin.todo.id, pin.todo.done === null)">{{ pin.todo.done !== null ? '✓' : '' }}</button>
+                      <span class="todo-title">{{ pin.todo.title }}</span><span class="todo-time">{{ pin.todo.time }}</span>
+                    </span>
+                  }
                   @if (day === store.today() && now()?.taskId === task.id) {
                     <span class="now-line" [style.top.%]="now()!.fraction * 100" aria-hidden="true"><span class="now-badge">{{ nowLabel() }}</span></span>
                   }
