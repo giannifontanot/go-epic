@@ -13,10 +13,14 @@ export function isBackdropClick(event: MouseEvent, dialog: HTMLDialogElement): b
  */
 interface Point { x: number; y: number; }
 
-const OPEN_MS = 460;          // a little slower, so the eye can follow the window growing out of its point (Gianni)
-const CLOSE_MS = 300;
-const EASE_OUT = 'cubic-bezier(.22, 1, .36, 1)';
+/**
+ * Opening is the exact mirror of closing (Gianni: the close looked smooth, the open did not): the same duration, the
+ * same keyframes played backwards and the time-reversed curve (an ease-in (x1,y1,x2,y2) runs backwards as
+ * (1-x2,1-y2,1-x1,1-y1)). So a window grows out of its point at the very rate it shrinks back into it.
+ */
+const MS = 300;
 const EASE_IN = 'cubic-bezier(.4, 0, 1, 1)';
+const EASE_OUT = 'cubic-bezier(0, 0, .6, 1)';
 
 let lastPress: (Point & { at: number }) | null = null;
 if (typeof document !== 'undefined') {
@@ -42,18 +46,17 @@ export function pressPoint(): Point {
   return { x: (globalThis.innerWidth ?? 0) / 2, y: (globalThis.innerHeight ?? 0) / 2 };
 }
 
-function frames(dialog: HTMLDialogElement, from: Point): Keyframe[] {
+function setOrigin(dialog: HTMLDialogElement, from: Point): void {
   const r = dialog.getBoundingClientRect();
   dialog.style.transformOrigin = `${from.x - r.left}px ${from.y - r.top}px`;
-  return [{ transform: 'scale(.05)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }];
 }
 
 /**
- * Closing: the window shrinks back into its point fully visible, so the eye follows its shape home (Gianni); only at the
- * very end, already small, it fades the last step, so it never pops out as a tiny box.
+ * The window fully visible at every size but the smallest: closing, it shrinks back into its point and fades only the last
+ * step (so it never pops out as a tiny box); opening plays the same frames backwards.
  */
 function closeFrames(dialog: HTMLDialogElement, to: Point): Keyframe[] {
-  frames(dialog, to);                                                    // sets the transform origin
+  setOrigin(dialog, to);
   return [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(.18)', opacity: 1, offset: 0.82 }, { transform: 'scale(.05)', opacity: 0 }];
 }
 
@@ -78,8 +81,8 @@ export function openDialog(dialog: HTMLDialogElement, options: { escape?: boolea
     dialog.addEventListener('cancel', (event) => { event.preventDefault(); void closeDialog(dialog); });
   }
   if (reducedMotion() || typeof dialog.animate !== 'function') return;
-  dialog.animate(frames(dialog, from), { duration: OPEN_MS, easing: EASE_OUT });
-  animateBackdrop(dialog, true, OPEN_MS);
+  dialog.animate([...closeFrames(dialog, from)].reverse(), { duration: MS, easing: EASE_OUT });
+  animateBackdrop(dialog, true, MS);
 }
 
 /** Shrinks the dialog back into the point it came from, then closes it (the dialog's `close` event fires after). */
@@ -90,8 +93,8 @@ export function closeDialog(dialog: HTMLDialogElement | undefined | null): Promi
   if (reducedMotion() || typeof dialog.animate !== 'function') { dialog.close(); return Promise.resolve(); }
   const from = origins.get(dialog) ?? pressPoint();
   const done = new Promise<void>((resolve) => {
-    const animation = dialog.animate(closeFrames(dialog, from), { duration: CLOSE_MS, easing: EASE_IN, fill: 'forwards' });
-    const backdrop = animateBackdrop(dialog, false, CLOSE_MS);
+    const animation = dialog.animate(closeFrames(dialog, from), { duration: MS, easing: EASE_IN, fill: 'forwards' });
+    const backdrop = animateBackdrop(dialog, false, MS);
     const finish = () => {
       closing.delete(dialog);
       if (dialog.open) dialog.close();
