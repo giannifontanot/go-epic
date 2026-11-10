@@ -60,6 +60,11 @@ function closeFrames(dialog: HTMLDialogElement, to: Point): Keyframe[] {
   return [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(.18)', opacity: 1, offset: 0.82 }, { transform: 'scale(.05)', opacity: 0 }];
 }
 
+/** The frames played backwards in time: reversed, and every explicit offset t becomes 1 − t. */
+export function mirrored(frames: Keyframe[]): Keyframe[] {
+  return [...frames].reverse().map((f) => (typeof f.offset === 'number' ? { ...f, offset: 1 - f.offset } : f));
+}
+
 function animateBackdrop(dialog: HTMLDialogElement, show: boolean, duration: number): Animation | null {
   try {
     return dialog.animate(show ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 1 }, { opacity: 0 }],
@@ -81,7 +86,7 @@ export function openDialog(dialog: HTMLDialogElement, options: { escape?: boolea
     dialog.addEventListener('cancel', (event) => { event.preventDefault(); void closeDialog(dialog); });
   }
   if (reducedMotion() || typeof dialog.animate !== 'function') return;
-  dialog.animate([...closeFrames(dialog, from)].reverse(), { duration: MS, easing: EASE_OUT });
+  dialog.animate(mirrored(closeFrames(dialog, from)), { duration: MS, easing: EASE_OUT });
   animateBackdrop(dialog, true, MS);
 }
 
