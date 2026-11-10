@@ -304,13 +304,18 @@ export class WeekBoard {
     const moving = 'li.task:not(.drag-src), li.drop-slot, section.block';
     const x0 = event.clientX, y0 = event.clientY;
     let dx = 0, dy = 0;
+    let valid = true;                                           // the pointer is over a block of this day
     const move = (e: PointerEvent) => {
       if (!card.isConnected) { cancel(); return; }              // another tab deleted or moved it meanwhile
       dx = e.clientX - x0; dy = e.clientY - y0;
       ghost.style.transform = `translate(${dx}px, ${dy}px) rotate(-3deg) scale(1.04)`;
       const under = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>('section.block[data-block]');
       const list = under && dayEl.contains(under) ? under.querySelector<HTMLElement>('ul.tasks') : null;
-      if (!list) return;
+      valid = !!list;
+      if (!list) {                                                // outside the day's blocks: the gap goes back home
+        if (slot.nextElementSibling !== card) flipNow(dayEl, moving, () => home.insertBefore(slot, card));
+        return;
+      }
       const cards = Array.from(list.querySelectorAll<HTMLElement>('li.task:not(.drag-src)'));
       const next = cards.find((c) => { const r = c.getBoundingClientRect(); return e.clientY < r.top + r.height / 2; }) ?? null;
       if (slot.parentElement === list && slot.nextElementSibling === next) return;
@@ -330,7 +335,7 @@ export class WeekBoard {
       let target: { blockId: string; index: number } | null = null;
       const list = slot.parentElement;
       const toEl = list?.closest<HTMLElement>('section.block[data-block]');
-      if (commit && list && toEl && card.isConnected) {
+      if (commit && valid && list && toEl && card.isConnected) {
         const index = Array.from(list.children).filter((c) => c === slot || (c.matches('li.task') && c !== card)).indexOf(slot);
         target = { blockId: toEl.dataset['block']!, index };
         if (!this.canDrop(day, block.id, task.id, target.blockId)) target = null;
