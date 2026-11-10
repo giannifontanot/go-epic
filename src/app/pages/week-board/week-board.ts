@@ -300,7 +300,7 @@ export class WeekBoard {
       clearMarks();
       ghost.remove();
       card.classList.remove('drag-src');
-      if (commit && target) this.dropTask(day, block.id, task, target.blockId, target.index);
+      if (commit && target) this.dropTask(day, block.id, task.id, target.blockId, target.index);
     };
     const up = finish(true);
     const cancel = finish(false);
@@ -311,20 +311,29 @@ export class WeekBoard {
     addEventListener('keydown', esc, true);
   }
 
-  /** Puts a dragged card at `index` among the other cards of the target block (same day); it must fit there. */
-  private dropTask(day: Day, fromId: string, task: Task, toId: string, index: number): void {
+  /**
+   * Puts a dragged card at `index` among the other cards of the target block (same day); it must fit there. The card
+   * is read again from the current week (another tab may have renamed, recoloured or deleted it meanwhile): a card
+   * that is gone is not brought back, and the latest version is the one moved.
+   */
+  private dropTask(day: Day, fromId: string, taskId: string, toId: string, index: number): void {
     const blocks = this.blocks(day);
     const from = blocks.find((b) => b.id === fromId);
     const to = blocks.find((b) => b.id === toId);
-    if (!from || !to) return;
+    const task = from?.tasks.find((t) => t.id === taskId);
+    if (!from || !to || !task) return;
     if (fromId !== toId && !fits(to, task.minutes)) { this.notice.set(this.i18n.t('week.noRoom', { block: to.name, n: Math.max(0, freeMinutes(to) ?? 0) })); return; }
-    if (fromId === toId && from.tasks.findIndex((t) => t.id === task.id) === index) return;
+    if (fromId === toId && from.tasks.findIndex((t) => t.id === taskId) === index) return;
     this.notice.set('');
-    flip(document, this.injector, () => this.store.update(day, (list) => list.map((b) => {
-      let tasks = b.tasks.filter((t) => t.id !== task.id);
-      if (b.id === toId) tasks = [...tasks.slice(0, index), task, ...tasks.slice(index)];
-      return b.id === fromId || b.id === toId ? { ...b, tasks } : b;
-    }).filter((b) => b.tasks.length > 0)));
+    flip(document, this.injector, () => this.store.update(day, (list) => {
+      const current = list.find((b) => b.id === fromId)?.tasks.find((t) => t.id === taskId);
+      if (!current || !list.some((b) => b.id === toId)) return list;
+      return list.map((b) => {
+        let tasks = b.tasks.filter((t) => t.id !== taskId);
+        if (b.id === toId) tasks = [...tasks.slice(0, index), current, ...tasks.slice(index)];
+        return b.id === fromId || b.id === toId ? { ...b, tasks } : b;
+      }).filter((b) => b.tasks.length > 0);
+    }));
   }
 
   protected deleteTask(day: Day, block: Block, task: Task): void {
