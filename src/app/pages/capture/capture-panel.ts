@@ -37,7 +37,7 @@ import { CaptureUi } from './capture-ui';
       @if (library.error()) { <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ library.error() }}</p> }
       <ul class="capture-list">
         @for (task of inbox(); track task.id) {
-          <li [attr.data-paper]="paper(task) || null" [style.background]="tones().get(task.id)">
+          <li [attr.data-paper]="paper(task) ?? 0" [style.--tone]="tones().get(task.id)">
             @if (editing() === task.id) {
               <input class="c-edit" type="text" [value]="task.title" [attr.aria-label]="i18n.t('capture.edit')"
                 (keydown.enter)="$event.preventDefault(); saveEdit(task, $any($event.target).value)"

@@ -1,4 +1,5 @@
 import { TILT_MAX_DEG, TILT_PILE, pileShift, tiltOf } from './tilt';
+import { leanSwing } from './tilt';
 
 describe('tiltOf', () => {
   it('stands straight when the phone is upright or there is no reading', () => {
@@ -47,5 +48,11 @@ describe('pileShift', () => {
     const a = { left: 20, right: 390 - 100 }, b = { left: 110, right: 390 - 190 };
     const aEnd = 100 + pileShift(1, a.left, a.right), bStart = 110 + pileShift(1, b.left, b.right);
     expect(aEnd).toBeGreaterThan(bStart);
+  });
+
+  it('measures how far a leaning box swings past its sides (tall cards swing more)', () => {
+    expect(leanSwing(300, 40, 0)).toBe(0);
+    expect(leanSwing(300, 600, 1.5)).toBeCloseTo(150 * Math.cos(Math.PI / 120) + 300 * Math.sin(Math.PI / 120) - 150, 6);
+    expect(leanSwing(300, 600, 1.5)).toBeGreaterThan(leanSwing(300, 60, 1.5));
   });
 });
