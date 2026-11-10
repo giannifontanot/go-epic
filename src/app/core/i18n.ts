@@ -79,6 +79,8 @@ const LABELS: Record<string, { en: string; es: string }> = {
 
   'week.arrange': { en: 'Arrange the week', es: 'Organizar la semana' },
   'week.finish': { en: 'Finish arranging', es: 'Terminar' },
+  'week.foldBlock': { en: 'Close this block', es: 'Cerrar este bloque' },
+  'week.unfoldBlock': { en: 'Open this block', es: 'Abrir este bloque' },
   'week.foldAll': { en: 'Close all blocks', es: 'Cerrar todos los bloques' },
   'week.unfoldAll': { en: 'Open all blocks', es: 'Abrir todos los bloques' },
   'week.addBlock': { en: 'Create new Block + Activity', es: 'Crear nuevo Block + Actividad' },
