@@ -302,7 +302,7 @@ export class WeekBoard {
     home.insertBefore(slot, card);
     card.classList.add('drag-src');
     const moving = 'li.task:not(.drag-src), li.drop-slot, section.block';
-    const x0 = event.clientX, y0 = event.clientY;
+    const x0 = event.clientX, y0 = event.clientY, pointerId = event.pointerId;
     let dx = 0, dy = 0;
     let valid = true;                                           // the pointer is over a block of this day
     const move = (e: PointerEvent) => {
@@ -331,6 +331,9 @@ export class WeekBoard {
       removeEventListener('pointerup', up);
       removeEventListener('pointercancel', cancel);
       removeEventListener('keydown', esc, true);
+      removeEventListener('blur', cancel);
+      dayEl.removeEventListener('lostpointercapture', cancel);
+      if (dayEl.hasPointerCapture?.(pointerId)) dayEl.releasePointerCapture(pointerId);
       // Where it lands: the gap's block and its index among the other cards; a refused or cancelled drop goes home
       let target: { blockId: string; index: number } | null = null;
       const list = slot.parentElement;
@@ -371,6 +374,11 @@ export class WeekBoard {
     addEventListener('pointerup', up);
     addEventListener('pointercancel', cancel);
     addEventListener('keydown', esc, true);
+    // The pointer is captured on the day column (visible all along), so a release outside the window still arrives;
+    // if tracking is lost anyway (capture taken away, the window loses focus) the card goes home.
+    addEventListener('blur', cancel);
+    try { dayEl.setPointerCapture(pointerId); } catch { /* not capturable: the window listeners still work */ }
+    dayEl.addEventListener('lostpointercapture', cancel);
     this.cancelDrag = cancel;
   }
   /** Cancels a card drag in progress (the page is leaving). */
