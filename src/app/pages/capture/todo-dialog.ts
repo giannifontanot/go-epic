@@ -1,5 +1,4 @@
-import { DestroyRef, AfterViewInit, Component, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
-import { UnsavedWork } from '../../core/unsaved';
+import { AfterViewInit, Component, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { Todo } from '../../core/todo.model';
@@ -47,9 +46,6 @@ export interface TodoSave { id: string; title: string; date: string | null; time
   `,
 })
 export class TodoDialog implements AfterViewInit {
-  /** While this editor is open (its changes wait for Done), the update prompt waits too. */
-  private readonly releaseHold = inject(UnsavedWork).holdEditor();
-  private readonly holdCleanup = inject(DestroyRef).onDestroy(() => this.releaseHold());
   protected readonly i18n = inject(I18n);
   readonly todo = input.required<Todo>();
   readonly save = output<TodoSave>();

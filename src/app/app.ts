@@ -1,4 +1,4 @@
-import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/auth.service';
@@ -58,7 +58,7 @@ import { WeekStore } from './core/week.store';
     }
     <main><router-outlet /></main>
     <!-- A new version: a native modal window over everything (other windows included) with one big glowing button,
-         so it is pressed (Gianni). It waits while a Canvas draft or an editor's changes are unsaved, since the reload would lose them. -->
+         so it is pressed (Gianni). It waits while a Canvas draft is unsaved or another window is open, since the reload would lose them. -->
     <dialog #updateDialog class="update-overlay" aria-labelledby="update-text" (cancel)="$event.preventDefault()">
       <div class="update-card">
         <p id="update-text">{{ i18n.t('pwa.update') }}</p>
@@ -86,8 +86,12 @@ export class App {
   private readonly drawer = viewChild<ElementRef<HTMLDialogElement>>('drawer');
   private readonly updateDialog = viewChild<ElementRef<HTMLDialogElement>>('updateDialog');
   private readonly unsaved = inject(UnsavedWork);
-  /** The update prompt shows once a version is ready and no unsaved work (Canvas draft, an open editor) would be lost by the reload. */
-  protected readonly showUpdate = computed(() => this.updateReady() && !this.unsaved.any());
+  /**
+   * The update prompt shows once a version is ready and nothing would be lost by its reload: no unsaved Canvas draft
+   * and no other window open (an editor keeps its changes until Done; any window may hold typed text). While either
+   * holds, it looks again every second.
+   */
+  protected readonly showUpdate = signal(false);
 
   constructor() {
     this.tilt.start();   // buttons lean when the phone leans (a visual detail)
@@ -100,13 +104,18 @@ export class App {
       setInterval(() => updates.checkForUpdate().catch(() => undefined), 30 * 60_000);   // a long-open app still hears of new versions
     }
 
+    effect((onCleanup) => {
+      if (!this.updateReady() || this.unsaved.canvasDraft() || this.showUpdate()) return;
+      const otherWindowOpen = () => typeof document !== 'undefined' && !!document.querySelector('dialog[open]:not(.update-overlay)');
+      if (!otherWindowOpen()) { this.showUpdate.set(true); return; }
+      const timer = setInterval(() => { if (!otherWindowOpen() && !this.unsaved.canvasDraft()) this.showUpdate.set(true); }, 1000);
+      onCleanup(() => clearInterval(timer));
+    });
     effect(() => {
       const d = this.updateDialog()?.nativeElement;
-      if (!d) return;
-      if (this.showUpdate() && !d.open) {
-        if (typeof d.showModal === 'function') openDialog(d, { escape: false });
-        else d.setAttribute('open', '');                      // no native modal (old browsers, test DOM): just show it
-      } else if (!this.showUpdate() && d.open) d.close?.();
+      if (!d || !this.showUpdate() || d.open) return;
+      if (typeof d.showModal === 'function') openDialog(d, { escape: false });
+      else d.setAttribute('open', '');                        // no native modal (old browsers, test DOM): just show it
     });
 
     // Signing out (here or in another tab) leaves the open page for the sign-in page; the guards only run on navigation.
