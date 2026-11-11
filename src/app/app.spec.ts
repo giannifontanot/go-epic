@@ -20,7 +20,7 @@ describe('App', () => {
     expect(root.querySelector('router-outlet')).toBeTruthy();
     expect(root.querySelector('.nav-toggle')).toBeNull();
     expect(root.querySelector('.app-drawer')).toBeNull();
-    expect(root.querySelector('.update-bar')).toBeNull();
+    expect(root.querySelector('dialog.update-overlay')?.hasAttribute('open')).toBeFalsy();
   });
 
   it('offers to update when the installed app has downloaded a new version', async () => {
@@ -34,6 +34,8 @@ describe('App', () => {
     await fixture.whenStable();
     versionUpdates.next({ type: 'VERSION_READY', currentVersion: { hash: 'a' }, latestVersion: { hash: 'b' } });
     await fixture.whenStable();
-    expect((fixture.nativeElement as HTMLElement).querySelector('.update-bar')).toBeTruthy();
+    const prompt = (fixture.nativeElement as HTMLElement).querySelector<HTMLDialogElement>('dialog.update-overlay');
+    expect(prompt?.hasAttribute('open')).toBe(true);
+    expect(prompt?.querySelector('.update-button')).toBeTruthy();
   });
 });

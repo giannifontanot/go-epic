@@ -165,7 +165,11 @@
                     </span>
                   }
                   @if (day === store.today() && now()?.taskId === task.id) {
-                    <span class="now-line" [style.top.%]="now()!.fraction * 100" aria-hidden="true"><span class="now-badge">{{ nowLabel() }}</span></span>
+                    <span class="now-line" [style.top.%]="now()!.fraction * 100">
+                      <!-- a tap on the time centres the line on screen (Gianni) -->
+                      <button type="button" class="now-badge" [attr.aria-label]="i18n.t('week.centreNow', { time: nowLabel() })" [title]="i18n.t('week.centreNow', { time: nowLabel() })"
+                              (click)="$event.stopPropagation(); centreOnNow(true)" (pointerdown)="$event.stopPropagation()" (contextmenu)="$event.stopPropagation()">{{ nowLabel() }}</button>
+                    </span>
                   }
                 </li>
               }

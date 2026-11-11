@@ -9,6 +9,8 @@ import { I18n } from './core/i18n';
 import { LibraryStore } from './core/library.store';
 import { Tilt } from './core/tilt';
 import { TextSettings } from './core/text-settings';
+import { ThemeService } from './core/theme';
+import { UnsavedWork } from './core/unsaved';
 import { WeekStore } from './core/week.store';
 
 @Component({
@@ -31,6 +33,7 @@ import { WeekStore } from './core/week.store';
           <a routerLink="/canvas" routerLinkActive="on" (click)="closeMenu()">{{ i18n.t('nav.canvas') }}</a>
           <a routerLink="/progress" routerLinkActive="on" (click)="closeMenu()">{{ i18n.t('nav.progress') }}</a>
           <button type="button" class="drawer-capture" (click)="openCapture()">✎ {{ i18n.t('capture.title') }}</button>
+          <a routerLink="/settings" routerLinkActive="on" (click)="closeMenu()">⚙ {{ i18n.t('settings.title') }}</a>
         </nav>
         <div class="drawer-foot">
           <button type="button" class="chip quiet" (click)="i18n.toggle()" [attr.aria-label]="i18n.lang() === 'en' ? 'Español' : 'English'">
@@ -54,12 +57,14 @@ import { WeekStore } from './core/week.store';
       }
     }
     <main><router-outlet /></main>
-    @if (updateReady()) {
-      <div class="update-bar" role="status">
-        <span>{{ i18n.t('pwa.update') }}</span>
-        <button type="button" class="primary" (click)="reload()">{{ i18n.t('pwa.reload') }}</button>
+    <!-- A new version: a native modal window over everything (other windows included) with one big glowing button,
+         so it is pressed (Gianni). It waits while a Canvas draft is unsaved or another window is open, since the reload would lose them. -->
+    <dialog #updateDialog class="update-overlay" aria-labelledby="update-text" (cancel)="$event.preventDefault()">
+      <div class="update-card">
+        <p id="update-text">{{ i18n.t('pwa.update') }}</p>
+        <button type="button" class="update-button" (click)="reload()">{{ i18n.t('pwa.reload') }}</button>
       </div>
-    }
+    </dialog>
   `,
 })
 export class App {
@@ -70,6 +75,8 @@ export class App {
   protected readonly tilt = inject(Tilt);
   /** The text size and letter spacing chosen on the Week board (Aa / AV) apply everywhere from the start. */
   protected readonly text = inject(TextSettings);
+  /** The chosen theme (Ajustes) stays applied on every page. */
+  protected readonly theme = inject(ThemeService);
   private readonly capture = inject(CaptureUi);
   private readonly router = inject(Router);
   /** The installed app (service worker) has downloaded a newer version: offer to switch to it. */
@@ -77,6 +84,14 @@ export class App {
   /** The menu (☰): a drawer from the left, as in Epic Manager, so every page has the whole screen. */
   protected readonly menuOpen = signal(false);
   private readonly drawer = viewChild<ElementRef<HTMLDialogElement>>('drawer');
+  private readonly updateDialog = viewChild<ElementRef<HTMLDialogElement>>('updateDialog');
+  private readonly unsaved = inject(UnsavedWork);
+  /**
+   * The update prompt shows once a version is ready and nothing would be lost by its reload: no unsaved Canvas draft
+   * and no other window open (an editor keeps its changes until Done; any window may hold typed text). While either
+   * holds, it looks again every second.
+   */
+  protected readonly showUpdate = signal(false);
 
   constructor() {
     this.tilt.start();   // buttons lean when the phone leans (a visual detail)
@@ -88,6 +103,20 @@ export class App {
       updates.unrecoverable.subscribe(() => location.reload());   // the cached version is broken: load a fresh one
       setInterval(() => updates.checkForUpdate().catch(() => undefined), 30 * 60_000);   // a long-open app still hears of new versions
     }
+
+    effect((onCleanup) => {
+      if (!this.updateReady() || this.unsaved.canvasDraft() || this.showUpdate()) return;
+      const otherWindowOpen = () => typeof document !== 'undefined' && !!document.querySelector('dialog[open]:not(.update-overlay)');
+      if (!otherWindowOpen()) { this.showUpdate.set(true); return; }
+      const timer = setInterval(() => { if (!otherWindowOpen() && !this.unsaved.canvasDraft()) this.showUpdate.set(true); }, 1000);
+      onCleanup(() => clearInterval(timer));
+    });
+    effect(() => {
+      const d = this.updateDialog()?.nativeElement;
+      if (!d || !this.showUpdate() || d.open) return;
+      if (typeof d.showModal === 'function') openDialog(d, { escape: false });
+      else d.setAttribute('open', '');                        // no native modal (old browsers, test DOM): just show it
+    });
 
     // Signing out (here or in another tab) leaves the open page for the sign-in page; the guards only run on navigation.
     effect(() => {

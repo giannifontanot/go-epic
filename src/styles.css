@@ -13,6 +13,8 @@
   --teal: #76e0d0;
   --red: #dc2626;
   --navy-card: #1b2757;
+  --light: #fff4e9;   /* a light surface against the dark inks (option lists, the selected Copy/Move): never the --ink token, which is dark in Office */
+  --now: #ff3b30;   /* the now-line: red; the Office theme makes it quiet unless Ajustes asks for red */
   --tap: 36px;
   color-scheme: dark;
 }
@@ -148,8 +150,9 @@ dialog.status-menu h2 { margin: 0 0 12px; font-size: 20px; overflow-wrap: anywhe
 .quick-add { min-height: 40px; padding: 6px 12px; border: 1px dashed rgba(54, 38, 67, .4); border-radius: 12px; background: rgba(255, 255, 255, .45); color: var(--jelly-ink); font-size: 16px; }
 .quick-add::placeholder { color: rgba(54, 38, 67, .6); }
 
-.now-line { position: absolute; z-index: 5; left: -22px; right: -22px; height: 0; border-top: 2px solid #ff3b30; pointer-events: none; }   /* over the cards and their pinned notes (Gianni: nothing hides it) */
-.now-badge { position: absolute; right: 26px; top: -11px; padding: 1px 6px; border-radius: 999px; background: #ff3b30; color: #fff; font-size: 11px; font-weight: 800; }
+.now-line { position: absolute; z-index: 5; left: -22px; right: -22px; height: 0; border-top: 2px solid var(--now); pointer-events: none; }   /* over the cards and their pinned notes (Gianni: nothing hides it) */
+.now-badge { position: absolute; right: 26px; top: -11px; padding: 1px 6px; border: 0; border-radius: 999px; background: var(--now); color: #fff; font-size: 11px; font-weight: 800; line-height: 1.45; min-height: 0; pointer-events: auto; }
+.now-badge::before { content: ''; position: absolute; inset: -12px -10px; }   /* a tap target of about 40px around the small badge: a tap centres the line */
 
 @media (max-width: 820px) {
   .day-tabs { display: flex; gap: 4px; margin-bottom: 12px; overflow-x: auto; }
@@ -170,7 +173,7 @@ dialog h2 { margin: 0; font-size: 20px; outline: none; }
 dialog.editor header .danger { border: 0; border-radius: 999px; padding: 9px 16px; background: rgba(255, 255, 255, .08); color: var(--pink); font-weight: 700; }
 .field { display: grid; gap: 6px; margin-bottom: 14px; font-size: 13px; }
 .field input, .field select { width: 100%; min-height: 44px; padding: 9px 10px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px; background: var(--page); color: var(--ink); font-size: 16px; }
-.field select option { color: var(--card-ink); background: var(--ink); }
+.field select option { color: var(--card-ink); background: var(--light); }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .color-pick { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); align-items: center; justify-items: center; gap: 8px; margin: 2px 0 14px; font-size: 13px; }
 .color-pick > span { grid-column: 1 / 4; justify-self: start; }
@@ -195,7 +198,7 @@ dialog.editor .app-error { margin: 0 0 8px; }
 .where legend { padding: 0; margin-bottom: 8px; font-size: 13px; font-weight: 700; }
 .where label { display: grid; grid-template-columns: 6.5em minmax(0, 1fr); align-items: center; gap: 10px; margin-bottom: 8px; font-size: 13px; }
 .where select { min-width: 0; min-height: 44px; padding: 9px 10px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px; background: var(--page); color: var(--ink); font-size: 16px; }
-.where select option { color: var(--card-ink); background: var(--ink); }
+.where select option { color: var(--card-ink); background: var(--light); }
 dialog .hint { margin: 0 0 8px; color: var(--ink-soft); font-size: 12px; }
 .linked-chip { display: inline-flex; align-items: center; justify-self: start; gap: 6px; max-width: 100%; min-height: 44px; padding: 0 2px 0 14px; border-radius: 999px; color: var(--card-ink); font-weight: 700; overflow-wrap: anywhere; }
 .linked-chip button { flex: none; width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(48, 39, 70, .12); color: var(--card-ink); font-size: 18px; }
@@ -209,7 +212,7 @@ dialog.transfer .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .0
 dialog.transfer .close { min-width: 44px; min-height: 44px; border: 0; border-radius: 8px; background: none; font-size: 24px; }
 dialog.transfer .mode { display: flex; margin: 14px 16px 0; padding: 3px; border-radius: 999px; background: #ece8f2; }
 dialog.transfer .mode button { flex: 1; min-height: 44px; border: 0; border-radius: 999px; background: transparent; color: var(--card-ink); font-weight: 700; }
-dialog.transfer .mode button[aria-checked='true'] { background: var(--card-ink); color: var(--ink); box-shadow: 0 2px 6px #30274640; }
+dialog.transfer .mode button[aria-checked='true'] { background: var(--card-ink); color: var(--light); box-shadow: 0 2px 6px #30274640; }
 dialog.transfer .hint { margin: 10px 16px 0; font-size: 13px; color: #5c5966; }
 dialog.transfer .day-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 12px 16px 16px; }
 .day-chip { min-width: 54px; min-height: 44px; border: 1.5px solid #8b93b8; border-radius: 999px; background: #1f2b5b; color: var(--ink); font-weight: 700; }
@@ -238,9 +241,15 @@ dialog.transfer footer .primary { border-color: var(--pink); background: var(--p
 .today-task.done .t-title { text-decoration: line-through; }
 .today-task .check { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border: 2px solid currentColor; border-radius: 50%; font-weight: 800; }
 
-/* New version of the installed app */
-.update-bar { position: fixed; left: 16px; right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  max-width: 520px; margin: 0 auto; padding: 10px 12px 10px 16px; border-radius: 18px; background: var(--navy-card); color: var(--ink); box-shadow: 0 12px 40px #0008; font-weight: 600; }
+/* New version of the installed app (Gianni: impossible to miss): it covers the screen, a card in the middle with one
+   huge glowing button */
+dialog.update-overlay { width: min(440px, calc(100vw - 32px)); max-width: none; padding: 0; border: 0; background: transparent; color: var(--ink); overflow: visible; }
+dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filter: blur(4px); }
+.update-card { width: 100%; display: grid; gap: 22px; padding: 28px 22px; border-radius: 26px; background: var(--navy-card); color: var(--ink);
+  text-align: center; box-shadow: 0 25px 90px #000a; }
+.update-card p { margin: 0; font-family: Georgia, serif; font-size: 24px; line-height: 1.25; }
+.update-button { min-height: 96px; padding: 0 20px; border: 0; border-radius: 24px; background: linear-gradient(150deg, #ffc3cf, var(--pink));
+  color: var(--card-ink); font-size: 24px; font-weight: 900; animation: update-glow 1.6s ease-in-out infinite; }
 
 /* Phones and touch screens: every control is at least 40px tall (AGENTS.md). */
 @media (pointer: coarse), (max-width: 820px) {
@@ -338,13 +347,12 @@ html.tilt .object { translate: calc(var(--ox, 0px) + (max(var(--tilt-k), 0) * va
 @media (prefers-reduced-motion: reduce) { html.tilt :is(button, .block, .task, .now-card, .habit, .capture-list li, .epics-label, .pc-feature, .pc-story, .pc-activity) { rotate: none; translate: none; }
   html.tilt .object { rotate: none; translate: var(--ox, 0px) var(--oy, 0px); } }
 
-/* New version ready: a soft yellow halo flashes around the whole update bar so it gets noticed (a still halo under reduced motion) */
-.update-bar { animation: update-halo 2.4s ease-in-out infinite; }
-@keyframes update-halo {
-  0%, 55%, 100% { box-shadow: 0 12px 40px #0008, 0 0 0 0 rgba(255, 223, 119, 0); }
-  20% { box-shadow: 0 12px 40px #0008, 0 0 0 3px rgba(255, 223, 119, .85), 0 0 24px 8px rgba(255, 223, 119, .4); }
+/* The update button glows and breathes, a gold halo pulsing around it (a still halo under reduced motion) */
+@keyframes update-glow {
+  0%, 100% { scale: 1; box-shadow: 0 0 0 3px rgba(255, 223, 119, .7), 0 0 22px 6px rgba(255, 223, 119, .35); }
+  50% { scale: 1.04; box-shadow: 0 0 0 5px rgba(255, 223, 119, 1), 0 0 46px 18px rgba(255, 223, 119, .65); }
 }
-@media (prefers-reduced-motion: reduce) { .update-bar { animation: none !important; box-shadow: 0 12px 40px #0008, 0 0 0 3px rgba(255, 223, 119, .8); } }
+@media (prefers-reduced-motion: reduce) { .update-button { animation: none !important; box-shadow: 0 0 0 4px rgba(255, 223, 119, .9), 0 0 30px 10px rgba(255, 223, 119, .5); } }
 
 /* Paper that ages (as in Epic Manager's Capture): a captured task is a note on fresh paper, parchment after 5 days and
    old stained paper after 21 (paperAge), in the Capture list and on its week cards, so a neglected idea shows it. */
@@ -504,7 +512,7 @@ dialog.editor header .head-switch { flex: none; min-height: 40px; font-weight: 7
 .pc-feature .pc-tap:hover, .pc-story .pc-tap:hover { background: rgba(54, 38, 67, .08); }
 .pc-tap:focus-within { outline: 2px solid var(--teal); outline-offset: 1px; }
 .pc-head > select { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 40px; opacity: 0; cursor: pointer; font-size: 16px; }
-.pc-head > select option { color: var(--card-ink); background: var(--ink); }
+.pc-head > select option { color: var(--card-ink); background: var(--light); }
 .pc-empty { color: var(--pink); font-style: italic; }
 .pc-feature .pc-empty, .pc-story .pc-empty { color: #8b3a62; }
 .where-card .pc-epic { padding: 0 6px 8px; min-height: 0; }
@@ -634,3 +642,152 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .todo-habit .dot[data-result='missed'] { background: #c0392b; color: #fff; }
 .todo-habit .dot[data-result='pending'] { background: rgba(255, 255, 255, .55); box-shadow: inset 0 0 0 2px #8a2f52; color: #8a2f52; }
 .todo-habit .dot[data-result='none'] { background: transparent; box-shadow: inset 0 0 0 1px rgba(42, 32, 24, .14); }
+
+/* ── Ajustes › Theme ─────────────────────────────────────────────────────────────────────────────────────────────── */
+.settings-page { max-width: 640px; margin: 0 auto; }
+.settings-title { margin: 18px 4px 10px; font-size: 18px; }
+.theme-options { display: grid; gap: 10px; }
+.theme-option { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 72px; padding: 10px 14px 10px 10px; border: 2px solid transparent;
+  border-radius: 18px; background: rgba(255, 255, 255, .08); color: var(--ink); text-align: left; }
+.theme-option.on { border-color: var(--teal); }
+.theme-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.theme-text small { color: var(--ink-soft); }
+.theme-check { flex: none; width: 28px; font-size: 20px; font-weight: 900; color: var(--teal); text-align: center; }
+/* a tiny day of each theme: column, block and two cards, in that theme's own colours */
+.theme-preview { flex: none; width: 64px; height: 52px; padding: 5px; border-radius: 12px; background: #101b42; }
+.tp-day { display: block; height: 100%; padding: 4px; border-radius: 8px; background: linear-gradient(155deg, #8f2859, #621c4b); }
+.tp-block { display: grid; gap: 3px; height: 100%; padding: 3px; border-radius: 6px; background: #f5c945; }
+.tp-card { border-radius: 4px; background: #a7e7e3; }
+.tp-card + .tp-card { background: #ffd5bd; }
+[data-preview='office'] .theme-preview { background: #c6c9cd; }
+[data-preview='office'] .tp-day { background: #b5b9be; }
+[data-preview='office'] .tp-block { background: #c9ccd0; }
+[data-preview='office'] .tp-card, [data-preview='office'] .tp-card + .tp-card { background: #d6d8db; }
+[data-preview='graphite'] .theme-preview { background: #2b2e33; }
+[data-preview='graphite'] .tp-day { background: #34383e; }
+[data-preview='graphite'] .tp-block { background: #3d4147; }
+[data-preview='graphite'] .tp-card, [data-preview='graphite'] .tp-card + .tp-card { background: #4a4e55; }
+
+/* ── Grey themes: Office (light greys) and Graphite (dark greys). Nothing that draws attention: no white, no black,
+   no bright colour. Each theme sets the colour tokens and the --g-* surfaces below; the rules after them are shared:
+   pages and windows are drawn without colour (grayscale), so every pastel, paper and badge becomes a grey, and a few
+   surfaces get their grey by hand. ───────────────────────────────────────────────────────────────────────────── */
+/* Office (Gianni): quiet light greys for a work screen */
+html[data-theme='office'] {
+  --page: #c6c9cd; --ink: #26292d; --ink-soft: #555a61;
+  --plum-a: #b8bcc1; --plum-b: #b1b5ba; --jelly-a: #cdd0d3; --jelly-b: #c6c9cd; --jelly-ink: #2a2d31; --card-ink: #2a2d31;
+  --pink: #9aa2ab; --teal: #7f8b96; --red: #8f4444; --navy-card: #cfd1d4; --light: #dfe1e4;
+  --now: #7c848d;                                                  /* quiet: seen, but it draws no attention */
+  --g-card: #d8dadc; --g-card-2: #d2d4d7; --g-done: #bfc2c6; --g-done-ink: #3d4147; --g-badge: #e2e3e5; --g-badge-ring: #9aa0a7;
+  --g-check: #c3c6ca; --g-check-on: #b3b7bc; --g-check-edge: #7d838a; --g-control: #c4c7cb; --g-control-hover: #b9bcc1;
+  --g-input: #d9dbde; --g-edge: #9fa4aa; --g-list: #cdd0d4; --g-lip: #a9adb3; --g-soft-ink: #4a5058; --g-end: #6c737b; --g-end-ink: #eceef0;
+  --g-window: #d8dadd; --g-chip: #bfc3c8; --g-knob: #e4e5e7; --g-veil: rgba(70, 74, 80, .45); --g-veil-strong: rgba(70, 74, 80, .7);
+  --g-button: #8f98a2; --g-button-ink: #1f2226; --g-glow: 236, 238, 240; --g-tint: 60, 65, 72; --g-placeholder: #6a7078; --g-sparkle: #8a9099;
+  --g-shadow: rgba(0, 0, 0, .12); --g-on-ink: #1f2226;
+  color-scheme: light;
+}
+/* Graphite (Gianni): dark, but kind to the eyes: deep greys, never black, and soft grey ink instead of white, so the
+   contrast stays gentle */
+html[data-theme='graphite'] {
+  --page: #2b2e33; --ink: #c9ccd1; --ink-soft: #8f959d;
+  --plum-a: #34383e; --plum-b: #31353a; --jelly-a: #3d4147; --jelly-b: #3a3e44; --jelly-ink: #c9ccd1; --card-ink: #c9ccd1;
+  --pink: #59616b; --teal: #6c7884; --red: #a85a54; --navy-card: #33373d; --light: #3d4147;
+  --now: #858d96;
+  --g-card: #454950; --g-card-2: #41454c; --g-done: #30333a; --g-done-ink: #8f959d; --g-badge: #50555c; --g-badge-ring: #6c737b;
+  --g-check: #50555c; --g-check-on: #5d636b; --g-check-edge: #7d838a; --g-control: #4a4f56; --g-control-hover: #555a62;
+  --g-input: #383c42; --g-edge: #5d636b; --g-list: #363a40; --g-lip: #26292d; --g-soft-ink: #a3a9b0; --g-end: #5d636b; --g-end-ink: #dfe1e4;
+  --g-window: #33373d; --g-chip: #41454c; --g-knob: #9aa0a8; --g-veil: rgba(10, 11, 13, .5); --g-veil-strong: rgba(10, 11, 13, .72);
+  --g-button: #5d6670; --g-button-ink: #e2e4e7; --g-glow: 170, 178, 188; --g-tint: 210, 214, 220; --g-placeholder: #868c94; --g-sparkle: #8a9099;
+  --g-shadow: rgba(0, 0, 0, .3); --g-on-ink: #eef0f2;
+  color-scheme: dark;
+}
+html:is([data-theme='office'], [data-theme='graphite'])[data-red-line] { --now: #e0463b; }     /* Ajustes › red line */
+html[data-theme='graphite'][data-red-line] { --now: #d0564c; }
+
+html:is([data-theme='office'], [data-theme='graphite']) :is(main:not(:has(.board)), dialog) { filter: grayscale(1); }
+/* On the Week board the now-line must keep its colour (it can be red, Ajustes), so everything around it is grayed
+   instead of the whole page: the cards' own backgrounds are already greys (--tone below) */
+html:is([data-theme='office'], [data-theme='graphite']) .board > :not(.week),
+html:is([data-theme='office'], [data-theme='graphite']) .day > :not(.block),
+html:is([data-theme='office'], [data-theme='graphite']) .block > :not(.block-body),
+html:is([data-theme='office'], [data-theme='graphite']) .block-inner > :not(.tasks),
+html:is([data-theme='office'], [data-theme='graphite']) .tasks > .task > :not(.now-line),
+html:is([data-theme='office'], [data-theme='graphite']) :is(.drag-ghost, .task.won) { filter: grayscale(1); }
+/* the Ajustes page is not grayed, so each theme's little preview keeps its own colours */
+html:is([data-theme='office'], [data-theme='graphite']) main:has(.settings-page) { filter: none; }
+/* cards and notes: one grey, a shade apart from the card above; no paper texture */
+html:is([data-theme='office'], [data-theme='graphite']) :is(main, dialog) [style*='--tone'] { --tone: var(--g-card) !important; }
+html:is([data-theme='office'], [data-theme='graphite']) :is(main, dialog) :is(.task, .todo-note, .capture-list li):nth-child(even) { --tone: var(--g-card-2) !important; }
+html:is([data-theme='office'], [data-theme='graphite']) [data-paper] { background-image: none !important; background-color: var(--tone, var(--g-card)) !important; }
+html:is([data-theme='office'], [data-theme='graphite']) :is(.todo-note, .pc-story, .pc-activity, .pc-feature, .linked-chip) { background: var(--g-card) !important; }
+/* Canvas objects carry their own backgrounds (cream stories, yellow features, inline pastel activities): grey surfaces,
+   a shade apart per level, so their ink (dark in Office, light in Graphite) always reads */
+html:is([data-theme='office'], [data-theme='graphite']) .object.feature { background: var(--g-done) !important; }
+html:is([data-theme='office'], [data-theme='graphite']) .object.story { background: var(--g-card-2) !important; }
+html:is([data-theme='office'], [data-theme='graphite']) .object.task { background: var(--g-card) !important; }
+/* every other surface that keeps its own light background in Epic (finished and inactive items, Focus cards, the new
+   activity header, small controls): grey, so the theme's ink (dark in Office, light in Graphite) reads on it */
+html:is([data-theme='office'], [data-theme='graphite']) :is(.task.off, .task.off[data-paper], .now-card.done, .today-task.done, .today-task[data-status='late'], .today-task[data-status='done'], .capture-list.finished li) { background: var(--g-done) !important; background-image: none !important; }
+html:is([data-theme='office'], [data-theme='graphite']) :is(.now-card.done, .today-task.done, .today-task[data-status='late'], .today-task[data-status='done'], .capture-list.finished li, .task.off) { color: var(--g-done-ink) !important; }
+html:is([data-theme='office'], [data-theme='graphite']) dialog.editor.new-activity header .head-box { background: var(--g-card) !important; color: var(--card-ink) !important; }
+html:is([data-theme='office'], [data-theme='graphite']) .capture-list .c-edit { background: var(--g-input); color: var(--ink); border-color: var(--g-edge); }
+html:is([data-theme='office'], [data-theme='graphite']) dialog.transfer .mode { background: var(--g-chip); }
+html:is([data-theme='office'], [data-theme='graphite']) .pick-card mark { background: var(--g-check-on); color: var(--ink); }
+html:is([data-theme='office'], [data-theme='graphite']) .task.done, html:is([data-theme='office'], [data-theme='graphite']) .task.done[data-paper] { background: var(--g-done) !important; background-image: none !important; box-shadow: inset 0 3px 6px rgba(0, 0, 0, .18); }
+html:is([data-theme='office'], [data-theme='graphite']) .task.done > * { color: var(--g-done-ink); }
+html:is([data-theme='office'], [data-theme='graphite']) .t-status { background: var(--g-badge); box-shadow: 0 1px 4px rgba(0, 0, 0, .2); }
+html:is([data-theme='office'], [data-theme='graphite']) .t-status[data-status='done'] { background: var(--g-badge); color: var(--g-done-ink); box-shadow: 0 0 0 1.5px var(--g-badge-ring); }
+/* the check boxes: grey inside, never white (Gianni) */
+html:is([data-theme='office'], [data-theme='graphite']) :is(.c-check, .todo-check) { background: var(--g-check); border-color: var(--g-check-edge); color: var(--g-done-ink); }
+html:is([data-theme='office'], [data-theme='graphite']) .c-check.on { background: var(--g-check-on); border-color: var(--g-end); }
+/* the blocks keep their shape, without the yellow lip */
+html:is([data-theme='office'], [data-theme='graphite']) .block { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 4px 0 var(--g-lip), 0 8px 14px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite']) .day { box-shadow: 0 6px 16px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite']) :is(.free, .end-badge, .round:hover:not(:disabled)) { color: var(--g-soft-ink); }
+html:is([data-theme='office'], [data-theme='graphite']) .end-badge { background: var(--g-end); color: var(--g-end-ink); }
+/* windows: no white card, a grey veil instead of navy */
+html:is([data-theme='office'], [data-theme='graphite']) dialog.transfer, html:is([data-theme='office'], [data-theme='graphite']) dialog.transfer footer button { background: var(--g-window); color: var(--ink); }
+html:is([data-theme='office'], [data-theme='graphite']) .day-chip { background: var(--g-chip); border-color: var(--g-badge-ring); color: var(--ink); }
+html:is([data-theme='office'], [data-theme='graphite']) :is(dialog, dialog.capture-panel, dialog.app-drawer, dialog.editor, dialog.transfer)::backdrop { background: var(--g-veil); }
+html:is([data-theme='office'], [data-theme='graphite']) .switch-row input::before { background: var(--g-knob); }
+html:is([data-theme='office'], [data-theme='graphite']) :is(.capture-fab, .nav-toggle) { box-shadow: 0 3px 10px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite']) .capture-fab:hover { background: var(--g-control-hover); }
+html:is([data-theme='office'], [data-theme='graphite']) dialog.update-overlay::backdrop { background: var(--g-veil-strong); }
+html:is([data-theme='office'], [data-theme='graphite']) .update-button { background: var(--g-button); color: var(--g-button-ink); animation-name: update-glow-grey; }
+@keyframes update-glow-grey {
+  0%, 100% { scale: 1; box-shadow: 0 0 0 3px rgba(var(--g-glow), .7), 0 0 20px 6px rgba(var(--g-glow), .35); }
+  50% { scale: 1.04; box-shadow: 0 0 0 5px rgba(var(--g-glow), 1), 0 0 42px 16px rgba(var(--g-glow), .6); }
+}
+html:is([data-theme='office'], [data-theme='graphite']) .sparkle { color: var(--g-sparkle); text-shadow: none; }
+/* text on the accent greys (selected chips, primary buttons, the menu's current page, done dots) */
+html:is([data-theme='office'], [data-theme='graphite']) :is(.chip.quiet.on, .primary, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
+/* surfaces and round buttons that were white or near-white */
+html:is([data-theme='office'], [data-theme='graphite']) .capture-list { background: var(--g-list); box-shadow: inset 0 1px 3px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit) { background: var(--g-control); }
+html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit):hover:not(:disabled) { background: var(--g-control-hover); }
+html:is([data-theme='office'], [data-theme='graphite']) .block-window input { background: var(--g-input); border-color: var(--g-edge); }
+html:is([data-theme='office'], [data-theme='graphite']) .field :is(input, select) { border-color: var(--g-edge); }
+html:is([data-theme='office'], [data-theme='graphite']) :is(.round, .nav-toggle, .idea, .chip.quiet) { background-color: rgba(var(--g-tint), .08); }
+/* Canvas: its pale-pink captions and hints in the quiet ink */
+html:is([data-theme='office'], [data-theme='graphite']) .canvas-page :is(.workspace-context, .free-title p, .empty, .epic-tabs small) { color: var(--ink-soft) !important; }
+html:is([data-theme='office'], [data-theme='graphite']) .canvas-page .search { background: rgba(var(--g-tint), .14); }
+html:is([data-theme='office'], [data-theme='graphite']) .canvas-page .search input::placeholder { color: var(--g-placeholder); }
+/* Graphite: everything written on a card, note or object reads in the soft light ink (their own inks are dark,
+   made for the light pastels) */
+html[data-theme='graphite'] :is(.task, .todo-note, .capture-list li, .habit, .now-card, .today-task, .linked-chip, .pick-card,
+  .pc-story, .pc-activity, .pc-feature, .object, .block, .t-status, .c-icon, .todo-edit, .c-check, .todo-check),
+html[data-theme='graphite'] :is(.task, .todo-note, .capture-list li, .habit, .now-card, .today-task, .pick-card, .pc-story, .pc-activity, .pc-feature, .object, .block) * {
+  color: var(--ink) !important; text-shadow: none !important; }
+html[data-theme='graphite'] .now-badge { color: #f0f1f3 !important; }
+html[data-theme='graphite'] .block-window input { color-scheme: dark; }
+
+/* Ajustes › Red time line */
+.setting-row { display: flex; align-items: flex-start; gap: 14px; margin-top: 22px; padding: 14px; border-radius: 18px; background: rgba(255, 255, 255, .08); cursor: pointer; }
+.setting-check { appearance: none; flex: none; display: grid; place-items: center; width: 28px; height: 28px; margin: 0; border: 2px solid var(--ink-soft);
+  border-radius: 8px; background: rgba(255, 255, 255, .08); cursor: pointer; }   /* drawn by hand: never a white native box (Office) */
+.setting-check::before { content: '✓'; font-size: 18px; font-weight: 900; line-height: 1; color: var(--card-ink); opacity: 0; }
+.setting-check:checked { background: var(--teal); border-color: var(--teal); }
+.setting-check:checked::before { opacity: 1; }
+.setting-text { display: grid; gap: 4px; }
+.setting-text small { color: var(--ink-soft); }
+.red-sample { display: inline-block; width: 22px; height: 0; margin: 0 8px 4px 0; border-top: 3px solid var(--now); vertical-align: middle; }

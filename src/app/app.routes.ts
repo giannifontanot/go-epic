@@ -26,5 +26,6 @@ export const routes: Routes = [
   { path: 'focus', canActivate: [signedIn(true)], loadComponent: () => import('./pages/focus/focus').then((m) => m.Focus) },
   { path: 'canvas', canActivate: [signedIn(true)], canDeactivate: [draftSaved], loadComponent: () => import('./pages/canvas/canvas').then((m) => m.Canvas) },
   { path: 'progress', canActivate: [signedIn(true)], loadComponent: () => import('./pages/progress/progress').then((m) => m.Progress) },
+  { path: 'settings', canActivate: [signedIn(true)], loadComponent: () => import('./pages/settings/settings').then((m) => m.Settings) },
   { path: '**', redirectTo: '' },
 ];

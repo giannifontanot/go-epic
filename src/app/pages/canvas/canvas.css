@@ -11,7 +11,7 @@ button.primary { background:var(--pink); color:var(--card-ink); }button.primary:
 .free-toggle { display:inline-flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:5px 8px; line-height:1.05; }
 .free-toggle .free-label { font-size:10px; text-align:center; max-width:6.5em; }
 .free-toggle .switch { position:relative; flex:none; width:28px; height:16px; border-radius:999px; background:rgba(255,255,255,.2); transition:background .2s; }
-.free-toggle .switch::after { content:''; position:absolute; top:2px; left:2px; width:12px; height:12px; border-radius:50%; background:var(--ink); transition:translate .2s; }
+.free-toggle .switch::after { content:''; position:absolute; top:2px; left:2px; width:12px; height:12px; border-radius:50%; background:var(--light); transition:translate .2s; }
 .free-toggle.on .switch { background:var(--teal); }.free-toggle.on .switch::after { translate:12px 0; }
 
 .split { display:grid; grid-template-columns:minmax(0,1fr) 18px minmax(270px,var(--free-width)); height:max(560px,calc(100dvh - 150px)); min-height:0;
@@ -23,7 +23,7 @@ button.primary { background:var(--pink); color:var(--card-ink); }button.primary:
 h2 { margin:0; font-size:20px; }.heading-spacer { flex:1; }
 .panel-heading button { padding:7px 12px; min-height:40px; }
 select { border:0; border-radius:999px; background:rgba(255,255,255,.1); color:var(--ink); padding:8px 12px; max-width:190px; min-height:40px; }
-select option { color:var(--card-ink); background:var(--ink); }
+select option { color:var(--card-ink); background:var(--light); }
 .epic-tabs { display:flex; gap:8px; padding:8px 16px 14px; overflow-x:auto; flex-shrink:0; }
 .epic-tabs button { text-align:left; min-width:105px; max-width:230px; flex-shrink:0; padding:10px 15px; border-radius:16px; color:var(--ink); }
 .epic-tabs button span,.epic-tabs button small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
