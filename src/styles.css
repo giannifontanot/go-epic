@@ -148,7 +148,7 @@ dialog.status-menu h2 { margin: 0 0 12px; font-size: 20px; overflow-wrap: anywhe
 .quick-add { min-height: 40px; padding: 6px 12px; border: 1px dashed rgba(54, 38, 67, .4); border-radius: 12px; background: rgba(255, 255, 255, .45); color: var(--jelly-ink); font-size: 16px; }
 .quick-add::placeholder { color: rgba(54, 38, 67, .6); }
 
-.now-line { position: absolute; left: -22px; right: -22px; height: 0; border-top: 2px solid #ff3b30; pointer-events: none; }
+.now-line { position: absolute; z-index: 5; left: -22px; right: -22px; height: 0; border-top: 2px solid #ff3b30; pointer-events: none; }   /* over the cards and their pinned notes (Gianni: nothing hides it) */
 .now-badge { position: absolute; right: 26px; top: -11px; padding: 1px 6px; border-radius: 999px; background: #ff3b30; color: #fff; font-size: 11px; font-weight: 800; }
 
 @media (max-width: 820px) {
@@ -617,3 +617,20 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 /* A task at the top of a day keeps its own colour on its paper, as in Capture (not the yellow of a pinned note) */
 .todo-note.own { background: var(--tone, #f7efe2); color: #2a2018; }
 .todo-note.own[data-paper] { background-color: var(--tone, #f7efe2) !important; background-blend-mode: multiply; }
+
+/* Week, while arranging: a second Finish at the foot of the week (Gianni) */
+.finish-foot { display: flex; justify-content: center; padding: 18px 16px calc(24px + env(safe-area-inset-bottom)); }
+.finish-foot .finish { min-height: 44px; padding: 0 22px; font-size: 16px; }
+
+/* Progress: Capture's repeating tasks (Gianni), on their own colour multiplied into their paper as in Capture, so they
+   read as tasks and not as Activities (plum); dark ink and darker dots for contrast on the light paper */
+.habits-title { margin: 22px 4px 10px; font-size: 18px; }
+.habit.todo-habit { background-color: var(--tone, #f7efe2) !important; background-blend-mode: multiply; color: #2a2018; box-shadow: 0 3px 8px rgba(0, 0, 0, .25); }
+.todo-habit .h-head strong { color: #2a2018; text-shadow: 0 1px 2px rgba(255, 255, 255, .6); }
+.todo-habit .streak { background: #2a2018; color: #ffe08a; }
+.todo-habit .streak.zero { background: rgba(42, 32, 24, .12); color: #4a3d30; }
+.todo-habit .dot { background: rgba(42, 32, 24, .08); }
+.todo-habit .dot[data-result='done'] { background: #0d7a70; color: #fff; }
+.todo-habit .dot[data-result='missed'] { background: #c0392b; color: #fff; }
+.todo-habit .dot[data-result='pending'] { background: rgba(255, 255, 255, .55); box-shadow: inset 0 0 0 2px #8a2f52; color: #8a2f52; }
+.todo-habit .dot[data-result='none'] { background: transparent; box-shadow: inset 0 0 0 1px rgba(42, 32, 24, .14); }

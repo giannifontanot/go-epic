@@ -73,6 +73,36 @@ export interface Habit {
   streakCapped: boolean;
 }
 
+/** What a repeating Capture task needs for Progress (todo.model's Todo has these fields). */
+export interface RepeatingTask { id: string; title: string; created: number; repeat: Day[]; doneOn: Record<string, number>; }
+
+/**
+ * Capture's repeating tasks as habits too (Gianni): only the days a task repeats on are planned; a planned day is done
+ * when it was checked that date (`doneOn`), today still open is pending, an earlier one missed. Days before the task
+ * was created never count. Single tasks are not habits. Same streak rules as the Activities.
+ */
+export function taskHabits(tasks: RepeatingTask[], today: Date, count = 14, history = count): Habit[] {
+  const span = Math.max(count, history);
+  const dates: Date[] = [];
+  for (let i = span - 1; i >= 0; i--) dates.push(new Date(today.getFullYear(), today.getMonth(), today.getDate() - i));
+  const todayKey = dateKey(today);
+  const out: Habit[] = [];
+  for (const task of tasks) {
+    if (!task.repeat.length || !task.title.trim()) continue;
+    const born = task.created > 0 ? dateKey(new Date(task.created)) : null;
+    const days = dates.map((date) => {
+      const k = dateKey(date);
+      if (!task.repeat.includes(dayOf(date)) || (born !== null && k < born)) return { date: k, result: 'none' as DayResult };
+      const result: DayResult = task.doneOn[k] !== undefined ? 'done' : k === todayKey ? 'pending' : 'missed';
+      return { date: k, result };
+    });
+    const { streak, capped } = streakInfo(days.map((d) => d.result));
+    const bornBefore = born !== null && born < dateKey(dates[0]);
+    out.push({ key: 'todo:' + task.id, title: task.title.trim(), days: days.slice(-count), streak, streakCapped: capped && bornBefore });
+  }
+  return out.sort((a, b) => b.streak - a.streak || a.title.localeCompare(b.title));
+}
+
 const habitKey = (task: Task): string => task.ref || 'title:' + task.title.trim().toLowerCase();
 
 /**

@@ -187,6 +187,20 @@ export function moveToHour(blocks: Block[], id: string): Block[] {
   return placeBlock(blocks.filter((b) => b.id !== id), block);
 }
 
+/**
+ * A whole day's blocks added to another day (Gianni: copy or move the day): each one lands at its hour among the
+ * blocks already there (`placeBlock`; untimed ones at the end, in their order), under a name unique in that day.
+ * Copies get new ids (`cloneBlock`); a move keeps them. The target day's own blocks are never touched.
+ */
+export function addDayBlocks(target: Block[], source: Block[], mode: 'copy' | 'move'): Block[] {
+  let blocks = [...target];
+  for (const block of source) {
+    const name = uniqueName(blocks.map((b) => b.name), block.name);
+    blocks = placeBlock(blocks, mode === 'copy' ? cloneBlock(block, name) : { ...structuredClone(block), name });
+  }
+  return blocks;
+}
+
 /** A deep, independent copy of a block (new ids), for copying it to another day. */
 export function cloneBlock(block: Block, name: string): Block {
   return { ...block, id: newId(), name, tasks: block.tasks.map((task) => ({ ...task, id: newId() })) };

@@ -8,7 +8,7 @@ export interface Transfer {
   days: Day[];
 }
 
-/** Copy a block to any number of days, or move it to one (the white card Gianni liked). */
+/** Copy a block (or a whole day, `kind: 'day'`) to any number of days, or move it to one (the white card Gianni liked). */
 @Component({
   selector: 'app-transfer-dialog',
   template: `
@@ -16,16 +16,16 @@ export interface Transfer {
             (click)="onBackdrop($event)">
       <header>
         <div>
-          <p class="eyebrow">{{ i18n.t('day.' + day()) }} · {{ blockName() }}</p>
-          <h2 id="transfer-title">{{ i18n.t('week.transfer') }}</h2>
+          <p class="eyebrow">{{ i18n.t('day.' + day()) }}@if (kind() === 'block') { · {{ blockName() }} }</p>
+          <h2 id="transfer-title">{{ i18n.t(kind() === 'day' ? 'week.transferDay' : 'week.transfer') }}</h2>
         </div>
         <button type="button" class="close" [attr.aria-label]="i18n.t('task.cancel')" (click)="leave()">×</button>
       </header>
-      <div class="mode" role="radiogroup" [attr.aria-label]="i18n.t('week.transfer')">
+      <div class="mode" role="radiogroup" [attr.aria-label]="i18n.t(kind() === 'day' ? 'week.transferDay' : 'week.transfer')">
         <button type="button" role="radio" [attr.aria-checked]="mode() === 'copy'" (click)="setMode('copy')">⧉ {{ i18n.t('transfer.copy') }}</button>
         <button type="button" role="radio" [attr.aria-checked]="mode() === 'move'" (click)="setMode('move')">⇄ {{ i18n.t('transfer.move') }}</button>
       </div>
-      <p class="hint">{{ i18n.t(mode() === 'copy' ? 'transfer.hintCopy' : 'transfer.hintMove') }}</p>
+      <p class="hint">{{ i18n.t((kind() === 'day' ? 'transfer.dayHint' : 'transfer.hint') + (mode() === 'copy' ? 'Copy' : 'Move')) }}</p>
       <div class="day-chips" role="group">
         @for (d of days; track d) {
           <button type="button" class="day-chip" [attr.aria-pressed]="picked().includes(d)" [disabled]="d === day()"
@@ -44,7 +44,9 @@ export interface Transfer {
 export class TransferDialog implements AfterViewInit {
   protected readonly i18n = inject(I18n);
   readonly day = input.required<Day>();
-  readonly blockName = input.required<string>();
+  readonly blockName = input('');
+  /** What travels: one block, or every block of the day. */
+  readonly kind = input<'block' | 'day'>('block');
   readonly apply = output<Transfer>();
   readonly cancel = output<void>();
 
