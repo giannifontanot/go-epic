@@ -73,7 +73,7 @@ dialog.app-drawer::backdrop { background: rgba(4, 9, 30, .55); }
 .drawer-links a.on { background: var(--pink); color: var(--card-ink); }
 .drawer-foot { margin-top: auto; display: flex; gap: 8px; flex-wrap: wrap; }
 .drawer-foot .chip { min-height: 44px; }
-.app-error { margin: 8px 16px; padding: 8px 12px; border-radius: 12px; background: #7a2440; color: var(--ink); font-weight: 600; }
+.app-error { margin: 8px 16px; padding: 8px 12px; border-radius: 12px; background: #7a2440; color: #fff4e9; font-weight: 600; }   /* its own light ink: the theme ink can be dark */
 
 /* Sign-in */
 .login { max-width: 420px; margin: 12vh auto 0; display: grid; gap: 16px; justify-items: center; text-align: center; }
