@@ -4,6 +4,7 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { AuthService } from './core/auth.service';
 import { CapturePanel } from './pages/capture/capture-panel';
 import { CaptureUi } from './pages/capture/capture-ui';
+import { Settings } from './pages/settings/settings';
 import { closeDialog, isBackdropClick, openDialog } from './core/dialog';
 import { I18n } from './core/i18n';
 import { LibraryStore } from './core/library.store';
@@ -15,7 +16,7 @@ import { WeekStore } from './core/week.store';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CapturePanel],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, CapturePanel, Settings],
   template: `
     @if (auth.user()) {
       <button type="button" class="nav-toggle" [attr.aria-label]="i18n.t('nav.menu')" [attr.aria-expanded]="menuOpen()"
@@ -33,7 +34,7 @@ import { WeekStore } from './core/week.store';
           <a routerLink="/canvas" routerLinkActive="on" (click)="closeMenu()">{{ i18n.t('nav.canvas') }}</a>
           <a routerLink="/progress" routerLinkActive="on" (click)="closeMenu()">{{ i18n.t('nav.progress') }}</a>
           <button type="button" class="drawer-capture" (click)="openCapture()">✎ {{ i18n.t('capture.title') }}</button>
-          <a routerLink="/settings" routerLinkActive="on" (click)="closeMenu()">⚙ {{ i18n.t('settings.title') }}</a>
+          <button type="button" class="drawer-capture" (click)="openSettings()">⚙ {{ i18n.t('settings.title') }}</button>
         </nav>
         <div class="drawer-foot">
           <button type="button" class="chip quiet" (click)="i18n.toggle()" [attr.aria-label]="i18n.lang() === 'en' ? 'Español' : 'English'">
@@ -44,6 +45,8 @@ import { WeekStore } from './core/week.store';
         </div>
       </dialog>
       <app-capture-panel />
+      <!-- Ajustes: a window over the current page (the theme changes behind it), never a page of its own -->
+      @if (settingsOpen()) { <app-settings (closed)="settingsOpen.set(false)" /> }
       @if (store.error()) {
         <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ store.error() }}
           <button type="button" class="chip quiet" (click)="store.error.set('')">×</button></p>
@@ -130,6 +133,12 @@ export class App {
   }
   protected closeMenu(): void {
     void closeDialog(this.drawer()?.nativeElement);
+  }
+  /** Ajustes from the menu: the menu closes and the settings window opens over the current page. */
+  protected readonly settingsOpen = signal(false);
+  protected openSettings(): void {
+    this.closeMenu();
+    this.settingsOpen.set(true);
   }
   /** Capture from the menu: the menu closes and the panel opens from the pressed row. */
   protected openCapture(): void {
