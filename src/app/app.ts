@@ -57,9 +57,12 @@ import { WeekStore } from './core/week.store';
     }
     <main><router-outlet /></main>
     @if (updateReady()) {
-      <div class="update-bar" role="status">
-        <span>{{ i18n.t('pwa.update') }}</span>
-        <button type="button" class="primary" (click)="reload()">{{ i18n.t('pwa.reload') }}</button>
+      <!-- A new version: it covers the screen with one big glowing button, so it is pressed (Gianni) -->
+      <div class="update-overlay" role="alertdialog" aria-modal="true" aria-labelledby="update-text">
+        <div class="update-card">
+          <p id="update-text">{{ i18n.t('pwa.update') }}</p>
+          <button type="button" class="update-button" (click)="reload()">{{ i18n.t('pwa.reload') }}</button>
+        </div>
       </div>
     }
   `,

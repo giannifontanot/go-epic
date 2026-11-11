@@ -3,7 +3,7 @@ import { I18n } from '../../core/i18n';
 import { THEMES, Theme, ThemeService } from '../../core/theme';
 
 /**
- * Ajustes (from the ☰ menu): the theme, for now. Epic is the colourful look; Office is all quiet greys, so the app
+ * Ajustes (from the ☰ menu): the theme, and whether the Week board's time line is always red. Epic is the colourful look; Office is all quiet greys, so the app
  * draws no attention on a work screen (Gianni). The choice is kept on this device.
  */
 @Component({
@@ -27,6 +27,14 @@ import { THEMES, Theme, ThemeService } from '../../core/theme';
           </button>
         }
       </div>
+      <!-- The time line on the Week board: red, or with the theme (Office keeps it a quiet grey) -->
+      <label class="setting-row">
+        <input type="checkbox" class="setting-check" [checked]="look.redLine()" (change)="look.redLine.set($any($event.target).checked)" />
+        <span class="setting-text">
+          <strong><span class="red-sample" aria-hidden="true"></span>{{ i18n.t('settings.redLine') }}</strong>
+          <small>{{ i18n.t('settings.redLineHint') }}</small>
+        </span>
+      </label>
     </section>
   `,
 })

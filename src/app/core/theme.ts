@@ -6,8 +6,10 @@ export type Theme = (typeof THEMES)[number];
 
 /** This device's choice: each device keeps its own (an office computer can stay discreet while the phone stays Epic). */
 export const THEME_KEY = 'go-epic-theme';
+/** Ajustes › "Red time line": the Week board's now-line always red, even in a quiet theme ('1' = on, this device). */
+export const RED_LINE_KEY = 'go-epic-red-line';
 /** The browser bar colour of each theme (meta theme-color), the page colour. */
-export const THEME_BAR: Record<Theme, string> = { epic: '#101b42', office: '#c8cbcf' };
+export const THEME_BAR: Record<Theme, string> = { epic: '#101b42', office: '#c6c9cd' };
 
 /** A stored value read back: anything unknown is the Epic look. */
 export function parseTheme(value: unknown): Theme {
@@ -21,7 +23,9 @@ export function parseTheme(value: unknown): Theme {
  */
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
-  readonly theme = signal<Theme>(parseTheme(read()));
+  readonly theme = signal<Theme>(parseTheme(read(THEME_KEY)));
+  /** The now-line red whatever the theme (off: it goes with the theme; Epic's is red anyway). */
+  readonly redLine = signal(read(RED_LINE_KEY) === '1');
 
   constructor() {
     effect(() => {
@@ -31,6 +35,12 @@ export class ThemeService {
       document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_BAR[theme]);
       try { localStorage.setItem(THEME_KEY, theme); } catch { /* a view preference */ }
     });
+    effect(() => {
+      const red = this.redLine();
+      if (typeof document === 'undefined') return;
+      if (red) document.documentElement.dataset['redLine'] = ''; else delete document.documentElement.dataset['redLine'];
+      try { localStorage.setItem(RED_LINE_KEY, red ? '1' : '0'); } catch { /* a view preference */ }
+    });
   }
 
   set(theme: Theme): void {
@@ -38,6 +48,6 @@ export class ThemeService {
   }
 }
 
-function read(): string | null {
-  try { return localStorage.getItem(THEME_KEY); } catch { return null; }
+function read(key: string): string | null {
+  try { return localStorage.getItem(key); } catch { return null; }
 }

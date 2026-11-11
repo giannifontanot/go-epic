@@ -11,8 +11,9 @@
       try {
         if (localStorage.getItem('go-epic-theme') === 'office') {
           document.documentElement.dataset.theme = 'office';
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#c8cbcf');
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#c6c9cd');
         }
+        if (localStorage.getItem('go-epic-red-line') === '1') document.documentElement.dataset.redLine = '';
       } catch (e) {}
     </script>
     <meta name="description" content="Plan your week in blocks, then live each day one task at a time." />

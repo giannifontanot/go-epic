@@ -201,7 +201,7 @@ export class WeekBoard {
    * line). The return after 4 s still (`entering` false) only follows a line on screen, and never while arranging,
    * with a window open (dragging only happens while arranging); it does nothing when the line is already in the middle.
    */
-  private centreOnNow(entering: boolean): void {
+  protected centreOnNow(entering: boolean): void {
     const today = document.querySelector<HTMLElement>('article.day.today');
     const line = today?.querySelector<HTMLElement>('.now-line');
     if (!entering && (!line || this.arranging() || document.querySelector('dialog[open]'))) return;
