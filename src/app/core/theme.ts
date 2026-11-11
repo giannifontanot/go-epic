@@ -1,7 +1,7 @@
 import { Injectable, effect, signal } from '@angular/core';
 
 /** The looks Go Epic can wear (Ajustes › Theme). */
-export const THEMES = ['epic', 'office', 'graphite'] as const;
+export const THEMES = ['epic', 'pinkpop', 'petalpunk', 'office', 'graphite'] as const;
 export type Theme = (typeof THEMES)[number];
 
 /** This device's choice: each device keeps its own (an office computer can stay discreet while the phone stays Epic). */
@@ -9,7 +9,7 @@ export const THEME_KEY = 'go-epic-theme';
 /** Ajustes › "Red time line": the Week board's now-line always red, even in a quiet theme ('1' = on, this device). */
 export const RED_LINE_KEY = 'go-epic-red-line';
 /** The browser bar colour of each theme (meta theme-color), the page colour. */
-export const THEME_BAR: Record<Theme, string> = { epic: '#101b42', office: '#c6c9cd', graphite: '#2b2e33' };
+export const THEME_BAR: Record<Theme, string> = { epic: '#101b42', pinkpop: '#fbeaf3', petalpunk: '#1b141f', office: '#c6c9cd', graphite: '#2b2e33' };
 
 /** A stored value read back: anything unknown is the Epic look. */
 export function parseTheme(value: unknown): Theme {
@@ -17,7 +17,7 @@ export function parseTheme(value: unknown): Theme {
 }
 
 /**
- * The theme on <html data-theme="…"> (styles.css redefines the colours for the grey themes, Office and Graphite). index.html
+ * The theme on <html data-theme="…"> (styles.css redefines the colours for each theme but Epic). index.html
  * sets it before Angular starts, so the page never flashes the other look; this keeps it, the meta theme-color and the
  * stored choice in step.
  */

@@ -672,6 +672,12 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 [data-preview='graphite'] .tp-day { background: #34383e; }
 [data-preview='graphite'] .tp-block { background: #3d4147; }
 [data-preview='graphite'] .tp-card, [data-preview='graphite'] .tp-card + .tp-card { background: #4a4e55; }
+[data-preview='pinkpop'] .theme-preview { background: #fbeaf3; }
+[data-preview='pinkpop'] .tp-day { background: linear-gradient(155deg, #f7d7e8, #f0c4dc); }
+[data-preview='pinkpop'] .tp-block { background: #fff7fb; }
+[data-preview='petalpunk'] .theme-preview { background: #1b141f; }
+[data-preview='petalpunk'] .tp-day { background: linear-gradient(155deg, #2e2238, #251b2d); }
+[data-preview='petalpunk'] .tp-block { background: linear-gradient(150deg, #f9a8d4, #f472b6); }
 
 /* ── Grey themes: Office (light greys) and Graphite (dark greys). Nothing that draws attention: no white, no black,
    no bright colour. Each theme sets the colour tokens and the --g-* surfaces below; the rules after them are shared:
@@ -706,7 +712,32 @@ html[data-theme='graphite'] {
   --g-shadow: rgba(0, 0, 0, .3); --g-on-ink: #eef0f2;
   color-scheme: dark;
 }
-html:is([data-theme='office'], [data-theme='graphite'])[data-red-line] { --now: #e0463b; }     /* Ajustes › red line */
+/* Pink Pop and Petal Punk (Gianni's favourites from Epic Manager, "Pro_PinkPop" and "Pro_PetalPunk"): colourful
+   palettes, not grey: pastel cards, gold Done and Canvas colours stay; the page, days, blocks and windows turn pink.
+   They share the structural rules below with the grey themes (shadows, veils, accent inks, tints) through --g-*. */
+html[data-theme='pinkpop'] {
+  --page: #fbeaf3; --ink: #2a1f2b; --ink-soft: #6b5566;
+  --plum-a: #f7d7e8; --plum-b: #f0c4dc; --jelly-a: #fff7fb; --jelly-b: #ffe2f0; --jelly-ink: #3b1d33; --card-ink: #2a1f2b;
+  --pink: #db2777; --teal: #be185d; --red: #be123c; --navy-card: #fff5fb; --light: #fff5fb;
+  --now: #e11d48;
+  --g-lip: #e9a9c8; --g-shadow: rgba(157, 23, 77, .14); --g-soft-ink: #9d174d; --g-end: #db2777; --g-end-ink: #fff5fb;
+  --g-chip: #f5c6dd; --g-badge-ring: #e9a9c8; --g-veil: rgba(80, 20, 50, .35); --g-veil-strong: rgba(80, 20, 50, .6);
+  --g-on-ink: #fff5fb; --g-tint: 157, 23, 77; --g-edge: #e9a9c8; --g-placeholder: #9b7a90;
+  color-scheme: light;
+}
+html[data-theme='pinkpop'] body { min-height: 100dvh; background: linear-gradient(135deg, #fff7fb 0%, #fbeaf3 35%, #f5d6e7 70%, #fff7fb 100%) fixed; }
+html[data-theme='petalpunk'] {
+  --page: #1b141f; --ink: #f6e9f1; --ink-soft: #c7b2c1;
+  --plum-a: #2e2238; --plum-b: #251b2d; --jelly-a: #f9a8d4; --jelly-b: #f472b6; --jelly-ink: #2a1020; --card-ink: #2a1020;
+  --pink: #f472b6; --teal: #f9a8d4; --red: #fb7185; --navy-card: #2e2238; --light: #fde7f3;
+  --now: #fbbf24;                                                  /* gold, so it reads on the pink blocks */
+  --g-lip: #b83f86; --g-shadow: rgba(0, 0, 0, .35); --g-soft-ink: #6b1d4a; --g-end: #ec4899; --g-end-ink: #fff5fb;
+  --g-chip: #3a2b44; --g-badge-ring: #f9a8d4; --g-veil: rgba(10, 4, 12, .55); --g-veil-strong: rgba(10, 4, 12, .75);
+  --g-on-ink: #2a1020; --g-tint: 249, 168, 212; --g-edge: #6b4a66; --g-placeholder: #a58aa0;
+  color-scheme: dark;
+}
+html[data-theme='petalpunk'] body { min-height: 100dvh; background: linear-gradient(145deg, #151018 0%, #1e1722 45%, #251b29 100%) fixed; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='petalpunk'])[data-red-line] { --now: #e0463b; }     /* Ajustes › red line */
 html[data-theme='graphite'][data-red-line] { --now: #d0564c; }
 
 html:is([data-theme='office'], [data-theme='graphite']) :is(main:not(:has(.board)), dialog) { filter: grayscale(1); }
@@ -746,18 +777,18 @@ html:is([data-theme='office'], [data-theme='graphite']) .t-status[data-status='d
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-check, .todo-check) { background: var(--g-check); border-color: var(--g-check-edge); color: var(--g-done-ink); }
 html:is([data-theme='office'], [data-theme='graphite']) .c-check.on { background: var(--g-check-on); border-color: var(--g-end); }
 /* the blocks keep their shape, without the yellow lip */
-html:is([data-theme='office'], [data-theme='graphite']) .block { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 4px 0 var(--g-lip), 0 8px 14px var(--g-shadow); }
-html:is([data-theme='office'], [data-theme='graphite']) .day { box-shadow: 0 6px 16px var(--g-shadow); }
-html:is([data-theme='office'], [data-theme='graphite']) :is(.free, .end-badge, .round:hover:not(:disabled)) { color: var(--g-soft-ink); }
-html:is([data-theme='office'], [data-theme='graphite']) .end-badge { background: var(--g-end); color: var(--g-end-ink); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .block { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 4px 0 var(--g-lip), 0 8px 14px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .day { box-shadow: 0 6px 16px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) :is(.free, .end-badge, .round:hover:not(:disabled)) { color: var(--g-soft-ink); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .end-badge { background: var(--g-end); color: var(--g-end-ink); }
 /* windows: no white card, a grey veil instead of navy */
 html:is([data-theme='office'], [data-theme='graphite']) dialog.transfer, html:is([data-theme='office'], [data-theme='graphite']) dialog.transfer footer button { background: var(--g-window); color: var(--ink); }
-html:is([data-theme='office'], [data-theme='graphite']) .day-chip { background: var(--g-chip); border-color: var(--g-badge-ring); color: var(--ink); }
-html:is([data-theme='office'], [data-theme='graphite']) :is(dialog, dialog.capture-panel, dialog.app-drawer, dialog.editor, dialog.transfer)::backdrop { background: var(--g-veil); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .day-chip { background: var(--g-chip); border-color: var(--g-badge-ring); color: var(--ink); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) :is(dialog, dialog.capture-panel, dialog.app-drawer, dialog.editor, dialog.transfer)::backdrop { background: var(--g-veil); }
 html:is([data-theme='office'], [data-theme='graphite']) .switch-row input::before { background: var(--g-knob); }
-html:is([data-theme='office'], [data-theme='graphite']) :is(.capture-fab, .nav-toggle) { box-shadow: 0 3px 10px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) :is(.capture-fab, .nav-toggle) { box-shadow: 0 3px 10px var(--g-shadow); }
 html:is([data-theme='office'], [data-theme='graphite']) .capture-fab:hover { background: var(--g-control-hover); }
-html:is([data-theme='office'], [data-theme='graphite']) dialog.update-overlay::backdrop { background: var(--g-veil-strong); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) dialog.update-overlay::backdrop { background: var(--g-veil-strong); }
 html:is([data-theme='office'], [data-theme='graphite']) .update-button { background: var(--g-button); color: var(--g-button-ink); animation-name: update-glow-grey; }
 @keyframes update-glow-grey {
   0%, 100% { scale: 1; box-shadow: 0 0 0 3px rgba(var(--g-glow), .7), 0 0 20px 6px rgba(var(--g-glow), .35); }
@@ -765,18 +796,19 @@ html:is([data-theme='office'], [data-theme='graphite']) .update-button { backgro
 }
 html:is([data-theme='office'], [data-theme='graphite']) .sparkle { color: var(--g-sparkle); text-shadow: none; }
 /* text on the accent greys (selected chips, primary buttons, the menu's current page, done dots) */
-html:is([data-theme='office'], [data-theme='graphite']) :is(.chip.quiet.on, .primary, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) :is(.chip.quiet.on, .primary, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
 /* surfaces and round buttons that were white or near-white */
 html:is([data-theme='office'], [data-theme='graphite']) .capture-list { background: var(--g-list); box-shadow: inset 0 1px 3px var(--g-shadow); }
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit) { background: var(--g-control); }
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit):hover:not(:disabled) { background: var(--g-control-hover); }
 html:is([data-theme='office'], [data-theme='graphite']) .block-window input { background: var(--g-input); border-color: var(--g-edge); }
-html:is([data-theme='office'], [data-theme='graphite']) .field :is(input, select) { border-color: var(--g-edge); }
-html:is([data-theme='office'], [data-theme='graphite']) :is(.round, .nav-toggle, .idea, .chip.quiet) { background-color: rgba(var(--g-tint), .08); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .field :is(input, select) { border-color: var(--g-edge); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) :is(.round, .nav-toggle, .idea, .chip.quiet:not(.on)) { background-color: rgba(var(--g-tint), .08); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .stepper { border-color: rgba(var(--g-tint), .25); }
 /* Canvas: its pale-pink captions and hints in the quiet ink */
-html:is([data-theme='office'], [data-theme='graphite']) .canvas-page :is(.workspace-context, .free-title p, .empty, .epic-tabs small) { color: var(--ink-soft) !important; }
-html:is([data-theme='office'], [data-theme='graphite']) .canvas-page .search { background: rgba(var(--g-tint), .14); }
-html:is([data-theme='office'], [data-theme='graphite']) .canvas-page .search input::placeholder { color: var(--g-placeholder); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .canvas-page :is(.workspace-context, .free-title p, .empty, .epic-tabs small) { color: var(--ink-soft) !important; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .canvas-page .search { background: rgba(var(--g-tint), .14); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .canvas-page .search input::placeholder { color: var(--g-placeholder); }
 /* Graphite: everything written on a card, note or object reads in the soft light ink (their own inks are dark,
    made for the light pastels) */
 html[data-theme='graphite'] :is(.task, .todo-note, .capture-list li, .habit, .now-card, .today-task, .linked-chip, .pick-card,
