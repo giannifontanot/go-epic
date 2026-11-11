@@ -65,6 +65,8 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'theme.petalpunkHint': { en: 'Dark and pink, from Epic Manager: deep plum nights with pink petal blocks.', es: 'Oscuro y rosa, de Epic Manager: noches ciruela con bloques de pétalo rosa.' },
   'theme.squeezeme': { en: 'Squeeze Me', es: 'Squeeze Me' },
   'theme.squeezemeHint': { en: 'Light and orange, from Epic Manager: peach pages, apricot days and orange buttons.', es: 'Claro y naranja, de Epic Manager: páginas durazno, días chabacano y botones naranja.' },
+  'theme.sunburnt': { en: 'Sunburnt Toast', es: 'Sunburnt Toast' },
+  'theme.sunburntHint': { en: 'Light and golden orange, from Epic Manager: warm toast pages and golden blocks.', es: 'Claro y naranja dorado, de Epic Manager: páginas tostadas y bloques dorados.' },
   'theme.smokedcitrus': { en: 'Smoked Citrus', es: 'Smoked Citrus' },
   'theme.smokedcitrusHint': { en: 'Dark and orange, from Epic Manager: smoky charcoal with tangerine blocks.', es: 'Oscuro y naranja, de Epic Manager: carbón ahumado con bloques mandarina.' },
   'theme.graphite': { en: 'Graphite', es: 'Grafito' },
