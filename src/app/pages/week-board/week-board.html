@@ -1,4 +1,4 @@
-<section class="board" [class.locked]="!arranging()">
+<section class="board" [class.locked]="!arranging()" [class.has-tray]="overdue().length > 0">
   <!-- Title, then (while arranging) Finish in the middle, and 💡 Capture at the right; the floating ✎ arranges the week. -->
   <header class="board-top week-top">
     <h1>{{ i18n.t('nav.week') }}</h1>
@@ -53,9 +53,9 @@
           </span>
         </header>
 
-        <!-- Capture's tasks for this day that no activity holds (no hour, or an hour outside the blocks), and in today's
-             column the ones left open on earlier days, first (Gianni: they roll over and no longer belong to a block) -->
-        @let strip = day === store.today() ? overdue().concat(pins()[day].loose) : pins()[day].loose;
+        <!-- Capture's tasks for this day that no activity holds (no hour, or an hour outside the blocks). The ones left
+             open on earlier days float at the foot of the screen instead (.overdue-tray, below) -->
+        @let strip = pins()[day].loose;
         @if (strip.length) {
           <ul class="todo-strip" [attr.aria-label]="i18n.t('week.todos')">
             @for (todo of strip; track todo.id) {
@@ -198,6 +198,25 @@
       </article>
     }
   </div>
+
+  <!-- Tasks left open on earlier days (Gianni): they float at the foot of the screen, always in sight, until checked -->
+  @if (overdue().length) {
+    <section class="overdue-tray" [attr.aria-label]="i18n.t('week.overdue')">
+      <p class="overdue-head">{{ i18n.t('week.overdue') }} · {{ overdue().length }}</p>
+      <ul>
+        @for (todo of overdue(); track todo.id) {
+          <li class="todo-note own overdue" [attr.data-paper]="todoPaper(todo)" [style.--tone]="todos.tones().get(todo.id)">
+            <button type="button" class="todo-check" role="checkbox" aria-checked="false"
+                    [attr.aria-label]="i18n.t('capture.check') + ': ' + todo.title"
+                    (click)="todos.setDone(todo.id, true, dates()[store.today()])"></button>
+            <span class="todo-title">{{ todo.title }} <small class="todo-from">{{ fromLabel(todo) }}</small></span>@if (todo.time) { <span class="todo-time">{{ todo.time }}</span> }
+            <button type="button" class="todo-edit" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
+                    (click)="editTodo(todo)">✎</button>
+          </li>
+        }
+      </ul>
+    </section>
+  }
 
   <!-- A second Finish at the foot of the week while arranging (Gianni), so it is at hand after scrolling down -->
   @if (arranging()) {

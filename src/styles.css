@@ -882,3 +882,13 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
 .setting-text { display: grid; gap: 4px; }
 .setting-text small { color: var(--ink-soft); }
 .red-sample { display: inline-block; width: 22px; height: 0; margin: 0 8px 4px 0; border-top: 3px solid var(--now); vertical-align: middle; }
+
+/* Week: the tasks left open on earlier days float at the foot of the screen (Gianni: always in sight), beside the
+   floating ✎; the list scrolls inside when long, and the week leaves room under its last block */
+.overdue-tray { position: fixed; z-index: 15; left: max(12px, env(safe-area-inset-left)); right: calc(max(16px, env(safe-area-inset-right)) + 64px);
+  bottom: max(14px, env(safe-area-inset-bottom)); max-width: 560px; max-height: 34vh; display: flex; flex-direction: column; padding: 8px 8px 8px;
+  border-radius: 18px; background: var(--navy-card); box-shadow: 0 -2px 0 rgba(220, 38, 38, .55), 0 10px 30px rgba(0, 0, 0, .45); }
+.overdue-head { margin: 0 4px 6px; font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft); }
+.overdue-tray ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; overflow-y: auto; overscroll-behavior: contain; }
+.board.has-tray { padding-bottom: min(36vh, 220px); }
+@media (min-width: 821px) { .overdue-tray { left: 50%; right: auto; width: min(560px, calc(100vw - 180px)); translate: -50% 0; } }
