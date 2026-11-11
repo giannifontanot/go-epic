@@ -12,7 +12,7 @@ import { CaptureUi } from '../capture/capture-ui';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { STATUSES, Status, isFinished } from '../../core/status.model';
-import { PinnedTodo, Todo, overdueTodos, pinTodos, stackPins, todosForDate, weekDate } from '../../core/todo.model';
+import { PinnedTodo, Todo, overdueTodos, pastDueTodos, pinTodos, stackPins, todosForDate, weekDate } from '../../core/todo.model';
 import { TodoDialog, TodoSave } from '../capture/todo-dialog';
 import { TodoStore } from '../../core/todo.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
@@ -143,7 +143,7 @@ export class WeekBoard {
     const all = this.todos.todos();
     const week = this.store.week();
     const out = {} as Record<Day, { onTask: Map<string, PinnedTodo[]>; loose: Todo[] }>;
-    const rolled = new Set(this.overdue().map((t) => t.id));                // they moved on to today (top of its column)
+    const rolled = new Set(this.overdue().map((t) => t.id));                // they float in the tray at the foot instead
     for (const day of DAYS) out[day] = pinTodos(week[day], todosForDate(all, this.dates()[day], day).filter((t) => !rolled.has(t.id)));
     return out;
   });
@@ -151,8 +151,19 @@ export class WeekBoard {
   protected todoPaper(todo: Todo): 0 | 1 | 2 {
     return paperAge(todo, this.store.now().getTime()) ?? 0;
   }
-  /** Single tasks left open on earlier days: they roll over to the top of today's column (Gianni). */
-  protected readonly overdue = computed(() => overdueTodos(this.todos.todos(), this.store.todayKey()));
+  /**
+   * The tray at the foot of the screen (Gianni): single tasks left open on earlier days, then today's open tasks whose
+   * hour has already passed (they leave their card, so they show once).
+   */
+  protected readonly overdue = computed(() => {
+    const all = this.todos.todos();
+    const today = this.store.todayKey();
+    return [...overdueTodos(all, today), ...pastDueTodos(all, today, this.store.today(), this.store.nowMinutes())];
+  });
+  /** Under a tray task's name: "from Mon 9" for an earlier day, "Today" for one whose hour has passed. */
+  protected trayLabel(todo: Todo): string {
+    return todo.date !== null && todo.date < this.store.todayKey() ? this.fromLabel(todo) : this.i18n.t('capture.today');
+  }
   /** "from Mon 9": the day an overdue task was for. */
   protected fromLabel(todo: Todo): string {
     const [y, m, d] = (todo.date ?? '').split('-').map(Number);

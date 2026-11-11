@@ -199,7 +199,7 @@
     }
   </div>
 
-  <!-- Tasks left open on earlier days (Gianni): they float at the foot of the screen, always in sight, until checked -->
+  <!-- Tasks left open on earlier days, and today's whose hour has passed (Gianni): they float at the foot of the screen, always in sight, until checked -->
   @if (overdue().length) {
     <section class="overdue-tray" [attr.aria-label]="i18n.t('week.overdue')">
       <p class="overdue-head">{{ i18n.t('week.overdue') }} · {{ overdue().length }}</p>
@@ -209,7 +209,7 @@
             <button type="button" class="todo-check" role="checkbox" aria-checked="false"
                     [attr.aria-label]="i18n.t('capture.check') + ': ' + todo.title"
                     (click)="todos.setDone(todo.id, true, dates()[store.today()])"></button>
-            <span class="todo-title">{{ todo.title }} <small class="todo-from">{{ fromLabel(todo) }}</small></span>@if (todo.time) { <span class="todo-time">{{ todo.time }}</span> }
+            <span class="todo-title">{{ todo.title }} <small class="todo-from">{{ trayLabel(todo) }}</small></span>@if (todo.time) { <span class="todo-time">{{ todo.time }}</span> }
             <button type="button" class="todo-edit" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
                     (click)="editTodo(todo)">✎</button>
           </li>
