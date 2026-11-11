@@ -109,17 +109,19 @@ export class WeekBoard {
     };
     const down = () => { touching = true; stop(); };
     const up = () => { touching = false; arm(); };
+    // A finger is followed by touch events: a native scroll cancels the pointer (pointercancel) while the finger is
+    // still on the glass, so pointer events only count for a mouse or a pen.
+    const pointerDown = (e: PointerEvent) => { if (e.pointerType !== 'touch') down(); };
+    const pointerUp = (e: PointerEvent) => { if (e.pointerType !== 'touch') up(); };
     const opts = { capture: true, passive: true } as const;
-    window.addEventListener('scroll', arm, opts);
-    window.addEventListener('pointerdown', down, opts);
-    window.addEventListener('pointerup', up, opts);
-    window.addEventListener('pointercancel', up, opts);
+    const listeners: [string, EventListener][] = [
+      ['scroll', arm], ['touchstart', down], ['touchend', up], ['touchcancel', up],
+      ['pointerdown', pointerDown as EventListener], ['pointerup', pointerUp as EventListener],
+    ];
+    for (const [type, fn] of listeners) window.addEventListener(type, fn, opts);
     inject(DestroyRef).onDestroy(() => {
       stop();
-      window.removeEventListener('scroll', arm, opts);
-      window.removeEventListener('pointerdown', down, opts);
-      window.removeEventListener('pointerup', up, opts);
-      window.removeEventListener('pointercancel', up, opts);
+      for (const [type, fn] of listeners) window.removeEventListener(type, fn, opts);
     });
   }
   protected readonly mobileDay = signal<Day>(this.store.today());

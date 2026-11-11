@@ -115,7 +115,7 @@ describe('week model', () => {
     expect(moveToHour([b('a', '07:00'), b('c', '06:00')], 'c').map((x) => x.id)).toEqual(['c', 'a']);
   });
 
-  it('copies or moves a whole day: each block at its hour, names unique, the target's blocks kept', () => {
+  it("copies or moves a whole day: each block at its hour, names unique, the target's blocks kept", () => {
     const b = (id: string, name: string, start: string | null): Block => ({ id, name, start, end: null, tasks: [task('t-' + id, 10)] });
     const target = [b('a', 'Gym', '07:00'), b('n', 'Notes', null)];
     const source = [b('x', 'Gym', '06:00'), b('y', 'Read', '08:00'), b('z', 'Free', null)];
