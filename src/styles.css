@@ -151,7 +151,7 @@ dialog.status-menu h2 { margin: 0 0 12px; font-size: 20px; overflow-wrap: anywhe
 .quick-add::placeholder { color: rgba(54, 38, 67, .6); }
 
 .now-line { position: absolute; z-index: 5; left: -22px; right: -22px; height: 0; border-top: 2px solid var(--now); pointer-events: none; }   /* over the cards and their pinned notes (Gianni: nothing hides it) */
-.now-badge { position: absolute; right: 26px; top: -11px; padding: 1px 6px; border: 0; border-radius: 999px; background: var(--now); color: #fff; font-size: 11px; font-weight: 800; line-height: 1.45; min-height: 0; pointer-events: auto; }
+.now-badge { position: absolute; right: 26px; top: -11px; padding: 1px 6px; border: 0; border-radius: 999px; background: var(--now); color: var(--now-ink, #fff); font-size: 11px; font-weight: 800; line-height: 1.45; min-height: 0; pointer-events: auto; }
 .now-badge::before { content: ''; position: absolute; inset: -12px -10px; }   /* a tap target of about 40px around the small badge: a tap centres the line */
 
 @media (max-width: 820px) {
@@ -739,7 +739,7 @@ html[data-theme='petalpunk'] {
   --page: #1b141f; --ink: #f6e9f1; --ink-soft: #c7b2c1;
   --plum-a: #2e2238; --plum-b: #251b2d; --jelly-a: #f9a8d4; --jelly-b: #f472b6; --jelly-ink: #2a1020; --card-ink: #2a1020;
   --pink: #f472b6; --teal: #f9a8d4; --red: #fb7185; --navy-card: #2e2238; --light: #fde7f3;
-  --now: #fbbf24;                                                  /* gold, so it reads on the pink blocks */
+  --now: #fbbf24; --now-ink: #2a1020;                              /* gold, so it reads on the pink blocks; dark time on it */
   --g-lip: #b83f86; --g-shadow: rgba(0, 0, 0, .35); --g-soft-ink: #6b1d4a; --g-end: #ec4899; --g-end-ink: #fff5fb;
   --g-chip: #3a2b44; --g-badge-ring: #f9a8d4; --g-veil: rgba(10, 4, 12, .55); --g-veil-strong: rgba(10, 4, 12, .75);
   --g-on-ink: #2a1020; --g-tint: 249, 168, 212; --g-edge: #6b4a66; --g-placeholder: #a58aa0;
@@ -762,7 +762,7 @@ html[data-theme='smokedcitrus'] {
   --page: #1a1918; --ink: #f5efe8; --ink-soft: #cfc3b6;
   --plum-a: #2c2b29; --plum-b: #232220; --jelly-a: #fdba74; --jelly-b: #fb923c; --jelly-ink: #2a1406; --card-ink: #2a1406;
   --pink: #fb923c; --teal: #fdba74; --red: #f87171; --navy-card: #2c2b29; --light: #ffedd5;
-  --now: #bef264;                                                  /* citrus lime, so it reads on the orange blocks */
+  --now: #bef264; --now-ink: #1c1406;                              /* citrus lime, so it reads on the orange blocks; dark time on it */
   --g-lip: #c2410c; --g-shadow: rgba(0, 0, 0, .4); --g-soft-ink: #7c2d12; --g-end: #f97316; --g-end-ink: #1c1917;
   --g-chip: #3a3632; --g-badge-ring: #fdba74; --g-veil: rgba(8, 6, 4, .55); --g-veil-strong: rgba(8, 6, 4, .75);
   --g-on-ink: #2a1406; --g-tint: 253, 186, 116; --g-edge: #57534e; --g-placeholder: #a8a29e;
@@ -781,7 +781,7 @@ html[data-theme='sunburnt'] {
   color-scheme: light;
 }
 html[data-theme='sunburnt'] body { min-height: 100dvh; background: linear-gradient(135deg, #ffffff 0%, #fff1e5 30%, #ffe0c7 65%, #fff8f1 100%) fixed; }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'])[data-red-line] { --now: #e0463b; }     /* Ajustes › red line */
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'])[data-red-line] { --now: #e0463b; --now-ink: #fff; }     /* Ajustes › red line */
 html[data-theme='graphite'][data-red-line] { --now: #d0564c; }
 
 html:is([data-theme='office'], [data-theme='graphite']) :is(main:not(:has(.board)), dialog) { filter: grayscale(1); }
@@ -842,6 +842,7 @@ html:is([data-theme='office'], [data-theme='graphite']) .update-button { backgro
 html:is([data-theme='office'], [data-theme='graphite']) .sparkle { color: var(--g-sparkle); text-shadow: none; }
 /* text on the accent greys (selected chips, primary buttons, the menu's current page, done dots) */
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.chip.quiet.on, .primary, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.primary, button.primary, .capture-fab):hover:not(:disabled) { background: color-mix(in srgb, var(--pink) 85%, #000) !important; }   /* hover darkens the theme's accent; the fixed pale-pink hover would wash out its ink */
 /* surfaces and round buttons that were white or near-white */
 html:is([data-theme='office'], [data-theme='graphite']) .capture-list { background: var(--g-list); box-shadow: inset 0 1px 3px var(--g-shadow); }
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit) { background: var(--g-control); }
