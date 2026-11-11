@@ -1,4 +1,4 @@
-import { Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/auth.service';
@@ -10,6 +10,7 @@ import { LibraryStore } from './core/library.store';
 import { Tilt } from './core/tilt';
 import { TextSettings } from './core/text-settings';
 import { ThemeService } from './core/theme';
+import { UnsavedWork } from './core/unsaved';
 import { WeekStore } from './core/week.store';
 
 @Component({
@@ -56,15 +57,14 @@ import { WeekStore } from './core/week.store';
       }
     }
     <main><router-outlet /></main>
-    @if (updateReady()) {
-      <!-- A new version: it covers the screen with one big glowing button, so it is pressed (Gianni) -->
-      <div class="update-overlay" role="alertdialog" aria-modal="true" aria-labelledby="update-text">
-        <div class="update-card">
-          <p id="update-text">{{ i18n.t('pwa.update') }}</p>
-          <button type="button" class="update-button" (click)="reload()">{{ i18n.t('pwa.reload') }}</button>
-        </div>
+    <!-- A new version: a native modal window over everything (other windows included) with one big glowing button,
+         so it is pressed (Gianni). It waits while a Canvas draft is unsaved, since the reload would lose it. -->
+    <dialog #updateDialog class="update-overlay" aria-labelledby="update-text" (cancel)="$event.preventDefault()">
+      <div class="update-card">
+        <p id="update-text">{{ i18n.t('pwa.update') }}</p>
+        <button type="button" class="update-button" (click)="reload()">{{ i18n.t('pwa.reload') }}</button>
       </div>
-    }
+    </dialog>
   `,
 })
 export class App {
@@ -84,6 +84,10 @@ export class App {
   /** The menu (☰): a drawer from the left, as in Epic Manager, so every page has the whole screen. */
   protected readonly menuOpen = signal(false);
   private readonly drawer = viewChild<ElementRef<HTMLDialogElement>>('drawer');
+  private readonly updateDialog = viewChild<ElementRef<HTMLDialogElement>>('updateDialog');
+  private readonly unsaved = inject(UnsavedWork);
+  /** The update prompt shows once a version is ready and no unsaved Canvas draft would be lost by the reload. */
+  protected readonly showUpdate = computed(() => this.updateReady() && !this.unsaved.canvasDraft());
 
   constructor() {
     this.tilt.start();   // buttons lean when the phone leans (a visual detail)
@@ -95,6 +99,15 @@ export class App {
       updates.unrecoverable.subscribe(() => location.reload());   // the cached version is broken: load a fresh one
       setInterval(() => updates.checkForUpdate().catch(() => undefined), 30 * 60_000);   // a long-open app still hears of new versions
     }
+
+    effect(() => {
+      const d = this.updateDialog()?.nativeElement;
+      if (!d) return;
+      if (this.showUpdate() && !d.open) {
+        if (typeof d.showModal === 'function') openDialog(d, { escape: false });
+        else d.setAttribute('open', '');                      // no native modal (old browsers, test DOM): just show it
+      } else if (!this.showUpdate() && d.open) d.close?.();
+    });
 
     // Signing out (here or in another tab) leaves the open page for the sign-in page; the guards only run on navigation.
     effect(() => {

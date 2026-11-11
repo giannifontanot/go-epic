@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, HostListener, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
+import { Component, DestroyRef, DoCheck, ElementRef, HostListener, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { AuthService } from '../../core/auth.service';
@@ -6,6 +6,7 @@ import { Kind, LibNode, PARENT_KIND, STARTER_TEMPLATE, TemplateRename, emptyLibr
 import { LibraryStore } from '../../core/library.store';
 import { COLOR_CHOICES, DAYS } from '../../core/week.model';
 import { WeekStore, WeekWrite } from '../../core/week.store';
+import { UnsavedWork } from '../../core/unsaved';
 import { CaptureUi } from '../capture/capture-ui';
 import { CanvasMotion } from './canvas-motion';
 import { CanvasNode } from './canvas-node';
@@ -33,7 +34,7 @@ const FREE_KEY = 'go-epic-canvas-free-space';
   templateUrl: './canvas.html',
   styleUrl: './canvas.css',
 })
-export class Canvas {
+export class Canvas implements DoCheck {
   protected readonly i18n = inject(I18n);
   protected readonly capture = inject(CaptureUi);
   protected readonly libraryStore = inject(LibraryStore);
@@ -94,7 +95,7 @@ export class Canvas {
     });
     // Capture is the 💡 at the top right here, as on the Week; the floating ✎ (an edit button) is not shown on the Canvas.
     this.capture.fab.set({ label: '', run: () => undefined, hidden: true });
-    inject(DestroyRef).onDestroy(() => { this.cancelDrag(); this.motion.destroy(); this.capture.fab.set(null); });
+    inject(DestroyRef).onDestroy(() => { this.cancelDrag(); this.motion.destroy(); this.capture.fab.set(null); this.unsaved.canvasDraft.set(false); });
   }
 
   // --- What the page shows ---
@@ -181,6 +182,12 @@ export class Canvas {
     if (this.state.dirty) { event.preventDefault(); event.returnValue = ''; }
   }
   /** Leaving the page with an unsaved draft asks first (route guard). */
+  /** The update prompt waits while the draft is unsaved (its reload would lose it): the draft's state, after every check. */
+  private readonly unsaved = inject(UnsavedWork);
+  ngDoCheck(): void {
+    if (this.unsaved.canvasDraft() !== this.state.dirty) this.unsaved.canvasDraft.set(this.state.dirty);
+  }
+
   canLeave(): boolean { return !this.state.dirty || confirm(this.i18n.t('canvas.confirmLeave')); }
 
   toggleFree(): void {

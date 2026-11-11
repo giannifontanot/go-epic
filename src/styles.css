@@ -243,9 +243,9 @@ dialog.transfer footer .primary { border-color: var(--pink); background: var(--p
 
 /* New version of the installed app (Gianni: impossible to miss): it covers the screen, a card in the middle with one
    huge glowing button */
-.update-overlay { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 24px max(16px, env(safe-area-inset-right)) 24px max(16px, env(safe-area-inset-left));
-  background: rgba(4, 9, 30, .82); backdrop-filter: blur(4px); }
-.update-card { width: min(440px, 100%); display: grid; gap: 22px; padding: 28px 22px; border-radius: 26px; background: var(--navy-card); color: var(--ink);
+dialog.update-overlay { width: min(440px, calc(100vw - 32px)); max-width: none; padding: 0; border: 0; background: transparent; color: var(--ink); overflow: visible; }
+dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filter: blur(4px); }
+.update-card { width: 100%; display: grid; gap: 22px; padding: 28px 22px; border-radius: 26px; background: var(--navy-card); color: var(--ink);
   text-align: center; box-shadow: 0 25px 90px #000a; }
 .update-card p { margin: 0; font-family: Georgia, serif; font-size: 24px; line-height: 1.25; }
 .update-button { min-height: 96px; padding: 0 20px; border: 0; border-radius: 24px; background: linear-gradient(150deg, #ffc3cf, var(--pink));
@@ -739,7 +739,7 @@ html:is([data-theme='office'], [data-theme='graphite']) :is(dialog, dialog.captu
 html:is([data-theme='office'], [data-theme='graphite']) .switch-row input::before { background: var(--g-knob); }
 html:is([data-theme='office'], [data-theme='graphite']) :is(.capture-fab, .nav-toggle) { box-shadow: 0 3px 10px var(--g-shadow); }
 html:is([data-theme='office'], [data-theme='graphite']) .capture-fab:hover { background: var(--g-control-hover); }
-html:is([data-theme='office'], [data-theme='graphite']) .update-overlay { background: var(--g-veil-strong); }
+html:is([data-theme='office'], [data-theme='graphite']) dialog.update-overlay::backdrop { background: var(--g-veil-strong); }
 html:is([data-theme='office'], [data-theme='graphite']) .update-button { background: var(--g-button); color: var(--g-button-ink); animation-name: update-glow-grey; }
 @keyframes update-glow-grey {
   0%, 100% { scale: 1; box-shadow: 0 0 0 3px rgba(var(--g-glow), .7), 0 0 20px 6px rgba(var(--g-glow), .35); }
