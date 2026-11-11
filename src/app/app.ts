@@ -9,6 +9,7 @@ import { I18n } from './core/i18n';
 import { LibraryStore } from './core/library.store';
 import { Tilt } from './core/tilt';
 import { TextSettings } from './core/text-settings';
+import { ThemeService } from './core/theme';
 import { WeekStore } from './core/week.store';
 
 @Component({
@@ -31,6 +32,7 @@ import { WeekStore } from './core/week.store';
           <a routerLink="/canvas" routerLinkActive="on" (click)="closeMenu()">{{ i18n.t('nav.canvas') }}</a>
           <a routerLink="/progress" routerLinkActive="on" (click)="closeMenu()">{{ i18n.t('nav.progress') }}</a>
           <button type="button" class="drawer-capture" (click)="openCapture()">✎ {{ i18n.t('capture.title') }}</button>
+          <a routerLink="/settings" routerLinkActive="on" (click)="closeMenu()">⚙ {{ i18n.t('settings.title') }}</a>
         </nav>
         <div class="drawer-foot">
           <button type="button" class="chip quiet" (click)="i18n.toggle()" [attr.aria-label]="i18n.lang() === 'en' ? 'Español' : 'English'">
@@ -70,6 +72,8 @@ export class App {
   protected readonly tilt = inject(Tilt);
   /** The text size and letter spacing chosen on the Week board (Aa / AV) apply everywhere from the start. */
   protected readonly text = inject(TextSettings);
+  /** The chosen theme (Ajustes) stays applied on every page. */
+  protected readonly theme = inject(ThemeService);
   private readonly capture = inject(CaptureUi);
   private readonly router = inject(Router);
   /** The installed app (service worker) has downloaded a newer version: offer to switch to it. */

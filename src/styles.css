@@ -634,3 +634,86 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .todo-habit .dot[data-result='missed'] { background: #c0392b; color: #fff; }
 .todo-habit .dot[data-result='pending'] { background: rgba(255, 255, 255, .55); box-shadow: inset 0 0 0 2px #8a2f52; color: #8a2f52; }
 .todo-habit .dot[data-result='none'] { background: transparent; box-shadow: inset 0 0 0 1px rgba(42, 32, 24, .14); }
+
+/* ── Ajustes › Theme ─────────────────────────────────────────────────────────────────────────────────────────────── */
+.settings-page { max-width: 640px; margin: 0 auto; }
+.settings-title { margin: 18px 4px 10px; font-size: 18px; }
+.theme-options { display: grid; gap: 10px; }
+.theme-option { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 72px; padding: 10px 14px 10px 10px; border: 2px solid transparent;
+  border-radius: 18px; background: rgba(255, 255, 255, .08); color: var(--ink); text-align: left; }
+.theme-option.on { border-color: var(--teal); }
+.theme-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.theme-text small { color: var(--ink-soft); }
+.theme-check { flex: none; width: 28px; font-size: 20px; font-weight: 900; color: var(--teal); text-align: center; }
+/* a tiny day of each theme: column, block and two cards, in that theme's own colours */
+.theme-preview { flex: none; width: 64px; height: 52px; padding: 5px; border-radius: 12px; background: #101b42; }
+.tp-day { display: block; height: 100%; padding: 4px; border-radius: 8px; background: linear-gradient(155deg, #8f2859, #621c4b); }
+.tp-block { display: grid; gap: 3px; height: 100%; padding: 3px; border-radius: 6px; background: #f5c945; }
+.tp-card { border-radius: 4px; background: #a7e7e3; }
+.tp-card + .tp-card { background: #ffd5bd; }
+[data-preview='office'] .theme-preview { background: #c6c9cd; }
+[data-preview='office'] .tp-day { background: #b5b9be; }
+[data-preview='office'] .tp-block { background: #c9ccd0; }
+[data-preview='office'] .tp-card, [data-preview='office'] .tp-card + .tp-card { background: #d6d8db; }
+
+/* ── Office theme (Gianni): nothing that draws attention on a work screen. Quiet greys, no white, no bright colour.
+   The colour tokens turn grey; the pages and windows are drawn without colour (grayscale) so every pastel, paper and
+   badge becomes a grey of the same lightness; a few near-white surfaces are toned down by hand. ─────────────────── */
+html[data-theme='office'] {
+  --page: #c6c9cd;
+  --ink: #26292d;
+  --ink-soft: #555a61;
+  --plum-a: #b8bcc1;
+  --plum-b: #b1b5ba;
+  --jelly-a: #cdd0d3;
+  --jelly-b: #c6c9cd;
+  --jelly-ink: #2a2d31;
+  --card-ink: #2a2d31;
+  --pink: #9aa2ab;
+  --teal: #7f8b96;
+  --red: #8f4444;
+  --navy-card: #cfd1d4;
+  color-scheme: light;
+}
+html[data-theme='office'] :is(main, dialog) { filter: grayscale(1); }
+/* cards and notes: one quiet grey, a shade apart from the card above, never white; no paper texture */
+html[data-theme='office'] main [style*='--tone'] { --tone: #d8dadc !important; }
+html[data-theme='office'] main :is(.task, .todo-note, .capture-list li):nth-child(even) { --tone: #d2d4d7 !important; }
+html[data-theme='office'] [data-paper] { background-image: none !important; background-color: var(--tone, #d8dadc) !important; }
+html[data-theme='office'] :is(.todo-note, .pc-story, .pc-activity, .pc-feature) { background: #d8dadc; }
+html[data-theme='office'] .task.done, html[data-theme='office'] .task.done[data-paper] { background: #bfc2c6 !important; background-image: none !important; box-shadow: inset 0 3px 6px rgba(0, 0, 0, .18); }
+html[data-theme='office'] .task.done > * { color: #3d4147; }
+html[data-theme='office'] .t-status { background: #e2e3e5; box-shadow: 0 1px 4px rgba(0, 0, 0, .2); }
+html[data-theme='office'] .t-status[data-status='done'] { background: #e2e3e5; color: #3d4147; box-shadow: 0 0 0 1.5px #9aa0a7; }
+/* the check boxes: grey inside, not white (Gianni) */
+html[data-theme='office'] :is(.c-check, .todo-check) { background: #c3c6ca; border-color: #7d838a; color: #3d4147; }
+html[data-theme='office'] .c-check.on { background: #b3b7bc; border-color: #6c737b; }
+/* the blocks keep their shape, without the yellow lip */
+html[data-theme='office'] .block { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 4px 0 #a9adb3, 0 8px 14px rgba(0, 0, 0, .12); }
+html[data-theme='office'] .day { box-shadow: 0 6px 16px rgba(0, 0, 0, .12); }
+html[data-theme='office'] .now-line { border-top-color: var(--red); }
+html[data-theme='office'] .now-badge { background: var(--red); }
+html[data-theme='office'] :is(.free, .end-badge, .round:hover:not(:disabled)) { color: #4a5058; }
+html[data-theme='office'] .end-badge { background: #6c737b; color: #eceef0; }
+/* windows: no white card, a grey backdrop instead of navy */
+html[data-theme='office'] dialog.transfer, html[data-theme='office'] dialog.transfer footer button { background: #d8dadd; color: #26292d; }
+html[data-theme='office'] .day-chip { background: #bfc3c8; border-color: #9aa0a7; color: #26292d; }
+html[data-theme='office'] :is(dialog, dialog.capture-panel, dialog.app-drawer, dialog.editor, dialog.transfer)::backdrop { background: rgba(70, 74, 80, .45); }
+html[data-theme='office'] .switch-row input::before { background: #e4e5e7; }
+html[data-theme='office'] :is(.capture-fab, .nav-toggle) { box-shadow: 0 3px 10px rgba(0, 0, 0, .18); }
+html[data-theme='office'] .capture-fab:hover { background: #a9b0b8; }
+html[data-theme='office'] .update-bar { background: #cfd1d4; color: #26292d; animation: none; box-shadow: 0 8px 24px rgba(0, 0, 0, .2); }
+html[data-theme='office'] .sparkle { color: #8a9099; text-shadow: none; }
+/* Office: the Ajustes page is not drawn in grey, so each theme's little preview keeps its own colours */
+html[data-theme='office'] main:has(.settings-page) { filter: none; }
+/* Office: surfaces and round buttons that were white or near-white become greys too */
+html[data-theme='office'] .capture-list { background: #cdd0d4; box-shadow: inset 0 1px 3px rgba(0, 0, 0, .12); }
+html[data-theme='office'] :is(.c-icon, .todo-edit) { background: #c4c7cb; }
+html[data-theme='office'] :is(.c-icon, .todo-edit):hover:not(:disabled) { background: #b9bcc1; }
+html[data-theme='office'] .block-window input { background: #d9dbde; border-color: #9fa4aa; }
+html[data-theme='office'] .field :is(input, select) { border-color: #9fa4aa; }
+html[data-theme='office'] :is(.round, .nav-toggle, .idea, .chip.quiet) { background-color: rgba(60, 65, 72, .08); }
+/* Office, Canvas: its pale-pink captions and hints read in the quiet grey ink */
+html[data-theme='office'] .canvas-page :is(.workspace-context, .free-title p, .empty, .epic-tabs small) { color: var(--ink-soft) !important; }
+html[data-theme='office'] .canvas-page .search { background: rgba(60, 65, 72, .14); }
+html[data-theme='office'] .canvas-page .search input::placeholder { color: #6a7078; }
