@@ -38,6 +38,10 @@
         <header class="day-head">
           <h2>{{ i18n.t('day.' + day) }}</h2>
           <span class="day-actions">
+            <!-- While arranging: copy or move the whole day to other days (Gianni), beside ⊟ and + -->
+            @if (arranging() && blocks(day).length) {
+              <button type="button" class="round" [attr.aria-label]="i18n.t('week.transferDay')" [title]="i18n.t('week.transferDay')" (click)="openDayTransfer(day)">⇄</button>
+            }
             <!-- Open / close every block at once (Gianni), beside the + -->
             @if (blocks(day).length) {
               <button type="button" class="round fold-all" [attr.aria-pressed]="allFolded()" [attr.aria-label]="i18n.t(allFolded() ? 'week.unfoldAll' : 'week.foldAll')"
@@ -190,6 +194,11 @@
       </article>
     }
   </div>
+
+  <!-- A second Finish at the foot of the week while arranging (Gianni), so it is at hand after scrolling down -->
+  @if (arranging()) {
+    <div class="finish-foot"><button type="button" class="chip quiet on finish" (click)="toggleArrange()">✓ {{ i18n.t('week.finish') }}</button></div>
+  }
 </section>
 
 @if (editing(); as edit) {
@@ -197,6 +206,9 @@
 }
 @if (transferring(); as tr) {
   <app-transfer-dialog [day]="tr.day" [blockName]="tr.block.name" (apply)="applyTransfer($event)" (cancel)="transferring.set(null)" />
+}
+@if (transferringDay(); as day) {
+  <app-transfer-dialog [day]="day" kind="day" (apply)="applyDayTransfer($event)" (cancel)="transferringDay.set(null)" />
 }
 
 <!-- Today's state of an activity: a long press (or right click) on its card opens this menu -->

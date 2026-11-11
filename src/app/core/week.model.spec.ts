@@ -1,6 +1,6 @@
 import {
   Block, PASTELS, Task, blockColors, cloneBlock, dateKey, dayOf, fits, formatClock, freeMinutes, moveItem, nowPosition,
-  parseClock, placeBlock, stretchedEnd, taskStarts, taskTotal, timeline, uniqueName, validMinutes, windowError, moveToHour,
+  parseClock, placeBlock, stretchedEnd, taskStarts, taskTotal, timeline, uniqueName, validMinutes, windowError, moveToHour, addDayBlocks,
 } from './week.model';
 
 const task = (id: string, minutes: number, extra: Partial<Task> = {}): Task => ({ id, title: id, minutes, color: null, active: true, ref: null, ...extra });
@@ -113,5 +113,21 @@ describe('week model', () => {
     expect(moveToHour(day, 'x').map((x) => x.id)).toEqual(['a', 'c', 'n', 'x']);   // later than every timed block: to the end, as placeBlock does
     expect(moveToHour([b('a', '07:00'), b('n', null), b('c', '09:00')], 'n').map((x) => x.id)).toEqual(['a', 'n', 'c']);
     expect(moveToHour([b('a', '07:00'), b('c', '06:00')], 'c').map((x) => x.id)).toEqual(['c', 'a']);
+  });
+
+  it('copies or moves a whole day: each block at its hour, names unique, the target's blocks kept', () => {
+    const b = (id: string, name: string, start: string | null): Block => ({ id, name, start, end: null, tasks: [task('t-' + id, 10)] });
+    const target = [b('a', 'Gym', '07:00'), b('n', 'Notes', null)];
+    const source = [b('x', 'Gym', '06:00'), b('y', 'Read', '08:00'), b('z', 'Free', null)];
+    const moved = addDayBlocks(target, source, 'move');
+    expect(moved.map((x) => x.id)).toEqual(['x', 'a', 'n', 'y', 'z']);
+    expect(new Set(moved.map((x) => x.name.toLowerCase())).size).toBe(5);              // "Gym" gets a new name
+    expect(moved[0].name).not.toBe('Gym');
+    const copied = addDayBlocks(target, source, 'copy');
+    expect(copied.map((x) => x.start)).toEqual(['06:00', '07:00', null, '08:00', null]);
+    expect(copied.filter((x) => ['x', 'y', 'z'].includes(x.id))).toEqual([]);            // copies get new ids…
+    expect(copied[0].tasks[0].id).not.toBe('t-x');                                      // …their tasks too
+    expect(source.map((x) => x.name)).toEqual(['Gym', 'Read', 'Free']);                 // the source is untouched
+    expect(target.length).toBe(2);
   });
 });

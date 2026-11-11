@@ -3,7 +3,7 @@ import { flip, flipNow } from '../../core/flip';
 import { TextSettings } from '../../core/text-settings';
 import { I18n } from '../../core/i18n';
 import {
-  Block, DAYS, Day, NEW_TASK_MINUTES, Task, WEEK_PX_PER_MIN, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId, stretchedEnd,
+  addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, Task, WEEK_PX_PER_MIN, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId, stretchedEnd,
   moveToHour, nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
 } from '../../core/week.model';
 import { Library, fileTask, followLibrary, nodeById, paperAge, updateNode } from '../../core/library.model';
@@ -153,6 +153,8 @@ export class WeekBoard {
     return { ...week, [edit.day]: { blocks: [draft, ...week[edit.day].blocks] } };
   });
   protected readonly transferring = signal<{ day: Day; block: Block } | null>(null);
+  /** The day whose blocks are being copied or moved (its ⇄ while arranging). */
+  protected readonly transferringDay = signal<Day | null>(null);
 
   /** Where today's now-line sits: the running task and the share of it already gone. */
   protected readonly now = computed(() => nowPosition(this.store.week()[this.store.today()], this.store.nowMinutes()));
@@ -479,6 +481,29 @@ export class WeekBoard {
       this.store.update(day, (blocks) => placeBlock(blocks, placed));       // it lands at its hour
     }
     if (transfer.mode === 'move') this.store.update(from, (blocks) => blocks.filter((b) => b.id !== block.id));
+  }
+
+  protected openDayTransfer(day: Day): void {
+    this.transferringDay.set(day);
+  }
+
+  /**
+   * The whole day copied to the picked days, or moved to one (Gianni): its blocks join the ones there, each at its hour
+   * (`addDayBlocks`); a move then empties this day. Reads the latest saved blocks, not the ones the dialog opened with.
+   */
+  protected applyDayTransfer(transfer: Transfer): void {
+    const from = this.transferringDay();
+    this.transferringDay.set(null);
+    if (!from) return;
+    const source = this.blocks(from);
+    if (!source.length) return;
+    for (const day of transfer.days) {
+      if (day !== from) this.store.update(day, (blocks) => addDayBlocks(blocks, source, transfer.mode));
+    }
+    if (transfer.mode === 'move' && transfer.days.some((d) => d !== from)) {
+      const moved = new Set(source.map((b) => b.id));
+      this.store.update(from, (blocks) => blocks.filter((b) => !moved.has(b.id)));
+    }
   }
 
   // --- Tasks ---

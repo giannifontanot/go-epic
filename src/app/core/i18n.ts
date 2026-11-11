@@ -116,6 +116,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'week.blockUp': { en: 'Move block up', es: 'Subir bloque' },
   'week.blockDown': { en: 'Move block down', es: 'Bajar bloque' },
   'week.transfer': { en: 'Copy or move block', es: 'Copiar o mover bloque' },
+  'week.transferDay': { en: 'Copy or move the whole day', es: 'Copiar o mover el día entero' },
   'week.addTask': { en: 'Add an Activity to this block', es: 'Agregar una Actividad a este bloque' },
   'week.deleteBlock': { en: 'Delete block', es: 'Eliminar bloque' },
   'week.confirmDeleteBlock': { en: 'Delete the block "{block}" and its Activities?', es: '¿Eliminar el bloque "{block}" y sus Actividades?' },
@@ -161,6 +162,8 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'transfer.move': { en: 'Move', es: 'Mover' },
   'transfer.hintCopy': { en: 'Pick one or more days. The block stays here too.', es: 'Elige uno o más días. El bloque también se queda aquí.' },
   'transfer.hintMove': { en: 'Pick the day to move it to.', es: 'Elige el día al que se mueve.' },
+  'transfer.dayHintCopy': { en: 'Pick one or more days. Its blocks join the ones there, each at its hour; this day stays as it is.', es: 'Elige uno o más días. Sus bloques se suman a los que ya hay, cada uno a su hora; este día queda igual.' },
+  'transfer.dayHintMove': { en: 'Pick the day to move it to. Its blocks join the ones there; this day is left empty.', es: 'Elige el día al que se mueve. Sus bloques se suman a los que ya hay; este día queda vacío.' },
 
   'focus.title': { en: 'Focus', es: 'Enfoque' },
   'focus.now': { en: 'Now', es: 'Ahora' },

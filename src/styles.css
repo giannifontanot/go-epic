@@ -617,3 +617,7 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 /* A task at the top of a day keeps its own colour on its paper, as in Capture (not the yellow of a pinned note) */
 .todo-note.own { background: var(--tone, #f7efe2); color: #2a2018; }
 .todo-note.own[data-paper] { background-color: var(--tone, #f7efe2) !important; background-blend-mode: multiply; }
+
+/* Week, while arranging: a second Finish at the foot of the week (Gianni) */
+.finish-foot { display: flex; justify-content: center; padding: 18px 16px calc(24px + env(safe-area-inset-bottom)); }
+.finish-foot .finish { min-height: 44px; padding: 0 22px; font-size: 16px; }
