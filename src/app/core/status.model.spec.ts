@@ -94,8 +94,9 @@ describe('streaks', () => {
 describe('repeating Capture tasks in Progress', () => {
   it('plans only the days a task repeats on, from the day it was created', () => {
     const wednesday = new Date(2026, 10, 11);
-    const gym = { id: 'g', title: 'Gym', created: new Date(2026, 10, 1, 9).getTime(), repeat: ['MONDAY', 'WEDNESDAY'] as const,
-      doneOn: { '2026-11-09': 1, '2026-11-04': 1 } };
+    // created on Tuesday 3 Nov; repeats Monday and Wednesday; checked on Monday 9 only
+    const gym = { id: 'g', title: 'Gym', created: new Date(2026, 10, 3, 9).getTime(), repeat: ['MONDAY', 'WEDNESDAY'] as const,
+      doneOn: { '2026-11-09': 1 } };
     const [habit] = taskHabits([{ ...gym, repeat: [...gym.repeat] }, { id: 'x', title: 'Once', created: 1, repeat: [], doneOn: {} }], wednesday);
     const at = (date: string) => habit.days.find((d) => d.date === date)?.result;
     expect(habit.key).toBe('todo:g');
@@ -103,10 +104,9 @@ describe('repeating Capture tasks in Progress', () => {
     expect(at('2026-11-11')).toBe('pending');      // today, still open
     expect(at('2026-11-10')).toBe('none');         // Tuesday: it does not repeat
     expect(at('2026-11-09')).toBe('done');
-    expect(at('2026-11-04')).toBe('done');
-    expect(at('2026-11-02')).toBe('missed');
-    expect(at('2026-10-28')).toBe('none');         // a Wednesday before it was created
-    expect(habit.streak).toBe(2);
+    expect(at('2026-11-04')).toBe('missed');
+    expect(at('2026-11-02')).toBe('none');         // a Monday before it was created
+    expect(habit.streak).toBe(1);
     expect(habit.streakCapped).toBe(false);
   });
 });
