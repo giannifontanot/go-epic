@@ -40,6 +40,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'progress.none': { en: 'No streak yet', es: 'Aún sin racha' },
   'progress.empty': { en: 'Plan Activities in the Week board to see your streaks here.', es: 'Planea Actividades en la Semana para ver aquí tus rachas.' },
   'progress.legend': { en: 'Last 14 days: ● done · ◐ late · ▶ in progress · ⤼ skipped · ✕ missed · ○ today · blank: not planned', es: 'Últimos 14 días: ● hecho · ◐ tarde · ▶ en progreso · ⤼ saltado · ✕ no hecho · ○ hoy · vacío: no tocaba' },
+  'progress.tasks': { en: 'Repeating tasks', es: 'Tareas que se repiten' },
   'progress.note': { en: 'Streaks read your current week plan.', es: 'Las rachas usan tu plan de semana actual.' },
   'template.button': { en: 'Template', es: 'Plantilla' },
   'template.start': { en: 'Starter template', es: 'Plantilla inicial' },

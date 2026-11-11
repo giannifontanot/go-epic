@@ -621,3 +621,16 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 /* Week, while arranging: a second Finish at the foot of the week (Gianni) */
 .finish-foot { display: flex; justify-content: center; padding: 18px 16px calc(24px + env(safe-area-inset-bottom)); }
 .finish-foot .finish { min-height: 44px; padding: 0 22px; font-size: 16px; }
+
+/* Progress: Capture's repeating tasks (Gianni), on their own colour multiplied into their paper as in Capture, so they
+   read as tasks and not as Activities (plum); dark ink and darker dots for contrast on the light paper */
+.habits-title { margin: 22px 4px 10px; font-size: 18px; }
+.habit.todo-habit { background-color: var(--tone, #f7efe2) !important; background-blend-mode: multiply; color: #2a2018; box-shadow: 0 3px 8px rgba(0, 0, 0, .25); }
+.todo-habit .h-head strong { color: #2a2018; text-shadow: 0 1px 2px rgba(255, 255, 255, .6); }
+.todo-habit .streak { background: #2a2018; color: #ffe08a; }
+.todo-habit .streak.zero { background: rgba(42, 32, 24, .12); color: #4a3d30; }
+.todo-habit .dot { background: rgba(42, 32, 24, .08); }
+.todo-habit .dot[data-result='done'] { background: #0d7a70; color: #fff; }
+.todo-habit .dot[data-result='missed'] { background: #c0392b; color: #fff; }
+.todo-habit .dot[data-result='pending'] { background: rgba(255, 255, 255, .55); box-shadow: inset 0 0 0 2px #8a2f52; color: #8a2f52; }
+.todo-habit .dot[data-result='none'] { background: transparent; box-shadow: inset 0 0 0 1px rgba(42, 32, 24, .14); }
