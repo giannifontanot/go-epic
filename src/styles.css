@@ -683,7 +683,7 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 [data-preview='squeezeme'] .tp-block { background: #fffaf7; }
 [data-preview='smokedcitrus'] .theme-preview { background: #1a1918; }
 [data-preview='smokedcitrus'] .tp-day { background: linear-gradient(155deg, #2c2b29, #232220); }
-[data-preview='smokedcitrus'] .tp-block { background: linear-gradient(150deg, #fdba74, #fb923c); }
+[data-preview='smokedcitrus'] .tp-block { background: linear-gradient(150deg, #47433e, #3b3834); box-shadow: inset 0 1px 0 rgba(251, 146, 60, .5); }
 [data-preview='sunburnt'] .theme-preview { background: #fff1e5; }
 [data-preview='sunburnt'] .tp-day { background: linear-gradient(155deg, #ffe0c7, #fcd0a6); }
 [data-preview='sunburnt'] .tp-block { background: linear-gradient(150deg, #fef3c7, #fcd34d); }
@@ -760,15 +760,22 @@ html[data-theme='squeezeme'] {
 html[data-theme='squeezeme'] body { min-height: 100dvh; background: linear-gradient(135deg, #fffaf7 0%, #fff6ef 35%, #fde7d9 70%, #fffaf7 100%) fixed; }
 html[data-theme='smokedcitrus'] {
   --page: #1a1918; --ink: #f5efe8; --ink-soft: #cfc3b6;
-  --plum-a: #2c2b29; --plum-b: #232220; --jelly-a: #fdba74; --jelly-b: #fb923c; --jelly-ink: #2a1406; --card-ink: #2a1406;
+  --plum-a: #2c2b29; --plum-b: #232220; --jelly-a: #47433e; --jelly-b: #3b3834; --jelly-ink: #f3ece4; --card-ink: #2a1406;   /* blocks in warm smoked stone (Gianni: the orange blocks shouted) */
   --pink: #fb923c; --teal: #fdba74; --red: #f87171; --navy-card: #2c2b29; --light: #ffedd5;
-  --now: #bef264; --now-ink: #1c1406;                              /* citrus lime, so it reads on the orange blocks; dark time on it */
-  --g-lip: #c2410c; --g-shadow: rgba(0, 0, 0, .4); --g-soft-ink: #7c2d12; --g-end: #f97316; --g-end-ink: #1c1917;
+  --now: #bef264; --now-ink: #1c1406;                              /* citrus lime, so it reads on the cards and stone blocks; dark time on it */
+  --g-lip: #7c2d12; --g-shadow: rgba(0, 0, 0, .4); --g-soft-ink: #fdba74; --g-end: #f97316; --g-end-ink: #1c1917;
   --g-chip: #3a3632; --g-badge-ring: #fdba74; --g-veil: rgba(8, 6, 4, .55); --g-veil-strong: rgba(8, 6, 4, .75);
   --g-on-ink: #2a1406; --g-tint: 253, 186, 116; --g-edge: #57534e; --g-placeholder: #a8a29e;
   color-scheme: dark;
 }
 html[data-theme='smokedcitrus'] body { min-height: 100dvh; background: linear-gradient(145deg, #141414 0%, #1c1b19 45%, #211e1b 100%) fixed; }
+/* Smoked Citrus blocks: warm smoked stone with an ember edge (a thin tangerine light on top, a burnt-orange lip below),
+   so the orange stays an accent (day border, buttons, free time) instead of filling every block */
+html[data-theme='smokedcitrus'] .block { box-shadow: inset 0 1px 0 rgba(251, 146, 60, .45), 0 4px 0 #7c2d12, 0 8px 16px rgba(0, 0, 0, .45); }
+html[data-theme='smokedcitrus'] .block-window input { background: #2b2926; border-color: #5c5650; color: var(--jelly-ink); color-scheme: dark; }
+html[data-theme='smokedcitrus'] input.block-name { border-bottom-color: rgba(253, 186, 116, .5); }
+/* the cards stay light pastels: their own buttons keep the dark card ink (the block's ink is light now) */
+html[data-theme='smokedcitrus'] .task .round:not(.danger-x) { color: var(--card-ink); border-color: rgba(42, 20, 6, .45); }
 /* Sunburnt Toast (light): Epic Manager's golden orange ("Pro_SunburntToast"): warm toast pages, golden blocks */
 html[data-theme='sunburnt'] {
   --page: #fff1e5; --ink: #1f2937; --ink-soft: #5c4633;

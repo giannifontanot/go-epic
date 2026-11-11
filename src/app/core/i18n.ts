@@ -68,7 +68,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'theme.sunburnt': { en: 'Sunburnt Toast', es: 'Sunburnt Toast' },
   'theme.sunburntHint': { en: 'Light and golden orange, from Epic Manager: warm toast pages and golden blocks.', es: 'Claro y naranja dorado, de Epic Manager: páginas tostadas y bloques dorados.' },
   'theme.smokedcitrus': { en: 'Smoked Citrus', es: 'Smoked Citrus' },
-  'theme.smokedcitrusHint': { en: 'Dark and orange, from Epic Manager: smoky charcoal with tangerine blocks.', es: 'Oscuro y naranja, de Epic Manager: carbón ahumado con bloques mandarina.' },
+  'theme.smokedcitrusHint': { en: 'Dark and orange, from Epic Manager: smoky charcoal, warm stone blocks with an ember edge.', es: 'Oscuro y naranja, de Epic Manager: carbón ahumado, bloques de piedra cálida con borde de brasa.' },
   'theme.graphite': { en: 'Graphite', es: 'Grafito' },
   'theme.graphiteHint': { en: 'Dark, but easy on the eyes: deep greys, never black.', es: 'Oscuro pero agradable a la vista: grises profundos, nunca negro.' },
   'theme.officeHint': { en: 'Quiet greys that draw no attention on a work screen.', es: 'Grises discretos que no llaman la atención en la oficina.' },
