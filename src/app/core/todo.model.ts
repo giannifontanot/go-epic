@@ -133,6 +133,16 @@ export function overdueTodos(todos: Todo[], today: string): Todo[] {
 }
 
 /**
+ * Today's tasks whose hour has already passed and are still open (Gianni): they join the rolled-over ones in the tray
+ * at the foot of the Week board; a repeating one as today sees it. Soonest first.
+ */
+export function pastDueTodos(todos: Todo[], today: string, day: Day, nowMinutes: number): Todo[] {
+  return todosForDate(todos, today, day)
+    .filter((t) => t.done === null && t.time !== null && (parseClock(t.time) ?? Infinity) < nowMinutes)
+    .sort((a, b) => (a.time ?? '').localeCompare(b.time ?? ''));
+}
+
+/**
  * The check, as a pure step. A single task checked on a later day than its own (it had rolled over to today) moves
  * to that day, so its checked note stays where it was ticked; a repeating task is checked for that date only.
  */
