@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, ElementRef, computed, effect, inject, input, output, signal, untracked, viewChild } from '@angular/core';
+import { DestroyRef, AfterViewInit, Component, ElementRef, computed, effect, inject, input, output, signal, untracked, viewChild } from '@angular/core';
+import { UnsavedWork } from '../../core/unsaved';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { LibNode, Library, Where, WhereLevel, emptyWhere, nodeById, paperAge, pathOf, pickWhere, taskByTitle, tasksWithin, twinTask, whereOf } from '../../core/library.model';
@@ -145,6 +146,9 @@ export interface TaskSave {
   imports: [WhereCard, ColorWindow],
 })
 export class TaskDialog implements AfterViewInit {
+  /** While this editor is open (its changes wait for Done), the update prompt waits too. */
+  private readonly releaseHold = inject(UnsavedWork).holdEditor();
+  private readonly holdCleanup = inject(DestroyRef).onDestroy(() => this.releaseHold());
   protected readonly i18n = inject(I18n);
   readonly edit = input.required<TaskEdit>();
   readonly week = input.required<Week>();

@@ -58,7 +58,7 @@ import { WeekStore } from './core/week.store';
     }
     <main><router-outlet /></main>
     <!-- A new version: a native modal window over everything (other windows included) with one big glowing button,
-         so it is pressed (Gianni). It waits while a Canvas draft is unsaved, since the reload would lose it. -->
+         so it is pressed (Gianni). It waits while a Canvas draft or an editor's changes are unsaved, since the reload would lose them. -->
     <dialog #updateDialog class="update-overlay" aria-labelledby="update-text" (cancel)="$event.preventDefault()">
       <div class="update-card">
         <p id="update-text">{{ i18n.t('pwa.update') }}</p>
@@ -86,8 +86,8 @@ export class App {
   private readonly drawer = viewChild<ElementRef<HTMLDialogElement>>('drawer');
   private readonly updateDialog = viewChild<ElementRef<HTMLDialogElement>>('updateDialog');
   private readonly unsaved = inject(UnsavedWork);
-  /** The update prompt shows once a version is ready and no unsaved Canvas draft would be lost by the reload. */
-  protected readonly showUpdate = computed(() => this.updateReady() && !this.unsaved.canvasDraft());
+  /** The update prompt shows once a version is ready and no unsaved work (Canvas draft, an open editor) would be lost by the reload. */
+  protected readonly showUpdate = computed(() => this.updateReady() && !this.unsaved.any());
 
   constructor() {
     this.tilt.start();   // buttons lean when the phone leans (a visual detail)
