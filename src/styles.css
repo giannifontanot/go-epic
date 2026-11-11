@@ -563,7 +563,7 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .todo-note .todo-time { flex: none; font-size: 12px; opacity: .75; }
 .todo-note.checked { opacity: .65; }
 .todo-note.checked .todo-title { text-decoration: line-through; }
-.todo-stack { position: absolute; right: -10px; left: -10px; z-index: 3; display: grid; gap: 4px; translate: 0 -22px; cursor: default; }
+.todo-stack { position: absolute; right: 8px; left: 8px; z-index: 3; display: grid; gap: 4px; translate: 0 -22px; cursor: default; }
 .todo-note.pinned { rotate: -0.6deg; }
 .todo-note.pinned:nth-child(even) { rotate: 0.5deg; }
 
