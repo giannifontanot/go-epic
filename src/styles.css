@@ -663,81 +663,111 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 [data-preview='office'] .tp-day { background: #b5b9be; }
 [data-preview='office'] .tp-block { background: #c9ccd0; }
 [data-preview='office'] .tp-card, [data-preview='office'] .tp-card + .tp-card { background: #d6d8db; }
+[data-preview='graphite'] .theme-preview { background: #2b2e33; }
+[data-preview='graphite'] .tp-day { background: #34383e; }
+[data-preview='graphite'] .tp-block { background: #3d4147; }
+[data-preview='graphite'] .tp-card, [data-preview='graphite'] .tp-card + .tp-card { background: #4a4e55; }
 
-/* ── Office theme (Gianni): nothing that draws attention on a work screen. Quiet greys, no white, no bright colour.
-   The colour tokens turn grey; the pages and windows are drawn without colour (grayscale) so every pastel, paper and
-   badge becomes a grey of the same lightness; a few near-white surfaces are toned down by hand. ─────────────────── */
+/* ── Grey themes: Office (light greys) and Graphite (dark greys). Nothing that draws attention: no white, no black,
+   no bright colour. Each theme sets the colour tokens and the --g-* surfaces below; the rules after them are shared:
+   pages and windows are drawn without colour (grayscale), so every pastel, paper and badge becomes a grey, and a few
+   surfaces get their grey by hand. ───────────────────────────────────────────────────────────────────────────── */
+/* Office (Gianni): quiet light greys for a work screen */
 html[data-theme='office'] {
-  --page: #c6c9cd;
-  --ink: #26292d;
-  --ink-soft: #555a61;
-  --plum-a: #b8bcc1;
-  --plum-b: #b1b5ba;
-  --jelly-a: #cdd0d3;
-  --jelly-b: #c6c9cd;
-  --jelly-ink: #2a2d31;
-  --card-ink: #2a2d31;
-  --pink: #9aa2ab;
-  --teal: #7f8b96;
-  --red: #8f4444;
-  --navy-card: #cfd1d4;
-  --light: #dfe1e4;
+  --page: #c6c9cd; --ink: #26292d; --ink-soft: #555a61;
+  --plum-a: #b8bcc1; --plum-b: #b1b5ba; --jelly-a: #cdd0d3; --jelly-b: #c6c9cd; --jelly-ink: #2a2d31; --card-ink: #2a2d31;
+  --pink: #9aa2ab; --teal: #7f8b96; --red: #8f4444; --navy-card: #cfd1d4; --light: #dfe1e4;
+  --now: #7c848d;                                                  /* quiet: seen, but it draws no attention */
+  --g-card: #d8dadc; --g-card-2: #d2d4d7; --g-done: #bfc2c6; --g-done-ink: #3d4147; --g-badge: #e2e3e5; --g-badge-ring: #9aa0a7;
+  --g-check: #c3c6ca; --g-check-on: #b3b7bc; --g-check-edge: #7d838a; --g-control: #c4c7cb; --g-control-hover: #b9bcc1;
+  --g-input: #d9dbde; --g-edge: #9fa4aa; --g-list: #cdd0d4; --g-lip: #a9adb3; --g-soft-ink: #4a5058; --g-end: #6c737b; --g-end-ink: #eceef0;
+  --g-window: #d8dadd; --g-chip: #bfc3c8; --g-knob: #e4e5e7; --g-veil: rgba(70, 74, 80, .45); --g-veil-strong: rgba(70, 74, 80, .7);
+  --g-button: #8f98a2; --g-button-ink: #1f2226; --g-glow: 236, 238, 240; --g-tint: 60, 65, 72; --g-placeholder: #6a7078; --g-sparkle: #8a9099;
+  --g-shadow: rgba(0, 0, 0, .12); --g-on-ink: #1f2226;
   color-scheme: light;
 }
-html[data-theme='office'] :is(main:not(:has(.board)), dialog) { filter: grayscale(1); }
+/* Graphite (Gianni): dark, but kind to the eyes: deep greys, never black, and soft grey ink instead of white, so the
+   contrast stays gentle */
+html[data-theme='graphite'] {
+  --page: #2b2e33; --ink: #c9ccd1; --ink-soft: #8f959d;
+  --plum-a: #34383e; --plum-b: #31353a; --jelly-a: #3d4147; --jelly-b: #3a3e44; --jelly-ink: #c9ccd1; --card-ink: #c9ccd1;
+  --pink: #59616b; --teal: #6c7884; --red: #a85a54; --navy-card: #33373d; --light: #3d4147;
+  --now: #858d96;
+  --g-card: #454950; --g-card-2: #41454c; --g-done: #30333a; --g-done-ink: #8f959d; --g-badge: #50555c; --g-badge-ring: #6c737b;
+  --g-check: #50555c; --g-check-on: #5d636b; --g-check-edge: #7d838a; --g-control: #4a4f56; --g-control-hover: #555a62;
+  --g-input: #383c42; --g-edge: #5d636b; --g-list: #363a40; --g-lip: #26292d; --g-soft-ink: #a3a9b0; --g-end: #5d636b; --g-end-ink: #dfe1e4;
+  --g-window: #33373d; --g-chip: #41454c; --g-knob: #9aa0a8; --g-veil: rgba(10, 11, 13, .5); --g-veil-strong: rgba(10, 11, 13, .72);
+  --g-button: #5d6670; --g-button-ink: #e2e4e7; --g-glow: 170, 178, 188; --g-tint: 210, 214, 220; --g-placeholder: #868c94; --g-sparkle: #8a9099;
+  --g-shadow: rgba(0, 0, 0, .3); --g-on-ink: #eef0f2;
+  color-scheme: dark;
+}
+html:is([data-theme='office'], [data-theme='graphite'])[data-red-line] { --now: #e0463b; }     /* Ajustes › red line */
+html[data-theme='graphite'][data-red-line] { --now: #d0564c; }
+
+html:is([data-theme='office'], [data-theme='graphite']) :is(main:not(:has(.board)), dialog) { filter: grayscale(1); }
 /* On the Week board the now-line must keep its colour (it can be red, Ajustes), so everything around it is grayed
    instead of the whole page: the cards' own backgrounds are already greys (--tone below) */
-html[data-theme='office'] .board > :not(.week),
-html[data-theme='office'] .day > :not(.block),
-html[data-theme='office'] .block > :not(.block-body),
-html[data-theme='office'] .block-inner > :not(.tasks),
-html[data-theme='office'] .tasks > .task > :not(.now-line) { filter: grayscale(1); }
-/* cards and notes: one quiet grey, a shade apart from the card above, never white; no paper texture */
-html[data-theme='office'] main [style*='--tone'] { --tone: #d8dadc !important; }
-html[data-theme='office'] main :is(.task, .todo-note, .capture-list li):nth-child(even) { --tone: #d2d4d7 !important; }
-html[data-theme='office'] [data-paper] { background-image: none !important; background-color: var(--tone, #d8dadc) !important; }
-html[data-theme='office'] :is(.todo-note, .pc-story, .pc-activity, .pc-feature) { background: #d8dadc; }
-html[data-theme='office'] .task.done, html[data-theme='office'] .task.done[data-paper] { background: #bfc2c6 !important; background-image: none !important; box-shadow: inset 0 3px 6px rgba(0, 0, 0, .18); }
-html[data-theme='office'] .task.done > * { color: #3d4147; }
-html[data-theme='office'] .t-status { background: #e2e3e5; box-shadow: 0 1px 4px rgba(0, 0, 0, .2); }
-html[data-theme='office'] .t-status[data-status='done'] { background: #e2e3e5; color: #3d4147; box-shadow: 0 0 0 1.5px #9aa0a7; }
-/* the check boxes: grey inside, not white (Gianni) */
-html[data-theme='office'] :is(.c-check, .todo-check) { background: #c3c6ca; border-color: #7d838a; color: #3d4147; }
-html[data-theme='office'] .c-check.on { background: #b3b7bc; border-color: #6c737b; }
+html:is([data-theme='office'], [data-theme='graphite']) .board > :not(.week),
+html:is([data-theme='office'], [data-theme='graphite']) .day > :not(.block),
+html:is([data-theme='office'], [data-theme='graphite']) .block > :not(.block-body),
+html:is([data-theme='office'], [data-theme='graphite']) .block-inner > :not(.tasks),
+html:is([data-theme='office'], [data-theme='graphite']) .tasks > .task > :not(.now-line),
+html:is([data-theme='office'], [data-theme='graphite']) :is(.drag-ghost, .task.won) { filter: grayscale(1); }
+/* the Ajustes page is not grayed, so each theme's little preview keeps its own colours */
+html:is([data-theme='office'], [data-theme='graphite']) main:has(.settings-page) { filter: none; }
+/* cards and notes: one grey, a shade apart from the card above; no paper texture */
+html:is([data-theme='office'], [data-theme='graphite']) :is(main, dialog) [style*='--tone'] { --tone: var(--g-card) !important; }
+html:is([data-theme='office'], [data-theme='graphite']) :is(main, dialog) :is(.task, .todo-note, .capture-list li):nth-child(even) { --tone: var(--g-card-2) !important; }
+html:is([data-theme='office'], [data-theme='graphite']) [data-paper] { background-image: none !important; background-color: var(--tone, var(--g-card)) !important; }
+html:is([data-theme='office'], [data-theme='graphite']) :is(.todo-note, .pc-story, .pc-activity, .pc-feature) { background: var(--g-card); }
+html:is([data-theme='office'], [data-theme='graphite']) .task.done, html:is([data-theme='office'], [data-theme='graphite']) .task.done[data-paper] { background: var(--g-done) !important; background-image: none !important; box-shadow: inset 0 3px 6px rgba(0, 0, 0, .18); }
+html:is([data-theme='office'], [data-theme='graphite']) .task.done > * { color: var(--g-done-ink); }
+html:is([data-theme='office'], [data-theme='graphite']) .t-status { background: var(--g-badge); box-shadow: 0 1px 4px rgba(0, 0, 0, .2); }
+html:is([data-theme='office'], [data-theme='graphite']) .t-status[data-status='done'] { background: var(--g-badge); color: var(--g-done-ink); box-shadow: 0 0 0 1.5px var(--g-badge-ring); }
+/* the check boxes: grey inside, never white (Gianni) */
+html:is([data-theme='office'], [data-theme='graphite']) :is(.c-check, .todo-check) { background: var(--g-check); border-color: var(--g-check-edge); color: var(--g-done-ink); }
+html:is([data-theme='office'], [data-theme='graphite']) .c-check.on { background: var(--g-check-on); border-color: var(--g-end); }
 /* the blocks keep their shape, without the yellow lip */
-html[data-theme='office'] .block { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 4px 0 #a9adb3, 0 8px 14px rgba(0, 0, 0, .12); }
-html[data-theme='office'] .day { box-shadow: 0 6px 16px rgba(0, 0, 0, .12); }
-html[data-theme='office'] { --now: #7c848d; }                     /* quiet: seen, but it draws no attention */
-html[data-theme='office'][data-red-line] { --now: #e0463b; }     /* Ajustes › red line */
-html[data-theme='office'] :is(.free, .end-badge, .round:hover:not(:disabled)) { color: #4a5058; }
-html[data-theme='office'] .end-badge { background: #6c737b; color: #eceef0; }
-/* windows: no white card, a grey backdrop instead of navy */
-html[data-theme='office'] dialog.transfer, html[data-theme='office'] dialog.transfer footer button { background: #d8dadd; color: #26292d; }
-html[data-theme='office'] .day-chip { background: #bfc3c8; border-color: #9aa0a7; color: #26292d; }
-html[data-theme='office'] :is(dialog, dialog.capture-panel, dialog.app-drawer, dialog.editor, dialog.transfer)::backdrop { background: rgba(70, 74, 80, .45); }
-html[data-theme='office'] .switch-row input::before { background: #e4e5e7; }
-html[data-theme='office'] :is(.capture-fab, .nav-toggle) { box-shadow: 0 3px 10px rgba(0, 0, 0, .18); }
-html[data-theme='office'] .capture-fab:hover { background: #a9b0b8; }
-html[data-theme='office'] .update-overlay { background: rgba(70, 74, 80, .7); }
-html[data-theme='office'] .update-button { background: #8f98a2; color: #1f2226; animation-name: update-glow-office; }
-@keyframes update-glow-office {
-  0%, 100% { scale: 1; box-shadow: 0 0 0 3px rgba(236, 238, 240, .7), 0 0 20px 6px rgba(236, 238, 240, .35); }
-  50% { scale: 1.04; box-shadow: 0 0 0 5px rgba(236, 238, 240, 1), 0 0 42px 16px rgba(236, 238, 240, .6); }
+html:is([data-theme='office'], [data-theme='graphite']) .block { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 4px 0 var(--g-lip), 0 8px 14px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite']) .day { box-shadow: 0 6px 16px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite']) :is(.free, .end-badge, .round:hover:not(:disabled)) { color: var(--g-soft-ink); }
+html:is([data-theme='office'], [data-theme='graphite']) .end-badge { background: var(--g-end); color: var(--g-end-ink); }
+/* windows: no white card, a grey veil instead of navy */
+html:is([data-theme='office'], [data-theme='graphite']) dialog.transfer, html:is([data-theme='office'], [data-theme='graphite']) dialog.transfer footer button { background: var(--g-window); color: var(--ink); }
+html:is([data-theme='office'], [data-theme='graphite']) .day-chip { background: var(--g-chip); border-color: var(--g-badge-ring); color: var(--ink); }
+html:is([data-theme='office'], [data-theme='graphite']) :is(dialog, dialog.capture-panel, dialog.app-drawer, dialog.editor, dialog.transfer)::backdrop { background: var(--g-veil); }
+html:is([data-theme='office'], [data-theme='graphite']) .switch-row input::before { background: var(--g-knob); }
+html:is([data-theme='office'], [data-theme='graphite']) :is(.capture-fab, .nav-toggle) { box-shadow: 0 3px 10px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite']) .capture-fab:hover { background: var(--g-control-hover); }
+html:is([data-theme='office'], [data-theme='graphite']) .update-overlay { background: var(--g-veil-strong); }
+html:is([data-theme='office'], [data-theme='graphite']) .update-button { background: var(--g-button); color: var(--g-button-ink); animation-name: update-glow-grey; }
+@keyframes update-glow-grey {
+  0%, 100% { scale: 1; box-shadow: 0 0 0 3px rgba(var(--g-glow), .7), 0 0 20px 6px rgba(var(--g-glow), .35); }
+  50% { scale: 1.04; box-shadow: 0 0 0 5px rgba(var(--g-glow), 1), 0 0 42px 16px rgba(var(--g-glow), .6); }
 }
-html[data-theme='office'] .sparkle { color: #8a9099; text-shadow: none; }
-/* Office: the Ajustes page is not drawn in grey, so each theme's little preview keeps its own colours */
-html[data-theme='office'] main:has(.settings-page) { filter: none; }
-/* Office: surfaces and round buttons that were white or near-white become greys too */
-html[data-theme='office'] .capture-list { background: #cdd0d4; box-shadow: inset 0 1px 3px rgba(0, 0, 0, .12); }
-html[data-theme='office'] :is(.c-icon, .todo-edit) { background: #c4c7cb; }
-html[data-theme='office'] :is(.c-icon, .todo-edit):hover:not(:disabled) { background: #b9bcc1; }
-html[data-theme='office'] .block-window input { background: #d9dbde; border-color: #9fa4aa; }
-html[data-theme='office'] .field :is(input, select) { border-color: #9fa4aa; }
-html[data-theme='office'] :is(.round, .nav-toggle, .idea, .chip.quiet) { background-color: rgba(60, 65, 72, .08); }
-/* Office, Canvas: its pale-pink captions and hints read in the quiet grey ink */
-html[data-theme='office'] .canvas-page :is(.workspace-context, .free-title p, .empty, .epic-tabs small) { color: var(--ink-soft) !important; }
-html[data-theme='office'] .canvas-page .search { background: rgba(60, 65, 72, .14); }
-html[data-theme='office'] .canvas-page .search input::placeholder { color: #6a7078; }
+html:is([data-theme='office'], [data-theme='graphite']) .sparkle { color: var(--g-sparkle); text-shadow: none; }
+/* text on the accent greys (selected chips, primary buttons, the menu's current page, done dots) */
+html:is([data-theme='office'], [data-theme='graphite']) :is(.chip.quiet.on, .primary, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
+/* surfaces and round buttons that were white or near-white */
+html:is([data-theme='office'], [data-theme='graphite']) .capture-list { background: var(--g-list); box-shadow: inset 0 1px 3px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit) { background: var(--g-control); }
+html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit):hover:not(:disabled) { background: var(--g-control-hover); }
+html:is([data-theme='office'], [data-theme='graphite']) .block-window input { background: var(--g-input); border-color: var(--g-edge); }
+html:is([data-theme='office'], [data-theme='graphite']) .field :is(input, select) { border-color: var(--g-edge); }
+html:is([data-theme='office'], [data-theme='graphite']) :is(.round, .nav-toggle, .idea, .chip.quiet) { background-color: rgba(var(--g-tint), .08); }
+/* Canvas: its pale-pink captions and hints in the quiet ink */
+html:is([data-theme='office'], [data-theme='graphite']) .canvas-page :is(.workspace-context, .free-title p, .empty, .epic-tabs small) { color: var(--ink-soft) !important; }
+html:is([data-theme='office'], [data-theme='graphite']) .canvas-page .search { background: rgba(var(--g-tint), .14); }
+html:is([data-theme='office'], [data-theme='graphite']) .canvas-page .search input::placeholder { color: var(--g-placeholder); }
+/* Graphite: everything written on a card, note or object reads in the soft light ink (their own inks are dark,
+   made for the light pastels) */
+html[data-theme='graphite'] :is(.task, .todo-note, .capture-list li, .habit, .now-card, .today-task, .linked-chip, .pick-card,
+  .pc-story, .pc-activity, .pc-feature, .object, .block, .t-status, .c-icon, .todo-edit, .c-check, .todo-check),
+html[data-theme='graphite'] :is(.task, .todo-note, .capture-list li, .habit, .now-card, .today-task, .pick-card, .pc-story, .pc-activity, .pc-feature, .object, .block) * {
+  color: var(--ink) !important; text-shadow: none !important; }
+html[data-theme='graphite'] .now-badge { color: #f0f1f3 !important; }
+html[data-theme='graphite'] .block-window input { color-scheme: dark; }
+
 /* Ajustes › Red time line */
 .setting-row { display: flex; align-items: flex-start; gap: 14px; margin-top: 22px; padding: 14px; border-radius: 18px; background: rgba(255, 255, 255, .08); cursor: pointer; }
 .setting-check { appearance: none; flex: none; display: grid; place-items: center; width: 28px; height: 28px; margin: 0; border: 2px solid var(--ink-soft);
@@ -748,4 +778,3 @@ html[data-theme='office'] .canvas-page .search input::placeholder { color: #6a70
 .setting-text { display: grid; gap: 4px; }
 .setting-text small { color: var(--ink-soft); }
 .red-sample { display: inline-block; width: 22px; height: 0; margin: 0 8px 4px 0; border-top: 3px solid var(--now); vertical-align: middle; }
-html[data-theme='office'] :is(.drag-ghost, .task.won) { filter: grayscale(1); }
