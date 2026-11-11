@@ -117,6 +117,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
 
   'week.arrange': { en: 'Arrange the week', es: 'Organizar la semana' },
   'week.finish': { en: 'Finish arranging', es: 'Terminar' },
+  'week.overdue': { en: 'Still open from earlier days', es: 'Pendientes de días anteriores' },
   'week.todoFrom': { en: 'from {day}', es: 'del {day}' },
   'week.todos': { en: 'Tasks', es: 'Tareas' },
   'week.foldBlock': { en: 'Close this block', es: 'Cerrar este bloque' },
