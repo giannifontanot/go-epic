@@ -126,8 +126,10 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 .board:not(.locked) .t-tools { order: -1; width: 100%; justify-content: center; }   /* edit tools centred (Gianni) */
 @media (pointer: coarse), (max-width: 820px) { .t-tools .round { --tap: 42px; } }   /* ≥ 40px tap targets on phones */
 .task.off { background: #d9d3e3; text-decoration: line-through; }
-.task.done { background: #d6d6dc; box-shadow: inset 0 3px 6px rgba(0, 0, 0, .18); translate: 0 4px; }
-.task.done > * { color: #5c5966; }
+/* Done (Gianni: "más glorioso"): pressed in, on pale gold with a gold rim, readable dark-gold ink */
+.task.done { background: linear-gradient(150deg, #fff6d2, #f6d77a); translate: 0 4px;
+  box-shadow: inset 0 0 0 2px #e3b23c, inset 0 3px 7px rgba(140, 90, 0, .28); }
+.task.done > * { color: #4d3a0c; }
 /* States of today's tasks (status.model): late is done with an amber mark, in progress has a teal ring, skipped is faded and struck */
 .task[data-status='late'], .today-task[data-status='late'], .now-card[data-status='late'] { box-shadow: inset 0 0 0 3px #f5a623; }
 .task[data-status='progress'], .today-task[data-status='progress'], .now-card[data-status='progress'] { outline: 3px solid var(--teal); outline-offset: 2px; }
@@ -353,7 +355,7 @@ html.tilt .object { translate: calc(var(--ox, 0px) + (max(var(--tilt-k), 0) * va
 .task[data-paper]:not(.done):not(.off), .capture-list li[data-paper], .pc-activity[data-paper] { color: #2a2018; }
 .task[data-paper]:not(.done):not(.off) :is(.t-title, .t-time, .t-dur), .capture-list li[data-paper] :is(.c-text, .c-icon), .pc-activity[data-paper] strong {
   color: #2a2018; text-shadow: 0 1px 2px rgba(255, 255, 255, .65); }
-.task.done[data-paper] { background-image: none !important; background-color: #d6d6dc !important; }
+.task.done[data-paper] { background-image: linear-gradient(150deg, #fff6d2, #f6d77a) !important; background-color: #f6d77a !important; }
 .task.off[data-paper] { background-image: none !important; background-color: #d9d3e3 !important; }
 .capture-list li[data-paper] { box-shadow: 0 2px 6px rgba(0, 0, 0, .25); }
 
@@ -570,7 +572,28 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 /* Today's state on a Week card (tap = Done, long press = menu): a badge in the middle of the card */
 .t-status { position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 2; padding: 4px 12px; border-radius: 999px; white-space: nowrap;
   background: rgba(255, 255, 255, .92); color: #302746; font-size: 14px; font-weight: 800; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); pointer-events: none; }
-.t-status[data-status='done'] { color: #0d7a70; }
+.t-status[data-status='done'] { display: inline-flex; align-items: center; gap: 4px; color: #8a5a00; background: #fffbea; box-shadow: 0 0 0 2px #e3b23c, 0 2px 10px rgba(227, 178, 60, .55); }
+.t-check { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+/* Just done (.won, added for 1.1 s by WeekBoard.celebrate): a gold flash, a little bounce, the ✓ draws itself */
+.task.won { animation: task-won 1s cubic-bezier(.2, .8, .3, 1); z-index: 4; }
+@keyframes task-won {
+  0% { scale: 1; box-shadow: 0 0 0 0 rgba(255, 214, 92, .9); filter: brightness(1.25); }
+  25% { scale: 1.05; box-shadow: 0 0 0 6px rgba(255, 214, 92, .75), 0 0 26px 8px rgba(255, 200, 60, .7); filter: brightness(1.2); }
+  60% { scale: .99; box-shadow: 0 0 0 3px rgba(255, 214, 92, .4), 0 0 16px 4px rgba(255, 200, 60, .35); filter: brightness(1.05); }
+  100% { scale: 1; filter: none; }
+}
+.task.won .t-check path { stroke-dasharray: 24; stroke-dashoffset: 24; animation: check-draw .45s .15s ease-out forwards; }
+.task.won .t-status { animation: badge-pop .5s cubic-bezier(.2, .9, .3, 1.4); }
+@keyframes check-draw { to { stroke-dashoffset: 0; } }
+@keyframes badge-pop { 0% { scale: .4; opacity: 0; } 100% { scale: 1; opacity: 1; } }
+/* A block whose activities are all done: gold sparkles burst out of its middle (fixed, placed by WeekBoard.sparkle) */
+.sparkle { position: fixed; z-index: 60; pointer-events: none; color: #ffd75a; font-size: 20px; line-height: 1;
+  text-shadow: 0 0 6px rgba(255, 200, 60, .9); translate: -50% -50%; opacity: 0; animation: sparkle-fly .95s var(--sd, 0ms) ease-out forwards; }
+@keyframes sparkle-fly {
+  0% { opacity: 0; transform: translate(0, 0) scale(.3) rotate(0); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(1.1) rotate(160deg); }
+}
 .t-status[data-status='late'] { color: #b45309; }
 .t-status[data-status='progress'] { color: #1d4ed8; }
 .t-status[data-status='skipped'] { color: #6b7280; }

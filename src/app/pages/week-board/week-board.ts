@@ -11,7 +11,7 @@ import { LibraryStore } from '../../core/library.store';
 import { CaptureUi } from '../capture/capture-ui';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
-import { STATUSES, Status } from '../../core/status.model';
+import { STATUSES, Status, isFinished } from '../../core/status.model';
 import { PinnedTodo, Todo, overdueTodos, pinTodos, stackPins, todosForDate, weekDate } from '../../core/todo.model';
 import { TodoDialog, TodoSave } from '../capture/todo-dialog';
 import { TodoStore } from '../../core/todo.store';
@@ -316,7 +316,52 @@ export class WeekBoard {
     if (this.arranging()) { this.openTask(day, block, task); return; }
     if (this.longPressed) { this.longPressed = false; return; }          // the long press already opened the menu
     if (day !== this.store.today()) return;
-    this.store.setDone(task.id, !this.store.isDone(task.id));
+    const done = !this.store.isDone(task.id);
+    this.store.setDone(task.id, done);
+    if (done) this.celebrate(block, task);
+  }
+
+  /**
+   * A task just done (Gianni: "más glorioso"): the card flashes gold, its ✓ draws itself and the phone gives a short
+   * double buzz; when it was the block's last open activity, a few gold sparkles burst from the block. The card then
+   * rests pressed in, on pale gold. Under reduced motion only the resting look changes.
+   */
+  private celebrate(block: Block, task: Task): void {
+    if (typeof document === 'undefined' || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    navigator.vibrate?.([12, 40, 24]);
+    const blockDone = block.tasks.every((t) => !t.active || t.id === task.id || this.store.isDone(t.id));
+    requestAnimationFrame(() => {
+      const card = document.querySelector<HTMLElement>(`.task[data-status][data-task="${CSS.escape(task.id)}"]`);
+      if (!card) return;
+      card.classList.remove('won');
+      void card.offsetWidth;                                   // restart the flash on a quick second Done
+      card.classList.add('won');
+      setTimeout(() => card.classList.remove('won'), 1100);
+      const host = card.closest<HTMLElement>('.block');
+      if (blockDone && host) this.sparkle(host);
+    });
+  }
+
+  /** Gold sparkles flying out of the middle of a block whose activities are all done (fixed to the screen); removed when they fade. */
+  private sparkle(host: HTMLElement): void {
+    const n = 12;
+    const box = host.getBoundingClientRect();
+    for (let i = 0; i < n; i++) {
+      const s = document.createElement('span');
+      s.className = 'sparkle';
+      s.style.left = `${box.left + box.width / 2}px`;
+      s.style.top = `${box.top + box.height / 2}px`;
+      s.setAttribute('aria-hidden', 'true');
+      const angle = (i / n) * Math.PI * 2 + Math.random() * 0.4;
+      const dist = 50 + Math.random() * 40;
+      s.style.setProperty('--sx', `${Math.cos(angle) * dist}px`);
+      s.style.setProperty('--sy', `${Math.sin(angle) * dist}px`);
+      s.style.setProperty('--sd', `${Math.round(Math.random() * 120)}ms`);
+      s.textContent = i % 3 ? '✦' : '★';
+      document.body.appendChild(s);
+      s.addEventListener('animationend', () => s.remove(), { once: true });
+      setTimeout(() => s.remove(), 1500);
+    }
   }
 
   protected cardMenu(event: Event, day: Day, task: Task): void {
@@ -333,7 +378,12 @@ export class WeekBoard {
   }
   protected pickStatus(status: Status): void {
     const task = this.picking();
-    if (task) this.store.setStatus(task.id, status);
+    if (task) {
+      const before = this.store.isDone(task.id);
+      this.store.setStatus(task.id, status);
+      const block = this.blocks(this.store.today()).find((b) => b.tasks.some((t) => t.id === task.id));
+      if (!before && isFinished(status) && block) this.celebrate(block, task);
+    }
     void closeDialog(this.statusDialog()?.nativeElement);
   }
   protected onStatusBackdrop(event: MouseEvent): void {
