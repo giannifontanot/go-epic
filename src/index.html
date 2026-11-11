@@ -9,7 +9,7 @@
     <!-- The theme chosen in Ajustes (core/theme.ts), set before the app starts so the page never flashes the other look -->
     <script>
       try {
-        var bar = { office: '#c6c9cd', graphite: '#2b2e33' }[localStorage.getItem('go-epic-theme')];
+        var bar = { pinkpop: '#fbeaf3', petalpunk: '#1b141f', squeezeme: '#fff6ef', sunburnt: '#fff1e5', smokedcitrus: '#1a1918', office: '#c6c9cd', graphite: '#2b2e33' }[localStorage.getItem('go-epic-theme')];
         if (bar) {
           document.documentElement.dataset.theme = localStorage.getItem('go-epic-theme');
           document.querySelector('meta[name="theme-color"]').setAttribute('content', bar);
