@@ -678,6 +678,12 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 [data-preview='petalpunk'] .theme-preview { background: #1b141f; }
 [data-preview='petalpunk'] .tp-day { background: linear-gradient(155deg, #2e2238, #251b2d); }
 [data-preview='petalpunk'] .tp-block { background: linear-gradient(150deg, #f9a8d4, #f472b6); }
+[data-preview='squeezeme'] .theme-preview { background: #fff6ef; }
+[data-preview='squeezeme'] .tp-day { background: linear-gradient(155deg, #fde7d9, #fbd5bd); }
+[data-preview='squeezeme'] .tp-block { background: #fffaf7; }
+[data-preview='smokedcitrus'] .theme-preview { background: #1a1918; }
+[data-preview='smokedcitrus'] .tp-day { background: linear-gradient(155deg, #2c2b29, #232220); }
+[data-preview='smokedcitrus'] .tp-block { background: linear-gradient(150deg, #fdba74, #fb923c); }
 
 /* ── Grey themes: Office (light greys) and Graphite (dark greys). Nothing that draws attention: no white, no black,
    no bright colour. Each theme sets the colour tokens and the --g-* surfaces below; the rules after them are shared:
@@ -737,7 +743,30 @@ html[data-theme='petalpunk'] {
   color-scheme: dark;
 }
 html[data-theme='petalpunk'] body { min-height: 100dvh; background: linear-gradient(145deg, #151018 0%, #1e1722 45%, #251b29 100%) fixed; }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='petalpunk'])[data-red-line] { --now: #e0463b; }     /* Ajustes › red line */
+/* Squeeze Me (light) and Smoked Citrus (dark): the orange pair from Epic Manager ("Pro_SqueezeMe", "Pro_SmokedCitrus") */
+html[data-theme='squeezeme'] {
+  --page: #fff6ef; --ink: #1f2937; --ink-soft: #5b4a3f;
+  --plum-a: #fde7d9; --plum-b: #fbd5bd; --jelly-a: #fffaf7; --jelly-b: #ffedd5; --jelly-ink: #3a1f0d; --card-ink: #1f2937;
+  --pink: #ea580c; --teal: #c2410c; --red: #b91c1c; --navy-card: #fffaf7; --light: #fffaf7;
+  --now: #dc2626;
+  --g-lip: #f3b48a; --g-shadow: rgba(154, 52, 18, .14); --g-soft-ink: #9a3412; --g-end: #ea580c; --g-end-ink: #fffaf7;
+  --g-chip: #fcd9bf; --g-badge-ring: #f3b48a; --g-veil: rgba(80, 35, 10, .35); --g-veil-strong: rgba(80, 35, 10, .6);
+  --g-on-ink: #fffaf7; --g-tint: 154, 52, 18; --g-edge: #f3b48a; --g-placeholder: #a07a64;
+  color-scheme: light;
+}
+html[data-theme='squeezeme'] body { min-height: 100dvh; background: linear-gradient(135deg, #fffaf7 0%, #fff6ef 35%, #fde7d9 70%, #fffaf7 100%) fixed; }
+html[data-theme='smokedcitrus'] {
+  --page: #1a1918; --ink: #f5efe8; --ink-soft: #cfc3b6;
+  --plum-a: #2c2b29; --plum-b: #232220; --jelly-a: #fdba74; --jelly-b: #fb923c; --jelly-ink: #2a1406; --card-ink: #2a1406;
+  --pink: #fb923c; --teal: #fdba74; --red: #f87171; --navy-card: #2c2b29; --light: #ffedd5;
+  --now: #bef264;                                                  /* citrus lime, so it reads on the orange blocks */
+  --g-lip: #c2410c; --g-shadow: rgba(0, 0, 0, .4); --g-soft-ink: #7c2d12; --g-end: #f97316; --g-end-ink: #1c1917;
+  --g-chip: #3a3632; --g-badge-ring: #fdba74; --g-veil: rgba(8, 6, 4, .55); --g-veil-strong: rgba(8, 6, 4, .75);
+  --g-on-ink: #2a1406; --g-tint: 253, 186, 116; --g-edge: #57534e; --g-placeholder: #a8a29e;
+  color-scheme: dark;
+}
+html[data-theme='smokedcitrus'] body { min-height: 100dvh; background: linear-gradient(145deg, #141414 0%, #1c1b19 45%, #211e1b 100%) fixed; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'])[data-red-line] { --now: #e0463b; }     /* Ajustes › red line */
 html[data-theme='graphite'][data-red-line] { --now: #d0564c; }
 
 html:is([data-theme='office'], [data-theme='graphite']) :is(main:not(:has(.board)), dialog) { filter: grayscale(1); }
@@ -777,18 +806,18 @@ html:is([data-theme='office'], [data-theme='graphite']) .t-status[data-status='d
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-check, .todo-check) { background: var(--g-check); border-color: var(--g-check-edge); color: var(--g-done-ink); }
 html:is([data-theme='office'], [data-theme='graphite']) .c-check.on { background: var(--g-check-on); border-color: var(--g-end); }
 /* the blocks keep their shape, without the yellow lip */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .block { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 4px 0 var(--g-lip), 0 8px 14px var(--g-shadow); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .day { box-shadow: 0 6px 16px var(--g-shadow); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) :is(.free, .end-badge, .round:hover:not(:disabled)) { color: var(--g-soft-ink); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .end-badge { background: var(--g-end); color: var(--g-end-ink); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus']) .block { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 4px 0 var(--g-lip), 0 8px 14px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus']) .day { box-shadow: 0 6px 16px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus']) :is(.free, .end-badge, .round:hover:not(:disabled)) { color: var(--g-soft-ink); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus']) .end-badge { background: var(--g-end); color: var(--g-end-ink); }
 /* windows: no white card, a grey veil instead of navy */
 html:is([data-theme='office'], [data-theme='graphite']) dialog.transfer, html:is([data-theme='office'], [data-theme='graphite']) dialog.transfer footer button { background: var(--g-window); color: var(--ink); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .day-chip { background: var(--g-chip); border-color: var(--g-badge-ring); color: var(--ink); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) :is(dialog, dialog.capture-panel, dialog.app-drawer, dialog.editor, dialog.transfer)::backdrop { background: var(--g-veil); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus']) .day-chip { background: var(--g-chip); border-color: var(--g-badge-ring); color: var(--ink); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus']) :is(dialog, dialog.capture-panel, dialog.app-drawer, dialog.editor, dialog.transfer)::backdrop { background: var(--g-veil); }
 html:is([data-theme='office'], [data-theme='graphite']) .switch-row input::before { background: var(--g-knob); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) :is(.capture-fab, .nav-toggle) { box-shadow: 0 3px 10px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus']) :is(.capture-fab, .nav-toggle) { box-shadow: 0 3px 10px var(--g-shadow); }
 html:is([data-theme='office'], [data-theme='graphite']) .capture-fab:hover { background: var(--g-control-hover); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) dialog.update-overlay::backdrop { background: var(--g-veil-strong); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus']) dialog.update-overlay::backdrop { background: var(--g-veil-strong); }
 html:is([data-theme='office'], [data-theme='graphite']) .update-button { background: var(--g-button); color: var(--g-button-ink); animation-name: update-glow-grey; }
 @keyframes update-glow-grey {
   0%, 100% { scale: 1; box-shadow: 0 0 0 3px rgba(var(--g-glow), .7), 0 0 20px 6px rgba(var(--g-glow), .35); }
@@ -796,19 +825,19 @@ html:is([data-theme='office'], [data-theme='graphite']) .update-button { backgro
 }
 html:is([data-theme='office'], [data-theme='graphite']) .sparkle { color: var(--g-sparkle); text-shadow: none; }
 /* text on the accent greys (selected chips, primary buttons, the menu's current page, done dots) */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) :is(.chip.quiet.on, .primary, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus']) :is(.chip.quiet.on, .primary, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
 /* surfaces and round buttons that were white or near-white */
 html:is([data-theme='office'], [data-theme='graphite']) .capture-list { background: var(--g-list); box-shadow: inset 0 1px 3px var(--g-shadow); }
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit) { background: var(--g-control); }
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit):hover:not(:disabled) { background: var(--g-control-hover); }
 html:is([data-theme='office'], [data-theme='graphite']) .block-window input { background: var(--g-input); border-color: var(--g-edge); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .field :is(input, select) { border-color: var(--g-edge); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) :is(.round, .nav-toggle, .idea, .chip.quiet:not(.on)) { background-color: rgba(var(--g-tint), .08); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .stepper { border-color: rgba(var(--g-tint), .25); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus']) .field :is(input, select) { border-color: var(--g-edge); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus']) :is(.round, .nav-toggle, .idea, .chip.quiet:not(.on)) { background-color: rgba(var(--g-tint), .08); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus']) .stepper { border-color: rgba(var(--g-tint), .25); }
 /* Canvas: its pale-pink captions and hints in the quiet ink */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .canvas-page :is(.workspace-context, .free-title p, .empty, .epic-tabs small) { color: var(--ink-soft) !important; }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .canvas-page .search { background: rgba(var(--g-tint), .14); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk']) .canvas-page .search input::placeholder { color: var(--g-placeholder); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus']) .canvas-page :is(.workspace-context, .free-title p, .empty, .epic-tabs small) { color: var(--ink-soft) !important; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus']) .canvas-page .search { background: rgba(var(--g-tint), .14); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus']) .canvas-page .search input::placeholder { color: var(--g-placeholder); }
 /* Graphite: everything written on a card, note or object reads in the soft light ink (their own inks are dark,
    made for the light pastels) */
 html[data-theme='graphite'] :is(.task, .todo-note, .capture-list li, .habit, .now-card, .today-task, .linked-chip, .pick-card,
