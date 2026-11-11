@@ -644,8 +644,13 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .todo-habit .dot[data-result='none'] { background: transparent; box-shadow: inset 0 0 0 1px rgba(42, 32, 24, .14); }
 
 /* ── Ajustes › Theme ─────────────────────────────────────────────────────────────────────────────────────────────── */
-.settings-page { max-width: 640px; margin: 0 auto; }
-.settings-title { margin: 18px 4px 10px; font-size: 18px; }
+.settings-window { width: min(520px, calc(100vw - 24px)); max-height: min(90dvh, 760px); padding: 18px 20px 20px; border: 0; border-radius: 22px;
+  background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; overflow-y: auto; }
+.settings-window::backdrop { background: rgba(4, 9, 30, .3); }   /* light, so the theme just picked shows behind */
+.settings-head { display: flex; align-items: center; justify-content: space-between; }
+.settings-head h2 { margin: 0; font-size: 24px; }
+.settings-foot { display: flex; justify-content: flex-end; margin-top: 18px; }
+.settings-title { margin: 14px 4px 10px; font-size: 17px; }
 .theme-options { display: grid; gap: 10px; }
 .theme-option { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 72px; padding: 10px 14px 10px 10px; border: 2px solid transparent;
   border-radius: 18px; background: rgba(255, 255, 255, .08); color: var(--ink); text-align: left; }
@@ -713,8 +718,8 @@ html:is([data-theme='office'], [data-theme='graphite']) .block > :not(.block-bod
 html:is([data-theme='office'], [data-theme='graphite']) .block-inner > :not(.tasks),
 html:is([data-theme='office'], [data-theme='graphite']) .tasks > .task > :not(.now-line),
 html:is([data-theme='office'], [data-theme='graphite']) :is(.drag-ghost, .task.won) { filter: grayscale(1); }
-/* the Ajustes page is not grayed, so each theme's little preview keeps its own colours */
-html:is([data-theme='office'], [data-theme='graphite']) main:has(.settings-page) { filter: none; }
+/* the Ajustes window is not grayed, so each theme's little preview keeps its own colours */
+html:is([data-theme='office'], [data-theme='graphite']) dialog.settings-window { filter: none; }   /* each theme's preview keeps its colours */
 /* cards and notes: one grey, a shade apart from the card above; no paper texture */
 html:is([data-theme='office'], [data-theme='graphite']) :is(main, dialog) [style*='--tone'] { --tone: var(--g-card) !important; }
 html:is([data-theme='office'], [data-theme='graphite']) :is(main, dialog) :is(.task, .todo-note, .capture-list li):nth-child(even) { --tone: var(--g-card-2) !important; }
