@@ -23,6 +23,8 @@ import { Transfer, TransferDialog } from './transfer-dialog';
  * "Arrange the week" unlocks editing: block windows, ▲▼, ⇄ copy/move, + and quick-add, and each card's ••• details.
  */
 const FOLD_KEY = 'go-epic-week-folded';
+/** How long the page stays still before it glides back to the red line (Gianni: about 4 s). */
+const NOW_IDLE_MS = 4000;
 /** The ids of the blocks shown folded on this device (a view preference). */
 function readFolded(): Set<string> {
   try {
@@ -80,12 +82,44 @@ export class WeekBoard {
       this.capture.fab.set({ label: this.i18n.t('week.arrange'), run: () => this.toggleArrange(), hidden });
     });
     inject(DestroyRef).onDestroy(() => { this.capture.fab.set(null); this.cancelDrag?.(); });
-    // On entering the Week board, the view centres on now (the red line in today's column), as in Epic Manager.
+    // On entering the Week board, the view centres on now (the red line in today's column), as in Epic Manager: once
+    // the week, the library (card titles) and Capture's notes (the strip at the top) are there, so nothing shifts after.
     let centred = false;
     effect(() => {
-      if (centred || !this.store.loaded()) return;
+      if (centred || !this.store.loaded() || !this.library.ready() || !this.todos.ready()) return;
       centred = true;
-      untracked(() => afterNextRender({ read: () => this.centreOnNow() }, { injector: this.injector }));
+      untracked(() => afterNextRender({ read: () => this.centreOnNow(true) }, { injector: this.injector }));
+    });
+    this.followNow();
+  }
+
+  /**
+   * Gianni: when the page has been scrolled and then stays still for 4 s, it glides back so the red line sits in the
+   * middle again. A finger on the screen holds it; nothing happens while arranging, with a window open or while
+   * today's column is not shown (another day's tab on a phone).
+   */
+  private followNow(): void {
+    if (typeof window === 'undefined') return;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    let touching = false;
+    const stop = () => { if (timer) clearTimeout(timer); timer = null; };
+    const arm = () => {
+      stop();
+      timer = setTimeout(() => { timer = null; if (!touching) this.centreOnNow(false); }, NOW_IDLE_MS);
+    };
+    const down = () => { touching = true; stop(); };
+    const up = () => { touching = false; arm(); };
+    const opts = { capture: true, passive: true } as const;
+    window.addEventListener('scroll', arm, opts);
+    window.addEventListener('pointerdown', down, opts);
+    window.addEventListener('pointerup', up, opts);
+    window.addEventListener('pointercancel', up, opts);
+    inject(DestroyRef).onDestroy(() => {
+      stop();
+      window.removeEventListener('scroll', arm, opts);
+      window.removeEventListener('pointerdown', down, opts);
+      window.removeEventListener('pointerup', up, opts);
+      window.removeEventListener('pointercancel', up, opts);
     });
   }
   protected readonly mobileDay = signal<Day>(this.store.today());
@@ -160,13 +194,22 @@ export class WeekBoard {
   protected readonly now = computed(() => nowPosition(this.store.week()[this.store.today()], this.store.nowMinutes()));
   protected readonly nowLabel = computed(() => formatClock(this.store.nowMinutes()));
 
-  /** Scrolls so today's now-line (or else today's column) sits in the middle of the screen. */
-  private centreOnNow(): void {
+  /**
+   * Scrolls so today's now-line sits exactly in the middle of the screen (on entering, today's column when it has no
+   * line). The return after 4 s still (`entering` false) only follows a line on screen, and never while arranging,
+   * with a window open (dragging only happens while arranging); it does nothing when the line is already in the middle.
+   */
+  private centreOnNow(entering: boolean): void {
     const today = document.querySelector<HTMLElement>('article.day.today');
-    const target = today?.querySelector<HTMLElement>('.now-line') ?? today;
-    if (!target) return;
+    const line = today?.querySelector<HTMLElement>('.now-line');
+    if (!entering && (!line || this.arranging() || document.querySelector('dialog[open]'))) return;
+    const target = line ?? today;
+    if (!target || !target.getClientRects().length) return;                 // hidden (another day's tab)
+    const rect = target.getBoundingClientRect();
+    const view = window.visualViewport?.height ?? window.innerHeight;
+    if (line && Math.abs(rect.top - view / 2) <= 4) return;                  // already in the middle
     const smooth = typeof matchMedia === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
-    target.scrollIntoView({ block: 'center', inline: 'center', behavior: smooth ? 'smooth' : 'auto' });
+    target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: smooth ? 'smooth' : 'auto' });
   }
 
   /** The details belong to a day's + (a new block with its first activity), not to a block's own +. */
