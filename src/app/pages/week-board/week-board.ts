@@ -143,8 +143,15 @@ export class WeekBoard {
     const all = this.todos.todos();
     const week = this.store.week();
     const out = {} as Record<Day, { onTask: Map<string, PinnedTodo[]>; loose: Todo[] }>;
-    const rolled = new Set(this.overdue().map((t) => t.id));                // they float in the tray at the foot instead
-    for (const day of DAYS) out[day] = pinTodos(week[day], todosForDate(all, this.dates()[day], day).filter((t) => !rolled.has(t.id)));
+    // They float in the tray at the foot instead: the rolled-over ones on every day, today's past-due ones only today
+    // (a repeating task keeps its notes on its other days).
+    const today = this.store.today();
+    const tray = new Set(this.overdue().map((t) => t.id));
+    const rolled = new Set(this.overdue().filter((t) => this.rolledOver(t)).map((t) => t.id));
+    for (const day of DAYS) {
+      const away = day === today ? tray : rolled;
+      out[day] = pinTodos(week[day], todosForDate(all, this.dates()[day], day).filter((t) => !away.has(t.id)));
+    }
     return out;
   });
   /** A task's paper on the board, as in Capture: fresh, parchment from 5 days, old stained paper from 21. */
@@ -162,7 +169,11 @@ export class WeekBoard {
   });
   /** Under a tray task's name: "from Mon 9" for an earlier day, "Today" for one whose hour has passed. */
   protected trayLabel(todo: Todo): string {
-    return todo.date !== null && todo.date < this.store.todayKey() ? this.fromLabel(todo) : this.i18n.t('capture.today');
+    return this.rolledOver(todo) ? this.fromLabel(todo) : this.i18n.t('capture.today');
+  }
+  /** A single task left open on an earlier day (a repeating one in the tray is always today's occurrence). */
+  private rolledOver(todo: Todo): boolean {
+    return !todo.repeat.length && todo.date !== null && todo.date < this.store.todayKey();
   }
   /** "from Mon 9": the day an overdue task was for. */
   protected fromLabel(todo: Todo): string {
