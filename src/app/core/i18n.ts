@@ -20,7 +20,6 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'capture.tomorrow': { en: 'Tomorrow', es: 'Mañana' },
   'capture.task': { en: 'Task', es: 'Tarea' },
   'capture.new': { en: 'New task', es: 'Nueva tarea' },
-  'week.newShort': { en: 'New', es: 'Nueva' },
   'capture.repeat': { en: 'Repeat', es: 'Repetir' },
   'capture.day': { en: 'Day', es: 'Día' },
   'capture.hour': { en: 'Hour', es: 'Hora' },

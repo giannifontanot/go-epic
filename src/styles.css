@@ -269,13 +269,8 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
   width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--pink); color: var(--card-ink); font-size: 22px;
   box-shadow: 0 6px 18px rgba(1, 6, 29, .45); }
 .capture-fab:hover { background: #f8bfca; }
-/* Week board: + New stands on top of the floating ✎ (same column, 12px above it) */
-.new-fab { position: fixed; z-index: 20; right: max(16px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 64px);
-  width: 52px; height: 52px; display: grid; place-content: center; gap: 0; padding: 0; border: 2px solid var(--pink); border-radius: 50%;
-  background: var(--navy-card); color: var(--pink); line-height: 1; box-shadow: 0 6px 18px rgba(1, 6, 29, .45); }
-.new-fab span { font-size: 24px; font-weight: 700; }
-.new-fab small { font-size: 10px; font-weight: 800; letter-spacing: .02em; }
-.new-fab:hover { background: color-mix(in srgb, var(--pink) 18%, var(--navy-card)); }
+/* Week board: the + (new task) is the floating ✎'s twin, standing 12px above it; only a symbol, no words (Gianni) */
+.new-fab { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 64px); font-size: 28px; line-height: 1; }
 .drawer-capture { display: flex; align-items: center; min-height: 48px; padding: 0 16px; border: 0; border-radius: 14px; background: transparent;
   color: var(--ink); font-size: 17px; font-weight: 700; text-align: left; }
 .drawer-capture:hover { background: rgba(255, 255, 255, .08); }
@@ -845,7 +840,7 @@ html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], 
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .day-chip[aria-pressed='true'] { color: var(--g-on-ink); }   /* a picked day keeps the accent fill, with readable ink */
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(dialog, dialog.capture-panel, dialog.app-drawer, dialog.editor, dialog.transfer)::backdrop { background: var(--g-veil); }
 html:is([data-theme='office'], [data-theme='graphite']) .switch-row input::before { background: var(--g-knob); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.capture-fab, .new-fab, .nav-toggle) { box-shadow: 0 3px 10px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.capture-fab, .nav-toggle) { box-shadow: 0 3px 10px var(--g-shadow); }
 html:is([data-theme='office'], [data-theme='graphite']) .capture-fab:hover { background: var(--g-control-hover); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.update-overlay::backdrop { background: var(--g-veil-strong); }
 html:is([data-theme='office'], [data-theme='graphite']) .update-button { background: var(--g-button); color: var(--g-button-ink); animation-name: update-glow-grey; }
