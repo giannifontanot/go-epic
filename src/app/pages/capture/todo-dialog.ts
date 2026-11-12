@@ -7,7 +7,7 @@ import { DAYS, Day, parseClock } from '../../core/week.model';
 export interface TodoSave { id: string; title: string; date: string | null; time: string | null; repeat: Day[]; }
 
 /**
- * Capture's ✎: a task's name, day and hour (the hour is optional: empty = any time that day). Nothing changes until
+ * Capture's ✎ (and the Week board's + New): a task's name, repeat days, day and hour (the hour is optional: empty = any time that day). Nothing changes until
  * Done; Cancel, Esc or the backdrop leave it as it was.
  */
 @Component({
@@ -16,10 +16,10 @@ export interface TodoSave { id: string; title: string; date: string | null; time
     <dialog #dialog class="editor new-activity todo-editor" aria-labelledby="todo-title" (click)="onBackdrop($event)" (close)="closed.emit()">
       <header><div class="head-box"><div class="head-text">
         <p class="eyebrow">{{ i18n.t('capture.title') }}</p>
-        <h2 id="todo-title" tabindex="-1" autofocus>{{ i18n.t('capture.task') }}</h2>
+        <h2 id="todo-title" tabindex="-1" autofocus>{{ i18n.t(isNew() ? 'capture.new' : 'capture.task') }}</h2>
       </div></div></header>
       <label class="field">{{ i18n.t('task.name') }}
-        <input type="text" [value]="title()" (input)="title.set($any($event.target).value)" (keydown.enter)="done()" /></label>
+        <input #name type="text" [value]="title()" (input)="title.set($any($event.target).value)" (keydown.enter)="done()" /></label>
       <!-- Repeat: Mo Tu We Th Fr Sa Su (Gianni); with any day on, it repeats every week and the date is not used -->
       <div class="repeat-days" role="group" [attr.aria-label]="i18n.t('capture.repeat')">
         <span class="repeat-label">{{ i18n.t('capture.repeat') }}</span>
@@ -48,6 +48,9 @@ export interface TodoSave { id: string; title: string; date: string | null; time
 export class TodoDialog implements AfterViewInit {
   protected readonly i18n = inject(I18n);
   readonly todo = input.required<Todo>();
+  /** A new task (the Week board's + New): titled "New task", the cursor waits in the name box. */
+  readonly isNew = input(false);
+  private readonly name = viewChild.required<ElementRef<HTMLInputElement>>('name');
   readonly save = output<TodoSave>();
   readonly closed = output<void>();
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
@@ -72,6 +75,7 @@ export class TodoDialog implements AfterViewInit {
     this.time.set(todo.time ?? '');
     this.repeat.set([...todo.repeat]);
     openDialog(this.dialog().nativeElement);
+    if (this.isNew()) this.name().nativeElement.focus();
   }
 
   protected onBackdrop(event: MouseEvent): void {

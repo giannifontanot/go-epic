@@ -3,7 +3,7 @@ import { Unsubscribe, collection, deleteDoc, doc, onSnapshot, setDoc } from 'fir
 import { AuthService } from './auth.service';
 import { firebase } from './firebase';
 import { Todo, checkTodo, doneTodos, openTodos, sanitizeTodo } from './todo.model';
-import { Task, blockColors, newId } from './week.model';
+import { Day, Task, blockColors, newId } from './week.model';
 
 /**
  * The signed-in user's Capture tasks (todo.model), one document each: users/{uid}/todos/{id}.
@@ -46,10 +46,10 @@ export class TodoStore {
   }
 
   /** A new open task (by default today, any hour). */
-  add(title: string, date: string | null, time: string | null = null): void {
+  add(title: string, date: string | null, time: string | null = null, repeat: Day[] = []): void {
     const clean = title.trim();
     if (!clean) return;
-    this.save({ id: newId(), title: clean, date, time, done: null, created: Date.now(), repeat: [], doneOn: {} });
+    this.save({ id: newId(), title: clean, date, time, done: null, created: Date.now(), repeat: [...repeat], doneOn: {} });
   }
 
   update(id: string, change: Partial<Pick<Todo, 'title' | 'date' | 'time' | 'repeat'>>): void {

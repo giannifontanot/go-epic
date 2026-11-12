@@ -248,6 +248,11 @@
   }
 </dialog>
 
+<!-- + New above the floating ✎ (Gianni): a new task (name, hour, repeat days) without opening Capture -->
+@if (!arranging() && store.loaded() && todos.ready()) {
+  <button type="button" class="new-fab" [attr.aria-label]="i18n.t('capture.new')" [title]="i18n.t('capture.new')" (click)="newTodo()">
+    <span aria-hidden="true">+</span><small aria-hidden="true">{{ i18n.t('week.newShort') }}</small></button>
+}
 @if (editingTodo(); as todo) {
-  <app-todo-dialog [todo]="todo" (save)="saveTodo($event)" (closed)="editingTodo.set(null)" />
+  <app-todo-dialog [todo]="todo" [isNew]="!todo.id" (save)="saveTodo($event)" (closed)="editingTodo.set(null)" />
 }
