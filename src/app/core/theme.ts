@@ -11,6 +11,15 @@ export const RED_LINE_KEY = 'go-epic-red-line';
 /** The browser bar colour of each theme (meta theme-color), the page colour. */
 export const THEME_BAR: Record<Theme, string> = { epic: '#101b42', pinkpop: '#fbeaf3', petalpunk: '#1b141f', squeezeme: '#fff6ef', sunburnt: '#fff1e5', smokedcitrus: '#1a1918', office: '#c6c9cd', graphite: '#2b2e33' };
 
+/**
+ * The web app manifest of a theme: the same app with the theme's page colour as its theme and background colour, so
+ * the installed app (Android's bottom bar, the splash, the task switcher) takes the theme's colour when Chrome next
+ * updates it (Gianni). Epic keeps the original file; the others are public/manifest-<theme>.webmanifest.
+ */
+export function manifestFor(theme: Theme): string {
+  return theme === 'epic' ? 'manifest.webmanifest' : `manifest-${theme}.webmanifest`;
+}
+
 /** A stored value read back: anything unknown is the Epic look. */
 export function parseTheme(value: unknown): Theme {
   return THEMES.includes(value as Theme) ? (value as Theme) : 'epic';
@@ -33,6 +42,7 @@ export class ThemeService {
       if (typeof document === 'undefined') return;
       document.documentElement.dataset['theme'] = theme;
       document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_BAR[theme]);
+      document.querySelector('link[rel="manifest"]')?.setAttribute('href', manifestFor(theme));
       try { localStorage.setItem(THEME_KEY, theme); } catch { /* a view preference */ }
     });
     effect(() => {
