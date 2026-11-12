@@ -186,7 +186,12 @@ export class WeekBoard {
   protected editTodo(todo: Todo): void {
     this.editingTodo.set(this.todos.todos().find((t) => t.id === todo.id) ?? null);   // the stored task, not a date's view
   }
+  /** + New above the floating ✎ (Gianni): a new task with its name, hour and repeat days; for today until changed. */
+  protected newTodo(): void {
+    this.editingTodo.set({ id: '', title: '', date: this.store.todayKey(), time: null, done: null, created: Date.now(), repeat: [], doneOn: {} });
+  }
   protected saveTodo(change: TodoSave): void {
+    if (!change.id) { this.todos.add(change.title, change.repeat.length ? null : change.date, change.time, change.repeat); return; }
     this.todos.update(change.id, { title: change.title, date: change.date, time: change.time, repeat: change.repeat });
   }
   /** The date of each day of this week (Monday first): a repeating task is checked for that date. */
