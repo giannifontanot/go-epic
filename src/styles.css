@@ -457,17 +457,17 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 /* A new block's name: a steady yellow halo shows it is the field to fill (Gianni: no flashing) */
 .field input.new-block-name { border: 2px solid #f5c945; box-shadow: 0 0 0 3px rgba(245, 201, 69, .35); }
 .field input.new-block-name:focus { outline: none; box-shadow: 0 0 0 4px rgba(245, 201, 69, .55); }
-/* Minutes under the name: ten quick radio chips (1, 5 … 45) and a box for any other value, all on one line; the chips
-   share the width (40px tall), so it fits a phone */
+/* Minutes under the name: ten quick radio chips (1, 5 … 45) and a box for any other value on two rows of six
+   columns (Gianni: one line looked cramped): 1–25, then 30–45 and the box over two columns; every chip ≥ 40px */
 fieldset.minutes-pick { border: 0; margin: 0; padding: 0; min-width: 0; }
 fieldset.minutes-pick legend { padding: 0; margin-bottom: 6px; }
-.min-row { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)) minmax(52px, 1.6fr); gap: 3px; align-items: stretch; }
-.min-chip { position: relative; display: grid; place-items: center; min-width: 0; min-height: 40px; border-radius: 10px;
-  border: 1.5px solid color-mix(in srgb, var(--ink) 25%, transparent); background: color-mix(in srgb, var(--ink) 6%, transparent); color: var(--ink); font-size: 14px; font-weight: 700; cursor: pointer; }
+.min-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; align-items: stretch; }
+.min-chip { position: relative; display: grid; place-items: center; min-width: 0; min-height: 44px; border-radius: 12px;
+  border: 1.5px solid color-mix(in srgb, var(--ink) 25%, transparent); background: color-mix(in srgb, var(--ink) 6%, transparent); color: var(--ink); font-size: 17px; font-weight: 700; cursor: pointer; }
 .min-chip input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
 .min-chip.on { border-color: var(--pink); background: var(--pink); color: var(--g-on-ink, #1b2757); }
 .min-chip:has(input:focus-visible) { outline: 3px solid var(--teal); outline-offset: 1px; }
-.min-row .min-other { min-width: 0; width: 100%; min-height: 40px; padding: 4px 6px; text-align: center; }
+.min-row .min-other { grid-column: span 2; min-width: 0; width: 100%; min-height: 44px; padding: 4px 6px; text-align: center; font-size: 17px; }
 /* Red ✕: deletes (always asks first), the same for a card and for a block */
 .round.danger-x { color: #dc2626; border-color: rgba(220, 38, 38, .55); font-weight: 900; }
 .round.danger-x:hover:not(:disabled) { color: #fff; background: #dc2626; border-color: #dc2626; }
