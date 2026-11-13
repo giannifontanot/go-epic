@@ -245,9 +245,11 @@ function hash(text: string): number {
 
 /**
  * Card colours of a block: a picked colour wins; otherwise a pastel from the title's hash, moved on when it
- * would repeat the card right above (lagoon and foam never touch, they look alike).
+ * would repeat the card right above (lagoon and foam never touch, they look alike). With `remembered`, a card's
+ * automatic colour is chosen once (keyed by its library task, else its id) and kept wherever it moves (Gianni:
+ * moving cards between blocks recoloured some of them); new choices are written into the map.
  */
-export function blockColors(tasks: Task[]): string[] {
+export function blockColors(tasks: Task[], remembered?: Map<string, string>): string[] {
   const alike = (a: string, b: string) =>
     a === b || (a === PASTELS[0] && b === PASTELS[1]) || (a === PASTELS[1] && b === PASTELS[0]);
   const colors: string[] = [];
@@ -256,12 +258,19 @@ export function blockColors(tasks: Task[]): string[] {
       colors.push(task.color);
       continue;
     }
+    const key = task.ref || task.id;
+    const kept = remembered?.get(key);
+    if (kept) {
+      colors.push(kept);
+      continue;
+    }
     let index = hash(task.title.trim().toLowerCase()) % PASTELS.length;
     const above = colors[colors.length - 1];
     for (let step = 0; above && step < PASTELS.length && alike(above, PASTELS[index]); step++) {
       index = (index + 1) % PASTELS.length;
     }
     colors.push(PASTELS[index]);
+    remembered?.set(key, PASTELS[index]);
   }
   return colors;
 }

@@ -83,6 +83,11 @@ describe('week model', () => {
     const alike = (a: string, b: string) => a === b || (new Set([a, b]).size === 2 && [a, b].every((c) => c === PASTELS[0] || c === PASTELS[1]));
     for (let i = 1; i < colors.length; i++) expect(alike(colors[i - 1], colors[i])).toBe(false);
     expect(blockColors([task('x', 5, { color: '#ffc9d6' })])).toEqual(['#ffc9d6']);
+    // remembered: a card keeps its automatic colour when it moves, whatever is above it now
+    const memo = new Map<string, string>();
+    const before = blockColors(tasks, memo);
+    expect(blockColors([...tasks].reverse(), memo)).toEqual([...before].reverse());
+    expect(memo.size).toBe(tasks.filter((t) => !t.color).length);
   });
 
   it('puts the now-line inside the running task, at the share already gone', () => {

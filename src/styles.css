@@ -436,17 +436,19 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 .free-band { height: calc(var(--free) * 1.6px); min-height: 6px; border-radius: 12px;
   background: repeating-linear-gradient(135deg, rgba(54, 38, 67, .16) 0 10px, transparent 10px 20px); }
 /* The handle at the block's foot: pull it down or up to move the block's end; a badge shows the end while pulling */
-.end-handle { position: relative; display: grid; place-items: center; height: 40px; margin: -10px 0 -10px; cursor: ns-resize; touch-action: none; border-radius: 10px; }
+/* Only the grip itself pulls (Gianni: a scroll that started near it stretched the block): a 72×40px target centred
+   on the bar, so the rest of the width scrolls as usual */
+.end-handle { position: relative; display: grid; place-items: center; width: 72px; height: 40px; margin: -10px auto -10px; cursor: ns-resize; touch-action: none; border-radius: 10px; }
 .end-handle:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
 .end-handle .grip-bar { width: 56px; height: 6px; border-radius: 999px; background: rgba(54, 38, 67, .45); }
 .end-handle:hover .grip-bar, .end-handle:active .grip-bar { background: #0d9488; }
 /* a card's own handle (edit mode): a short bar at its foot that stretches its minutes */
-.t-handle { position: relative; display: grid; place-items: center; height: 40px; margin: -8px -12px -6px;   /* a 40px tap target, the bar stays small */
-  cursor: ns-resize; touch-action: none; border-radius: 0 0 16px 16px; }
+.t-handle { position: relative; display: grid; place-items: center; width: 72px; height: 40px; margin: -8px auto -6px;   /* only the grip: 72×40px around the bar */
+  cursor: ns-resize; touch-action: none; border-radius: 12px; }
 .t-handle:focus-visible { outline: 3px solid var(--teal); outline-offset: -3px; }
 .t-handle .grip-bar { width: 44px; height: 5px; border-radius: 999px; background: rgba(48, 39, 70, .4); }
 .t-handle:hover .grip-bar, .t-handle:active .grip-bar { background: #0d9488; }
-.end-badge { position: absolute; right: 8px; top: 50%; translate: 0 -50%; padding: 3px 10px; border-radius: 999px; background: #0d9488; color: #fff; font-size: 14px; font-weight: 800; }
+.end-badge { position: absolute; left: calc(100% + 8px); top: 50%; white-space: nowrap; translate: 0 -50%; padding: 3px 10px; border-radius: 999px; background: #0d9488; color: #fff; font-size: 14px; font-weight: 800; }
 
 /* Canvas: Capture is a 💡 at the top right of the title row (the toolbar wraps below it on phones) */
 .page-header > .idea { order: 0; margin-left: auto; flex: none; width: 44px; height: 44px; padding: 0; display: grid; place-items: center;

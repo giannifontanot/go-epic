@@ -1,3 +1,4 @@
+import { AutoColors } from '../../core/auto-colors';
 import { ApplicationRef, Component, DestroyRef, ElementRef, Injector, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { flip, flipNow } from '../../core/flip';
 import { TextSettings } from '../../core/text-settings';
@@ -250,8 +251,12 @@ export class WeekBoard {
     return this.store.week()[day].blocks;
   }
 
+  private readonly autoColors = inject(AutoColors);
+  /** Each card keeps the automatic colour it first got, wherever it moves (Gianni). */
   protected colors(block: Block): string[] {
-    return blockColors(block.tasks);
+    const colors = blockColors(block.tasks, this.autoColors.map);
+    this.autoColors.saveIfGrown();
+    return colors;
   }
 
   protected startLabel(block: Block, index: number): string {
