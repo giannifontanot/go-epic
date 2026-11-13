@@ -313,7 +313,7 @@ dialog.capture-panel h2 { margin: 0; font-size: 22px; }
 .dot[data-result='none'] { background: transparent; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); }
 
 /* Starter template preview: a Feature renamed from its old name (Canvas) */
-.template-tree .renamed { display: block; color: var(--jelly-b); font-size: 12px; font-style: normal; }
+.template-tree .renamed { display: block; color: var(--accent-text, var(--jelly-b)); font-size: 12px; font-style: normal; }
 
 /* Canvas: the Epic tabs start with a fixed yellow "EPICS:" label, as tall as the tabs, so the scrolling row reads as the Epics (Gianni) */
 .epic-strip { display: flex; align-items: stretch; gap: 0; padding-left: 16px; flex-shrink: 0; }
@@ -841,6 +841,10 @@ html:is([data-theme='office'], [data-theme='graphite']) :is(.c-check, .todo-chec
 html:is([data-theme='office'], [data-theme='graphite']) .c-check.on { background: var(--g-check-on); border-color: var(--g-end); }
 /* the blocks keep their shape, without the yellow lip */
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .block { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 4px 0 var(--g-lip), 0 8px 14px var(--g-shadow); }
+/* text drawn in the block colour on the page (Canvas's unsaved dot and title dot, a template's old names) takes the
+   theme's readable accent instead, since the block surfaces are quiet now (pale on light pages, dark on dark ones) */
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) { --accent-text: var(--g-soft-ink); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .canvas-page :is(.status.dirty, .title-dot) { color: var(--accent-text); }
 /* Pink Pop, Petal Punk, Squeeze Me, Sunburnt Toast: quiet blocks (porcelain, plum velvet, linen, oat) whose only colour is a
    thin border in the theme's tone (Gianni: pretty, not loud; a panel chose a calm surface plus a coloured edge) */
 html:is([data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='sunburnt']) .block {
