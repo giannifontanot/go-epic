@@ -1,6 +1,6 @@
 import {
   Block, PASTELS, Task, blockColors, cloneBlock, dateKey, dayOf, fits, formatClock, freeMinutes, moveItem, nowPosition,
-  parseClock, placeBlock, stretchedEnd, taskStarts, taskTotal, timeline, uniqueName, validMinutes, windowError, moveToHour, addDayBlocks,
+  parseClock, placeBlock, stretchedEnd, resizedMinutes, taskStarts, taskTotal, timeline, uniqueName, validMinutes, windowError, moveToHour, addDayBlocks,
 } from './week.model';
 
 const task = (id: string, minutes: number, extra: Partial<Task> = {}): Task => ({ id, title: id, minutes, color: null, active: true, ref: null, ...extra });
@@ -105,6 +105,18 @@ describe('week model', () => {
     expect(stretchedEnd(block('23:30', '23:50', [10]), 60)).toBe('23:59');
     expect(stretchedEnd(block('08:00', '08:30', []), -60)).toBe('08:01');        // an empty block keeps one minute
     expect(stretchedEnd(block(null, null, [10]), 10)).toBeNull();
+  });
+
+  it('stretches a task\'s minutes with its handle, only into the block\'s free time and never below zero', () => {
+    const block = (end: string | null, minutes: number[]) =>
+      ({ id: 'b', name: 'B', start: '08:00', end, tasks: minutes.map((m, i) => ({ id: 't' + i, title: 'T', minutes: m, color: null, active: true, ref: null })) });
+    expect(resizedMinutes(block('09:00', [20, 10]), 't0', 10)).toBe(30);
+    expect(resizedMinutes(block('09:00', [20, 10]), 't0', 100)).toBe(50);    // 30 free minutes: up to 50
+    expect(resizedMinutes(block('09:00', [20, 10]), 't1', -30)).toBe(0);
+    expect(resizedMinutes(block('08:20', [20, 10]), 't0', 5)).toBe(20);      // over already: only shrinks
+    expect(resizedMinutes(block('08:20', [20, 10]), 't0', -5)).toBe(15);
+    expect(resizedMinutes(block(null, [20]), 't0', 7.4)).toBe(27);           // no end: free to grow
+    expect(resizedMinutes(block(null, [20]), 'missing', 5)).toBe(0);
   });
 
   it('moves a block whose start changed to its hour; a block with no start stays', () => {

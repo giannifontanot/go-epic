@@ -117,7 +117,7 @@
             <div class="block-inner">
             <ul class="tasks">
               @for (task of block.tasks; track task.id; let ti = $index, tfirst = $first, tlast = $last) {
-                <li class="task" [attr.data-flip]="task.id" [attr.data-task]="task.id" [style.--tone]="tones[ti]" [style.--mins]="task.minutes" [attr.data-paper]="paper(task)" [class.done]="isDone(day, task)" [attr.data-status]="day === store.today() ? store.status(task.id) : null" [class.off]="!task.active"
+                <li class="task" [attr.data-flip]="task.id" [attr.data-task]="task.id" [style.--tone]="tones[ti]" [style.--mins]="shownMinutes(task)" [attr.data-paper]="paper(task)" [class.done]="isDone(day, task)" [attr.data-status]="day === store.today() ? store.status(task.id) : null" [class.off]="!task.active"
                     (click)="cardTap(day, block, task)" (pointerdown)="pressStart($event, day, task)" (pointermove)="pressMove($event)"
                     (pointerup)="pressEnd()" (pointerleave)="pressEnd()" (pointercancel)="pressEnd()" (contextmenu)="cardMenu($event, day, task)">
                   <div class="task-row">
@@ -141,7 +141,16 @@
                       </span>
                     }
                   </div>
-                  <span class="t-dur">{{ durationLabel(task.minutes) }}</span>
+                  <span class="t-dur">{{ durationLabel(shownMinutes(task)) }}</span>
+                  <!-- Edit mode: pull the handle at the card's foot to change its minutes (Gianni); never past the block's end -->
+                  @if (arranging()) {
+                    <span class="t-handle" role="slider" tabindex="0" [attr.aria-label]="i18n.t('week.resize') + ': ' + task.title"
+                          [attr.aria-valuenow]="shownMinutes(task)" aria-valuemin="0" [attr.aria-valuetext]="durationLabel(shownMinutes(task))" [title]="i18n.t('week.resize')"
+                          (click)="$event.stopPropagation()" (pointerdown)="startResize($event, day, block, task)" (keydown)="resizeKey($event, day, block, task)">
+                      <span class="grip-bar"></span>
+                      @if (sizing()?.taskId === task.id) { <span class="end-badge">{{ sizingBadge(block, ti, task) }}</span> }
+                    </span>
+                  }
                   <!-- Today's state, in the middle of the card (Gianni) -->
                   @if (cardStatus(day, task); as st) {
                     @if (st === 'done') {

@@ -3,7 +3,7 @@ import { flip, flipNow } from '../../core/flip';
 import { TextSettings } from '../../core/text-settings';
 import { I18n } from '../../core/i18n';
 import {
-  addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, Task, WEEK_PX_PER_MIN, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId, stretchedEnd,
+  addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, Task, WEEK_PX_PER_MIN, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId, resizedMinutes, stretchedEnd,
   moveToHour, nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
 } from '../../core/week.model';
 import { Library, fileTask, followLibrary, nodeById, paperAge, updateNode } from '../../core/library.model';
@@ -268,7 +268,7 @@ export class WeekBoard {
   }
 
   protected freeLabel(block: Block): string {
-    const free = freeMinutes(block);
+    const free = freeMinutes(this.live(block));   // live while a handle is pulled
     if (free === null) return '';
     if (free === 0) return this.i18n.t('week.full');
     return free > 0 ? this.i18n.t('week.free', { n: free }) : this.i18n.t('week.over', { n: -free });
@@ -277,10 +277,70 @@ export class WeekBoard {
   /** The block being stretched by its handle, and the end it would have now (shown live, saved on release). */
   protected readonly stretching = signal<{ blockId: string; end: string } | null>(null);
 
-  /** The block as it looks now: while its handle is pulled, with the end it would get. */
+  /** The block as it looks now: while its handle (or a card's) is pulled, with the end or minutes it would get. */
   private live(block: Block): Block {
     const s = this.stretching();
-    return s && s.blockId === block.id ? { ...block, end: s.end } : block;
+    const z = this.sizing();
+    let b = s && s.blockId === block.id ? { ...block, end: s.end } : block;
+    if (z && b.tasks.some((t) => t.id === z.taskId)) b = { ...b, tasks: b.tasks.map((t) => (t.id === z.taskId ? { ...t, minutes: z.minutes } : t)) };
+    return b;
+  }
+
+  /** The card whose handle is being pulled, and the minutes it would have now (shown live, saved on release). */
+  protected readonly sizing = signal<{ taskId: string; minutes: number } | null>(null);
+  /** A card's minutes as drawn: live while its handle is pulled. */
+  protected shownMinutes(task: Task): number {
+    const z = this.sizing();
+    return z && z.taskId === task.id ? z.minutes : task.minutes;
+  }
+  /** While a card's handle is pulled: when it would end (or its minutes, in a block with no start). */
+  protected sizingBadge(block: Block, index: number, task: Task): string {
+    const start = taskStarts(block)[index];
+    const minutes = this.shownMinutes(task);
+    return start === null ? this.durationLabel(minutes) : formatClock(start + validMinutes(minutes));
+  }
+  private setMinutes(day: Day, block: Block, task: Task, minutes: number): void {
+    if (minutes === validMinutes(task.minutes)) return;
+    this.store.update(day, (blocks) => blocks.map((b) => (b.id === block.id
+      ? { ...b, tasks: b.tasks.map((t) => (t.id === task.id ? { ...t, minutes } : t)) } : b)));
+  }
+
+  /**
+   * The handle at a card's foot (Gianni, edit mode): dragging it by n px changes the card's minutes by n / 1.6, live
+   * (the card grows or shrinks, the block's free time follows); release saves it. Never past the block's end.
+   */
+  protected startResize(event: PointerEvent, day: Day, block: Block, task: Task): void {
+    event.stopPropagation();
+    if (event.button !== 0) return;
+    event.preventDefault();
+    const handle = event.currentTarget as HTMLElement;
+    handle.setPointerCapture(event.pointerId);
+    const y0 = event.clientY;
+    this.sizing.set({ taskId: task.id, minutes: validMinutes(task.minutes) });
+    const move = (e: PointerEvent) => this.sizing.set({ taskId: task.id, minutes: resizedMinutes(block, task.id, (e.clientY - y0) / WEEK_PX_PER_MIN) });
+    const done = (commit: boolean) => () => {
+      handle.removeEventListener('pointermove', move);
+      handle.removeEventListener('pointerup', up);
+      handle.removeEventListener('pointercancel', cancel);
+      const minutes = this.sizing()?.minutes;
+      this.sizing.set(null);
+      if (commit && minutes !== undefined) this.setMinutes(day, block, task, minutes);
+    };
+    const up = done(true);
+    const cancel = done(false);
+    handle.addEventListener('pointermove', move);
+    handle.addEventListener('pointerup', up);
+    handle.addEventListener('pointercancel', cancel);
+  }
+
+  /** Keys on a card's handle: ↓/→ one minute longer, ↑/← shorter, Shift five, PageUp/PageDown fifteen. */
+  protected resizeKey(event: KeyboardEvent, day: Day, block: Block, task: Task): void {
+    const step = event.shiftKey ? 5 : 1;
+    const delta = ({ ArrowDown: step, ArrowRight: step, ArrowUp: -step, ArrowLeft: -step, PageDown: 15, PageUp: -15 } as Record<string, number>)[event.key];
+    if (!delta) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.setMinutes(day, block, task, resizedMinutes(block, task.id, delta));
   }
   /** Free minutes drawn as the striped band (live while stretching). */
   protected freeShown(block: Block): number {

@@ -135,6 +135,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'week.free': { en: '{n} min free', es: '{n} min libres' },
   'week.full': { en: '✓ Full', es: '✓ Lleno' },
   'week.dragTask': { en: 'Drag to move', es: 'Arrastra para mover' },
+  'week.resize': { en: 'Pull to change the minutes', es: 'Jala para cambiar los minutos' },
   'week.stretch': { en: 'Pull to change the block\'s end', es: 'Jala para cambiar el fin del bloque' },
   'week.over': { en: '⚠ {n} min over', es: '⚠ {n} min de más' },
   'week.blockUp': { en: 'Move block up', es: 'Subir bloque' },
