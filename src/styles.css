@@ -681,20 +681,20 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 [data-preview='graphite'] .tp-block { background: #3d4147; }
 [data-preview='graphite'] .tp-card, [data-preview='graphite'] .tp-card + .tp-card { background: #4a4e55; }
 [data-preview='pinkpop'] .theme-preview { background: #fbeaf3; }
-[data-preview='pinkpop'] .tp-day { background: linear-gradient(155deg, #f7d7e8, #f0c4dc); }
-[data-preview='pinkpop'] .tp-block { background: #fff7fb; }
+[data-preview='pinkpop'] .tp-day { background: linear-gradient(155deg, #f4e4ec, #ecd6e1); }
+[data-preview='pinkpop'] .tp-block { background: #f9f4f5; box-shadow: 0 0 0 1px #e3a6c1; }
 [data-preview='petalpunk'] .theme-preview { background: #1b141f; }
 [data-preview='petalpunk'] .tp-day { background: linear-gradient(155deg, #2e2238, #251b2d); }
-[data-preview='petalpunk'] .tp-block { background: linear-gradient(150deg, #f9a8d4, #f472b6); }
+[data-preview='petalpunk'] .tp-block { background: linear-gradient(150deg, #3d3043, #33283a); box-shadow: 0 0 0 1px #c98aac; }
 [data-preview='squeezeme'] .theme-preview { background: #fff6ef; }
-[data-preview='squeezeme'] .tp-day { background: linear-gradient(155deg, #fde7d9, #fbd5bd); }
-[data-preview='squeezeme'] .tp-block { background: #fffaf7; }
+[data-preview='squeezeme'] .tp-day { background: linear-gradient(155deg, #f9ece2, #f3e0d2); }
+[data-preview='squeezeme'] .tp-block { background: #fbf5f0; box-shadow: 0 0 0 1px #e8b08a; }
 [data-preview='smokedcitrus'] .theme-preview { background: #1a1918; }
 [data-preview='smokedcitrus'] .tp-day { background: linear-gradient(155deg, #2c2b29, #232220); }
 [data-preview='smokedcitrus'] .tp-block { background: linear-gradient(150deg, #47433e, #3b3834); box-shadow: inset 0 1px 0 rgba(251, 146, 60, .5); }
 [data-preview='sunburnt'] .theme-preview { background: #fff1e5; }
-[data-preview='sunburnt'] .tp-day { background: linear-gradient(155deg, #ffe0c7, #fcd0a6); }
-[data-preview='sunburnt'] .tp-block { background: linear-gradient(150deg, #fef3c7, #fcd34d); }
+[data-preview='sunburnt'] .tp-day { background: linear-gradient(155deg, #f7e8d8, #f0dcc6); }
+[data-preview='sunburnt'] .tp-block { background: linear-gradient(150deg, #fdf8ef, #f4ead8); box-shadow: 0 0 0 1px #dcae63; }
 
 /* ── Grey themes: Office (light greys) and Graphite (dark greys). Nothing that draws attention: no white, no black,
    no bright colour. Each theme sets the colour tokens and the --g-* surfaces below; the rules after them are shared:
@@ -734,10 +734,11 @@ html[data-theme='graphite'] {
    They share the structural rules below with the grey themes (shadows, veils, accent inks, tints) through --g-*. */
 html[data-theme='pinkpop'] {
   --page: #fbeaf3; --ink: #2a1f2b; --ink-soft: #6b5566;
-  --plum-a: #f7d7e8; --plum-b: #f0c4dc; --jelly-a: #fff7fb; --jelly-b: #ffe2f0; --jelly-ink: #3b1d33; --card-ink: #2a1f2b;
-  --pink: #db2777; --teal: #be185d; --red: #be123c; --navy-card: #fff5fb; --light: #fff5fb;
+  --plum-a: #f4e4ec; --plum-b: #ecd6e1; --jelly-a: #fdfafa; --jelly-b: #f6eff1; --jelly-ink: #3b2a35; --card-ink: #2a1f2b;   /* porcelain blocks, blush days */
+  --block-edge: #e3a6c1;                                           /* the pink stays only on the block's border (Gianni: not loud) */
+  --pink: #b04a73; --teal: #a8466e; --red: #be123c; --navy-card: #fff5fb; --light: #fff5fb;
   --now: #e11d48;
-  --g-lip: #e9a9c8; --g-shadow: rgba(157, 23, 77, .14); --g-soft-ink: #9d174d; --g-end: #db2777; --g-end-ink: #fff5fb;
+  --g-lip: #e2c9d4; --g-shadow: rgba(120, 40, 80, .12); --g-soft-ink: #8f3a62; --g-end: #b04a73; --g-end-ink: #fff5fb;
   --g-chip: #f5c6dd; --g-badge-ring: #e9a9c8; --g-veil: rgba(80, 20, 50, .35); --g-veil-strong: rgba(80, 20, 50, .6);
   --g-on-ink: #fff5fb; --g-tint: 157, 23, 77; --g-edge: #e9a9c8; --g-placeholder: #9b7a90;
   color-scheme: light;
@@ -745,10 +746,11 @@ html[data-theme='pinkpop'] {
 html[data-theme='pinkpop'] body { min-height: 100dvh; background: linear-gradient(135deg, #fff7fb 0%, #fbeaf3 35%, #f5d6e7 70%, #fff7fb 100%) fixed; }
 html[data-theme='petalpunk'] {
   --page: #1b141f; --ink: #f6e9f1; --ink-soft: #c7b2c1;
-  --plum-a: #2e2238; --plum-b: #251b2d; --jelly-a: #f9a8d4; --jelly-b: #f472b6; --jelly-ink: #2a1020; --card-ink: #2a1020;
-  --pink: #f472b6; --teal: #f9a8d4; --red: #fb7185; --navy-card: #2e2238; --light: #fde7f3;
-  --now: #fbbf24; --now-ink: #2a1020;                              /* gold, so it reads on the pink blocks; dark time on it */
-  --g-lip: #b83f86; --g-shadow: rgba(0, 0, 0, .35); --g-soft-ink: #6b1d4a; --g-end: #ec4899; --g-end-ink: #fff5fb;
+  --plum-a: #2e2238; --plum-b: #251b2d; --jelly-a: #3d3043; --jelly-b: #33283a; --jelly-ink: #f4e6ef; --card-ink: #2a1020;   /* plum velvet blocks (Gianni: the hot pink shouted) */
+  --block-edge: #c98aac;                                           /* a rose border is all the pink a block keeps */
+  --pink: #e39bbf; --teal: #f0b8d3; --red: #fb7185; --navy-card: #2e2238; --light: #fde7f3;
+  --now: #fbbf24; --now-ink: #2a1020;                              /* gold, so it reads on the cards and plum blocks; dark time on it */
+  --g-lip: #1c1520; --g-shadow: rgba(0, 0, 0, .4); --g-soft-ink: #f0b8d3; --g-end: #d77aa8; --g-end-ink: #fff5fb;
   --g-chip: #3a2b44; --g-badge-ring: #f9a8d4; --g-veil: rgba(10, 4, 12, .55); --g-veil-strong: rgba(10, 4, 12, .75);
   --g-on-ink: #2a1020; --g-tint: 249, 168, 212; --g-edge: #6b4a66; --g-placeholder: #a58aa0;
   color-scheme: dark;
@@ -757,10 +759,11 @@ html[data-theme='petalpunk'] body { min-height: 100dvh; background: linear-gradi
 /* Squeeze Me (light) and Smoked Citrus (dark): the orange pair from Epic Manager ("Pro_SqueezeMe", "Pro_SmokedCitrus") */
 html[data-theme='squeezeme'] {
   --page: #fff6ef; --ink: #1f2937; --ink-soft: #5b4a3f;
-  --plum-a: #fde7d9; --plum-b: #fbd5bd; --jelly-a: #fffaf7; --jelly-b: #ffedd5; --jelly-ink: #3a1f0d; --card-ink: #1f2937;
-  --pink: #ea580c; --teal: #c2410c; --red: #b91c1c; --navy-card: #fffaf7; --light: #fffaf7;
+  --plum-a: #f9ece2; --plum-b: #f3e0d2; --jelly-a: #fffbf8; --jelly-b: #f7efe8; --jelly-ink: #3a2416; --card-ink: #1f2937;   /* linen blocks, apricot days */
+  --block-edge: #e8b08a;                                           /* apricot border */
+  --pink: #b9562a; --teal: #9a4521; --red: #b91c1c; --navy-card: #fffaf7; --light: #fffaf7;
   --now: #dc2626;
-  --g-lip: #f3b48a; --g-shadow: rgba(154, 52, 18, .14); --g-soft-ink: #9a3412; --g-end: #ea580c; --g-end-ink: #fffaf7;
+  --g-lip: #e6cdb9; --g-shadow: rgba(120, 60, 25, .12); --g-soft-ink: #9a4521; --g-end: #b9562a; --g-end-ink: #fffaf7;
   --g-chip: #fcd9bf; --g-badge-ring: #f3b48a; --g-veil: rgba(80, 35, 10, .35); --g-veil-strong: rgba(80, 35, 10, .6);
   --g-on-ink: #fffaf7; --g-tint: 154, 52, 18; --g-edge: #f3b48a; --g-placeholder: #a07a64;
   color-scheme: light;
@@ -787,10 +790,11 @@ html[data-theme='smokedcitrus'] .task .round:not(.danger-x) { color: var(--card-
 /* Sunburnt Toast (light): Epic Manager's golden orange ("Pro_SunburntToast"): warm toast pages, golden blocks */
 html[data-theme='sunburnt'] {
   --page: #fff1e5; --ink: #1f2937; --ink-soft: #5c4633;
-  --plum-a: #ffe0c7; --plum-b: #fcd0a6; --jelly-a: #fef3c7; --jelly-b: #fcd34d; --jelly-ink: #3b2106; --card-ink: #1f2937;
-  --pink: #ea580c; --teal: #b45309; --red: #b91c1c; --navy-card: #fff8f1; --light: #fff8f1;
+  --plum-a: #f7e8d8; --plum-b: #f0dcc6; --jelly-a: #fdf8ef; --jelly-b: #f4ead8; --jelly-ink: #3b2a12; --card-ink: #1f2937;   /* oat blocks, toast days */
+  --block-edge: #dcae63;                                           /* honey border */
+  --pink: #b5652a; --teal: #92541f; --red: #b91c1c; --navy-card: #fff8f1; --light: #fff8f1;
   --now: #dc2626;
-  --g-lip: #d99a2b; --g-shadow: rgba(146, 64, 14, .16); --g-soft-ink: #92400e; --g-end: #ea580c; --g-end-ink: #fff8f1;
+  --g-lip: #e0cfae; --g-shadow: rgba(120, 70, 20, .14); --g-soft-ink: #92541f; --g-end: #b5652a; --g-end-ink: #fff8f1;
   --g-chip: #fde4cf; --g-badge-ring: #f3b071; --g-veil: rgba(80, 40, 8, .35); --g-veil-strong: rgba(80, 40, 8, .6);
   --g-on-ink: #fff8f1; --g-tint: 146, 64, 14; --g-edge: #f3b071; --g-placeholder: #a07d5c;
   color-scheme: light;
@@ -837,6 +841,18 @@ html:is([data-theme='office'], [data-theme='graphite']) :is(.c-check, .todo-chec
 html:is([data-theme='office'], [data-theme='graphite']) .c-check.on { background: var(--g-check-on); border-color: var(--g-end); }
 /* the blocks keep their shape, without the yellow lip */
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .block { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 4px 0 var(--g-lip), 0 8px 14px var(--g-shadow); }
+/* Pink Pop, Petal Punk, Squeeze Me, Sunburnt Toast: quiet blocks (porcelain, plum velvet, linen, oat) whose only colour is a
+   thin border in the theme's tone (Gianni: pretty, not loud; a panel chose a calm surface plus a coloured edge) */
+html:is([data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='sunburnt']) .block {
+  box-shadow: 0 0 0 1.5px var(--block-edge), inset 0 1px 0 rgba(255, 255, 255, .12), 0 4px 0 var(--g-lip), 0 8px 14px var(--g-shadow); }
+/* Petal Punk's blocks are dark now: dark fields, a rose dashed name line, and the light cards keep their dark ink */
+html[data-theme='petalpunk'] .block-window input { background: #2a2130; border-color: #5a4660; color: var(--jelly-ink); color-scheme: dark; }
+html[data-theme='petalpunk'] input.block-name { border-bottom-color: rgba(240, 184, 211, .5); }
+html[data-theme='petalpunk'] .task .round:not(.danger-x) { color: var(--card-ink); border-color: rgba(42, 16, 32, .45); }
+/* on the dark blocks (Petal Punk, Smoked Citrus) the free-time stripes, the end handle and the summary dash turn light */
+html:is([data-theme='petalpunk'], [data-theme='smokedcitrus']) .free-band { background: repeating-linear-gradient(135deg, rgba(255, 255, 255, .14) 0 10px, transparent 10px 20px); }
+html:is([data-theme='petalpunk'], [data-theme='smokedcitrus']) .end-handle .grip-bar { background: rgba(255, 255, 255, .4); }
+html:is([data-theme='petalpunk'], [data-theme='smokedcitrus']) .summary .dash { color: rgba(255, 255, 255, .45); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .day { box-shadow: 0 6px 16px var(--g-shadow); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.free, .end-badge, .round:hover:not(:disabled)) { color: var(--g-soft-ink); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .end-badge { background: var(--g-end); color: var(--g-end-ink); }
