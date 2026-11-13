@@ -85,7 +85,11 @@ export interface TaskSave {
             <span class="linked-chip" [style.background]="color() || node.color || '#ffd5bd'">{{ node.title }}
               <button type="button" [attr.aria-label]="i18n.t('task.unlink')" [title]="i18n.t('task.unlink')" (click)="unlink(name)">×</button></span>
           } @else if (existing().length) {
-            <button type="button" class="pick-open" (click)="openPicker()">{{ i18n.t('task.pickActivity', { n: existing().length }) }} ›</button>
+            <!-- A button, not a field (Gianni found the box looked like something to type in): a list icon, the action
+                 in words, the count as a badge and an arrow; the same pill look as the Color button beside it -->
+            <button type="button" class="pick-open" aria-haspopup="dialog" (click)="openPicker()">
+              <span class="pick-icon" aria-hidden="true">☰</span><span class="pick-text">{{ i18n.t('task.pickActivity') }}</span>
+              <span class="pick-count" [attr.aria-label]="i18n.t('task.pickCount', { n: existing().length })">{{ existing().length }}</span><span class="pick-chev" aria-hidden="true">›</span></button>
           } @else {
             <span class="hint">{{ i18n.t('task.noTasksHere') }}</span>
           }
@@ -95,6 +99,7 @@ export interface TaskSave {
                 (click)="colorWindow.open()"><span class="color-dot" [class.auto]="!color()" [style.background]="color()"></span>{{ i18n.t('task.color') }}</button>
         </div>
       }
+      @if (libraryReady() && !linkedNode() && existing().length) { <p class="or-new" aria-hidden="true">{{ i18n.t('task.orNew') }}</p> }
       <label class="field">{{ i18n.t('task.name') }}
         <input #name type="text" [value]="title()" [readOnly]="!!linkedNode()" [class.locked]="!!linkedNode()"
           (input)="title.set($any($event.target).value)" (keydown.enter)="done()" />
