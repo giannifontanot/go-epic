@@ -1,3 +1,4 @@
+import { AutoColors } from '../../core/auto-colors';
 import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
@@ -89,6 +90,7 @@ import { WeekStore } from '../../core/week.store';
 })
 export class Focus {
   protected readonly store = inject(WeekStore);
+  private readonly autoColors = inject(AutoColors);   // the same remembered card colours as the Week board
   protected readonly i18n = inject(I18n);
 
   private readonly plan = computed(() => this.store.week()[this.store.today()]);
@@ -96,7 +98,7 @@ export class Focus {
   protected readonly items = computed(() => timeline(this.plan()).filter((item) => item.task.active && item.task.title.trim()));
   private readonly tones = computed(() => {
     const map = new Map<string, string>();
-    for (const block of this.plan().blocks) blockColors(block.tasks).forEach((color, i) => map.set(block.tasks[i].id, color));
+    for (const block of this.plan().blocks) blockColors(block.tasks, this.autoColors.map).forEach((color, i) => map.set(block.tasks[i].id, color));
     return map;
   });
   /**
