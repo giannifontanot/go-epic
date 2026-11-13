@@ -84,16 +84,23 @@ export interface TaskSave {
                 (click)="colorWindow.open()"><span class="color-dot" [class.auto]="!color()" [style.background]="color()"></span>{{ i18n.t('task.color') }}</button>
         </div>
       }
-      <div class="name-row">
       <label class="field">{{ i18n.t('task.name') }}
         <input #name type="text" [value]="title()" [readOnly]="!!linkedNode()" [class.locked]="!!linkedNode()"
           (input)="title.set($any($event.target).value)" (keydown.enter)="done()" />
         @if (twin()) { <span class="hint">{{ i18n.t('task.alreadyExists') }}</span> }
       </label>
-      <label class="field">{{ i18n.t('task.minutes') }}
-        <input type="number" inputmode="numeric" min="0" max="1440" [value]="minutes()" (input)="minutes.set(validMinutes($any($event.target).value))" />
-      </label>
-      </div>
+      <!-- Minutes under the name (Gianni): quick choices 1, 5 … 45 as radio buttons, then a box for any other value, on one line -->
+      <fieldset class="field minutes-pick">
+        <legend>{{ i18n.t('task.minutes') }}</legend>
+        <div class="min-row" role="radiogroup" [attr.aria-label]="i18n.t('task.minutes')">
+          @for (m of quickMinutes; track m) {
+            <label class="min-chip" [class.on]="minutes() === m">
+              <input type="radio" name="task-minutes" [value]="m" [checked]="minutes() === m" (change)="minutes.set(m)" />{{ m }}</label>
+          }
+          <input class="min-other" type="number" inputmode="numeric" min="0" max="1440" [value]="minutes()"
+                 [attr.aria-label]="i18n.t('task.minutesOther')" (input)="minutes.set(validMinutes($any($event.target).value))" />
+        </div>
+      </fieldset>
       @if (problem()) { <p class="app-error" role="alert">{{ problem() }}</p> }
 
       <footer>
@@ -165,6 +172,8 @@ export class TaskDialog implements AfterViewInit {
 
   protected readonly title = signal('');
   protected readonly minutes = signal(0);
+  /** The quick choices under the name (Gianni); any other value goes in the box after them. */
+  protected readonly quickMinutes = [1, 5, 10, 15, 20, 25, 30, 35, 40, 45];
   protected readonly day$ = signal<Day>('MONDAY');
   protected readonly blockId = signal('');
   protected readonly color = signal<string | null>(null);

@@ -166,6 +166,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'task.choose': { en: 'Choose', es: 'Elegir' },
   'task.pickSearch': { en: 'Search an activity, story, feature or epic…', es: 'Busca una actividad, story, feature o epic…' },
   'task.name': { en: 'Name', es: 'Nombre' },
+  'task.minutesOther': { en: 'Other minutes', es: 'Otros minutos' },
   'task.minutes': { en: 'Minutes', es: 'Minutos' },
   'task.day': { en: 'Day', es: 'Día' },
   'task.block': { en: 'Block', es: 'Bloque' },
