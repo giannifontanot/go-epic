@@ -99,6 +99,7 @@ export class Focus {
   private readonly tones = computed(() => {
     const map = new Map<string, string>();
     for (const block of this.plan().blocks) blockColors(block.tasks, this.autoColors.map).forEach((color, i) => map.set(block.tasks[i].id, color));
+    this.autoColors.saveIfGrown();                                   // colours first chosen here are kept too
     return map;
   });
   /**

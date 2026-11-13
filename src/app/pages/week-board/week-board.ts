@@ -254,14 +254,9 @@ export class WeekBoard {
   private readonly autoColors = inject(AutoColors);
   /** Each card keeps the automatic colour it first got, wherever it moves (Gianni). */
   protected colors(block: Block): string[] {
-    const size = this.autoColors.map.size;
     const colors = blockColors(block.tasks, this.autoColors.map);
-    if (this.autoColors.map.size !== size) this.autoColors.save(() => this.liveCardKeys());
+    this.autoColors.saveIfGrown();
     return colors;
-  }
-  private liveCardKeys(): string[] {
-    const week = this.store.week();
-    return DAYS.flatMap((day) => week[day].blocks.flatMap((b) => b.tasks.map((t) => t.ref || t.id)));
   }
 
   protected startLabel(block: Block, index: number): string {
