@@ -908,7 +908,7 @@ export class WeekBoard {
       if (blocks.some((b) => b.id === save.blockId)) {
         return blocks.map((b) => (b.id === save.blockId ? { ...b, tasks: [...b.tasks, save.task] } : b));
       }
-      const name = uniqueName(blocks.map((b) => b.name), draft?.name ?? this.i18n.t('week.newBlock'));
+      const name = uniqueName(blocks.map((b) => b.name), save.blockName || draft?.name || this.i18n.t('week.newBlock'));
       const block: Block = { id: draft?.id ?? newId(), name, start: null, end: null, tasks: [save.task] };
       return [block, ...blocks];                                             // a new block goes at the top, easy to find
     });

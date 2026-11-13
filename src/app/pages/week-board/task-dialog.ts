@@ -20,6 +20,8 @@ export interface TaskSave {
   day: Day;
   blockId: string;
   task: Task;
+  /** The name typed for a new block (a day's +); blank keeps the default name. */
+  blockName?: string;
   /** Where the task is filed in the library: its user story, or null (Free Space). */
   parentId: string | null;
   /** The colour was chosen in these details (else a reused library task keeps its own). */
@@ -39,7 +41,7 @@ export interface TaskSave {
       <header>
         <div class="head-box">
           <div class="head-text">
-            <p class="eyebrow">{{ i18n.t('day.' + edit().day) }} · {{ blockName() }}</p>
+            <p class="eyebrow">{{ i18n.t('day.' + edit().day) }} · {{ newBlock() ? (newBlockName().trim() || blockName()) : blockName() }}</p>
             <h2 id="task-dialog-title" tabindex="-1" autofocus>{{ i18n.t(newBlock() ? 'task.newBlockTitle' : edit().isNew ? 'task.newTitle' : 'task.title') }}</h2>
           </div>
           <!-- Active, at the top where Delete used to be (Gianni) -->
@@ -57,12 +59,21 @@ export interface TaskSave {
             @for (day of days; track day) { <option [value]="day" [selected]="day === day$()">{{ i18n.t('day.' + day) }}</option> }
           </select>
         </label>
+        @if (newBlock()) {
+          <!-- A new block (a day's +): its name is typed here, not picked from the day's blocks (Gianni); a steady
+               yellow halo marks it as the field to fill -->
+          <label class="field">{{ i18n.t('task.blockName') }}
+            <input #blockNameBox class="new-block-name" type="text" enterkeyhint="next" [placeholder]="blockName()" [value]="newBlockName()"
+                   (input)="newBlockName.set($any($event.target).value)" />
+          </label>
+        } @else {
         <label class="field">{{ i18n.t('task.block') }}
           <select (change)="blockId.set($any($event.target).value)">
             @for (block of blocks(); track block.id) { <option [value]="block.id" [selected]="block.id === blockId()">{{ block.name }}</option> }
             @if (!blocks().length) { <option value="" selected>{{ i18n.t('week.newBlock') }}</option> }
           </select>
         </label>
+        }
       </div>
 
       @if (libraryReady()) {
@@ -74,7 +85,11 @@ export interface TaskSave {
             <span class="linked-chip" [style.background]="color() || node.color || '#ffd5bd'">{{ node.title }}
               <button type="button" [attr.aria-label]="i18n.t('task.unlink')" [title]="i18n.t('task.unlink')" (click)="unlink(name)">×</button></span>
           } @else if (existing().length) {
-            <button type="button" class="pick-open" (click)="openPicker()">{{ i18n.t('task.pickActivity', { n: existing().length }) }} ›</button>
+            <!-- A button, not a field (Gianni found the box looked like something to type in): a list icon, the action
+                 in words, the count as a badge and an arrow; the same pill look as the Color button beside it -->
+            <button type="button" class="pick-open" aria-haspopup="dialog" (click)="openPicker()">
+              <span class="pick-icon" aria-hidden="true">☰</span><span class="pick-text">{{ i18n.t('task.pickActivity') }}</span>
+              <span class="pick-count" [attr.aria-label]="i18n.t('task.pickCount', { n: existing().length })">{{ existing().length }}</span><span class="pick-chev" aria-hidden="true">›</span></button>
           } @else {
             <span class="hint">{{ i18n.t('task.noTasksHere') }}</span>
           }
@@ -84,6 +99,7 @@ export interface TaskSave {
                 (click)="colorWindow.open()"><span class="color-dot" [class.auto]="!color()" [style.background]="color()"></span>{{ i18n.t('task.color') }}</button>
         </div>
       }
+      @if (libraryReady() && !linkedNode() && existing().length) { <p class="or-new" aria-hidden="true">{{ i18n.t('task.orNew') }}</p> }
       <label class="field">{{ i18n.t('task.name') }}
         <input #name type="text" [value]="title()" [readOnly]="!!linkedNode()" [class.locked]="!!linkedNode()"
           (input)="title.set($any($event.target).value)" (keydown.enter)="done()" />
@@ -234,6 +250,9 @@ export class TaskDialog implements AfterViewInit {
   protected readonly twin = computed(() => (this.linkedNode() ? undefined : twinTask(this.library(), this.title(), this.where().story || null)));
 
   protected readonly blocks = computed<Block[]>(() => this.week()[this.day$()].blocks);
+  /** A new block's name as typed (a day's +). */
+  protected readonly newBlockName = signal('');
+  private readonly blockNameBox = viewChild<ElementRef<HTMLInputElement>>('blockNameBox');
   protected readonly blockName = computed(() => this.week()[this.edit().day].blocks.find((b) => b.id === this.edit().blockId)?.name ?? '');
 
   ngAfterViewInit(): void {
@@ -247,6 +266,7 @@ export class TaskDialog implements AfterViewInit {
     this.viewReady = true;
     if (this.libraryReady()) this.linkFromLibrary();
     openDialog(this.dialog().nativeElement, { escape: false });          // Esc = Cancel (leave), handled above
+    this.blockNameBox()?.nativeElement.focus();                          // a new block: its name comes first
   }
 
   /** Linked to its library task (or, for an older task with none, to the only library task of that name); once. */
@@ -331,6 +351,7 @@ export class TaskDialog implements AfterViewInit {
   protected pickDay(day: Day): void {
     this.day$.set(day);
     const blocks = this.week()[day].blocks;
+    if (this.newBlock()) return;                                          // a new block goes to whichever day is picked
     const same = blocks.find((b) => b.name === this.blockName());
     this.blockId.set(same?.id ?? blocks[0]?.id ?? '');
   }
@@ -364,6 +385,7 @@ export class TaskDialog implements AfterViewInit {
       day: this.day$(),
       blockId: this.blockId(),
       task: { ...task, title, minutes: this.minutes(), color: this.color(), active: this.active(), ref: this.linkedNode()?.id ?? this.twin()?.id ?? (this.libraryReady() ? null : task.ref) },
+      blockName: this.newBlock() ? this.newBlockName().trim() || undefined : undefined,
       parentId: this.where().story || null,
       colorPicked: this.colorPicked(),
     };

@@ -174,7 +174,8 @@ dialog.editor header .danger { border: 0; border-radius: 999px; padding: 9px 16p
 .field { display: grid; gap: 6px; margin-bottom: 14px; font-size: 13px; }
 .field input, .field select { width: 100%; min-height: 44px; padding: 9px 10px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px; background: var(--page); color: var(--ink); font-size: 16px; }
 .field select option { color: var(--card-ink); background: var(--light); }
-.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.row2 .field, .row2 .field :is(input, select) { min-width: 0; }   /* both controls shrink inside a narrow phone's window */
 .color-pick { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); align-items: center; justify-items: center; gap: 8px; margin: 2px 0 14px; font-size: 13px; }
 .color-pick > span { grid-column: 1 / 4; justify-self: start; }
 .swatch { width: 100%; max-width: 36px; aspect-ratio: 1; padding: 0; border: 2px solid transparent; border-radius: 50%; }
@@ -394,9 +395,18 @@ dialog.editor.new-block header .head-box { border-radius: 18px 22px 15px 24px; c
 dialog.editor.new-activity header .head-box { border-radius: 14px 18px 13px 18px; color: #302746; background: #ffd5bd; box-shadow: 0 4px 0 rgba(78, 57, 88, .25); }
 dialog.editor:is(.new-block, .new-activity) header .danger { flex: none; background: rgba(54, 38, 67, .12); color: #9f1239; }
 
-/* "See the n activities" opens the picker */
-.pick-open { width: 100%; min-height: 44px; padding: 10px 14px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px;
-  background: var(--page); color: var(--ink); font-size: 15px; font-weight: 700; text-align: left; }
+/* "Choose from my activities" opens the picker. It must read as a button, not a field (Gianni; a panel chose): a pill
+   like the Color button, a list icon, the action in words, the count as a badge and an arrow; "or name a new one"
+   then separates it from the Name box below */
+.pick-open { display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; min-height: 44px; padding: 0 12px 0 14px; border: 1.5px solid var(--teal); border-radius: 999px;
+  background: color-mix(in srgb, var(--teal) 14%, transparent); color: var(--ink); font-size: 15px; font-weight: 700; text-align: left; cursor: pointer; }
+.pick-open:hover { background: color-mix(in srgb, var(--teal) 24%, transparent); }
+.pick-icon { flex: none; font-size: 16px; opacity: .8; }
+.pick-text { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pick-count { flex: none; min-width: 28px; padding: 2px 8px; border-radius: 999px; background: var(--pink); color: var(--g-on-ink, #1b2757); font-size: 13px; font-weight: 800; text-align: center; }
+.pick-chev { flex: none; font-size: 20px; line-height: 1; opacity: .8; }
+.or-new { display: flex; align-items: center; gap: 10px; margin: 2px 0 8px; color: var(--ink-soft); font-size: 13px; }
+.or-new::before, .or-new::after { content: ''; flex: 1; height: 1px; background: color-mix(in srgb, var(--ink) 20%, transparent); }
 
 /* The activity picker: navy window; each activity as in the Canvas: Epic (plum), Feature (yellow jelly), Story (cream),
    Activity (its pastel, or its aged paper) at the bottom */
@@ -445,17 +455,20 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 /* Task details: the name and the minutes share one line (minutes is a small box) */
 .name-row { display: grid; grid-template-columns: minmax(0, 1fr) 88px; gap: 10px; align-items: start; }
 .name-row .field { min-width: 0; }
-/* Minutes under the name: ten quick radio chips (1, 5 … 45) and a box for any other value, all on one line; the chips
-   share the width (40px tall), so it fits a phone */
+/* A new block's name: a steady yellow halo shows it is the field to fill (Gianni: no flashing) */
+.field input.new-block-name { border: 2px solid #f5c945; box-shadow: 0 0 0 3px rgba(245, 201, 69, .35); }
+.field input.new-block-name:focus { outline: none; box-shadow: 0 0 0 4px rgba(245, 201, 69, .55); }
+/* Minutes under the name: ten quick radio chips (1, 5 … 45) and a box for any other value on two rows of six
+   columns (Gianni: one line looked cramped): 1–25, then 30–45 and the box over two columns; every chip ≥ 40px */
 fieldset.minutes-pick { border: 0; margin: 0; padding: 0; min-width: 0; }
 fieldset.minutes-pick legend { padding: 0; margin-bottom: 6px; }
-.min-row { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)) minmax(52px, 1.6fr); gap: 3px; align-items: stretch; }
-.min-chip { position: relative; display: grid; place-items: center; min-width: 0; min-height: 40px; border-radius: 10px;
-  border: 1.5px solid color-mix(in srgb, var(--ink) 25%, transparent); background: color-mix(in srgb, var(--ink) 6%, transparent); color: var(--ink); font-size: 14px; font-weight: 700; cursor: pointer; }
+.min-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; align-items: stretch; }
+.min-chip { position: relative; display: grid; place-items: center; min-width: 0; min-height: 44px; border-radius: 12px;
+  border: 1.5px solid color-mix(in srgb, var(--ink) 25%, transparent); background: color-mix(in srgb, var(--ink) 6%, transparent); color: var(--ink); font-size: 17px; font-weight: 700; cursor: pointer; }
 .min-chip input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
 .min-chip.on { border-color: var(--pink); background: var(--pink); color: var(--g-on-ink, #1b2757); }
 .min-chip:has(input:focus-visible) { outline: 3px solid var(--teal); outline-offset: 1px; }
-.min-row .min-other { min-width: 0; width: 100%; min-height: 40px; padding: 4px 6px; text-align: center; }
+.min-row .min-other { grid-column: span 2; min-width: 0; width: 100%; min-height: 44px; padding: 4px 6px; text-align: center; font-size: 17px; }
 /* Red ✕: deletes (always asks first), the same for a card and for a block */
 .round.danger-x { color: #dc2626; border-color: rgba(220, 38, 38, .55); font-weight: 900; }
 .round.danger-x:hover:not(:disabled) { color: #fff; background: #dc2626; border-color: #dc2626; }
@@ -508,7 +521,7 @@ dialog.editor header .head-switch { flex: none; min-height: 40px; font-weight: 7
 .where-card { margin: 0 0 14px; cursor: default; }
 .where-card .pc-epic { padding-right: 6px; }
 .exist-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: end; }
-.exist-row .field { min-width: 0; }
+.exist-row .field { min-width: 0; grid-template-columns: minmax(0, 1fr); }
 .color-open { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin-bottom: 14px; padding: 0 14px; border: 1px solid rgba(255, 255, 255, .2);
   border-radius: 999px; background: var(--page); color: var(--ink); font-size: 14px; font-weight: 700; }
 .color-open[aria-expanded='true'] { border-color: var(--teal); }
