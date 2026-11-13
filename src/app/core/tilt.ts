@@ -42,7 +42,11 @@ export function pileShift(k: number, roomLeft: number, roomRight: number): numbe
 }
 
 /** Everything that has weight: the buttons, and the bodies styles.css lists under `html.tilt :is(…)`. */
-export const TILT_BODIES = 'button, .block, .task, .now-card, .habit, .capture-list li, .epics-label, .object, .pc-feature, .pc-story, .pc-activity';
+/** Every body that leans and slides: buttons, then (Gianni: everything) blocks, day columns, cards, fields, notes and
+ *  Canvas objects. The same list as `html.tilt :is(…)` in styles.css. Texts (titles, a card's time and minutes, block
+ *  summaries, hints) only lean, in place, so they never slide over each other; nothing positioned by its own translate
+ *  (the card's state badge, the now-line) is in either list. */
+export const TILT_BODIES = 'button, .block, .task, .now-card, .habit, .capture-list li, .epics-label, .object, .pc-feature, .pc-story, .pc-activity, .day, .field, input, select, .todo-note, .todo-strip, .stepper, .linked-chip';
 
 const STORAGE_KEY = 'go-epic-tilt';
 type PermissionFn = () => Promise<'granted' | 'denied'>;
