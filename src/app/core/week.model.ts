@@ -118,6 +118,20 @@ export function stretchedEnd(block: Block, delta: number): string | null {
   return formatClock(next);
 }
 
+/**
+ * A task's minutes after the handle at its foot is pulled by `delta` minutes (Gianni: stretch a card in edit mode):
+ * never below zero, and never past the block's end (the end is a hard limit, so it grows only into free time; a block
+ * already over can only shrink). A block without an end has no limit but a whole day.
+ */
+export function resizedMinutes(block: Block, taskId: string, delta: number): number {
+  const task = block.tasks.find((t) => t.id === taskId);
+  if (!task) return 0;
+  const current = validMinutes(task.minutes);
+  const free = freeMinutes(block);
+  const max = free === null ? 1440 : current + Math.max(0, free);
+  return Math.min(max, Math.max(0, Math.round(current + delta)));
+}
+
 /** Start time of each task: the block's start plus the minutes of the tasks before it. */
 export function taskStarts(block: Block): (number | null)[] {
   const start = parseClock(block.start);
