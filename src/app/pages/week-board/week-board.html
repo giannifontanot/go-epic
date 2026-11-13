@@ -1,4 +1,4 @@
-<section class="board" [class.locked]="!arranging()" [class.has-tray]="overdue().length > 0">
+<section class="board" [class.locked]="!arranging()" [class.has-tray]="!arranging() && overdue().length > 0">
   <!-- Title, then (while arranging) Finish in the middle, and 💡 Capture at the right; the floating ✎ arranges the week. -->
   <header class="board-top week-top">
     <h1>{{ i18n.t('nav.week') }}</h1>
@@ -55,7 +55,8 @@
 
         <!-- Capture's tasks for this day that no activity holds (no hour, or an hour outside the blocks). The ones left
              open on earlier days float at the foot of the screen instead (.overdue-tray, below) -->
-        @let strip = pins()[day].loose;
+        <!-- Edit mode hides Capture's tasks everywhere (Gianni: they distract while arranging) -->
+        @let strip = arranging() ? [] : pins()[day].loose;
         @if (strip.length) {
           <ul class="todo-strip" [attr.aria-label]="i18n.t('week.todos')">
             @for (todo of strip; track todo.id) {
@@ -159,7 +160,7 @@
                     } @else if (st !== 'todo') { <span class="t-status" [attr.data-status]="st">{{ statusIcon(st) }} {{ i18n.t('status.' + st) }}</span> }
                   }
                   <!-- Capture's tasks at an hour inside this activity: a note pinned over it, at that hour -->
-                  @for (stack of noteStacks(day, task); track stack.todos[0].id) {
+                  @for (stack of arranging() ? [] : noteStacks(day, task); track stack.todos[0].id) {
                     <span class="todo-stack" [style.top.%]="stack.fraction * 100" (click)="$event.stopPropagation()" (pointerdown)="$event.stopPropagation()">
                       @for (todo of stack.todos; track todo.id) {
                         <span class="todo-note pinned" [class.checked]="todo.done !== null">
@@ -209,7 +210,7 @@
   </div>
 
   <!-- Tasks left open on earlier days, and today's whose hour has passed (Gianni): they float at the foot of the screen, always in sight, until checked -->
-  @if (overdue().length) {
+  @if (!arranging() && overdue().length) {
     <section class="overdue-tray" [attr.aria-label]="i18n.t('week.overdue')">
       <p class="overdue-head">{{ i18n.t('week.overdue') }} · {{ overdue().length }}</p>
       <ul>
