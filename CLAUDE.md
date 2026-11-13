@@ -54,7 +54,7 @@ users/{uid}/todos/{id}         Todo                                Capture's tas
 
 ## Conventions
 - Standalone components, signals (`signal`, `computed`, `input`, `output`), `@if/@for`; no NgModules, no RxJS state.
-- Phones first: tap targets ≥ 40px, inputs 16px (no iOS zoom), safe-area insets, one day at a time ≤ 820px.
+- Phones first: tap targets ≥ 40px (one exception Gianni chose: the minute chips in the activity details are ~27×40px so 1…45 and the box fit one line; still above WCAG's 24px minimum), inputs 16px (no iOS zoom), safe-area insets, one day at a time ≤ 820px.
 - Dialogs are native `<dialog>` with `showModal()`; backdrop clicks via `isBackdropClick`.
 - Respect `prefers-reduced-motion`.
 
