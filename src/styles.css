@@ -431,7 +431,8 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 .end-handle .grip-bar { width: 56px; height: 6px; border-radius: 999px; background: rgba(54, 38, 67, .45); }
 .end-handle:hover .grip-bar, .end-handle:active .grip-bar { background: #0d9488; }
 /* a card's own handle (edit mode): a short bar at its foot that stretches its minutes */
-.t-handle { position: relative; display: grid; place-items: center; height: 28px; margin: 0 -12px -6px; cursor: ns-resize; touch-action: none; border-radius: 0 0 16px 16px; }
+.t-handle { position: relative; display: grid; place-items: center; height: 40px; margin: -8px -12px -6px;   /* a 40px tap target, the bar stays small */
+  cursor: ns-resize; touch-action: none; border-radius: 0 0 16px 16px; }
 .t-handle:focus-visible { outline: 3px solid var(--teal); outline-offset: -3px; }
 .t-handle .grip-bar { width: 44px; height: 5px; border-radius: 999px; background: rgba(48, 39, 70, .4); }
 .t-handle:hover .grip-bar, .t-handle:active .grip-bar { background: #0d9488; }
