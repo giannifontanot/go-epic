@@ -342,7 +342,7 @@ html.tilt button { rotate: var(--tilt-r);
 /* Everything has weight (Gianni): blocks, day columns, cards, titles and texts, fields, notes, habits and Canvas
    objects lean and slide too, less than the buttons since they nest (a title leans inside its leaning card, inside its
    leaning block). TILT_BODIES in tilt.ts lists the same elements. */
-html.tilt :is(.block, .task, .now-card, .habit, .capture-list li, .epics-label, .object, .pc-feature, .pc-story, .pc-activity, .day, .field, input, select, .todo-note, .todo-strip, .stepper, .linked-chip) {
+html.tilt :is(.block, .task, .now-card, .habit, .capture-list li, .epics-label, .object, .pc-feature, .pc-story, .pc-activity, .day, .field, .min-chip, input:not([type=radio]), select:not(.pc-head > select), .todo-note, .todo-strip, .stepper, .linked-chip) {
   rotate: calc(var(--tilt-r) * .3);
   translate: calc((max(var(--tilt-k), 0) * var(--tilt-rr, 0px) + min(var(--tilt-k), 0) * var(--tilt-rl, 0px)) * .55) var(--tilt-y, 0px); }
 html.tilt .task.done { --tilt-y: 4px; }
@@ -351,7 +351,7 @@ html.tilt :is(h1, h2, .t-title, .t-time, .t-dur, .summary, .free, .hint, .eyebro
 html.tilt article.day { rotate: calc(var(--tilt-r) * .12); }   /* a whole day column is tall: it leans less, so its foot never swings off the screen */
 /* A Canvas object keeps its place on this device (--ox / --oy, canvas-node) and adds the slide to it */
 html.tilt .object { translate: calc(var(--ox, 0px) + (max(var(--tilt-k), 0) * var(--tilt-rr, 0px) + min(var(--tilt-k), 0) * var(--tilt-rl, 0px)) * .55) var(--oy, 0px); }
-@media (prefers-reduced-motion: reduce) { html.tilt :is(button, .block, .task, .now-card, .habit, .capture-list li, .epics-label, .pc-feature, .pc-story, .pc-activity, .day, .field, input, select, .todo-note, .todo-strip, .stepper, .linked-chip, h1, h2, .t-title, .t-time, .t-dur, .summary, .free, .hint, .eyebrow) { rotate: none; translate: none; }
+@media (prefers-reduced-motion: reduce) { html.tilt :is(button, .block, .task, .now-card, .habit, .capture-list li, .epics-label, .pc-feature, .pc-story, .pc-activity, .day, .field, .min-chip, input:not([type=radio]), select:not(.pc-head > select), .todo-note, .todo-strip, .stepper, .linked-chip, h1, h2, .t-title, .t-time, .t-dur, .summary, .free, .hint, .eyebrow) { rotate: none; translate: none; }
   html.tilt .object { rotate: none; translate: var(--ox, 0px) var(--oy, 0px); } }
 
 /* The update button glows and breathes, a gold halo pulsing around it (a still halo under reduced motion) */
