@@ -445,6 +445,9 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 /* Task details: the name and the minutes share one line (minutes is a small box) */
 .name-row { display: grid; grid-template-columns: minmax(0, 1fr) 88px; gap: 10px; align-items: start; }
 .name-row .field { min-width: 0; }
+/* A new block's name: a steady yellow halo shows it is the field to fill (Gianni: no flashing) */
+.field input.new-block-name { border: 2px solid #f5c945; box-shadow: 0 0 0 3px rgba(245, 201, 69, .35); }
+.field input.new-block-name:focus { outline: none; box-shadow: 0 0 0 4px rgba(245, 201, 69, .55); }
 /* Minutes under the name: ten quick radio chips (1, 5 … 45) and a box for any other value, all on one line; the chips
    share the width (40px tall), so it fits a phone */
 fieldset.minutes-pick { border: 0; margin: 0; padding: 0; min-width: 0; }

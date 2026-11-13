@@ -20,6 +20,8 @@ export interface TaskSave {
   day: Day;
   blockId: string;
   task: Task;
+  /** The name typed for a new block (a day's +); blank keeps the default name. */
+  blockName?: string;
   /** Where the task is filed in the library: its user story, or null (Free Space). */
   parentId: string | null;
   /** The colour was chosen in these details (else a reused library task keeps its own). */
@@ -39,7 +41,7 @@ export interface TaskSave {
       <header>
         <div class="head-box">
           <div class="head-text">
-            <p class="eyebrow">{{ i18n.t('day.' + edit().day) }} · {{ blockName() }}</p>
+            <p class="eyebrow">{{ i18n.t('day.' + edit().day) }} · {{ newBlock() ? (newBlockName().trim() || blockName()) : blockName() }}</p>
             <h2 id="task-dialog-title" tabindex="-1" autofocus>{{ i18n.t(newBlock() ? 'task.newBlockTitle' : edit().isNew ? 'task.newTitle' : 'task.title') }}</h2>
           </div>
           <!-- Active, at the top where Delete used to be (Gianni) -->
@@ -57,12 +59,21 @@ export interface TaskSave {
             @for (day of days; track day) { <option [value]="day" [selected]="day === day$()">{{ i18n.t('day.' + day) }}</option> }
           </select>
         </label>
+        @if (newBlock()) {
+          <!-- A new block (a day's +): its name is typed here, not picked from the day's blocks (Gianni); a steady
+               yellow halo marks it as the field to fill -->
+          <label class="field">{{ i18n.t('task.blockName') }}
+            <input #blockNameBox class="new-block-name" type="text" enterkeyhint="next" [placeholder]="blockName()" [value]="newBlockName()"
+                   (input)="newBlockName.set($any($event.target).value)" />
+          </label>
+        } @else {
         <label class="field">{{ i18n.t('task.block') }}
           <select (change)="blockId.set($any($event.target).value)">
             @for (block of blocks(); track block.id) { <option [value]="block.id" [selected]="block.id === blockId()">{{ block.name }}</option> }
             @if (!blocks().length) { <option value="" selected>{{ i18n.t('week.newBlock') }}</option> }
           </select>
         </label>
+        }
       </div>
 
       @if (libraryReady()) {
@@ -234,6 +245,9 @@ export class TaskDialog implements AfterViewInit {
   protected readonly twin = computed(() => (this.linkedNode() ? undefined : twinTask(this.library(), this.title(), this.where().story || null)));
 
   protected readonly blocks = computed<Block[]>(() => this.week()[this.day$()].blocks);
+  /** A new block's name as typed (a day's +). */
+  protected readonly newBlockName = signal('');
+  private readonly blockNameBox = viewChild<ElementRef<HTMLInputElement>>('blockNameBox');
   protected readonly blockName = computed(() => this.week()[this.edit().day].blocks.find((b) => b.id === this.edit().blockId)?.name ?? '');
 
   ngAfterViewInit(): void {
@@ -247,6 +261,7 @@ export class TaskDialog implements AfterViewInit {
     this.viewReady = true;
     if (this.libraryReady()) this.linkFromLibrary();
     openDialog(this.dialog().nativeElement, { escape: false });          // Esc = Cancel (leave), handled above
+    this.blockNameBox()?.nativeElement.focus();                          // a new block: its name comes first
   }
 
   /** Linked to its library task (or, for an older task with none, to the only library task of that name); once. */
@@ -331,6 +346,7 @@ export class TaskDialog implements AfterViewInit {
   protected pickDay(day: Day): void {
     this.day$.set(day);
     const blocks = this.week()[day].blocks;
+    if (this.newBlock()) return;                                          // a new block goes to whichever day is picked
     const same = blocks.find((b) => b.name === this.blockName());
     this.blockId.set(same?.id ?? blocks[0]?.id ?? '');
   }
@@ -364,6 +380,7 @@ export class TaskDialog implements AfterViewInit {
       day: this.day$(),
       blockId: this.blockId(),
       task: { ...task, title, minutes: this.minutes(), color: this.color(), active: this.active(), ref: this.linkedNode()?.id ?? this.twin()?.id ?? (this.libraryReady() ? null : task.ref) },
+      blockName: this.newBlock() ? this.newBlockName().trim() || undefined : undefined,
       parentId: this.where().story || null,
       colorPicked: this.colorPicked(),
     };

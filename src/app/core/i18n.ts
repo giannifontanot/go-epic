@@ -170,6 +170,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'task.minutes': { en: 'Minutes', es: 'Minutos' },
   'task.day': { en: 'Day', es: 'Día' },
   'task.block': { en: 'Block', es: 'Bloque' },
+  'task.blockName': { en: 'Block name', es: 'Nombre del bloque' },
   'task.color': { en: 'Color', es: 'Color' },
   'task.auto': { en: 'Automatic', es: 'Automático' },
   'task.active': { en: 'Active', es: 'Activo' },
