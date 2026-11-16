@@ -107,12 +107,12 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 .block-window input { width: 100%; min-width: 0; min-height: 38px; padding: 4px 6px; border: 1px solid rgba(54, 38, 67, .3); border-radius: 10px; background: #fff8e8; color: var(--jelly-ink); font-size: 16px; color-scheme: light; }
 @media (min-width: 821px) { .block-window input { font-size: 14px; } }
 .window-error { margin: 0; color: var(--red); font-size: 12px; font-weight: 700; }
-.block-tools { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+.block-tools { display: flex; gap: 6px; }
 .round.danger:hover:not(:disabled) { border-color: var(--red); color: var(--red); }
 
 .tasks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .task { position: relative; display: flex; flex-direction: column; justify-content: space-between;
-  min-height: calc(46px + var(--mins, 0) * var(--px-min, 1.6px)); padding: 8px 12px 6px; border-radius: 16px;
+  min-height: calc(46px + var(--mins, 0) * var(--px-min, 1px)); padding: 8px 12px 6px; border-radius: 16px;
   background: var(--tone); color: var(--card-ink); box-shadow: 0 5px 0 rgba(48, 39, 70, .25); }
 .board:not(.locked) .task { cursor: pointer; transition: translate .18s ease, rotate .18s ease; }
 @media (hover: hover) { .board:not(.locked) .task:hover { translate: 0 -3px; rotate: -.35deg; } }
@@ -123,14 +123,17 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 /* Edit mode: a card is its content plus its minutes, never a floor, so shrinking it hands every pixel to the free band
    (Gianni: pulling the last card's handle up made the block grow) */
 .board:not(.locked) .task { min-height: 0; }
-.t-span { flex: none; height: calc(var(--mins, 0) * var(--px-min, 1.6px)); }
+.t-span { flex: none; height: calc(var(--mins, 0) * var(--px-min, 1px)); }
 .board:not(.locked) .free-band { min-height: 0; }
 .t-dur { align-self: flex-end; font-size: 11px; font-weight: 800; letter-spacing: .04em; opacity: .7; }
 .t-tools { flex: none; display: flex; gap: 4px; }
 .t-tools .round { --tap: 30px; }
 /* While arranging, a card's ••• × ▲ ▼ get their own row above the title, so the title keeps the full width. */
 .board:not(.locked) .task-row { flex-wrap: wrap; }
-.board:not(.locked) .t-tools { order: -1; width: 100%; justify-content: center; }   /* edit tools centred (Gianni) */
+.board:not(.locked) .t-tools { order: -1; width: 100%; }
+/* Edit tools: ▲ ▼ at the far left, the others (✎ ✕ on a card; ⇄ + ✕ on a block) at the far right, so moving and
+   editing are never confused (Gianni) */
+:is(.t-tools, .block-tools) > .push { margin-left: auto; }
 @media (pointer: coarse), (max-width: 820px) { .t-tools .round { --tap: 42px; } }   /* ≥ 40px tap targets on phones */
 .task.off { background: #d9d3e3; text-decoration: line-through; }
 /* Done (Gianni: "más glorioso"): pressed in, on pale gold with a gold rim, readable dark-gold ink */
@@ -465,7 +468,7 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 .pc-act-x { flex: none; width: 40px; height: 40px; align-self: center; margin-right: 4px; border: 0; border-radius: 50%; background: rgba(48, 39, 70, .12); color: inherit; font-size: 18px; }
 
 /* A block's free time: a striped band over its own yellow, as tall as its minutes (--px-min each, like the cards) */
-.free-band { height: calc(var(--free) * var(--px-min, 1.6px)); min-height: 6px; border-radius: 12px;
+.free-band { height: calc(var(--free) * var(--px-min, 1px)); min-height: 6px; border-radius: 12px;
   background: repeating-linear-gradient(135deg, rgba(54, 38, 67, .16) 0 10px, transparent 10px 20px); }
 /* The handle at the block's foot: pull it down or up to move the block's end; a badge shows the end while pulling */
 /* Only the grip itself pulls (Gianni: a scroll that started near it stretched the block): a 72×40px target centred

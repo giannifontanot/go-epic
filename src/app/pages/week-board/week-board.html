@@ -115,7 +115,7 @@
               <div class="block-tools">
                 <button type="button" class="round" [disabled]="bfirst" [attr.aria-label]="i18n.t('week.blockUp')" [title]="i18n.t('week.blockUp')" (click)="moveBlock(day, bi, -1)">▲</button>
                 <button type="button" class="round" [disabled]="blast" [attr.aria-label]="i18n.t('week.blockDown')" [title]="i18n.t('week.blockDown')" (click)="moveBlock(day, bi, 1)">▼</button>
-                <button type="button" class="round" [attr.aria-label]="i18n.t('week.transfer')" [title]="i18n.t('week.transfer')" (click)="openTransfer(day, block)">⇄</button>
+                <button type="button" class="round push" [attr.aria-label]="i18n.t('week.transfer')" [title]="i18n.t('week.transfer')" (click)="openTransfer(day, block)">⇄</button>
                 <button type="button" class="round" [disabled]="!canAddTo(block)" [attr.aria-label]="i18n.t('week.addTask')" [title]="i18n.t('week.addTask')" (click)="addTask(day, block)">+</button>
                 <button type="button" class="round danger-x" [attr.aria-label]="i18n.t('week.deleteBlock')" [title]="i18n.t('week.deleteBlock')" (click)="deleteBlock(day, block)">✕</button>
               </div>
@@ -145,7 +145,7 @@
                                 (click)="$event.stopPropagation(); moveTask(day, block, ti, -1)">▲</button>
                         <button type="button" class="round" [disabled]="tlast" [attr.aria-label]="i18n.t('week.taskDown')" [title]="i18n.t('week.taskDown')"
                                 (click)="$event.stopPropagation(); moveTask(day, block, ti, 1)">▼</button>
-                        <button type="button" class="round" [attr.aria-label]="i18n.t('week.taskActions') + ': ' + task.title" [title]="i18n.t('week.taskActions')"
+                        <button type="button" class="round push" [attr.aria-label]="i18n.t('week.taskActions') + ': ' + task.title" [title]="i18n.t('week.taskActions')"
                                 (click)="$event.stopPropagation(); openTask(day, block, task)">✎</button>
                         <button type="button" class="round danger-x" [attr.aria-label]="i18n.t('week.deleteTask') + ': ' + task.title" [title]="i18n.t('week.deleteTask')"
                                 (click)="$event.stopPropagation(); deleteTask(day, block, task)">✕</button>
