@@ -47,9 +47,11 @@ import { Library, Where, WhereLevel, nodeById, whereOptions } from '../core/libr
         <!-- The Activity line is also the way to pick an existing one (Gianni: one card, no separate button): a tap opens
              the list; once one is picked it shows here, with a × that lets it go -->
         <span class="pc-activity pc-pickable" [class.chosen]="chosen()" [style.background]="color() || '#ffd5bd'">
-          <button type="button" class="pc-act-open" aria-haspopup="dialog" (click)="activityTap.emit()">
-            <small>{{ i18n.t('canvas.task') }}</small><strong>{{ title() || i18n.t('task.newTitle') }}</strong>
-            @if (!linked()) { <em class="pc-act-hint">☰ {{ i18n.t('task.pickFromList', { n: pickCount() }) }} ›</em> }
+          <!-- Drawn like the other levels (a panel: the same «Choose ›» and ⌄ say "tap to choose" everywhere on the card) -->
+          <button type="button" class="pc-act-open" [class.pc-tap]="!linked()" aria-haspopup="dialog" (click)="activityTap.emit()">
+            <small>{{ i18n.t('canvas.task') }}</small>
+            @if (title()) { <strong>{{ title() }}</strong> }
+            @else { <strong class="pc-empty">{{ i18n.t('task.pickFromList', { n: pickCount() }) }} ›</strong> }
           </button>
           @if (linked()) {
             <button type="button" class="pc-act-x" [attr.aria-label]="i18n.t('task.unlink')" [title]="i18n.t('task.unlink')" (click)="unlink.emit()">×</button>

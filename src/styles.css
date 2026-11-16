@@ -453,9 +453,9 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 /* The Where card's Activity line as the way to pick an existing one: the whole capsule is a button, with a hint line */
 .pc-activity.pc-pickable { position: relative; display: flex; align-items: stretch; padding: 0; outline: 2px solid transparent; outline-offset: 2px; transition: outline-color .2s; }
 .pc-activity.pc-pickable.chosen { outline-color: var(--teal); }
-.pc-act-open { flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; padding: 8px 12px; min-height: 44px; border: 0; background: transparent; color: inherit; text-align: left; font: inherit; cursor: pointer; }
+.pc-act-open { position: relative; flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; padding: 8px 12px; min-height: 44px; border: 0; background: transparent; color: inherit; text-align: left; font: inherit; cursor: pointer; }
 .pc-act-open strong { font-family: Georgia, serif; }
-.pc-act-hint { font-style: normal; font-size: 13px; font-weight: 700; opacity: .7; }
+.pc-activity .pc-empty { color: #8b3a62; }
 .pc-act-x { flex: none; width: 40px; height: 40px; align-self: center; margin-right: 4px; border: 0; border-radius: 50%; background: rgba(48, 39, 70, .12); color: inherit; font-size: 18px; }
 
 /* A block's free time: a striped band over its own yellow, as tall as its minutes (1.6px each, like the cards) */
