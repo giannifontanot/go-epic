@@ -114,7 +114,7 @@
     </header>
     <form (submit)="$event.preventDefault(); submit()">
       <label class="field">{{ i18n.t('canvas.name') }}
-        <input [value]="title" (input)="title = $any($event.target).value" autocomplete="off" autofocus /></label>
+        <input [value]="title" (input)="title = $any($event.target).value" autocomplete="off" /></label>
       @if (m.kind === 'epic') {
         <label class="field">{{ i18n.t('canvas.area') }}
           <select (change)="parentId = $any($event.target).value">

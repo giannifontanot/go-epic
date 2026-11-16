@@ -48,9 +48,8 @@ export interface TodoSave { id: string; title: string; date: string | null; time
 export class TodoDialog implements AfterViewInit {
   protected readonly i18n = inject(I18n);
   readonly todo = input.required<Todo>();
-  /** A new task (the Week board's + New): titled "New task", the cursor waits in the name box. */
+  /** A new task (the Week board's + New): titled "New task"; the cursor stays out of the name box until it is tapped. */
   readonly isNew = input(false);
-  private readonly name = viewChild.required<ElementRef<HTMLInputElement>>('name');
   readonly save = output<TodoSave>();
   readonly closed = output<void>();
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
@@ -74,8 +73,7 @@ export class TodoDialog implements AfterViewInit {
     this.date.set(todo.date ?? '');
     this.time.set(todo.time ?? '');
     this.repeat.set([...todo.repeat]);
-    openDialog(this.dialog().nativeElement);
-    if (this.isNew()) this.name().nativeElement.focus();
+    openDialog(this.dialog().nativeElement);                             // no cursor in a box: the keyboard waits for a tap
   }
 
   protected onBackdrop(event: MouseEvent): void {

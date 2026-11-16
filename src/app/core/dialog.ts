@@ -80,6 +80,7 @@ export function openDialog(dialog: HTMLDialogElement, options: { escape?: boolea
   if (dialog.open) return;
   const from = options.from ?? pressPoint();
   dialog.showModal();
+  calmFocus(dialog);
   origins.set(dialog, from);
   if (options.escape !== false && !escapeHandled.has(dialog)) {
     escapeHandled.add(dialog);
@@ -88,6 +89,28 @@ export function openDialog(dialog: HTMLDialogElement, options: { escape?: boolea
   if (reducedMotion() || typeof dialog.animate !== 'function') return;
   dialog.animate(mirrored(closeFrames(dialog, from)), { duration: MS, easing: EASE_OUT });
   animateBackdrop(dialog, true, MS);
+}
+
+/** True for a control that brings up the phone's keyboard when focused. */
+export function isTypingControl(el: Element | null): boolean {
+  if (!el) return false;
+  if (el instanceof HTMLTextAreaElement) return true;
+  if (el instanceof HTMLInputElement) {
+    return !['button', 'submit', 'reset', 'checkbox', 'radio', 'range', 'color', 'file', 'image', 'hidden'].includes(el.type);
+  }
+  return (el as HTMLElement).isContentEditable === true;
+}
+
+/**
+ * No window opens with the cursor in a box (Gianni: the keyboard should come up only when he taps a box). showModal()
+ * focuses the first focusable control, which may be an input; then the focus goes to the window's title instead (else
+ * the window itself), so screen readers still start inside it.
+ */
+function calmFocus(dialog: HTMLDialogElement): void {
+  if (!isTypingControl(document.activeElement) || !dialog.contains(document.activeElement)) return;
+  const target = dialog.querySelector<HTMLElement>('h1, h2, h3') ?? dialog;
+  if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+  target.focus({ preventScroll: true });
 }
 
 /** Shrinks the dialog back into the point it came from, then closes it (the dialog's `close` event fires after). */
