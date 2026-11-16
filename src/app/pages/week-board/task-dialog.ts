@@ -82,10 +82,10 @@ export interface TaskSave {
         <div class="exist-row">
         <!-- Two ways in, each in its own bordered box (Gianni): an existing activity from the list, or a new name below.
              Choosing one greys the other out, so it is plainly one or the other (a tap on the grey one switches) -->
-        <label class="field choice" [class.chosen]="choice() === 'existing'" [class.dim]="choice() === 'new'" (pointerdown)="chooseExisting()">{{ i18n.t('task.existing') }}
+        <label class="field choice" [class.chosen]="choice() === 'existing'" [class.dim]="choice() === 'new'" (click)="chooseExisting()">{{ i18n.t('task.existing') }}
           @if (linkedNode(); as node) {
             <span class="linked-chip" [style.background]="color() || node.color || '#ffd5bd'">{{ node.title }}
-              <button type="button" [attr.aria-label]="i18n.t('task.unlink')" [title]="i18n.t('task.unlink')" (click)="unlink(name)">×</button></span>
+              <button type="button" [attr.aria-label]="i18n.t('task.unlink')" [title]="i18n.t('task.unlink')" (click)="$event.stopPropagation(); unlink(name)">×</button></span>
           } @else if (existing().length) {
             <!-- A button, not a field (Gianni found the box looked like something to type in): a list icon, the action
                  in words, the count as a badge and an arrow; the same pill look as the Color button beside it -->
@@ -99,7 +99,7 @@ export interface TaskSave {
         </div>
       }
       @if (libraryReady() && (linkedNode() || existing().length)) { <p class="or-new" aria-hidden="true">{{ i18n.t('task.orNew') }}</p> }
-      <label class="field choice" [class.chosen]="choice() === 'new'" [class.dim]="choice() === 'existing'" (pointerdown)="chooseNew(name)" (focusin)="focusNew()">{{ i18n.t('task.name') }}
+      <label class="field choice" [class.chosen]="choice() === 'new'" [class.dim]="choice() === 'existing'" (click)="chooseNew(name)" (focusin)="focusNew()">{{ i18n.t('task.name') }}
         <input #name type="text" [value]="title()" [readOnly]="!!linkedNode()" [class.locked]="!!linkedNode()"
           (input)="title.set($any($event.target).value)" (keydown.enter)="done()" />
         @if (twin()) { <span class="hint">{{ i18n.t('task.alreadyExists') }}</span> }
@@ -405,7 +405,7 @@ export class TaskDialog implements AfterViewInit {
   protected focusNew(): void {
     if (!this.linkedNode()) this.picked.set('new');
   }
-  /** The name box: a tap on it while an existing activity is linked unlinks it (it is one or the other). */
+  /** The name box: a completed tap on it (a click, never a scroll that starts there) while linked unlinks it. */
   protected chooseNew(input: HTMLInputElement): void {
     if (this.choice() === 'new') return;
     if (this.linkedNode()) { this.unlink(input); return; }
