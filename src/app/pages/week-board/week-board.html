@@ -142,6 +142,9 @@
                       </span>
                     }
                   </div>
+                  <!-- Edit mode: the card is its content plus its minutes (1.6 px each), so a minute it loses is exactly a minute
+                       the free band below gains and the block keeps its height (Gianni) -->
+                  @if (arranging()) { <span class="t-span" aria-hidden="true"></span> }
                   <span class="t-dur">{{ durationLabel(shownMinutes(task)) }}</span>
                   <!-- Edit mode: pull the handle at the card's foot to change its minutes (Gianni); never past the block's end -->
                   @if (arranging()) {
@@ -186,7 +189,7 @@
             </ul>
 
             <!-- The block's free time: a striped band as tall as the minutes it holds (Gianni, as in Epic Manager) -->
-            @if (freeShown(block) > 0) {
+            @if (freeShown(block) > 0 || arranging()) {
               <div class="free-band" [style.--free]="freeShown(block)" aria-hidden="true"></div>
             }
             <!-- Pull the handle to stretch or shrink the block: its end time follows (never before its tasks end) -->

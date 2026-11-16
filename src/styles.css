@@ -120,6 +120,11 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 .t-time { flex: none; font-size: 13px; opacity: .75; font-variant-numeric: tabular-nums; padding-top: 2px; }
 .t-title { flex: 1 1 0; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
 .board.locked .t-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }   /* long titles wrap (up to 3 lines), Gianni */
+/* Edit mode: a card is its content plus its minutes, never a floor, so shrinking it hands every pixel to the free band
+   (Gianni: pulling the last card's handle up made the block grow) */
+.board:not(.locked) .task { min-height: 0; }
+.t-span { flex: none; height: calc(var(--mins, 0) * 1.6px); }
+.board:not(.locked) .free-band { min-height: 0; }
 .t-dur { align-self: flex-end; font-size: 11px; font-weight: 800; letter-spacing: .04em; opacity: .7; }
 .t-tools { flex: none; display: flex; gap: 4px; }
 .t-tools .round { --tap: 30px; }
