@@ -416,7 +416,14 @@ dialog.editor:is(.new-block, .new-activity) header .danger { flex: none; backgro
 .color-row { display: flex; width: 100%; margin: 0 0 14px; }
 .color-row .color-label { flex: 1 1 auto; text-align: left; }
 .color-row .color-now { font-weight: 600; opacity: .7; }
-.field.choice.dim { opacity: .4; filter: grayscale(1); }
+.field.choice.dim > :not(.name-line), .field.choice.dim .name-line > input { opacity: .4; filter: grayscale(1); }
+.field.choice.dim { border-color: color-mix(in srgb, var(--ink) 10%, transparent); color: color-mix(in srgb, var(--ink) 40%, transparent); }
+/* The Name box's line: the input and a plain Color button (just the word; once a colour is picked it fills the button) */
+.name-line { display: flex; gap: 8px; align-items: stretch; min-width: 0; }
+.name-line > input { flex: 1 1 auto; min-width: 0; }
+.color-btn { flex: none; min-width: 72px; min-height: 44px; padding: 0 14px; border: 1.5px solid color-mix(in srgb, var(--ink) 35%, transparent); border-radius: 12px;
+  background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); font-size: 15px; font-weight: 700; cursor: pointer; }
+.color-btn.picked { color: var(--card-ink); border-color: transparent; }
 .or-new { display: flex; align-items: center; gap: 10px; margin: 2px 0 8px; color: var(--ink-soft); font-size: 13px; }
 .or-new::before, .or-new::after { content: ''; flex: 1; height: 1px; background: color-mix(in srgb, var(--ink) 20%, transparent); }
 

@@ -84,17 +84,19 @@ export interface TaskSave {
       }
       @if (libraryReady() && (linkedNode() || existing().length)) { <p class="or-new" aria-hidden="true">{{ i18n.t('task.orNew') }}</p> }
       <label class="field choice" [class.chosen]="choice() === 'new'" [class.dim]="choice() === 'existing'" (click)="chooseNew(name)" (focusin)="focusNew()">{{ i18n.t('task.name') }}
-        <input #name type="text" [value]="title()" [readOnly]="!!linkedNode()" [class.locked]="!!linkedNode()"
-          (input)="title.set($any($event.target).value)" (keydown.enter)="done()" />
+        <!-- The name and a plain Color button on one line (Gianni); the button never greys out (the colour applies to either
+             way in) and its tap is its own, not a tap on the Name box -->
+        <span class="name-line">
+          <input #name type="text" [value]="title()" [readOnly]="!!linkedNode()" [class.locked]="!!linkedNode()"
+            (input)="title.set($any($event.target).value)" (keydown.enter)="done()" />
+          @if (libraryReady()) {
+            <button type="button" class="color-btn" aria-haspopup="dialog" [style.background]="color() || null" [class.picked]="!!color()"
+                    [attr.aria-label]="i18n.t('task.color')" [title]="i18n.t('task.color')"
+                    (click)="$event.preventDefault(); $event.stopPropagation(); colorWindow.open()">{{ i18n.t('task.color') }}</button>
+          }
+        </span>
         @if (twin()) { <span class="hint">{{ i18n.t('task.alreadyExists') }}</span> }
       </label>
-      <!-- Colour, outside the two ways in since it applies to either (a panel: a full-width row under them, so it never
-           sits inside the box being greyed out): opens a small window with the colours; choosing one closes it -->
-      @if (libraryReady()) {
-        <button type="button" class="color-open color-row" aria-haspopup="dialog" [attr.aria-label]="i18n.t('task.color')" [title]="i18n.t('task.color')"
-                (click)="colorWindow.open()"><span class="color-dot" [class.auto]="!color()" [style.background]="color()"></span>
-          <span class="color-label">{{ i18n.t('task.color') }}</span><span class="color-now">{{ color() ? '' : i18n.t('task.auto') }}</span><span class="pick-chev" aria-hidden="true">›</span></button>
-      }
       <!-- Minutes under the name (Gianni): quick choices 1, 5 … 45 as radio buttons, then a box for any other value, on one line -->
       <fieldset class="field minutes-pick">
         <legend>{{ i18n.t('task.minutes') }}</legend>
