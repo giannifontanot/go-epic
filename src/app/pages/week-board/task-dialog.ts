@@ -80,10 +80,12 @@ export interface TaskSave {
         <!-- Where: the card is the chooser (tap a level), as in the Canvas (shared with Capture's editor) -->
         <app-where-card [library]="library()" [where]="where()" [title]="title()" [color]="color()" (pick)="pick($event.level, $event.id)" />
         <div class="exist-row">
-        <label class="field">{{ i18n.t('task.existing') }}
+        <!-- Two ways in, each in its own bordered box (Gianni): an existing activity from the list, or a new name below.
+             Choosing one greys the other out, so it is plainly one or the other (a tap on the grey one switches) -->
+        <label class="field choice" [class.chosen]="choice() === 'existing'" [class.dim]="choice() === 'new'" (click)="chooseExisting()">{{ i18n.t('task.existing') }}
           @if (linkedNode(); as node) {
             <span class="linked-chip" [style.background]="color() || node.color || '#ffd5bd'">{{ node.title }}
-              <button type="button" [attr.aria-label]="i18n.t('task.unlink')" [title]="i18n.t('task.unlink')" (click)="unlink(name)">×</button></span>
+              <button type="button" [attr.aria-label]="i18n.t('task.unlink')" [title]="i18n.t('task.unlink')" (click)="$event.stopPropagation(); unlink(name)">×</button></span>
           } @else if (existing().length) {
             <!-- A button, not a field (Gianni found the box looked like something to type in): a list icon, the action
                  in words, the count as a badge and an arrow; the same pill look as the Color button beside it -->
@@ -94,17 +96,21 @@ export interface TaskSave {
             <span class="hint">{{ i18n.t('task.noTasksHere') }}</span>
           }
         </label>
-        <!-- Colour: this button opens a small window with the colours; choosing one closes it -->
-        <button type="button" class="color-open" aria-haspopup="dialog" [attr.aria-label]="i18n.t('task.color')" [title]="i18n.t('task.color')"
-                (click)="colorWindow.open()"><span class="color-dot" [class.auto]="!color()" [style.background]="color()"></span>{{ i18n.t('task.color') }}</button>
         </div>
       }
-      @if (libraryReady() && !linkedNode() && existing().length) { <p class="or-new" aria-hidden="true">{{ i18n.t('task.orNew') }}</p> }
-      <label class="field">{{ i18n.t('task.name') }}
+      @if (libraryReady() && (linkedNode() || existing().length)) { <p class="or-new" aria-hidden="true">{{ i18n.t('task.orNew') }}</p> }
+      <label class="field choice" [class.chosen]="choice() === 'new'" [class.dim]="choice() === 'existing'" (click)="chooseNew(name)" (focusin)="focusNew()">{{ i18n.t('task.name') }}
         <input #name type="text" [value]="title()" [readOnly]="!!linkedNode()" [class.locked]="!!linkedNode()"
           (input)="title.set($any($event.target).value)" (keydown.enter)="done()" />
         @if (twin()) { <span class="hint">{{ i18n.t('task.alreadyExists') }}</span> }
       </label>
+      <!-- Colour, outside the two ways in since it applies to either (a panel: a full-width row under them, so it never
+           sits inside the box being greyed out): opens a small window with the colours; choosing one closes it -->
+      @if (libraryReady()) {
+        <button type="button" class="color-open color-row" aria-haspopup="dialog" [attr.aria-label]="i18n.t('task.color')" [title]="i18n.t('task.color')"
+                (click)="colorWindow.open()"><span class="color-dot" [class.auto]="!color()" [style.background]="color()"></span>
+          <span class="color-label">{{ i18n.t('task.color') }}</span><span class="color-now">{{ color() ? '' : i18n.t('task.auto') }}</span><span class="pick-chev" aria-hidden="true">›</span></button>
+      }
       <!-- Minutes under the name (Gianni): quick choices 1, 5 … 45 as radio buttons, then a box for any other value, on one line -->
       <fieldset class="field minutes-pick">
         <legend>{{ i18n.t('task.minutes') }}</legend>
@@ -291,6 +297,7 @@ export class TaskDialog implements AfterViewInit {
   ngAfterViewInit(): void {
     const { day, blockId, task } = this.edit();
     this.title.set(task.title);
+    if (task.title.trim()) this.picked.set('new');                      // an activity with its own name opens on it
     this.minutes.set(task.minutes);
     this.day$.set(day);
     this.blockId.set(blockId);
@@ -379,7 +386,30 @@ export class TaskDialog implements AfterViewInit {
   protected unlink(input: HTMLInputElement): void {
     this.linked.set('');
     this.title.set('');
+    this.picked.set('new');
     queueMicrotask(() => input.focus());
+  }
+
+  /**
+   * Which way in is being used, like a switch (Gianni: one of the two is always grey): a linked activity is "existing";
+   * otherwise the last box touched; on opening, the list when there is one to pick from (the Name box starts grey),
+   * else the Name box. A card that already has its own typed name opens on the Name box (set in ngAfterViewInit).
+   */
+  private readonly picked = signal<'existing' | 'new' | null>(null);
+  protected readonly choice = computed(() =>
+    this.linkedNode() ? 'existing' : this.picked() ?? (this.libraryReady() && this.existing().length ? 'existing' : 'new'));
+  protected chooseExisting(): void {
+    this.picked.set('existing');
+  }
+  /** Keyboard focus on the name box marks it as the way in, but never unlinks (tabbing through must not lose the link). */
+  protected focusNew(): void {
+    if (!this.linkedNode()) this.picked.set('new');
+  }
+  /** The name box: a completed tap on it (a click, never a scroll that starts there) while linked unlinks it. */
+  protected chooseNew(input: HTMLInputElement): void {
+    if (this.choice() === 'new') return;
+    if (this.linkedNode()) { this.unlink(input); return; }
+    this.picked.set('new');
   }
 
   protected pickDay(day: Day): void {
