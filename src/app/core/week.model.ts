@@ -47,7 +47,7 @@ export const COLOR_CHOICES: { color: string; label: string }[] = [
   { color: '#eadcc8', label: 'color.sand' },
 ];
 
-export const NEW_TASK_MINUTES = 15;
+export const NEW_TASK_MINUTES = 60;   // a new activity's minutes (Gianni: an hour, not 15)
 
 export function emptyWeek(): Week {
   return Object.fromEntries(DAYS.map((day) => [day, { blocks: [] }])) as unknown as Week;
