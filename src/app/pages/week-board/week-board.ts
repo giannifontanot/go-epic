@@ -4,7 +4,7 @@ import { flip, flipNow } from '../../core/flip';
 import { TextSettings } from '../../core/text-settings';
 import { I18n } from '../../core/i18n';
 import {
-  addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, Task, WEEK_PX_PER_MIN, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId, resizedMinutes, stretchedEnd,
+  addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, Task, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId, resizedMinutes, stretchedEnd,
   moveToHour, nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
 } from '../../core/week.model';
 import { Library, fileTask, followLibrary, nodeById, paperAge, updateNode } from '../../core/library.model';
@@ -133,12 +133,12 @@ export class WeekBoard {
   protected readonly todos = inject(TodoStore);
   /**
    * A card's pinned notes, grouped so none covers another: a note is about 48px tall and a card is
-   * 46px + 1.6px per minute (styles.css), so notes closer than that share one stack.
+   * 46px + the px stepper's pixels per minute (styles.css), so notes closer than that share one stack.
    */
   protected noteStacks(day: Day, task: Task): { fraction: number; todos: Todo[] }[] {
     const pins = this.pins()[day].onTask.get(task.id);
     if (!pins?.length) return [];
-    return stackPins(pins, 48 / (46 + validMinutes(task.minutes) * WEEK_PX_PER_MIN));
+    return stackPins(pins, 48 / (46 + validMinutes(task.minutes) * this.text.pxPerMin()));
   }
   protected readonly pins = computed(() => {
     const all = this.todos.todos();
@@ -322,7 +322,7 @@ export class WeekBoard {
     handle.setPointerCapture(event.pointerId);
     const y0 = event.clientY;
     this.sizing.set({ taskId: task.id, minutes: validMinutes(task.minutes) });
-    const move = (e: PointerEvent) => this.sizing.set({ taskId: task.id, minutes: resizedMinutes(block, task.id, (e.clientY - y0) / WEEK_PX_PER_MIN) });
+    const move = (e: PointerEvent) => this.sizing.set({ taskId: task.id, minutes: resizedMinutes(block, task.id, (e.clientY - y0) / this.text.pxPerMin()) });
     const done = (commit: boolean) => () => {
       handle.removeEventListener('pointermove', move);
       handle.removeEventListener('pointerup', up);
@@ -356,7 +356,7 @@ export class WeekBoard {
     return b.end ?? formatClock((parseClock(b.start) ?? 0) + taskTotal(b));
   }
 
-  /** The handle at a block's foot: dragging it by n px moves the end by n / 1.6 minutes, live; release saves it. */
+  /** The handle at a block's foot: dragging it by n px moves the end by n / (px per minute) minutes, live; release saves it. */
   protected startStretch(event: PointerEvent, day: Day, block: Block): void {
     if (event.button !== 0) return;
     event.preventDefault();
@@ -367,7 +367,7 @@ export class WeekBoard {
     if (!first) return;
     this.stretching.set({ blockId: block.id, end: first });
     const move = (e: PointerEvent) => {
-      const end = stretchedEnd(block, (e.clientY - y0) / WEEK_PX_PER_MIN);
+      const end = stretchedEnd(block, (e.clientY - y0) / this.text.pxPerMin());
       if (end) this.stretching.set({ blockId: block.id, end });
     };
     const done = (commit: boolean) => () => {

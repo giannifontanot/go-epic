@@ -5,7 +5,8 @@ import { Injectable, signal } from '@angular/core';
  * Week board, shown only while arranging, so the change is seen at once on the real cards (Gianni).
  * The activities (and their stories) take the size chosen; every other label of the app grows with it more gently
  * (`textScale`), so an 8px "FEATURE" over a 10px activity becomes about 9px when the activity goes to 12px.
- * Saved on this device (`go-epic-text`); applied as CSS variables on <html>: --act-fs, --esc, --app-ls (styles.css).
+ * A third stepper, px, sets how many pixels a minute takes on the cards and free bands (`pxPerMin`, --px-min).
+ * Saved on this device (`go-epic-text`); applied as CSS variables on <html>: --act-fs, --esc, --app-ls, --px-min (styles.css).
  */
 
 export const TEXT_DEFAULT_SIZE = 15;
@@ -16,6 +17,17 @@ export const TEXT_MIN_SPACING = -0.02;
 /** The Aa stepper's sizes (85 %, 100 %, 115 %, 130 %, 150 % of 15px) and the AV stepper's spacings, as in Epic Manager. */
 export const TEXT_SIZES = [13, 15, 17, 19.5, 22.5];
 export const TEXT_SPACINGS = [-0.02, 0, 0.03, 0.06, 0.1];
+/**
+ * The px stepper (Epic Manager's length zoom): how many pixels each minute of an activity (and of a block's free time)
+ * takes on the Week board. 1.6 is the board's usual scale.
+ */
+export const PX_PER_MIN_STEPS = [1, 1.6, 2, 3];
+export const PX_PER_MIN_DEFAULT = 1.6;
+/** A saved or typed scale kept inside the stepper's range (anything not a number falls back to the usual 1.6). */
+export function clampPxPerMin(px: unknown): number {
+  const n = typeof px === 'number' && Number.isFinite(px) ? px : PX_PER_MIN_DEFAULT;
+  return Math.min(PX_PER_MIN_STEPS[PX_PER_MIN_STEPS.length - 1], Math.max(PX_PER_MIN_STEPS[0], n));
+}
 
 /** The next value of a stepper (`dir` = +1 / -1) from the current one: the nearest step, then one up or down. */
 export function stepValue(steps: number[], current: number, dir: 1 | -1): number {
@@ -46,10 +58,13 @@ const KEY = 'go-epic-text';
 export class TextSettings {
   readonly size = signal(TEXT_DEFAULT_SIZE);
   readonly spacing = signal(0);
+  /** Pixels per minute on the Week board's cards and free bands (the px stepper). */
+  readonly pxPerMin = signal(PX_PER_MIN_DEFAULT);
 
   constructor() {
     try {
-      const saved = JSON.parse(localStorage.getItem(KEY) ?? 'null') as { size?: number; spacing?: number } | null;
+      const saved = JSON.parse(localStorage.getItem(KEY) ?? 'null') as { size?: number; spacing?: number; px?: number } | null;
+      if (saved && saved.px !== undefined) this.pxPerMin.set(clampPxPerMin(saved.px));
       if (saved && Number.isFinite(saved.size)) this.size.set(Math.min(TEXT_MAX_SIZE, Math.max(TEXT_MIN_SIZE, saved.size!)));
       if (saved && Number.isFinite(saved.spacing)) this.spacing.set(Math.min(TEXT_MAX_SPACING, Math.max(TEXT_MIN_SPACING, saved.spacing!)));
     } catch { /* a view preference only */ }
@@ -59,7 +74,11 @@ export class TextSettings {
   set(size: number, spacing: number): void {
     this.size.set(Math.min(TEXT_MAX_SIZE, Math.max(TEXT_MIN_SIZE, size)));
     this.spacing.set(Math.min(TEXT_MAX_SPACING, Math.max(TEXT_MIN_SPACING, spacing)));
-    try { localStorage.setItem(KEY, JSON.stringify({ size: this.size(), spacing: this.spacing() })); } catch { /* view preference */ }
+    this.save();
+  }
+
+  private save(): void {
+    try { localStorage.setItem(KEY, JSON.stringify({ size: this.size(), spacing: this.spacing(), px: this.pxPerMin() })); } catch { /* view preference */ }
     this.apply();
   }
 
@@ -75,9 +94,14 @@ export class TextSettings {
   stepSpacing(dir: 1 | -1): void {
     this.set(this.size(), stepValue(TEXT_SPACINGS, this.spacing(), dir));
   }
-  canStep(kind: 'size' | 'spacing', dir: 1 | -1): boolean {
-    const steps = kind === 'size' ? TEXT_SIZES : TEXT_SPACINGS;
-    const cur = kind === 'size' ? this.size() : this.spacing();
+  /** The px stepper: a minute takes more (+1) or fewer (-1) pixels. */
+  stepPx(dir: 1 | -1): void {
+    this.pxPerMin.set(stepValue(PX_PER_MIN_STEPS, this.pxPerMin(), dir));
+    this.save();
+  }
+  canStep(kind: 'size' | 'spacing' | 'px', dir: 1 | -1): boolean {
+    const steps = kind === 'size' ? TEXT_SIZES : kind === 'spacing' ? TEXT_SPACINGS : PX_PER_MIN_STEPS;
+    const cur = kind === 'size' ? this.size() : kind === 'spacing' ? this.spacing() : this.pxPerMin();
     return dir === 1 ? cur < steps[steps.length - 1] : cur > steps[0];
   }
 
@@ -87,6 +111,7 @@ export class TextSettings {
     root.setProperty('--act-fs', this.size() + 'px');
     root.setProperty('--act-ls', this.spacing() + 'em');
     root.setProperty('--esc', String(textScale(this.size())));
+    root.setProperty('--px-min', this.pxPerMin() + 'px');
     const ls = appSpacing(this.spacing());
     root.setProperty('--app-ls', ls ? ls + 'em' : 'normal');
   }
