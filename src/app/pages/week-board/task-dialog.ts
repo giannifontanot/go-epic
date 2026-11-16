@@ -99,7 +99,7 @@ export interface TaskSave {
         </div>
       }
       @if (libraryReady() && (linkedNode() || existing().length)) { <p class="or-new" aria-hidden="true">{{ i18n.t('task.orNew') }}</p> }
-      <label class="field choice" [class.chosen]="choice() === 'new'" [class.dim]="choice() === 'existing'" (pointerdown)="chooseNew(name)" (focusin)="chooseNew(name)">{{ i18n.t('task.name') }}
+      <label class="field choice" [class.chosen]="choice() === 'new'" [class.dim]="choice() === 'existing'" (pointerdown)="chooseNew(name)" (focusin)="focusNew()">{{ i18n.t('task.name') }}
         <input #name type="text" [value]="title()" [readOnly]="!!linkedNode()" [class.locked]="!!linkedNode()"
           (input)="title.set($any($event.target).value)" (keydown.enter)="done()" />
         @if (twin()) { <span class="hint">{{ i18n.t('task.alreadyExists') }}</span> }
@@ -395,7 +395,11 @@ export class TaskDialog implements AfterViewInit {
   protected chooseExisting(): void {
     this.picked.set('existing');
   }
-  /** The name box: touching it while an existing activity is linked unlinks it (it is one or the other). */
+  /** Keyboard focus on the name box marks it as the way in, but never unlinks (tabbing through must not lose the link). */
+  protected focusNew(): void {
+    if (!this.linkedNode()) this.picked.set('new');
+  }
+  /** The name box: a tap on it while an existing activity is linked unlinks it (it is one or the other). */
   protected chooseNew(input: HTMLInputElement): void {
     if (this.choice() === 'new') return;
     if (this.linkedNode()) { this.unlink(input); return; }
