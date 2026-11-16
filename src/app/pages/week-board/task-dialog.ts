@@ -79,11 +79,11 @@ export interface TaskSave {
       @if (libraryReady()) {
         <!-- Where: the card is the chooser (tap a level), as in the Canvas (shared with Capture's editor) -->
         <app-where-card [library]="library()" [where]="where()" [title]="title()" [color]="color()" (pick)="pick($event.level, $event.id)"
-          [pickCount]="existing().length" [linked]="!!linkedNode()" [chosen]="choice() === 'existing'" (activityTap)="chooseExisting(); openPicker()" (unlink)="unlink(name)" />
+          [pickCount]="existing().length" [linked]="!!linkedNode()" [chosen]="choice() === 'existing'" (activityTap)="chooseExisting(); openPicker()" (unlink)="unlink()" />
         @if (!linkedNode() && !existing().length) { <p class="hint">{{ i18n.t('task.noTasksHere') }}</p> }
       }
       @if (libraryReady() && (linkedNode() || existing().length)) { <p class="or-new" aria-hidden="true">{{ i18n.t('task.orNew') }}</p> }
-      <label class="field choice" [class.chosen]="choice() === 'new'" [class.dim]="choice() === 'existing'" (click)="chooseNew(name)" (focusin)="focusNew()">{{ i18n.t('task.name') }}
+      <label class="field choice" [class.chosen]="choice() === 'new'" [class.dim]="choice() === 'existing'" (click)="chooseNew()" (focusin)="focusNew()">{{ i18n.t('task.name') }}
         <!-- The name and a plain Color button on one line (Gianni); the button never greys out (the colour applies to either
              way in) and its tap is its own, not a tap on the Name box -->
         <span class="name-line">
@@ -277,7 +277,6 @@ export class TaskDialog implements AfterViewInit {
   protected readonly blocks = computed<Block[]>(() => this.week()[this.day$()].blocks);
   /** A new block's name as typed (a day's +). */
   protected readonly newBlockName = signal('');
-  private readonly blockNameBox = viewChild<ElementRef<HTMLInputElement>>('blockNameBox');
   protected readonly blockName = computed(() => this.week()[this.edit().day].blocks.find((b) => b.id === this.edit().blockId)?.name ?? '');
 
   ngAfterViewInit(): void {
@@ -291,8 +290,7 @@ export class TaskDialog implements AfterViewInit {
     this.active.set(task.active);
     this.viewReady = true;
     if (this.libraryReady()) this.linkFromLibrary();
-    openDialog(this.dialog().nativeElement, { escape: false });          // Esc = Cancel (leave), handled above
-    this.blockNameBox()?.nativeElement.focus();                          // a new block: its name comes first
+    openDialog(this.dialog().nativeElement, { escape: false });          // Esc = Cancel (leave), handled above; no cursor in a box
   }
 
   /** Linked to its library task (or, for an older task with none, to the only library task of that name); once. */
@@ -369,11 +367,10 @@ export class TaskDialog implements AfterViewInit {
   }
 
   /** × on the linked chip: back to a new task (empty name, the Where kept). */
-  protected unlink(input: HTMLInputElement): void {
+  protected unlink(): void {
     this.linked.set('');
     this.title.set('');
     this.picked.set('new');
-    queueMicrotask(() => input.focus());
   }
 
   /**
@@ -392,9 +389,9 @@ export class TaskDialog implements AfterViewInit {
     if (!this.linkedNode()) this.picked.set('new');
   }
   /** The name box: a completed tap on it (a click, never a scroll that starts there) while linked unlinks it. */
-  protected chooseNew(input: HTMLInputElement): void {
+  protected chooseNew(): void {
     if (this.choice() === 'new') return;
-    if (this.linkedNode()) { this.unlink(input); return; }
+    if (this.linkedNode()) { this.unlink(); return; }
     this.picked.set('new');
   }
 
