@@ -45,6 +45,7 @@ export class Canvas implements DoCheck {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly editor = viewChild<ElementRef<HTMLDialogElement>>('editor');
   private readonly templateDialog = viewChild<ElementRef<HTMLDialogElement>>('templateDialog');
+  private readonly leaveDialog = viewChild<ElementRef<HTMLDialogElement>>('leaveDialog');
 
   readonly state = new CanvasState();
   readonly motion = new CanvasMotion();
@@ -188,7 +189,38 @@ export class Canvas implements DoCheck {
     if (this.unsaved.canvasDraft() !== this.state.dirty) this.unsaved.canvasDraft.set(this.state.dirty);
   }
 
-  canLeave(): boolean { return !this.state.dirty || confirm(this.i18n.t('canvas.confirmLeave')); }
+  /**
+   * Leaving with an unsaved draft asks in a window of our own (Gianni: a plain "Leave anyway?" was ambiguous): it offers to
+   * save first. Save and leave / Leave without saving / Keep editing; Esc or the backdrop keep editing.
+   */
+  canLeave(): boolean | Promise<boolean> {
+    const dialog = this.leaveDialog()?.nativeElement;
+    if (!this.state.dirty) return true;
+    if (!dialog) return confirm(this.i18n.t('canvas.leaveAsk'));
+    this.leaveAnswer?.(false);                                             // a second navigation replaces the first
+    this.leaveError = '';
+    return new Promise<boolean>((resolve) => {
+      this.leaveAnswer = resolve;
+      openDialog(dialog, { escape: false });
+    });
+  }
+  private leaveAnswer: ((leave: boolean) => void) | null = null;
+  leaveError = '';
+
+  /** The leave window's answer: save first (stays when the save fails), leave without saving, or keep editing. */
+  answerLeave(choice: 'save' | 'discard' | 'stay'): void {
+    if (choice === 'save') {
+      this.save();
+      if (this.state.dirty) { this.leaveError = this.error || this.i18n.t('canvas.saveError'); return; }
+    }
+    const answer = this.leaveAnswer;
+    this.leaveAnswer = null;
+    void closeDialog(this.leaveDialog()?.nativeElement).then(() => answer?.(choice !== 'stay'));
+  }
+  onLeaveBackdrop(event: MouseEvent): void {
+    const d = this.leaveDialog()?.nativeElement;
+    if (d && isBackdropClick(event, d)) this.answerLeave('stay');
+  }
 
   toggleFree(): void {
     this.showFree = !this.showFree;

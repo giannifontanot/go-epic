@@ -150,6 +150,17 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 /* The state menu (Focus): a small centred card */
 dialog.status-menu { width: min(340px, calc(100vw - 32px)); padding: 18px; border: 0; border-radius: 22px; background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; }
 dialog.status-menu::backdrop { background: rgba(4, 9, 30, .55); }
+/* Canvas: leaving with unsaved changes. A small centred card (never full screen) with three plain answers, one per row */
+dialog.leave-ask { width: min(360px, calc(100vw - 32px)); padding: 20px; border: 0; border-radius: 22px; background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; }
+dialog.leave-ask::backdrop { background: rgba(4, 9, 30, .55); }
+dialog.leave-ask h2 { margin: 0 0 6px; font-size: 21px; }
+dialog.leave-ask p { margin: 0 0 16px; color: var(--ink-soft); }
+.leave-actions { display: grid; gap: 10px; }
+dialog.leave-ask .leave-actions button { min-height: 46px; border-radius: 999px; font-size: 16px; font-weight: 700; }
+dialog.leave-ask .leave-discard { border: 1.5px solid rgba(248, 113, 113, .6); background: transparent; color: #fca5a5; }
+dialog.leave-ask .leave-stay { border: 0; background: rgba(255, 255, 255, .08); color: var(--ink-soft); }
+html:is([data-theme='office'], [data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt']) dialog.leave-ask .leave-discard { color: #b91c1c; border-color: rgba(185, 28, 28, .5); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.leave-ask .leave-stay { background: rgba(var(--g-tint), .1); }
 dialog.status-menu h2 { margin: 0 0 12px; font-size: 20px; overflow-wrap: anywhere; }
 .status-options { display: grid; gap: 8px; }
 .status-options button { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; border: 0; border-radius: 14px; background: rgba(255, 255, 255, .08); color: var(--ink); font-size: 16px; font-weight: 700; text-align: left; }

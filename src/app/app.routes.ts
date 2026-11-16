@@ -17,8 +17,8 @@ function signedIn(wanted: boolean): CanActivateFn {
   };
 }
 
-/** A page with an unsaved draft (Floating Canvas) asks before it is left. */
-const draftSaved: CanDeactivateFn<{ canLeave(): boolean }> = (page) => page.canLeave();
+/** A page with an unsaved draft (Floating Canvas) asks before it is left: save and leave, leave without saving, or stay. */
+const draftSaved: CanDeactivateFn<{ canLeave(): boolean | Promise<boolean> }> = (page) => page.canLeave();
 
 export const routes: Routes = [
   { path: 'login', canActivate: [signedIn(false)], loadComponent: () => import('./pages/login').then((m) => m.Login) },
