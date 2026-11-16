@@ -7,8 +7,14 @@
     } @else { <span></span> }
     <button type="button" class="round idea" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')" (click)="capture.open.set(true)">💡</button>
       @if (arranging()) {
-      <!-- Aa / AV, as in Epic Manager: the activities' text size and the space between letters, seen at once on the cards -->
+      <!-- px / Aa / AV, as in Epic Manager: pixels per minute, the activities' text size and the space between letters,
+           seen at once on the cards -->
       <div class="text-steppers">
+        <div class="stepper" role="group" [attr.aria-label]="i18n.t('settings.pxPerMin')">
+          <button type="button" [disabled]="!text.canStep('px', -1)" [attr.aria-label]="i18n.t('settings.shorter')" (click)="text.stepPx(-1)">−</button>
+          <span class="px-value">{{ text.pxPerMin() }} px</span>
+          <button type="button" [disabled]="!text.canStep('px', 1)" [attr.aria-label]="i18n.t('settings.longer')" (click)="text.stepPx(1)">+</button>
+        </div>
         <div class="stepper" role="group" [attr.aria-label]="i18n.t('settings.size')">
           <button type="button" [disabled]="!text.canStep('size', -1)" [attr.aria-label]="i18n.t('settings.smaller')" (click)="text.stepSize(-1)">−</button>
           <span>Aa</span>
@@ -142,7 +148,7 @@
                       </span>
                     }
                   </div>
-                  <!-- Edit mode: the card is its content plus its minutes (1.6 px each), so a minute it loses is exactly a minute
+                  <!-- Edit mode: the card is its content plus its minutes (px per minute, the px stepper), so a minute it loses is exactly a minute
                        the free band below gains and the block keeps its height (Gianni) -->
                   @if (arranging()) { <span class="t-span" aria-hidden="true"></span> }
                   <span class="t-dur">{{ durationLabel(shownMinutes(task)) }}</span>

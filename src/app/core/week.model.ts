@@ -100,9 +100,6 @@ export function freeMinutes(block: Block): number | null {
   return length === null ? null : length - taskTotal(block);
 }
 
-/** Pixels per minute on the Week board: a card is 46px + minutes × this, and a block's free time a band of the same scale. */
-export const WEEK_PX_PER_MIN = 1.6;
-
 /**
  * The block's end after the handle at its bottom is pulled by `delta` minutes (Gianni: pull and the hours follow): from
  * its current end (or the end of its tasks when it has no end yet), never before its tasks end (at least one minute

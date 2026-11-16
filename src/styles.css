@@ -112,7 +112,7 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 
 .tasks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .task { position: relative; display: flex; flex-direction: column; justify-content: space-between;
-  min-height: calc(46px + var(--mins, 0) * 1.6px); padding: 8px 12px 6px; border-radius: 16px;
+  min-height: calc(46px + var(--mins, 0) * var(--px-min, 1.6px)); padding: 8px 12px 6px; border-radius: 16px;
   background: var(--tone); color: var(--card-ink); box-shadow: 0 5px 0 rgba(48, 39, 70, .25); }
 .board:not(.locked) .task { cursor: pointer; transition: translate .18s ease, rotate .18s ease; }
 @media (hover: hover) { .board:not(.locked) .task:hover { translate: 0 -3px; rotate: -.35deg; } }
@@ -123,7 +123,7 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 /* Edit mode: a card is its content plus its minutes, never a floor, so shrinking it hands every pixel to the free band
    (Gianni: pulling the last card's handle up made the block grow) */
 .board:not(.locked) .task { min-height: 0; }
-.t-span { flex: none; height: calc(var(--mins, 0) * 1.6px); }
+.t-span { flex: none; height: calc(var(--mins, 0) * var(--px-min, 1.6px)); }
 .board:not(.locked) .free-band { min-height: 0; }
 .t-dur { align-self: flex-end; font-size: 11px; font-weight: 800; letter-spacing: .04em; opacity: .7; }
 .t-tools { flex: none; display: flex; gap: 4px; }
@@ -470,8 +470,8 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 .pc-activity .pc-empty { color: #8b3a62; }
 .pc-act-x { flex: none; width: 40px; height: 40px; align-self: center; margin-right: 4px; border: 0; border-radius: 50%; background: rgba(48, 39, 70, .12); color: inherit; font-size: 18px; }
 
-/* A block's free time: a striped band over its own yellow, as tall as its minutes (1.6px each, like the cards) */
-.free-band { height: calc(var(--free) * 1.6px); min-height: 6px; border-radius: 12px;
+/* A block's free time: a striped band over its own yellow, as tall as its minutes (--px-min each, like the cards) */
+.free-band { height: calc(var(--free) * var(--px-min, 1.6px)); min-height: 6px; border-radius: 12px;
   background: repeating-linear-gradient(135deg, rgba(54, 38, 67, .16) 0 10px, transparent 10px 20px); }
 /* The handle at the block's foot: pull it down or up to move the block's end; a badge shows the end while pulling */
 /* Only the grip itself pulls (Gianni: a scroll that started near it stretched the block): a 72×40px target centred
@@ -549,7 +549,8 @@ body { letter-spacing: var(--app-ls); }
 .drawer-capture, .drawer-links a { font-size: calc(17px * var(--esc)); }
 
 /* Aa / AV steppers on the Week board's top while arranging (as in Epic Manager) */
-.text-steppers { grid-column: 1 / -1; display: flex; justify-content: center; gap: 10px; margin-top: 4px; }
+.text-steppers { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 10px; margin-top: 4px; }
+.stepper .px-value { min-width: 52px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .stepper { display: inline-flex; align-items: center; gap: 2px; padding: 0 4px; border: 1.5px solid rgba(255, 244, 233, .3); border-radius: 12px; }
 .stepper span { min-width: 34px; text-align: center; font-weight: 800; color: var(--ink-soft); }
 .stepper button { width: 40px; height: 40px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font-size: 22px; line-height: 1; }
