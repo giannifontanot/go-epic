@@ -409,6 +409,11 @@ dialog.editor:is(.new-block, .new-activity) header .danger { flex: none; backgro
 .pick-text { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pick-count { flex: none; min-width: 28px; padding: 2px 8px; border-radius: 999px; background: var(--pink); color: var(--g-on-ink, #1b2757); font-size: 13px; font-weight: 800; text-align: center; }
 .pick-chev { flex: none; font-size: 20px; line-height: 1; opacity: .8; }
+/* The two ways in (existing activity / new name), each in its own bordered box; the one in use gets a teal border,
+   the other greys out (Gianni: plainly one or the other) */
+.field.choice { padding: 10px 12px 12px; border: 1.5px solid color-mix(in srgb, var(--ink) 22%, transparent); border-radius: 16px; transition: opacity .2s, filter .2s, border-color .2s; }
+.field.choice.chosen { border-color: var(--teal); }
+.field.choice.dim { opacity: .4; filter: grayscale(1); }
 .or-new { display: flex; align-items: center; gap: 10px; margin: 2px 0 8px; color: var(--ink-soft); font-size: 13px; }
 .or-new::before, .or-new::after { content: ''; flex: 1; height: 1px; background: color-mix(in srgb, var(--ink) 20%, transparent); }
 
