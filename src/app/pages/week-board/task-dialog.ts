@@ -136,6 +136,18 @@ export interface TaskSave {
       </header>
       <input class="pick-search" type="search" [placeholder]="i18n.t('task.pickSearch')" [attr.aria-label]="i18n.t('task.pickSearch')"
         [value]="pickQuery()" (input)="pickQuery.set($any($event.target).value)" />
+      <!-- Epics as a scrolling row of tabs, as in the Canvas (Gianni): All first, then each Epic that has activities here,
+           Free Space last; the search then looks only inside the chosen one -->
+      @if (pickEpics().length > 1) {
+        <div class="pick-epics" role="tablist" [attr.aria-label]="i18n.t('canvas.epic')">
+          <button type="button" role="tab" [class.active]="pickEpic() === ''" [attr.aria-selected]="pickEpic() === ''" (click)="pickEpic.set('')">
+            <span>{{ i18n.t('task.allEpics') }}</span><small>{{ pickAll().length }}</small></button>
+          @for (epic of pickEpics(); track epic.id) {
+            <button type="button" role="tab" [class.active]="pickEpic() === epic.id" [attr.aria-selected]="pickEpic() === epic.id" (click)="pickEpic.set(epic.id)">
+              <span>{{ epic.id === FREE ? i18n.t('canvas.freeSpace') : epic.title }}</span><small>{{ epic.count }}</small></button>
+          }
+        </div>
+      }
       @if (!pickCards().length) { <p class="hint">{{ i18n.t('task.noTasksHere') }}</p> }
       <ul class="pick-list">
         @for (option of pickCards(); track option.node.id) {
@@ -232,15 +244,36 @@ export class TaskDialog implements AfterViewInit {
   });
   /** The same activities as cards for the picker: Epic › Feature › Story › Activity, each with its Canvas colour. */
   protected readonly pickQuery = signal('');
-  protected readonly pickCards = computed(() => {
+  /** The Epic tab chosen in the picker ('' = all; FREE = activities waiting in Free Space). */
+  protected readonly pickEpic = signal('');
+  protected readonly FREE = '__free__';
+  /** Every existing activity as a card, with its Epic (id and title), Feature and Story. */
+  protected readonly pickAll = computed(() => {
     const lib = this.library();
     const now = Date.now();
-    const words = this.pickQuery().toLowerCase().split(/\s+/).filter(Boolean);
     return this.existing().map(({ node }) => {
       const path = pathOf(lib, node.id).slice(0, -1);
-      const of = (kind: string) => path.find((n) => n.kind === kind)?.title ?? '';
-      return { node, epic: of('epic'), feature: of('feature'), story: of('story'), tone: node.color || '#ffd5bd', paper: paperAge(node, now) };
-    }).filter((c) => {
+      const of = (kind: string) => path.find((n) => n.kind === kind);
+      const epic = of('epic');
+      return { node, epicId: epic?.id ?? this.FREE, epic: epic?.title ?? '', feature: of('feature')?.title ?? '', story: of('story')?.title ?? '',
+        tone: node.color || '#ffd5bd', paper: paperAge(node, now) };
+    });
+  });
+  /** The Epic tabs: each Epic that holds some of these activities (by name), Free Space last, with their counts. */
+  protected readonly pickEpics = computed(() => {
+    const tabs = new Map<string, { id: string; title: string; count: number }>();
+    for (const c of this.pickAll()) {
+      const tab = tabs.get(c.epicId) ?? { id: c.epicId, title: c.epic, count: 0 };
+      tab.count++;
+      tabs.set(c.epicId, tab);
+    }
+    return [...tabs.values()].sort((a, b) => (a.id === this.FREE ? 1 : b.id === this.FREE ? -1 : a.title.localeCompare(b.title)));
+  });
+  protected readonly pickCards = computed(() => {
+    const words = this.pickQuery().toLowerCase().split(/\s+/).filter(Boolean);
+    const epic = this.pickEpics().some((e) => e.id === this.pickEpic()) ? this.pickEpic() : '';   // a vanished tab shows all
+    return this.pickAll().filter((c) => {
+      if (epic && c.epicId !== epic) return false;
       // The search box matches every word anywhere in the card: activity, story, feature or epic.
       const text = [c.node.title, c.story, c.feature, c.epic].join(' ').toLowerCase();
       return words.every((w) => text.includes(w));
@@ -316,6 +349,7 @@ export class TaskDialog implements AfterViewInit {
 
   protected openPicker(): void {
     this.pickQuery.set('');
+    this.pickEpic.set('');
     openDialog(this.picker().nativeElement);
   }
   protected closePicker(): void {
