@@ -416,7 +416,14 @@ dialog.editor:is(.new-block, .new-activity) header .danger { flex: none; backgro
 .color-row { display: flex; width: 100%; margin: 0 0 14px; }
 .color-row .color-label { flex: 1 1 auto; text-align: left; }
 .color-row .color-now { font-weight: 600; opacity: .7; }
-.field.choice.dim { opacity: .4; filter: grayscale(1); }
+.field.choice.dim > :not(.name-line), .field.choice.dim .name-line > input { opacity: .4; filter: grayscale(1); }
+.field.choice.dim { border-color: color-mix(in srgb, var(--ink) 10%, transparent); color: color-mix(in srgb, var(--ink) 40%, transparent); }
+/* The Name box's line: the input and a plain Color button (just the word; once a colour is picked it fills the button) */
+.name-line { display: flex; gap: 8px; align-items: stretch; min-width: 0; }
+.name-line > input { flex: 1 1 auto; min-width: 0; }
+.color-btn { flex: none; min-width: 72px; min-height: 44px; padding: 0 14px; border: 1.5px solid color-mix(in srgb, var(--ink) 35%, transparent); border-radius: 12px;
+  background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); font-size: 15px; font-weight: 700; cursor: pointer; }
+.color-btn.picked { color: var(--card-ink); border-color: transparent; }
 .or-new { display: flex; align-items: center; gap: 10px; margin: 2px 0 8px; color: var(--ink-soft); font-size: 13px; }
 .or-new::before, .or-new::after { content: ''; flex: 1; height: 1px; background: color-mix(in srgb, var(--ink) 20%, transparent); }
 
@@ -450,6 +457,13 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 .pc-activity { margin-top: 8px; padding: 8px 12px; border-radius: 14px 18px 13px 18px; color: #302746; background: #ffd5bd; box-shadow: 0 4px 0 rgba(78, 57, 88, .16); }
 .pc-activity strong { font-size: 15px; }
 .pc-nest > .pc-activity { margin-top: 0; }
+/* The Where card's Activity line as the way to pick an existing one: the whole capsule is a button, with a hint line */
+.pc-activity.pc-pickable { position: relative; display: flex; align-items: stretch; padding: 0; outline: 2px solid transparent; outline-offset: 2px; transition: outline-color .2s; }
+.pc-activity.pc-pickable.chosen { outline-color: var(--teal); }
+.pc-act-open { position: relative; flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; padding: 8px 12px; min-height: 44px; border: 0; background: transparent; color: inherit; text-align: left; font: inherit; cursor: pointer; }
+.pc-act-open strong { font-family: Georgia, serif; }
+.pc-activity .pc-empty { color: #8b3a62; }
+.pc-act-x { flex: none; width: 40px; height: 40px; align-self: center; margin-right: 4px; border: 0; border-radius: 50%; background: rgba(48, 39, 70, .12); color: inherit; font-size: 18px; }
 
 /* A block's free time: a striped band over its own yellow, as tall as its minutes (1.6px each, like the cards) */
 .free-band { height: calc(var(--free) * 1.6px); min-height: 6px; border-radius: 12px;

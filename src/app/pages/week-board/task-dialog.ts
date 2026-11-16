@@ -78,39 +78,25 @@ export interface TaskSave {
 
       @if (libraryReady()) {
         <!-- Where: the card is the chooser (tap a level), as in the Canvas (shared with Capture's editor) -->
-        <app-where-card [library]="library()" [where]="where()" [title]="title()" [color]="color()" (pick)="pick($event.level, $event.id)" />
-        <div class="exist-row">
-        <!-- Two ways in, each in its own bordered box (Gianni): an existing activity from the list, or a new name below.
-             Choosing one greys the other out, so it is plainly one or the other (a tap on the grey one switches) -->
-        <label class="field choice" [class.chosen]="choice() === 'existing'" [class.dim]="choice() === 'new'" (click)="chooseExisting()">{{ i18n.t('task.existing') }}
-          @if (linkedNode(); as node) {
-            <span class="linked-chip" [style.background]="color() || node.color || '#ffd5bd'">{{ node.title }}
-              <button type="button" [attr.aria-label]="i18n.t('task.unlink')" [title]="i18n.t('task.unlink')" (click)="$event.stopPropagation(); unlink(name)">×</button></span>
-          } @else if (existing().length) {
-            <!-- A button, not a field (Gianni found the box looked like something to type in): a list icon, the action
-                 in words, the count as a badge and an arrow; the same pill look as the Color button beside it -->
-            <button type="button" class="pick-open" aria-haspopup="dialog" (click)="openPicker()">
-              <span class="pick-icon" aria-hidden="true">☰</span><span class="pick-text">{{ i18n.t('task.pickActivity') }}</span>
-              <span class="pick-count" [attr.aria-label]="i18n.t('task.pickCount', { n: existing().length })">{{ existing().length }}</span><span class="pick-chev" aria-hidden="true">›</span></button>
-          } @else {
-            <span class="hint">{{ i18n.t('task.noTasksHere') }}</span>
-          }
-        </label>
-        </div>
+        <app-where-card [library]="library()" [where]="where()" [title]="title()" [color]="color()" (pick)="pick($event.level, $event.id)"
+          [pickCount]="existing().length" [linked]="!!linkedNode()" [chosen]="choice() === 'existing'" (activityTap)="chooseExisting(); openPicker()" (unlink)="unlink(name)" />
+        @if (!linkedNode() && !existing().length) { <p class="hint">{{ i18n.t('task.noTasksHere') }}</p> }
       }
       @if (libraryReady() && (linkedNode() || existing().length)) { <p class="or-new" aria-hidden="true">{{ i18n.t('task.orNew') }}</p> }
       <label class="field choice" [class.chosen]="choice() === 'new'" [class.dim]="choice() === 'existing'" (click)="chooseNew(name)" (focusin)="focusNew()">{{ i18n.t('task.name') }}
-        <input #name type="text" [value]="title()" [readOnly]="!!linkedNode()" [class.locked]="!!linkedNode()"
-          (input)="title.set($any($event.target).value)" (keydown.enter)="done()" />
+        <!-- The name and a plain Color button on one line (Gianni); the button never greys out (the colour applies to either
+             way in) and its tap is its own, not a tap on the Name box -->
+        <span class="name-line">
+          <input #name type="text" [value]="title()" [readOnly]="!!linkedNode()" [class.locked]="!!linkedNode()"
+            (input)="title.set($any($event.target).value)" (keydown.enter)="done()" />
+          @if (libraryReady()) {
+            <button type="button" class="color-btn" aria-haspopup="dialog" [style.background]="color() || null" [class.picked]="!!color()"
+                    [attr.aria-label]="i18n.t('task.color')" [title]="i18n.t('task.color')"
+                    (click)="$event.preventDefault(); $event.stopPropagation(); colorWindow.open()">{{ i18n.t('task.color') }}</button>
+          }
+        </span>
         @if (twin()) { <span class="hint">{{ i18n.t('task.alreadyExists') }}</span> }
       </label>
-      <!-- Colour, outside the two ways in since it applies to either (a panel: a full-width row under them, so it never
-           sits inside the box being greyed out): opens a small window with the colours; choosing one closes it -->
-      @if (libraryReady()) {
-        <button type="button" class="color-open color-row" aria-haspopup="dialog" [attr.aria-label]="i18n.t('task.color')" [title]="i18n.t('task.color')"
-                (click)="colorWindow.open()"><span class="color-dot" [class.auto]="!color()" [style.background]="color()"></span>
-          <span class="color-label">{{ i18n.t('task.color') }}</span><span class="color-now">{{ color() ? '' : i18n.t('task.auto') }}</span><span class="pick-chev" aria-hidden="true">›</span></button>
-      }
       <!-- Minutes under the name (Gianni): quick choices 1, 5 … 45 as radio buttons, then a box for any other value, on one line -->
       <fieldset class="field minutes-pick">
         <legend>{{ i18n.t('task.minutes') }}</legend>

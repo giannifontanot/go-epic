@@ -164,6 +164,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'task.pickCount': { en: '{n} activities', es: '{n} actividades' },
   'task.orNew': { en: 'or name a new one', es: 'o escribe una nueva' },
   'task.allEpics': { en: 'All', es: 'Todos' },
+  'task.pickFromList': { en: 'Choose from the list ({n})', es: 'Elegir de la lista ({n})' },
   'task.pickTitle': { en: 'Pick an activity', es: 'Elige una actividad' },
   'task.delete': { en: 'Delete', es: 'Eliminar' },
   'task.choose': { en: 'Choose', es: 'Elegir' },
