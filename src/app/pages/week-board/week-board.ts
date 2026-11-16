@@ -311,7 +311,7 @@ export class WeekBoard {
   }
 
   /**
-   * The handle at a card's foot (Gianni, edit mode): dragging it by n px changes the card's minutes by n / 1.6, live
+   * The handle at a card's foot (Gianni, edit mode): dragging it by n px changes the card's minutes by n / (px per minute), live
    * (the card grows or shrinks, the block's free time follows); release saves it. Never past the block's end.
    */
   protected startResize(event: PointerEvent, day: Day, block: Block, task: Task): void {

@@ -19,11 +19,14 @@ export const TEXT_SIZES = [13, 15, 17, 19.5, 22.5];
 export const TEXT_SPACINGS = [-0.02, 0, 0.03, 0.06, 0.1];
 /**
  * The px stepper (Epic Manager's length zoom): how many pixels each minute of an activity (and of a block's free time)
- * takes on the Week board. 1.6 is the board's usual scale.
+ * takes on the Week board.
  */
 export const PX_PER_MIN_STEPS = [1, 1.6, 2, 3];
-export const PX_PER_MIN_DEFAULT = 1.6;
-/** A saved or typed scale kept inside the stepper's range (anything not a number falls back to the usual 1.6). */
+/** 1 px a minute by default (Gianni: 1.6 left too much room between a card's title and its minutes). */
+export const PX_PER_MIN_DEFAULT = 1;
+/** The scale that was the default before; a device saved it only because it was the default, so it reads as unset. */
+const OLD_DEFAULT = 1.6;
+/** A saved or typed scale kept inside the stepper's range (anything not a number falls back to the default). */
 export function clampPxPerMin(px: unknown): number {
   const n = typeof px === 'number' && Number.isFinite(px) ? px : PX_PER_MIN_DEFAULT;
   return Math.min(PX_PER_MIN_STEPS[PX_PER_MIN_STEPS.length - 1], Math.max(PX_PER_MIN_STEPS[0], n));
@@ -63,8 +66,9 @@ export class TextSettings {
 
   constructor() {
     try {
-      const saved = JSON.parse(localStorage.getItem(KEY) ?? 'null') as { size?: number; spacing?: number; px?: number } | null;
-      if (saved && saved.px !== undefined) this.pxPerMin.set(clampPxPerMin(saved.px));
+      const saved = JSON.parse(localStorage.getItem(KEY) ?? 'null') as { size?: number; spacing?: number; px?: number; pxv?: number } | null;
+      // a 1.6 saved before `pxv` was only the old default (saved with Aa / AV), so it takes the new default
+      if (saved && saved.px !== undefined && (saved.pxv === 2 || saved.px !== OLD_DEFAULT)) this.pxPerMin.set(clampPxPerMin(saved.px));
       if (saved && Number.isFinite(saved.size)) this.size.set(Math.min(TEXT_MAX_SIZE, Math.max(TEXT_MIN_SIZE, saved.size!)));
       if (saved && Number.isFinite(saved.spacing)) this.spacing.set(Math.min(TEXT_MAX_SPACING, Math.max(TEXT_MIN_SPACING, saved.spacing!)));
     } catch { /* a view preference only */ }
@@ -78,7 +82,7 @@ export class TextSettings {
   }
 
   private save(): void {
-    try { localStorage.setItem(KEY, JSON.stringify({ size: this.size(), spacing: this.spacing(), px: this.pxPerMin() })); } catch { /* view preference */ }
+    try { localStorage.setItem(KEY, JSON.stringify({ size: this.size(), spacing: this.spacing(), px: this.pxPerMin(), pxv: 2 })); } catch { /* view preference */ }
     this.apply();
   }
 
