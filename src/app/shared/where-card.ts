@@ -43,7 +43,21 @@ import { Library, Where, WhereLevel, nodeById, whereOptions } from '../core/libr
         </select></span>
     </ng-template>
     <ng-template #activity>
-      <span class="pc-activity" [style.background]="color() || '#ffd5bd'"><small>{{ i18n.t('canvas.task') }}</small><strong>{{ title() || i18n.t('task.newTitle') }}</strong></span>
+      @if (pickCount() || linked()) {
+        <!-- The Activity line is also the way to pick an existing one (Gianni: one card, no separate button): a tap opens
+             the list; once one is picked it shows here, with a × that lets it go -->
+        <span class="pc-activity pc-pickable" [class.chosen]="chosen()" [style.background]="color() || '#ffd5bd'">
+          <button type="button" class="pc-act-open" aria-haspopup="dialog" (click)="activityTap.emit()">
+            <small>{{ i18n.t('canvas.task') }}</small><strong>{{ title() || i18n.t('task.newTitle') }}</strong>
+            @if (!linked()) { <em class="pc-act-hint">☰ {{ i18n.t('task.pickFromList', { n: pickCount() }) }} ›</em> }
+          </button>
+          @if (linked()) {
+            <button type="button" class="pc-act-x" [attr.aria-label]="i18n.t('task.unlink')" [title]="i18n.t('task.unlink')" (click)="unlink.emit()">×</button>
+          }
+        </span>
+      } @else {
+        <span class="pc-activity" [style.background]="color() || '#ffd5bd'"><small>{{ i18n.t('canvas.task') }}</small><strong>{{ title() || i18n.t('task.newTitle') }}</strong></span>
+      }
     </ng-template>
   `,
   imports: [NgTemplateOutlet],
@@ -55,6 +69,14 @@ export class WhereCard {
   readonly title = input('');
   readonly color = input<string | null>(null);
   readonly pick = output<{ level: WhereLevel; id: string }>();
+  /** How many existing activities can be picked (0: the Activity line is plain); a tap emits activityTap. */
+  readonly pickCount = input(0);
+  /** An existing activity is linked: the line shows it with a × (unlink). */
+  readonly linked = input(false);
+  /** The Activity line is the way in being used (a teal ring, like the chosen box). */
+  readonly chosen = input(false);
+  readonly activityTap = output<void>();
+  readonly unlink = output<void>();
 
   protected options(level: WhereLevel) {
     return whereOptions(this.library(), this.where(), level);

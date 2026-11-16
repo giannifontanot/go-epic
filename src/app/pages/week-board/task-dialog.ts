@@ -78,25 +78,9 @@ export interface TaskSave {
 
       @if (libraryReady()) {
         <!-- Where: the card is the chooser (tap a level), as in the Canvas (shared with Capture's editor) -->
-        <app-where-card [library]="library()" [where]="where()" [title]="title()" [color]="color()" (pick)="pick($event.level, $event.id)" />
-        <div class="exist-row">
-        <!-- Two ways in, each in its own bordered box (Gianni): an existing activity from the list, or a new name below.
-             Choosing one greys the other out, so it is plainly one or the other (a tap on the grey one switches) -->
-        <label class="field choice" [class.chosen]="choice() === 'existing'" [class.dim]="choice() === 'new'" (click)="chooseExisting()">{{ i18n.t('task.existing') }}
-          @if (linkedNode(); as node) {
-            <span class="linked-chip" [style.background]="color() || node.color || '#ffd5bd'">{{ node.title }}
-              <button type="button" [attr.aria-label]="i18n.t('task.unlink')" [title]="i18n.t('task.unlink')" (click)="$event.stopPropagation(); unlink(name)">×</button></span>
-          } @else if (existing().length) {
-            <!-- A button, not a field (Gianni found the box looked like something to type in): a list icon, the action
-                 in words, the count as a badge and an arrow; the same pill look as the Color button beside it -->
-            <button type="button" class="pick-open" aria-haspopup="dialog" (click)="openPicker()">
-              <span class="pick-icon" aria-hidden="true">☰</span><span class="pick-text">{{ i18n.t('task.pickActivity') }}</span>
-              <span class="pick-count" [attr.aria-label]="i18n.t('task.pickCount', { n: existing().length })">{{ existing().length }}</span><span class="pick-chev" aria-hidden="true">›</span></button>
-          } @else {
-            <span class="hint">{{ i18n.t('task.noTasksHere') }}</span>
-          }
-        </label>
-        </div>
+        <app-where-card [library]="library()" [where]="where()" [title]="title()" [color]="color()" (pick)="pick($event.level, $event.id)"
+          [pickCount]="existing().length" [linked]="!!linkedNode()" [chosen]="choice() === 'existing'" (activityTap)="chooseExisting(); openPicker()" (unlink)="unlink(name)" />
+        @if (!linkedNode() && !existing().length) { <p class="hint">{{ i18n.t('task.noTasksHere') }}</p> }
       }
       @if (libraryReady() && (linkedNode() || existing().length)) { <p class="or-new" aria-hidden="true">{{ i18n.t('task.orNew') }}</p> }
       <label class="field choice" [class.chosen]="choice() === 'new'" [class.dim]="choice() === 'existing'" (click)="chooseNew(name)" (focusin)="focusNew()">{{ i18n.t('task.name') }}
