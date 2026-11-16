@@ -379,18 +379,12 @@ html.tilt .object { translate: calc(var(--ox, 0px) + (max(var(--tilt-k), 0) * va
 .task.off[data-paper] { background-image: none !important; background-color: #d9d3e3 !important; }
 .capture-list li[data-paper] { box-shadow: 0 2px 6px rgba(0, 0, 0, .25); }
 
-/* Week board top: title · Finish (centred, only while arranging) · 💡 Capture at the right */
-.week-top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+/* Week board top: title · 💡 Capture at the right; while arranging ✓ Finish takes the 💡's place, on the same row */
+.week-top { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; row-gap: 8px; }
+.week-top > span { display: none; }
 .week-top .idea { justify-self: end; width: 44px; height: 44px; font-size: 22px; background: rgba(255, 255, 255, .1); border: 1.5px solid rgba(255, 244, 233, .25); }
-.week-top .finish { justify-self: center; }
+.week-top .finish { justify-self: end; grid-column: 3; white-space: nowrap; }
 .week-top > h1 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-/* Narrow phones: title and 💡 share the first row, Finish gets its own centred row (nothing leaves the screen) */
-@media (max-width: 440px) {
-  .week-top { grid-template-columns: minmax(0, 1fr) auto; row-gap: 8px; }
-  .week-top > span { display: none; }
-  .week-top .idea { grid-column: 2; grid-row: 1; }
-  .week-top .finish { grid-column: 1 / -1; grid-row: 2; }
-}
 
 /* The details' header carries the level being created, in its Canvas colour, on the usual navy window: a day's + (new
    Block + Activity) wears a yellow jelly block header and a yellow rim; a block's own + (just an Activity) a peach capsule. */
@@ -549,8 +543,12 @@ body { letter-spacing: var(--app-ls); }
 .drawer-capture, .drawer-links a { font-size: calc(17px * var(--esc)); }
 
 /* Aa / AV steppers on the Week board's top while arranging (as in Epic Manager) */
-.text-steppers { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 10px; margin-top: 4px; }
-.stepper .px-value { min-width: 52px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.text-steppers { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 2px; }
+/* Compact, so px / Aa / AV share one row on a phone (Gianni: the top took too much room); the buttons stay 40px */
+.text-steppers .stepper { gap: 0; padding: 0; }
+.text-steppers .stepper span { min-width: 30px; font-size: 14px; }
+.stepper .px-value { display: grid; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.stepper .px-value small { font-size: 10px; font-weight: 700; opacity: .8; }
 .stepper { display: inline-flex; align-items: center; gap: 2px; padding: 0 4px; border: 1.5px solid rgba(255, 244, 233, .3); border-radius: 12px; }
 .stepper span { min-width: 34px; text-align: center; font-weight: 800; color: var(--ink-soft); }
 .stepper button { width: 40px; height: 40px; border: 0; border-radius: 10px; background: transparent; color: var(--ink); font-size: 22px; line-height: 1; }
