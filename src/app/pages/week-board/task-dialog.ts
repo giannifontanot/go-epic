@@ -297,6 +297,7 @@ export class TaskDialog implements AfterViewInit {
   ngAfterViewInit(): void {
     const { day, blockId, task } = this.edit();
     this.title.set(task.title);
+    if (task.title.trim()) this.picked.set('new');                      // an activity with its own name opens on it
     this.minutes.set(task.minutes);
     this.day$.set(day);
     this.blockId.set(blockId);
@@ -389,9 +390,14 @@ export class TaskDialog implements AfterViewInit {
     queueMicrotask(() => input.focus());
   }
 
-  /** Which way in is being used: a linked activity is always "existing"; otherwise the last box touched. */
+  /**
+   * Which way in is being used, like a switch (Gianni: one of the two is always grey): a linked activity is "existing";
+   * otherwise the last box touched; on opening, the list when there is one to pick from (the Name box starts grey),
+   * else the Name box. A card that already has its own typed name opens on the Name box (set in ngAfterViewInit).
+   */
   private readonly picked = signal<'existing' | 'new' | null>(null);
-  protected readonly choice = computed(() => (this.linkedNode() ? 'existing' : this.picked()));
+  protected readonly choice = computed(() =>
+    this.linkedNode() ? 'existing' : this.picked() ?? (this.libraryReady() && this.existing().length ? 'existing' : 'new'));
   protected chooseExisting(): void {
     this.picked.set('existing');
   }
