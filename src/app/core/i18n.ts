@@ -259,6 +259,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'canvas.leaveSave': { en: 'Save and leave', es: 'Guardar y salir' },
   'canvas.leaveDiscard': { en: 'Leave without saving', es: 'Salir sin guardar' },
   'canvas.leaveStay': { en: 'Keep editing', es: 'Seguir editando' },
+  'canvas.saving': { en: 'Saving…', es: 'Guardando…' },
   'canvas.draftUpdated': { en: 'Draft updated. Save to keep it.', es: 'Borrador actualizado. Guarda para conservarlo.' },
   'canvas.draftHint': { en: 'Changes stay in the draft until you press Save.', es: 'Los cambios quedan en el borrador hasta que presiones Guardar.' },
   'canvas.deleteHint': { en: 'Only an empty container can be deleted: move or delete what is inside first.', es: 'Solo se puede eliminar un contenedor vacío: mueve o elimina primero lo que tiene dentro.' },
