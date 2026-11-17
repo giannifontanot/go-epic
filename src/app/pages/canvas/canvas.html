@@ -209,3 +209,16 @@
     </footer>
   }
 </dialog>
+
+<!-- Leaving with unsaved changes (Gianni: say plainly that it is not saved, and offer to save) -->
+<dialog #leaveDialog class="leave-ask" aria-labelledby="leave-title" aria-describedby="leave-text"
+        (click)="onLeaveBackdrop($event)" (cancel)="$event.preventDefault(); answerLeave('stay')">
+  <h2 id="leave-title" tabindex="-1">{{ i18n.t('canvas.leaveTitle') }}</h2>
+  <p id="leave-text">{{ i18n.t('canvas.leaveAsk') }}</p>
+  @if (leaveError()) { <p class="app-error" role="alert">{{ leaveError() }}</p> }
+  <div class="leave-actions">
+    <button type="button" class="primary" [disabled]="leaveSaving()" (click)="answerLeave('save')">{{ i18n.t(leaveSaving() ? 'canvas.saving' : 'canvas.leaveSave') }}</button>
+    <button type="button" class="leave-discard" [disabled]="leaveSaving()" (click)="answerLeave('discard')">{{ i18n.t('canvas.leaveDiscard') }}</button>
+    <button type="button" class="leave-stay" [disabled]="leaveSaving()" (click)="answerLeave('stay')">{{ i18n.t('canvas.leaveStay') }}</button>
+  </div>
+</dialog>

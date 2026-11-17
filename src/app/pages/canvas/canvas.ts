@@ -28,6 +28,9 @@ const FREE_KEY = 'go-epic-canvas-free-space';
  * every change is a draft with undo/redo until Save. Saving also updates the week: renamed or recoloured tasks change
  * in every block, deleted ones leave the week.
  */
+/** How long Save and leave waits for the server's answer before leaving (the write stays queued if it is slow). */
+const LEAVE_SAVE_WAIT_MS = 6000;
+
 @Component({
   selector: 'app-canvas',
   imports: [CanvasNode],
@@ -45,6 +48,7 @@ export class Canvas implements DoCheck {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly editor = viewChild<ElementRef<HTMLDialogElement>>('editor');
   private readonly templateDialog = viewChild<ElementRef<HTMLDialogElement>>('templateDialog');
+  private readonly leaveDialog = viewChild<ElementRef<HTMLDialogElement>>('leaveDialog');
 
   readonly state = new CanvasState();
   readonly motion = new CanvasMotion();
@@ -188,7 +192,52 @@ export class Canvas implements DoCheck {
     if (this.unsaved.canvasDraft() !== this.state.dirty) this.unsaved.canvasDraft.set(this.state.dirty);
   }
 
-  canLeave(): boolean { return !this.state.dirty || confirm(this.i18n.t('canvas.confirmLeave')); }
+  /**
+   * Leaving with an unsaved draft asks in a window of our own (Gianni: a plain "Leave anyway?" was ambiguous): it offers to
+   * save first. Save and leave / Leave without saving / Keep editing; Esc or the backdrop keep editing.
+   */
+  canLeave(): boolean | Promise<boolean> {
+    const dialog = this.leaveDialog()?.nativeElement;
+    if (!this.state.dirty) return true;
+    if (!dialog) return confirm(this.i18n.t('canvas.leaveAsk'));
+    this.leaveAnswer?.(false);                                             // a second navigation replaces the first
+    this.leaveError.set('');
+    return new Promise<boolean>((resolve) => {
+      this.leaveAnswer = resolve;
+      openDialog(dialog, { escape: false });
+    });
+  }
+  private leaveAnswer: ((leave: boolean) => void) | null = null;
+  protected readonly leaveError = signal('');
+  /** Save and leave is waiting for the server's answer. */
+  protected readonly leaveSaving = signal(false);
+
+  /**
+   * The leave window's answer: save first, leave without saving, or keep editing. Saving waits (online, up to
+   * LEAVE_SAVE_WAIT_MS) for the server: a refused save keeps the window open with the error, and the Canvas offers the
+   * refused draft back as usual; offline, or with no answer yet, the save is queued and the page is left.
+   */
+  async answerLeave(choice: 'save' | 'discard' | 'stay'): Promise<void> {
+    if (this.leaveSaving()) return;
+    if (choice === 'save') {
+      this.save();
+      if (this.state.dirty) { this.leaveError.set(this.error || this.i18n.t('canvas.saveError')); return; }
+      const commit = this.libraryStore.lastCommit;
+      if (commit && (typeof navigator === 'undefined' || navigator.onLine)) {
+        this.leaveSaving.set(true);
+        const ok = await Promise.race([commit, new Promise<boolean>((r) => setTimeout(() => r(true), LEAVE_SAVE_WAIT_MS))]);
+        this.leaveSaving.set(false);
+        if (!ok) { this.leaveError.set(`${this.i18n.t('canvas.rejected')} ${this.libraryStore.error()}`.trim()); return; }
+      }
+    }
+    const answer = this.leaveAnswer;
+    this.leaveAnswer = null;
+    void closeDialog(this.leaveDialog()?.nativeElement).then(() => answer?.(choice !== 'stay'));
+  }
+  onLeaveBackdrop(event: MouseEvent): void {
+    const d = this.leaveDialog()?.nativeElement;
+    if (d && isBackdropClick(event, d)) void this.answerLeave('stay');
+  }
 
   toggleFree(): void {
     this.showFree = !this.showFree;

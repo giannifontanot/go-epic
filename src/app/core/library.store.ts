@@ -41,6 +41,12 @@ export class LibraryStore {
     });
   }
 
+  /**
+   * The last save's answer from the server: true once written, false when refused. Offline it stays pending until the
+   * network is back, so a caller that waits on it must also give up after a while (the write is queued, not lost).
+   */
+  lastCommit: Promise<boolean> | null = null;
+
   /** Replaces the whole library (with any staged week days, atomically): shown at once, saved to Firestore (queued offline). */
   save(lib: Library, weekWrites: WeekWrite[] = []): boolean {
     if (!this.ready()) return false;
@@ -54,10 +60,11 @@ export class LibraryStore {
     const batch = writeBatch(fb.db);
     batch.set(doc(fb.db, 'users', uid, 'library', 'tree'), clean);
     for (const write of weekWrites) batch.set(doc(fb.db, write.path), write.data);
-    batch.commit().catch((error) => {
-      if (this.auth.user()?.uid !== uid) return;                // signed out (or another account) meanwhile
+    this.lastCommit = batch.commit().then(() => true, (error) => {
+      if (this.auth.user()?.uid !== uid) return false;          // signed out (or another account) meanwhile
       this.rejected.set(clean);
       this.fail(error);
+      return false;
     });
     return true;
   }
