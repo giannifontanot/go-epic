@@ -133,7 +133,16 @@
                               (click)="$event.stopPropagation()" (pointerdown)="startTaskDrag($event, day, block, task)">⠿</button>
                     }
                     <span class="t-time">{{ startLabel(block, ti) }}</span>
-                    <span class="t-title" [title]="task.title">{{ task.title || i18n.t('week.newTask') }}</span>
+                    @if (arranging()) {
+                      <span class="t-title" [title]="task.title">{{ task.title || i18n.t('week.newTask') }}</span>
+                    } @else {
+                      <!-- A tap on the title shows where the activity lives (Gianni); the rest of the card keeps its Done tap -->
+                      <!-- the outer span is the ≥ 40px tap target; the inner one keeps the title's 3-line wrap -->
+                      <span class="t-link" role="button" tabindex="0" [title]="i18n.t('week.openInfo')"
+                            [attr.aria-label]="i18n.t('week.openInfo') + ': ' + task.title"
+                            (click)="titleTap($event, block, ti, task, tones[ti])" (keydown.enter)="titleTap($event, block, ti, task, tones[ti])"
+                            (keydown.space)="titleTap($event, block, ti, task, tones[ti])"><span class="t-title">{{ task.title || i18n.t('week.newTask') }}</span></span>
+                    }
                     <!-- Today's state: a small figure at the activity's top right, in the theme's colours (Gianni: no pill in the
                          middle); in the row, so it never covers a pinned note -->
                     @if (cardStatus(day, task); as st) {
@@ -286,6 +295,47 @@
           <span aria-hidden="true">{{ statusIcon(s) }}</span> {{ i18n.t('status.' + s) }}</button>
       }
     </div>
+  }
+</dialog>
+
+<!-- Where an activity lives: a tap on its title (locked board) opens this card, drawn as in the Canvas -->
+<dialog #infoDialog class="info-card" [attr.aria-label]="i18n.t('week.infoTitle')" (click)="onInfoBackdrop($event)" (close)="info.set(null)">
+  @if (info(); as open) {
+    @let p = infoPath();
+    <div class="info-head">
+      <h2>{{ open.task.title || i18n.t('week.newTask') }}</h2>
+      <button type="button" class="round" [attr.aria-label]="i18n.t('week.infoClose')" [title]="i18n.t('week.infoClose')" (click)="closeInfo()">✕</button>
+    </div>
+    <p class="info-when">{{ open.block.name }} · {{ startLabel(open.block, open.index) }} · {{ durationLabel(open.task.minutes) }}</p>
+    <div class="pick-card info-where" role="group" [attr.aria-label]="i18n.t('task.where')">
+      <span class="pc-epic">
+        <span class="pc-head"><small>{{ i18n.t('canvas.area') }}</small><strong>{{ p.area || i18n.t('canvas.freeSpace') }}</strong></span>
+        @if (p.epic) { <span class="pc-head"><small>{{ i18n.t('canvas.epic') }}</small><strong>{{ p.epic }}</strong></span> }
+      </span>
+      <span class="pc-nest">
+        @if (p.feature) {
+          <span class="pc-feature">
+            <span class="pc-head"><small>{{ i18n.t('canvas.feature') }}</small><strong>{{ p.feature }}</strong></span>
+            @if (p.story) {
+              <span class="pc-story">
+                <span class="pc-head"><small>{{ i18n.t('canvas.story') }}</small><strong>{{ p.story }}</strong></span>
+                <ng-container *ngTemplateOutlet="infoActivity" />
+              </span>
+            } @else { <ng-container *ngTemplateOutlet="infoActivity" /> }
+          </span>
+        } @else if (p.story) {
+          <span class="pc-story">
+            <span class="pc-head"><small>{{ i18n.t('canvas.story') }}</small><strong>{{ p.story }}</strong></span>
+            <ng-container *ngTemplateOutlet="infoActivity" />
+          </span>
+        } @else { <ng-container *ngTemplateOutlet="infoActivity" /> }
+      </span>
+    </div>
+    @if (!p.story) { <p class="hint where-hint">{{ i18n.t('task.freeHint') }}</p> }
+    <ng-template #infoActivity>
+      <span class="pc-activity" [style.background]="open.tone"><small>{{ i18n.t('canvas.task') }}</small><strong>{{ open.task.title || i18n.t('week.newTask') }}</strong></span>
+    </ng-template>
+    <div class="info-foot"><button type="button" class="primary" (click)="closeInfo()">{{ i18n.t('week.infoClose') }}</button></div>
   }
 </dialog>
 
