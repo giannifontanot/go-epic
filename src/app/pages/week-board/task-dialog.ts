@@ -356,19 +356,21 @@ export class TaskDialog implements AfterViewInit {
 
   protected useLibraryTask(id: string): void {
     const node = nodeById(this.library(), id);
-    if (node) this.link(node);
-  }
-
-  private link(node: LibNode): void {
-    this.linked.set(node.id);
-    this.title.set(node.title);
-    // An Activity that keeps its own minutes (a converted Capture task) brings them, when they fit in the block.
+    if (!node) return;
+    this.link(node);
+    // Picked from the list: an Activity that keeps its own minutes (a converted Capture task) brings them, when they fit
+    // in the block. Only on a pick, never when an existing card opens (its own minutes are the schedule).
     if (node.minutes !== undefined && node.minutes !== this.minutes()) {
       const target = this.blocks().find((b) => b.id === this.blockId());
       const saved = target?.tasks.find((t) => t.id === this.edit().task.id);
       const extra = node.minutes - (saved?.minutes ?? 0);
       if (!target || extra <= 0 || fits(target, extra)) this.minutes.set(node.minutes);
     }
+  }
+
+  private link(node: LibNode): void {
+    this.linked.set(node.id);
+    this.title.set(node.title);
     if (!this.colorPicked()) this.color.set(node.color);
     this.where.set(whereOf(this.library(), node.id));
   }

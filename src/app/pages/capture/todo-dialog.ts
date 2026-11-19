@@ -111,11 +111,11 @@ export class TodoDialog implements AfterViewInit {
     if (!title) { this.problem.set(this.i18n.t('task.nameRequired')); return; }
     if (!this.library.ready()) { this.problem.set(this.i18n.t('capture.toActivityWait')); return; }
     if (!confirm(this.i18n.t('capture.toActivityAsk', { task: title }))) return;
-    let filed = false;
-    const saved = this.library.update((lib) => { const made = activityFromTodo(lib, title, todo.created, this.activityMinutes()); filed = !!made; return made?.lib ?? lib; });
-    if (!saved || !filed) { this.problem.set(this.i18n.t('capture.toActivityWait')); return; }
+    const made = activityFromTodo(structuredClone(this.library.library()), title, todo.created, this.activityMinutes());
+    // The Activity and the task's deletion go in one batch: both happen, or neither (a refused save keeps the task).
+    if (!made || !this.library.save(made.lib, [], [`todos/${todo.id}`])) { this.problem.set(this.i18n.t('capture.toActivityWait')); return; }
     this.leaving = true;
-    this.todos.remove(todo.id);
+    this.todos.forget(todo.id);
     void closeDialog(this.dialog().nativeElement);
   }
 
