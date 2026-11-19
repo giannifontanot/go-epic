@@ -76,27 +76,33 @@ export interface TaskSave {
         }
       </div>
 
+      <!-- The two ways to one Activity (Gianni): from the list (the Where card's Activity line) or typed (the Name box),
+           in one outer ring; the inner teal ring marks the way in use -->
+      <fieldset class="activity-ways" [class.two]="twoWays()">
+      @if (twoWays()) { <legend>{{ i18n.t('task.twoWays') }}</legend> }
       @if (libraryReady()) {
         <!-- Where: the card is the chooser (tap a level), as in the Canvas (shared with Capture's editor) -->
         <app-where-card [library]="library()" [where]="where()" [title]="title()" [color]="color()" (pick)="pick($event.level, $event.id)"
           [pickCount]="existing().length" [linked]="!!linkedNode()" [chosen]="choice() === 'existing'" (activityTap)="chooseExisting(); openPicker()" (unlink)="unlink()" />
         @if (!linkedNode() && !existing().length) { <p class="hint">{{ i18n.t('task.noTasksHere') }}</p> }
       }
-      @if (libraryReady() && (linkedNode() || existing().length)) { <p class="or-new" aria-hidden="true">{{ i18n.t('task.orNew') }}</p> }
+      @if (twoWays()) { <p class="or-new" aria-hidden="true">{{ i18n.t('task.orNew') }}</p> }
       <label class="field choice" [class.chosen]="choice() === 'new'" [class.dim]="choice() === 'existing'" (click)="chooseNew()" (focusin)="focusNew()">{{ i18n.t('task.name') }}
-        <!-- The name and a plain Color button on one line (Gianni); the button never greys out (the colour applies to either
-             way in) and its tap is its own, not a tap on the Name box -->
+        <!-- The name and a plain Color button on one line (Gianni); while an activity comes from the list the button greys out
+             with the name (its colour comes with it, Gianni); its tap is its own, not a tap on the Name box -->
         <span class="name-line">
           <input #name type="text" [value]="title()" [readOnly]="!!linkedNode()" [class.locked]="!!linkedNode()"
             (input)="title.set($any($event.target).value)" (keydown.enter)="done()" />
           @if (libraryReady()) {
             <button type="button" class="color-btn" aria-haspopup="dialog" [style.background]="color() || null" [class.picked]="!!color()"
+                    [disabled]="choice() === 'existing'"
                     [attr.aria-label]="i18n.t('task.color')" [title]="i18n.t('task.color')"
                     (click)="$event.preventDefault(); $event.stopPropagation(); colorWindow.open()">{{ i18n.t('task.color') }}</button>
           }
         </span>
         @if (twin()) { <span class="hint">{{ i18n.t('task.alreadyExists') }}</span> }
       </label>
+      </fieldset>
       <!-- Minutes under the name (Gianni): quick choices 1, 5 … 45 as radio buttons, then a box for any other value, on one line -->
       <fieldset class="field minutes-pick">
         <legend>{{ i18n.t('task.minutes') }}</legend>
@@ -218,6 +224,8 @@ export class TaskDialog implements AfterViewInit {
     return node?.kind === 'task' ? node : undefined;
   });
   /** The library tasks under the deepest level chosen (all of them when none is). */
+  /** Both ways to the Activity are open (a list to pick from, or one linked): the outer ring and its label show. */
+  protected readonly twoWays = computed(() => this.libraryReady() && (!!this.linkedNode() || this.existing().length > 0));
   protected readonly existing = computed(() => {
     const lib = this.library();
     const w = this.where();
