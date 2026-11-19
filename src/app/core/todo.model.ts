@@ -89,7 +89,7 @@ export interface PinnedTodo { todo: Todo; fraction: number; }
 /**
  * Where a day's todos go on the Week board: each one with an hour is pinned over the activity running at that hour
  * (`onTask`, at the share of it already gone: 0 = its top); the rest (no hour, or an hour no activity covers) are
- * `loose`, shown at the top of the day, by hour.
+ * `loose`, shown at the foot of the day, by hour.
  */
 export function pinTodos(plan: DayPlan, todos: Todo[]): { onTask: Map<string, PinnedTodo[]>; loose: Todo[] } {
   const onTask = new Map<string, PinnedTodo[]>();
@@ -140,6 +140,16 @@ export function pastDueTodos(todos: Todo[], today: string, day: Day, nowMinutes:
   return todosForDate(todos, today, day)
     .filter((t) => t.done === null && t.time !== null && (parseClock(t.time) ?? Infinity) < nowMinutes)
     .sort((a, b) => (a.time ?? '').localeCompare(b.time ?? ''));
+}
+
+/**
+ * Today's open tasks with no hour, for any time of the day (Gianni): they wait in the tray at the foot of the Week
+ * board with the overdue ones, not at the top of the day; a repeating one as today sees it. Oldest captured first.
+ */
+export function allDayTodos(todos: Todo[], today: string, day: Day): Todo[] {
+  return todosForDate(todos, today, day)
+    .filter((t) => t.done === null && t.time === null)
+    .sort((a, b) => a.created - b.created);
 }
 
 /**

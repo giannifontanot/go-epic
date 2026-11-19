@@ -63,28 +63,6 @@
           </span>
         </header>
 
-        <!-- Capture's tasks for this day that no activity holds (no hour, or an hour outside the blocks). The ones left
-             open on earlier days float at the foot of the screen instead (.overdue-tray, below) -->
-        <!-- Edit mode hides Capture's tasks everywhere (Gianni: they distract while arranging) -->
-        @let strip = arranging() ? [] : pins()[day].loose;
-        @if (strip.length) {
-          <ul class="todo-strip" [attr.aria-label]="i18n.t('week.todos')">
-            @for (todo of strip; track todo.id) {
-              @let late = day === store.today() && todo.date !== null && todo.date < dates()[day] && !todo.repeat.length;
-              <!-- At the top a task keeps its own colour and paper, as in Capture (Gianni: not yellow) -->
-              <li class="todo-note own" [class.checked]="todo.done !== null" [class.overdue]="late"
-                  [attr.data-paper]="todoPaper(todo)" [style.--tone]="todos.tones().get(todo.id)">
-                <button type="button" class="todo-check" role="checkbox" [attr.aria-checked]="todo.done !== null"
-                        [attr.aria-label]="i18n.t(todo.done !== null ? 'capture.uncheck' : 'capture.check') + ': ' + todo.title"
-                        (click)="$event.stopPropagation(); todos.setDone(todo.id, todo.done === null, dates()[day])">{{ todo.done !== null ? '✓' : '' }}</button>
-                <span class="todo-title">{{ todo.title }}@if (late) { <small class="todo-from">{{ fromLabel(todo) }}</small> }</span>@if (todo.time) { <span class="todo-time">{{ todo.time }}</span> }
-                <button type="button" class="todo-edit" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
-                        (click)="$event.stopPropagation(); editTodo(todo)">✎</button>
-              </li>
-            }
-          </ul>
-        }
-
         @for (block of blocks(day); track block.id; let bi = $index, bfirst = $first, blast = $last) {
           @let tones = colors(block);
           <section class="block" [class.over]="isOver(block)" [attr.data-flip]="block.id" [attr.data-block]="block.id">
@@ -218,11 +196,34 @@
         }
 
         @if (!blocks(day).length) { <p class="muted center">{{ i18n.t('week.empty') }}</p> }
+
+        <!-- Capture's tasks for this day that no activity holds (no hour, or an hour outside the blocks), at the foot of
+             the day (Gianni: not at the top). Today's open all-day ones and those left open on earlier days float at the
+             foot of the screen instead (.overdue-tray, below) -->
+        <!-- Edit mode hides Capture's tasks everywhere (Gianni: they distract while arranging) -->
+        @let strip = arranging() ? [] : pins()[day].loose;
+        @if (strip.length) {
+          <ul class="todo-strip" [attr.aria-label]="i18n.t('week.todos')">
+            @for (todo of strip; track todo.id) {
+              @let late = day === store.today() && todo.date !== null && todo.date < dates()[day] && !todo.repeat.length;
+              <!-- In the strip a task keeps its own colour and paper, as in Capture (Gianni: not yellow) -->
+              <li class="todo-note own" [class.checked]="todo.done !== null" [class.overdue]="late"
+                  [attr.data-paper]="todoPaper(todo)" [style.--tone]="todos.tones().get(todo.id)">
+                <button type="button" class="todo-check" role="checkbox" [attr.aria-checked]="todo.done !== null"
+                        [attr.aria-label]="i18n.t(todo.done !== null ? 'capture.uncheck' : 'capture.check') + ': ' + todo.title"
+                        (click)="$event.stopPropagation(); todos.setDone(todo.id, todo.done === null, dates()[day])">{{ todo.done !== null ? '✓' : '' }}</button>
+                <span class="todo-title">{{ todo.title }}@if (late) { <small class="todo-from">{{ fromLabel(todo) }}</small> }</span>@if (todo.time) { <span class="todo-time">{{ todo.time }}</span> }
+                <button type="button" class="todo-edit" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
+                        (click)="$event.stopPropagation(); editTodo(todo)">✎</button>
+              </li>
+            }
+          </ul>
+        }
       </article>
     }
   </div>
 
-  <!-- Tasks left open on earlier days, and today's whose hour has passed (Gianni): they float at the foot of the screen, always in sight, until checked -->
+  <!-- Tasks left open on earlier days, today's whose hour has passed and today's all-day ones (Gianni): they float at the foot of the screen, always in sight, until checked -->
   @if (!arranging() && overdue().length) {
     <section class="overdue-tray" [attr.aria-label]="i18n.t('week.overdue')">
       <p class="overdue-head">{{ i18n.t('week.overdue') }} · {{ overdue().length }}</p>
