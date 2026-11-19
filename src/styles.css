@@ -529,7 +529,10 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 .t-handle:focus-visible { outline: 3px solid var(--teal); outline-offset: -3px; }
 .t-handle .grip-bar { width: 44px; height: 5px; border-radius: 999px; background: rgba(48, 39, 70, .4); }
 .t-handle:hover .grip-bar, .t-handle:active .grip-bar { background: #0d9488; }
-.end-badge { position: absolute; left: calc(100% + 8px); top: 50%; white-space: nowrap; translate: 0 -50%; padding: 3px 10px; border-radius: 999px; background: #0d9488; color: #fff; font-size: 14px; font-weight: 800; }
+/* the live end/minutes while a handle is pulled: well above the grip, so it sits above the fingernail instead of under the
+   finger (Gianni), centred on the grip, over the cards around it */
+.end-badge { position: absolute; z-index: 30; left: 50%; bottom: calc(100% + 30px); white-space: nowrap; translate: -50% 0; padding: 4px 12px; border-radius: 999px;
+  background: #0d9488; color: #fff; font-size: 15px; font-weight: 800; box-shadow: 0 4px 12px rgba(1, 6, 29, .35); pointer-events: none; }
 
 /* Canvas: Capture is a 💡 at the top right of the title row (the toolbar wraps below it on phones) */
 .page-header > .idea { order: 0; margin-left: auto; flex: none; width: 44px; height: 44px; padding: 0; display: grid; place-items: center;
