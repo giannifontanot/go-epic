@@ -307,6 +307,9 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 .capture-fab:hover { background: #f8bfca; }
 /* Week board: the + (new task) is the floating ✎'s twin, standing 12px above it; only a symbol, no words (Gianni) */
 .new-fab { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 64px); font-size: 28px; line-height: 1; }
+/* while arranging, the ✎'s spot holds a third ✓ Finish (Gianni): the same teal as the other two */
+.capture-fab.finish-fab { background: var(--teal); color: #0b2f2a; font-size: 26px; font-weight: 800; line-height: 1; }
+.capture-fab.finish-fab:hover { background: color-mix(in srgb, var(--teal) 85%, #fff); }
 .drawer-capture { display: flex; align-items: center; min-height: 48px; padding: 0 16px; border: 0; border-radius: 14px; background: transparent;
   color: var(--ink); font-size: 17px; font-weight: 700; text-align: left; }
 .drawer-capture:hover { background: rgba(255, 255, 255, .08); }
@@ -961,7 +964,7 @@ html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], 
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(dialog, dialog.capture-panel, dialog.app-drawer, dialog.editor, dialog.transfer)::backdrop { background: var(--g-veil); }
 html:is([data-theme='office'], [data-theme='graphite']) .switch-row input::before { background: var(--g-knob); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.capture-fab, .nav-toggle) { box-shadow: 0 3px 10px var(--g-shadow); }
-html:is([data-theme='office'], [data-theme='graphite']) .capture-fab:hover { background: var(--g-control-hover); }
+html:is([data-theme='office'], [data-theme='graphite']) .capture-fab:not(.finish-fab):hover { background: var(--g-control-hover); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.update-overlay::backdrop { background: var(--g-veil-strong); }
 html:is([data-theme='office'], [data-theme='graphite']) .update-button { background: var(--g-button); color: var(--g-button-ink); animation-name: update-glow-grey; }
 @keyframes update-glow-grey {
@@ -970,8 +973,9 @@ html:is([data-theme='office'], [data-theme='graphite']) .update-button { backgro
 }
 html:is([data-theme='office'], [data-theme='graphite']) .sparkle { color: var(--g-sparkle); text-shadow: none; }
 /* text on the accent greys (selected chips, primary buttons, the menu's current page, done dots) */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.chip.quiet.on, .primary, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.primary, button.primary, .capture-fab):hover:not(:disabled) { background: color-mix(in srgb, var(--pink) 85%, #000) !important; }   /* hover darkens the theme's accent; the fixed pale-pink hover would wash out its ink */
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.chip.quiet.on, .finish-fab, .primary, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.primary, button.primary, .capture-fab:not(.finish-fab)):hover:not(:disabled) { background: color-mix(in srgb, var(--pink) 85%, #000) !important; }   /* hover darkens the theme's accent; the fixed pale-pink hover would wash out its ink */
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .capture-fab.finish-fab:hover { background: color-mix(in srgb, var(--teal) 85%, #000); }
 /* surfaces and round buttons that were white or near-white */
 html:is([data-theme='office'], [data-theme='graphite']) .capture-list { background: var(--g-list); box-shadow: inset 0 1px 3px var(--g-shadow); }
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit) { background: var(--g-control); }

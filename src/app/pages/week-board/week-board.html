@@ -339,6 +339,10 @@
   }
 </dialog>
 
+<!-- a third Finish (Gianni): while arranging, a round teal ✓ takes the floating ✎'s spot, so Finish shrinks back into it -->
+@if (arranging()) {
+  <button type="button" class="capture-fab finish-fab" [attr.aria-label]="i18n.t('week.finish')" [title]="i18n.t('week.finish')" (click)="toggleArrange()">✓</button>
+}
 <!-- + above the floating ✎, in its look (Gianni): a new task (name, hour, repeat days) without opening Capture -->
 @if (!arranging() && store.loaded() && todos.ready()) {
   <button type="button" class="capture-fab new-fab" [attr.aria-label]="i18n.t('capture.new')" [title]="i18n.t('capture.new')" (click)="newTodo()">+</button>
