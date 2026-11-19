@@ -137,10 +137,11 @@
                       <span class="t-title" [title]="task.title">{{ task.title || i18n.t('week.newTask') }}</span>
                     } @else {
                       <!-- A tap on the title shows where the activity lives (Gianni); the rest of the card keeps its Done tap -->
-                      <span class="t-title t-link" role="button" tabindex="0" [title]="i18n.t('week.openInfo')"
+                      <!-- the outer span is the ≥ 40px tap target; the inner one keeps the title's 3-line wrap -->
+                      <span class="t-link" role="button" tabindex="0" [title]="i18n.t('week.openInfo')"
                             [attr.aria-label]="i18n.t('week.openInfo') + ': ' + task.title"
                             (click)="titleTap($event, block, ti, task, tones[ti])" (keydown.enter)="titleTap($event, block, ti, task, tones[ti])"
-                            (keydown.space)="titleTap($event, block, ti, task, tones[ti])">{{ task.title || i18n.t('week.newTask') }}</span>
+                            (keydown.space)="titleTap($event, block, ti, task, tones[ti])"><span class="t-title">{{ task.title || i18n.t('week.newTask') }}</span></span>
                     }
                     <!-- Today's state: a small figure at the activity's top right, in the theme's colours (Gianni: no pill in the
                          middle); in the row, so it never covers a pinned note -->

@@ -162,9 +162,11 @@ dialog.leave-ask .leave-stay { border: 0; background: rgba(255, 255, 255, .08); 
 html:is([data-theme='office'], [data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt']) dialog.leave-ask .leave-discard { color: #b91c1c; border-color: rgba(185, 28, 28, .5); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.leave-ask .leave-stay { background: rgba(var(--g-tint), .1); }
 /* Where an activity lives (a tap on its title, locked board): its Area, Epic, Feature and Story drawn as in the Canvas */
-.t-link { cursor: pointer; border-radius: 6px; }
-.t-link:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
-@media (hover: hover) { .t-link:hover { text-decoration: underline; text-underline-offset: 3px; } }
+/* The title's tap target reaches past its text (≥ 40px tall even on one line) without moving anything: padding the
+   negative margin gives back, a little above (the notes' gap) and more below */
+.t-link { flex: 1 1 0; min-width: 0; display: block; padding: 6px 0 14px; margin: -6px 0 -14px; cursor: pointer; border-radius: 6px; }
+.t-link:focus-visible { outline: 2px solid var(--teal); outline-offset: 0; }
+@media (hover: hover) { .t-link:hover .t-title { text-decoration: underline; text-underline-offset: 3px; } }
 dialog.info-card { width: min(440px, calc(100vw - 32px)); max-height: min(86dvh, 720px); overflow: auto; padding: 18px; border: 0; border-radius: 22px;
   background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; }
 dialog.info-card::backdrop { background: rgba(4, 9, 30, .55); }
