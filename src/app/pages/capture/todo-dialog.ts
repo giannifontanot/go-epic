@@ -1,8 +1,11 @@
 import { AfterViewInit, Component, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
+import { activityFromTodo } from '../../core/library.model';
+import { LibraryStore } from '../../core/library.store';
+import { TodoStore } from '../../core/todo.store';
 import { Todo } from '../../core/todo.model';
-import { DAYS, Day, parseClock } from '../../core/week.model';
+import { DAYS, Day, NEW_TASK_MINUTES, parseClock, validMinutes } from '../../core/week.model';
 
 export interface TodoSave { id: string; title: string; date: string | null; time: string | null; repeat: Day[]; }
 
@@ -37,6 +40,16 @@ export interface TodoSave { id: string; title: string; date: string | null; time
           <input type="time" step="60" [value]="time()" (input)="time.set($any($event.target).value)" /></label>
       </div>
       <p class="hint">{{ i18n.t('capture.anyHour') }}</p>
+      <!-- a task can become an Activity (Gianni): its name goes to the Canvas's Free Space and the task leaves Capture -->
+      <!-- with its minutes (Gianni): a new activity's hour by default, changed in the box beside the button -->
+      @if (!isNew()) {
+        <div class="to-activity-row">
+          <button type="button" class="chip quiet to-activity" (click)="toActivity()">⇢ {{ i18n.t('capture.toActivity') }}</button>
+          <label class="to-activity-min"><input type="number" inputmode="numeric" min="0" max="1440" [value]="activityMinutes()"
+                 [attr.aria-label]="i18n.t('capture.activityMinutes')" (input)="activityMinutes.set(validMinutes($any($event.target).value))" />
+            <span aria-hidden="true">min</span></label>
+        </div>
+      }
       @if (problem()) { <p class="app-error" role="alert">{{ problem() }}</p> }
       <footer>
         <button type="button" (click)="cancel()">{{ i18n.t('task.cancel') }}</button>
@@ -83,6 +96,26 @@ export class TodoDialog implements AfterViewInit {
   protected cancel(): void {
     if (this.leaving) return;
     this.leaving = true;
+    void closeDialog(this.dialog().nativeElement);
+  }
+
+  private readonly library = inject(LibraryStore);
+  protected readonly activityMinutes = signal(NEW_TASK_MINUTES);
+  protected readonly validMinutes = validMinutes;
+  private readonly todos = inject(TodoStore);
+  /** Convert to activity: asks first (the task leaves Capture), files the name and minutes in Free Space, then removes the task. */
+  protected toActivity(): void {
+    if (this.leaving) return;
+    const todo = this.todo();
+    const title = this.title().trim() || todo.title.trim();
+    if (!title) { this.problem.set(this.i18n.t('task.nameRequired')); return; }
+    if (!this.library.ready()) { this.problem.set(this.i18n.t('capture.toActivityWait')); return; }
+    if (!confirm(this.i18n.t('capture.toActivityAsk', { task: title }))) return;
+    let filed = false;
+    const saved = this.library.update((lib) => { const made = activityFromTodo(lib, title, todo.created, this.activityMinutes()); filed = !!made; return made?.lib ?? lib; });
+    if (!saved || !filed) { this.problem.set(this.i18n.t('capture.toActivityWait')); return; }
+    this.leaving = true;
+    this.todos.remove(todo.id);
     void closeDialog(this.dialog().nativeElement);
   }
 
