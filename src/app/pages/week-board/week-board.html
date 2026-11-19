@@ -1,4 +1,4 @@
-<section class="board" [class.locked]="!arranging()" [class.has-tray]="!arranging() && overdue().length > 0">
+<section class="board" [class.locked]="!arranging()" [class.has-tray]="!arranging() && overdue().length > 0" [class.tray-folded]="trayFolded()">
   <!-- Title and 💡 Capture at the right; while arranging ✓ Finish takes the 💡's place (Capture's tasks are hidden then
        anyway, and the menu still opens Capture), so edit mode costs no extra row (Gianni: the top took too much room).
        The floating ✎ arranges the week. -->
@@ -225,9 +225,14 @@
 
   <!-- Tasks left open on earlier days, today's whose hour has passed and today's all-day ones (Gianni): they float at the foot of the screen, always in sight, until checked -->
   @if (!arranging() && overdue().length) {
-    <section class="overdue-tray" [attr.aria-label]="i18n.t('week.overdue')">
-      <p class="overdue-head">{{ i18n.t('week.overdue') }} · {{ overdue().length }}</p>
-      <ul>
+    <section class="overdue-tray" [class.folded]="trayFolded()" [attr.aria-label]="i18n.t('week.overdue')">
+      <!-- Its top border folds the list down out of sight and back (Gianni); only this bar stays when folded -->
+      <button type="button" class="overdue-head" [attr.aria-expanded]="!trayFolded()" aria-controls="overdue-list"
+              [title]="i18n.t(trayFolded() ? 'week.trayOpen' : 'week.trayFold')" (click)="toggleTray()">
+        <span>{{ i18n.t('week.overdue') }} · {{ overdue().length }}</span><span class="overdue-chev" aria-hidden="true">⌄</span>
+      </button>
+      <div class="overdue-body" [attr.inert]="trayFolded() ? '' : null">
+      <ul id="overdue-list">
         @for (todo of overdue(); track todo.id) {
           <li class="todo-note own overdue" [attr.data-paper]="todoPaper(todo)" [style.--tone]="todos.tones().get(todo.id)">
             <button type="button" class="todo-check" role="checkbox" aria-checked="false"
@@ -239,6 +244,7 @@
           </li>
         }
       </ul>
+      </div>
     </section>
   }
 

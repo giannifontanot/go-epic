@@ -993,7 +993,19 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
 .overdue-tray { position: fixed; z-index: 15; left: max(12px, env(safe-area-inset-left)); right: calc(max(16px, env(safe-area-inset-right)) + 64px);
   bottom: max(14px, env(safe-area-inset-bottom)); max-width: 560px; max-height: 34vh; display: flex; flex-direction: column; padding: 8px 8px 8px;
   border-radius: 18px; background: var(--navy-card); box-shadow: 0 -2px 0 rgba(220, 38, 38, .55), 0 10px 30px rgba(0, 0, 0, .45); }
-.overdue-head { margin: 0 4px 6px; font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft); }
-.overdue-tray ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; overflow-y: auto; overscroll-behavior: contain; }
+/* The top border is a button (Gianni): it folds the list down out of sight, leaving only this bar, and back */
+.overdue-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 40px;
+  margin: -8px 0 0; padding: 8px 12px 6px; border: 0; border-radius: 18px 18px 8px 8px; background: transparent; cursor: pointer;
+  font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft); text-align: left; }
+.overdue-head:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
+.overdue-chev { font-size: 18px; line-height: 1; transition: rotate .35s cubic-bezier(.22, 1, .36, 1); }
+.overdue-tray.folded .overdue-chev { rotate: 180deg; }
+.overdue-body { flex: 0 1 auto; min-height: 0; display: grid; grid-template-rows: 1fr; transition: grid-template-rows .4s cubic-bezier(.22, 1, .36, 1), opacity .3s ease; }
+.overdue-tray.folded .overdue-body { grid-template-rows: 0fr; opacity: 0; }
+.overdue-tray.folded { padding-bottom: 0; }
+.overdue-tray { transition: padding-bottom .4s cubic-bezier(.22, 1, .36, 1); }
+.overdue-tray ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .board.has-tray { padding-bottom: min(36vh, 220px); }
+.board.has-tray.tray-folded { padding-bottom: 72px; }
+@media (prefers-reduced-motion: reduce) { .overdue-body, .overdue-chev, .overdue-tray { transition: none; } }
 @media (min-width: 821px) { .overdue-tray { left: 50%; right: auto; width: min(560px, calc(100vw - 180px)); translate: -50% 0; } }

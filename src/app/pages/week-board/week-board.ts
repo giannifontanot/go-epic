@@ -18,6 +18,7 @@ import { TodoDialog, TodoSave } from '../capture/todo-dialog';
 import { TodoStore } from '../../core/todo.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
 import { Transfer, TransferDialog } from './transfer-dialog';
+import { readTrayFolded, writeTrayFolded } from '../../core/tray-fold';
 
 /**
  * The week in seven columns of blocks and task cards. Locked by default (a calm view of the week);
@@ -170,6 +171,16 @@ export class WeekBoard {
     const day = this.store.today();
     return [...overdueTodos(all, today), ...pastDueTodos(all, today, day, this.store.nowMinutes()), ...allDayTodos(all, today, day)];
   });
+  /**
+   * The tray folds down to its top border (Gianni): a tap on the border slides the list out of sight, another tap
+   * brings it back; remembered on this device (core/tray-fold).
+   */
+  protected readonly trayFolded = signal(readTrayFolded(localStorage));
+  protected toggleTray(): void {
+    const folded = !this.trayFolded();
+    this.trayFolded.set(folded);
+    writeTrayFolded(localStorage, folded);
+  }
   /** Under a tray task's name: "from Mon 9" for an earlier day, "Today" for one whose hour has passed, "All day" without one. */
   protected trayLabel(todo: Todo): string {
     if (this.rolledOver(todo)) return this.fromLabel(todo);
