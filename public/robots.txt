@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://go-epic.web.app/sitemap.xml
