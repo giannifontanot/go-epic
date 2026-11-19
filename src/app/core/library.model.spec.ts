@@ -1,5 +1,5 @@
 import {
-  LibNode, Library, STARTER_TEMPLATE, paperAge, canParent, planTemplateChanges, followDay, inboxTasks, planTemplate, storyOptions, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, tasksWithin, twinTask,
+  LibNode, Library, STARTER_TEMPLATE, activityFromTodo, paperAge, canParent, planTemplateChanges, followDay, inboxTasks, planTemplate, storyOptions, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, tasksWithin, twinTask,
   emptyWhere, pickWhere, whereOf, whereOptions,
 } from './library.model';
 
@@ -51,6 +51,25 @@ describe('library model', () => {
     expect(fileTask(lib(), 'Read', null, null).id).toBe('free');
     expect(fileTask(lib(), 'Swim', 'f', null).lib.nodes.at(-1)?.parentId).toBeNull();   // a feature is no story: Free Space
     expect(twinTask(lib(), 'read', 's')).toBeUndefined();
+  });
+
+  it('turns a Capture task into an Activity in Free Space, keeping when it was captured and never doubling it', () => {
+    const made = activityFromTodo(lib(), '  Call mom ', 1_700_000_000_000);
+    expect(made?.lib.nodes.find((x) => x.id === made.id)).toEqual(expect.objectContaining({ kind: 'task', title: 'Call mom', parentId: null, color: null, created: 1_700_000_000_000, minutes: 60 }));
+    expect(activityFromTodo(lib(), 'Swim', 1, 25)?.lib.nodes.at(-1)?.minutes).toBe(25);
+    const reused = activityFromTodo(lib(), 'read', 1, 20);                             // already waiting in Free Space
+    expect(reused?.id).toBe('free');
+    expect(reused?.lib.nodes.find((x) => x.id === 'free')?.minutes).toBe(20);          // it had none: it takes them
+    const kept = { nodes: lib().nodes.map((x) => (x.id === 'free' ? { ...x, minutes: 45 } : x)) };
+    expect(activityFromTodo(kept, 'Read', 1, 20)).toEqual({ lib: kept, id: 'free' });  // its own minutes stay
+    expect(activityFromTodo(lib(), 'Run', 1)?.id).not.toBe('t');                       // a story's "Run" is not Free Space's
+    expect(activityFromTodo(lib(), '   ', 1)).toBeNull();
+  });
+
+  it('keeps an Activity\'s minutes through sanitizing, and never adds them where there were none', () => {
+    const clean = sanitizeLibrary({ nodes: [{ ...n('x', 'task', null), minutes: 30 }, n('y', 'task', null), { ...n('z', 'story', null), minutes: 5 } as LibNode] });
+    expect(clean.nodes.map((x) => x.minutes)).toEqual([30, undefined, undefined]);
+    expect('minutes' in clean.nodes[1]).toBe(false);                                   // Firestore refuses undefined
   });
 
   it('lists the tasks under a level, or all of them', () => {

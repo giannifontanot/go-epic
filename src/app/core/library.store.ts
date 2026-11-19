@@ -47,8 +47,12 @@ export class LibraryStore {
    */
   lastCommit: Promise<boolean> | null = null;
 
-  /** Replaces the whole library (with any staged week days, atomically): shown at once, saved to Firestore (queued offline). */
-  save(lib: Library, weekWrites: WeekWrite[] = []): boolean {
+  /**
+   * Replaces the whole library (with any staged week days and documents to delete, atomically): shown at once, saved to
+   * Firestore (queued offline). `deletes` are paths under the user (e.g. `todos/<id>`): a Capture task turned into an
+   * Activity leaves Capture in the same batch, so a refused save never loses it.
+   */
+  save(lib: Library, weekWrites: WeekWrite[] = [], deletes: string[] = []): boolean {
     if (!this.ready()) return false;
     const clean = sanitizeLibrary(lib);
     this.library.set(clean);
@@ -60,6 +64,7 @@ export class LibraryStore {
     const batch = writeBatch(fb.db);
     batch.set(doc(fb.db, 'users', uid, 'library', 'tree'), clean);
     for (const write of weekWrites) batch.set(doc(fb.db, write.path), write.data);
+    for (const path of deletes) batch.delete(doc(fb.db, 'users', uid, ...path.split('/')));
     this.lastCommit = batch.commit().then(() => true, (error) => {
       if (this.auth.user()?.uid !== uid) return false;          // signed out (or another account) meanwhile
       this.rejected.set(clean);

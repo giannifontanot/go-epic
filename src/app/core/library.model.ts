@@ -4,7 +4,7 @@
  * The Week board schedules library tasks: a week task points to one with `ref`.
  * Pure functions only, so the rules are easy to test.
  */
-import { Block, newId } from './week.model';
+import { Block, NEW_TASK_MINUTES, newId, validMinutes } from './week.model';
 
 export const newNodeId = newId;
 
@@ -26,6 +26,9 @@ export interface LibNode {
   color: string | null;
   /** Tasks only, optional: when it was captured or created (millis). Its paper ages from then (`paperAge`). */
   created?: number;
+  /** Tasks only, optional: how long the Activity takes (a Capture task turned into one saves it, Gianni); a card that
+   *  picks it in a block takes these minutes when they fit. */
+  minutes?: number;
 }
 
 /** Days a task stays fresh paper, and from when it is old stained paper (as in Epic Manager's Capture). */
@@ -189,6 +192,7 @@ export function sanitizeLibrary(raw: unknown): Library {
     };
     // Only when present: Firestore refuses undefined fields.
     if (n.kind === 'task' && typeof n.created === 'number' && Number.isFinite(n.created)) node.created = n.created;
+    if (n.kind === 'task' && typeof n.minutes === 'number' && Number.isFinite(n.minutes)) node.minutes = validMinutes(n.minutes);
     nodes.push(node);
   }
   // A parent that no longer exists, or of the wrong kind, sends the node to Free Space instead of hiding it.
@@ -211,6 +215,22 @@ export function fileTask(lib: Library, title: string, parentId: string | null, c
   const twin = twinTask(lib, title, story);
   if (twin) return { lib, id: twin.id };
   const node: LibNode = { id: newNodeId(), kind: 'task', title: title.trim(), parentId: story, color, created: Date.now() };
+  return { lib: addNode(lib, node), id: node.id };
+}
+
+/**
+ * A Capture task becomes an Activity (Gianni): a library task in Free Space with the task's name and minutes, its paper
+ * aged from when the task was captured. A same-titled Activity already waiting in Free Space is reused (it takes the
+ * minutes only when it had none), so nothing is doubled.
+ */
+export function activityFromTodo(lib: Library, title: string, created: number, minutes = NEW_TASK_MINUTES): { lib: Library; id: string } | null {
+  const name = title.trim();
+  if (!name) return null;
+  const mins = validMinutes(minutes);
+  const twin = twinTask(lib, name, null);
+  if (twin) return { lib: twin.minutes === undefined ? { nodes: lib.nodes.map((n) => (n.id === twin.id ? { ...n, minutes: mins } : n)) } : lib, id: twin.id };
+  const node: LibNode = { id: newNodeId(), kind: 'task', title: name, parentId: null, color: null,
+    created: Number.isFinite(created) ? created : Date.now(), minutes: mins };
   return { lib: addNode(lib, node), id: node.id };
 }
 

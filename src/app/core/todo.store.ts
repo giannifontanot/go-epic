@@ -67,6 +67,12 @@ export class TodoStore {
     if (todo) this.save(checkTodo(todo, done, date, Date.now()));
   }
 
+  /** Hides a task here only: its document is deleted by another write (a conversion's library batch); a refused batch
+   *  brings it back with the next snapshot. */
+  forget(id: string): void {
+    this.todos.update((list) => list.filter((t) => t.id !== id));
+  }
+
   remove(id: string): void {
     this.todos.update((list) => list.filter((t) => t.id !== id));
     const fb = firebase();
