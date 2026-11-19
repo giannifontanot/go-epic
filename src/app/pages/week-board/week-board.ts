@@ -175,11 +175,11 @@ export class WeekBoard {
    * The tray folds down to its top border (Gianni): a tap on the border slides the list out of sight, another tap
    * brings it back; remembered on this device (core/tray-fold).
    */
-  protected readonly trayFolded = signal(readTrayFolded(localStorage));
+  protected readonly trayFolded = signal(readTrayFolded());
   protected toggleTray(): void {
     const folded = !this.trayFolded();
     this.trayFolded.set(folded);
-    writeTrayFolded(localStorage, folded);
+    writeTrayFolded(folded);
   }
   /** Under a tray task's name: "from Mon 9" for an earlier day, "Today" for one whose hour has passed, "All day" without one. */
   protected trayLabel(todo: Todo): string {
