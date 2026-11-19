@@ -1,4 +1,4 @@
-import { Todo, allDayTodos, checkTodo, doneTodos, openTodos, overdueTodos, pastDueTodos, pinTodos, sanitizeTodo, stackPins, todosForDate, weekDate } from './todo.model';
+import { Todo, allDayTodos, checkTodo, doneTodos, openTodos, overdueTodos, pastDueTodos, pinTodos, sanitizeTodo, todosForDate, weekDate } from './todo.model';
 import { DayPlan } from './week.model';
 
 const todo = (id: string, extra: Partial<Todo> = {}): Todo => ({ id, title: id, date: '2026-11-10', time: null, done: null, created: 1, repeat: [], doneOn: {}, ...extra });
@@ -24,23 +24,38 @@ describe('todo model', () => {
     expect(weekDate(new Date(2026, 10, 15), 'MONDAY')).toBe('2026-11-09');   // a Sunday belongs to the week before
   });
 
-  it('pins a todo over the activity running at its hour, else leaves it loose', () => {
-    const plan: DayPlan = { blocks: [{ id: 'b', name: 'B', start: '09:00', end: '12:00', tasks: [
-      { id: 't1', title: 'Work', minutes: 60, color: null, active: true, ref: null },
-      { id: 't2', title: 'Read', minutes: 30, color: null, active: true, ref: null },
-    ] }] };
-    const { onTask, loose } = pinTodos(plan, [todo('a', { time: '09:30' }), todo('b', { time: '10:15' }), todo('c', { time: '13:00' }), todo('d')]);
-    expect(onTask.get('t1')).toEqual([{ todo: expect.objectContaining({ id: 'a' }), fraction: 0.5 }]);
-    expect(onTask.get('t2')).toEqual([{ todo: expect.objectContaining({ id: 'b' }), fraction: 0.5 }]);
-    expect(loose.map((t) => t.id)).toEqual(['c', 'd']);
+  it('puts a timed todo on top of the activity running at its hour, else the closest one in time', () => {
+    const plan: DayPlan = { blocks: [
+      { id: 'b', name: 'B', start: '09:00', end: '12:00', tasks: [
+        { id: 't1', title: 'Work', minutes: 60, color: null, active: true, ref: null },
+        { id: 't2', title: 'Read', minutes: 30, color: null, active: true, ref: null },
+      ] },
+      { id: 'e', name: 'E', start: '18:00', end: '19:00', tasks: [{ id: 't3', title: 'Dinner', minutes: 60, color: null, active: true, ref: null }] },
+    ] };
+    const list = [todo('a2', { time: '09:45' }), todo('a', { time: '09:30' }), todo('b', { time: '10:15' }), todo('c', { time: '13:00' }),
+      todo('early', { time: '07:00' }), todo('late', { time: '22:00' }), todo('mid', { time: '14:00' }), todo('d')];
+    const { onTask, loose } = pinTodos(plan, list);
+    expect(onTask.get('t1')?.map((t) => t.id)).toEqual(['early', 'a', 'a2']);   // before the day's first activity: on it
+    expect(onTask.get('t2')?.map((t) => t.id)).toEqual(['b', 'c', 'mid']);       // 13:00 and 14:00 are nearer Read's end (10:30) than Dinner (18:00)
+    expect(onTask.get('t3')?.map((t) => t.id)).toEqual(['late']);
+    expect(loose.map((t) => t.id)).toEqual(['d']);                               // only the ones with no hour
   });
 
-  it('stacks pinned notes that would cover each other', () => {
-    const pin = (id: string, fraction: number) => ({ todo: todo(id), fraction });
-    const stacks = stackPins([pin('c', 0.9), pin('a', 0.5), pin('b', 0.5), pin('d', 0.55)], 0.1);
-    expect(stacks.map((s) => [s.fraction, s.todos.map((t) => t.id)])).toEqual([[0.5, ['a', 'b', 'd']], [0.9, ['c']]]);
-    expect(stackPins([pin('a', 0.1), pin('b', 0.6)], 0.2).length).toBe(2);
-    expect(stackPins([pin('a', 0.5), pin('b', 0.5), pin('c', 0.65)], 0.1).map((s) => s.todos.length)).toEqual([3]);   // c would sit under the stack's notes
+  it('breaks a tie between two activities in favour of the earlier one, and prefers the one running', () => {
+    const plan: DayPlan = { blocks: [
+      { id: 'm', name: 'M', start: '09:00', end: '10:00', tasks: [{ id: 'am', title: 'Am', minutes: 60, color: null, active: true, ref: null }] },
+      { id: 'n', name: 'N', start: '12:00', end: '13:00', tasks: [{ id: 'pm', title: 'Pm', minutes: 60, color: null, active: true, ref: null }] },
+    ] };
+    const { onTask } = pinTodos(plan, [todo('half', { time: '11:00' }), todo('edge', { time: '12:00' }), todo('ended', { time: '10:00' })]);
+    expect(onTask.get('am')?.map((t) => t.id)).toEqual(['ended', 'half']);   // 11:00 is 60 min from both: the earlier wins
+    expect(onTask.get('pm')?.map((t) => t.id)).toEqual(['edge']);            // 12:00 is when Pm starts: it is running
+  });
+
+  it('leaves timed todos loose when the day has no activity with a time', () => {
+    const plan: DayPlan = { blocks: [{ id: 'b', name: 'B', start: null, end: null, tasks: [
+      { id: 't1', title: 'Work', minutes: 60, color: null, active: true, ref: null }] }] };
+    expect(pinTodos(plan, [todo('a', { time: '09:30' })]).loose.map((t) => t.id)).toEqual(['a']);
+    expect(pinTodos({ blocks: [] }, [todo('a', { time: '09:30' })]).loose.map((t) => t.id)).toEqual(['a']);
   });
 
   it('reads repeat days and per-date checks, dropping anything invalid', () => {

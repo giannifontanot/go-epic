@@ -84,42 +84,39 @@ export function weekDate(today: Date, day: Day): string {
   return dateKey(d);
 }
 
-export interface PinnedTodo { todo: Todo; fraction: number; }
-
 /**
- * Where a day's todos go on the Week board: each one with an hour is pinned over the activity running at that hour
- * (`onTask`, at the share of it already gone: 0 = its top); the rest (no hour, or an hour no activity covers) are
- * `loose`, shown at the foot of the day, by hour.
+ * Where a day's todos go on the Week board (Gianni: on top of the closest activity, not hovering over it): each one
+ * with an hour sits at the top of the activity running at that hour, or, when none runs then, of the activity closest
+ * to it in time (the one ending last before it or starting first after it; a tie goes to the earlier one). Each card's
+ * notes are listed by hour. The rest are `loose`, shown at the foot of the day by hour: those with no hour, and any
+ * whose day has no activity with a time.
  */
-export function pinTodos(plan: DayPlan, todos: Todo[]): { onTask: Map<string, PinnedTodo[]>; loose: Todo[] } {
-  const onTask = new Map<string, PinnedTodo[]>();
+export function pinTodos(plan: DayPlan, todos: Todo[]): { onTask: Map<string, Todo[]>; loose: Todo[] } {
+  const onTask = new Map<string, Todo[]>();
   const loose: Todo[] = [];
   const timed = timeline(plan).filter((t) => t.start !== null && t.end !== null && (t.end as number) > (t.start as number));
   for (const todo of [...todos].sort((a, b) => (a.time ?? '99:99').localeCompare(b.time ?? '99:99'))) {
     const at = parseClock(todo.time);
-    const host = at === null ? undefined : timed.find((t) => at >= (t.start as number) && at < (t.end as number));
-    if (!host || at === null) { loose.push(todo); continue; }
-    const fraction = (at - (host.start as number)) / ((host.end as number) - (host.start as number));
-    const list = onTask.get(host.task.id) ?? [];
-    list.push({ todo, fraction });
-    onTask.set(host.task.id, list);
+    const host = at === null ? undefined : closestActivity(timed, at);
+    if (!host) { loose.push(todo); continue; }
+    const list = onTask.get(host) ?? [];
+    list.push(todo);
+    onTask.set(host, list);
   }
   return { onTask, loose };
 }
 
-/**
- * Pinned notes that would cover each other (closer than `minGap`, a share of the card's height) go together in one
- * stack, at the first one's place; the stack lists them one under another, so every note can be read and checked.
- */
-export function stackPins(pins: PinnedTodo[], minGap: number): { fraction: number; todos: Todo[] }[] {
-  const stacks: { fraction: number; todos: Todo[]; last: number }[] = [];
-  for (const pin of [...pins].sort((a, b) => a.fraction - b.fraction)) {
-    const top = stacks[stacks.length - 1];
-    // a stack grows downwards: the next note fits only below the space its notes already take
-    if (top && pin.fraction < top.last + minGap) { top.todos.push(pin.todo); top.last += minGap; }
-    else stacks.push({ fraction: pin.fraction, todos: [pin.todo], last: pin.fraction });
+/** The id of the activity running at `at`, else the one nearest to it in time (ties: the earlier one). */
+function closestActivity(timed: { task: { id: string }; start: number | null; end: number | null }[], at: number): string | undefined {
+  const running = timed.find((t) => at >= (t.start as number) && at < (t.end as number));
+  if (running) return running.task.id;
+  let best: { id: string; gap: number; start: number } | undefined;
+  for (const t of timed) {
+    const start = t.start as number, end = t.end as number;
+    const gap = at < start ? start - at : at - end;   // minutes to its nearer edge
+    if (!best || gap < best.gap || (gap === best.gap && start < best.start)) best = { id: t.task.id, gap, start };
   }
-  return stacks.map(({ fraction, todos }) => ({ fraction, todos }));
+  return best?.id;
 }
 
 /**

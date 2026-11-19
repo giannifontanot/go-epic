@@ -658,14 +658,17 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .todo-note .todo-time { flex: none; font-size: 12px; opacity: .75; }
 .todo-note.checked { opacity: .65; }
 .todo-note.checked .todo-title { text-decoration: line-through; }
-.todo-stack { position: absolute; right: 8px; left: 8px; z-index: 3; display: grid; gap: 4px; translate: 0 -22px; cursor: default; }
-.todo-note.pinned { rotate: -0.6deg; }
-.todo-note.pinned:nth-child(even) { rotate: 0.5deg; }
+/* On top of the activity at their hour, in the card's flow (Gianni: not hovering over it) */
+.todo-pins { list-style: none; margin: -2px -4px 8px; padding: 0; display: grid; gap: 4px; cursor: default; }
 
 /* Today's state on a Week card (tap = Done, long press = menu): a badge in the middle of the card */
 .t-status { position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 2; padding: 4px 12px; border-radius: 999px; white-space: nowrap;
   background: rgba(255, 255, 255, .92); color: #302746; font-size: 14px; font-weight: 800; box-shadow: 0 2px 8px rgba(0, 0, 0, .2); pointer-events: none; }
 .t-status[data-status='done'] { display: inline-flex; align-items: center; gap: 4px; color: #8a5a00; background: #fffbea; box-shadow: 0 0 0 2px #e3b23c, 0 2px 10px rgba(227, 178, 60, .55); }
+/* A card with pinned notes: the badge sits in the card's flow under the activity's row, so it never covers a note
+   (an unfinished Capture task stays readable whatever the activity's state) */
+.task:has(> .todo-pins) > .t-status { position: static; translate: none; align-self: center; margin: 2px 0; }
+.task:has(> .todo-pins) > .t-dur { order: 1; }
 .t-check { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
 /* Just done (.won, added for 1.1 s by WeekBoard.celebrate): a gold flash, a little bounce, the ✓ draws itself */
 .task.won { animation: task-won 1s cubic-bezier(.2, .8, .3, 1); z-index: 4; }

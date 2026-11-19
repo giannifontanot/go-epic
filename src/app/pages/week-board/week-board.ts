@@ -13,7 +13,7 @@ import { CaptureUi } from '../capture/capture-ui';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { STATUSES, Status, isFinished } from '../../core/status.model';
-import { PinnedTodo, Todo, allDayTodos, overdueTodos, pastDueTodos, pinTodos, stackPins, todosForDate, weekDate } from '../../core/todo.model';
+import { Todo, allDayTodos, overdueTodos, pastDueTodos, pinTodos, todosForDate, weekDate } from '../../core/todo.model';
 import { TodoDialog, TodoSave } from '../capture/todo-dialog';
 import { TodoStore } from '../../core/todo.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
@@ -129,22 +129,17 @@ export class WeekBoard {
   protected readonly mobileDay = signal<Day>(this.store.today());
   /**
    * Capture's tasks on the board (Gianni): each day of this week shows the tasks dated that day, pinned over the
-   * activity running at their hour; the others (no hour, or an hour no activity covers) at the foot of the day.
+   * activity running at their hour (else the closest one), on top of its card; the ones with no hour at the foot of the day.
    */
   protected readonly todos = inject(TodoStore);
-  /**
-   * A card's pinned notes, grouped so none covers another: a note is about 48px tall and a card is
-   * 46px + the px stepper's pixels per minute (styles.css), so notes closer than that share one stack.
-   */
-  protected noteStacks(day: Day, task: Task): { fraction: number; todos: Todo[] }[] {
-    const pins = this.pins()[day].onTask.get(task.id);
-    if (!pins?.length) return [];
-    return stackPins(pins, 48 / (46 + validMinutes(task.minutes) * this.text.pxPerMin()));
+  /** Capture's tasks sitting on top of a card (Gianni: in the card, not hovering over it), by hour. */
+  protected cardNotes(day: Day, task: Task): Todo[] {
+    return this.pins()[day].onTask.get(task.id) ?? [];
   }
   protected readonly pins = computed(() => {
     const all = this.todos.todos();
     const week = this.store.week();
-    const out = {} as Record<Day, { onTask: Map<string, PinnedTodo[]>; loose: Todo[] }>;
+    const out = {} as Record<Day, { onTask: Map<string, Todo[]>; loose: Todo[] }>;
     // They float in the tray at the foot instead: the rolled-over ones on every day, today's past-due ones only today
     // (a repeating task keeps its notes on its other days).
     const today = this.store.today();
