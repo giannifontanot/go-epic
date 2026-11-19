@@ -161,6 +161,20 @@ dialog.leave-ask .leave-discard { border: 1.5px solid rgba(248, 113, 113, .6); b
 dialog.leave-ask .leave-stay { border: 0; background: rgba(255, 255, 255, .08); color: var(--ink-soft); }
 html:is([data-theme='office'], [data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt']) dialog.leave-ask .leave-discard { color: #b91c1c; border-color: rgba(185, 28, 28, .5); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.leave-ask .leave-stay { background: rgba(var(--g-tint), .1); }
+/* Where an activity lives (a tap on its title, locked board): its Area, Epic, Feature and Story drawn as in the Canvas */
+.t-link { cursor: pointer; border-radius: 6px; }
+.t-link:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+@media (hover: hover) { .t-link:hover { text-decoration: underline; text-underline-offset: 3px; } }
+dialog.info-card { width: min(440px, calc(100vw - 32px)); max-height: min(86dvh, 720px); overflow: auto; padding: 18px; border: 0; border-radius: 22px;
+  background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; }
+dialog.info-card::backdrop { background: rgba(4, 9, 30, .55); }
+.info-head { display: flex; align-items: flex-start; gap: 10px; }
+.info-head h2 { flex: 1 1 auto; min-width: 0; margin: 4px 0 0; font-size: 20px; overflow-wrap: anywhere; }
+.info-head .round { --tap: 40px; flex: none; }
+.info-when { margin: 4px 0 12px; color: var(--ink-soft); font-size: 14px; }
+.info-where .pc-epic { padding-right: 6px; }
+.info-where .pc-story strong { font-size: 15px; line-height: 1.4; }
+.info-foot { display: flex; justify-content: flex-end; margin-top: 14px; }
 dialog.status-menu h2 { margin: 0 0 12px; font-size: 20px; overflow-wrap: anywhere; }
 .status-options { display: grid; gap: 8px; }
 .status-options button { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; border: 0; border-radius: 14px; background: rgba(255, 255, 255, .08); color: var(--ink); font-size: 16px; font-weight: 700; text-align: left; }

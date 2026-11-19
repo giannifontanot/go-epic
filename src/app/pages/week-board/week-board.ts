@@ -1,4 +1,5 @@
 import { AutoColors } from '../../core/auto-colors';
+import { NgTemplateOutlet } from '@angular/common';
 import { ApplicationRef, Component, DestroyRef, ElementRef, Injector, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { flip, flipNow } from '../../core/flip';
 import { TextSettings } from '../../core/text-settings';
@@ -7,7 +8,7 @@ import {
   addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, Task, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId, resizedMinutes, stretchedEnd,
   moveToHour, nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
 } from '../../core/week.model';
-import { Library, fileTask, followLibrary, nodeById, paperAge, updateNode } from '../../core/library.model';
+import { Library, fileTask, followLibrary, nodeById, paperAge, pathOf, updateNode } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
 import { CaptureUi } from '../capture/capture-ui';
 import { WeekStore, WeekWrite } from '../../core/week.store';
@@ -37,7 +38,7 @@ function readFolded(): Set<string> {
 
 @Component({
   selector: 'app-week-board',
-  imports: [TaskDialog, TransferDialog, TodoDialog],
+  imports: [TaskDialog, TransferDialog, TodoDialog, NgTemplateOutlet],
   templateUrl: './week-board.html',
 })
 export class WeekBoard {
@@ -429,6 +430,35 @@ export class WeekBoard {
   private pressTimer: ReturnType<typeof setTimeout> | null = null;
   private pressAt: { x: number; y: number } | null = null;
   private longPressed = false;
+
+  // --- Where an activity lives (Gianni): on the locked board a tap on its title opens a card with its Area, Epic,
+  //     Feature and Story, so their names (the Story's "As a…, I want…, so that…") can be read. The rest of the card
+  //     keeps its own tap (Done) and long press (the state menu). ---
+  protected readonly info = signal<{ task: Task; block: Block; index: number; tone: string } | null>(null);
+  private readonly infoDialog = viewChild<ElementRef<HTMLDialogElement>>('infoDialog');
+  /** The titles of the levels the open card's activity lives under, '' where it has none (Free Space). */
+  protected readonly infoPath = computed(() => {
+    const open = this.info();
+    const path = open?.task.ref ? pathOf(this.library.library(), open.task.ref) : [];
+    const at = (kind: string) => path.find((n) => n.kind === kind)?.title ?? '';
+    return { area: at('area'), epic: at('epic'), feature: at('feature'), story: at('story') };
+  });
+  protected titleTap(event: Event, block: Block, index: number, task: Task, tone: string): void {
+    event.stopPropagation();                                              // not the card's Done
+    if (event instanceof KeyboardEvent) event.preventDefault();
+    this.pressEnd();
+    if (this.longPressed) { this.longPressed = false; return; }          // the long press already opened the state menu
+    this.info.set({ task, block, index, tone });
+    const d = this.infoDialog()?.nativeElement;
+    if (d) openDialog(d);
+  }
+  protected closeInfo(): void {
+    void closeDialog(this.infoDialog()?.nativeElement);
+  }
+  protected onInfoBackdrop(event: MouseEvent): void {
+    const d = this.infoDialog()?.nativeElement;
+    if (d && isBackdropClick(event, d)) void closeDialog(d);
+  }
 
   protected statusIcon(status: Status): string {
     return { todo: '', done: '✓', late: '⏰', progress: '▶', skipped: '⤼' }[status];
