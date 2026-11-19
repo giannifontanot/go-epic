@@ -1,0 +1,966 @@
+<!doctype html>
+<!--
+  Get Go Epic: the promotional landing page (go-epic.web.app/get/), separate from the app itself (index.html).
+  A plain static page: no Angular, no Firebase, so it loads fast and search engines read it as it is.
+  English in the HTML (for search engines); Spanish comes from the ES dictionary in the script below
+  (browser language es-*, the EN/ES switch, or ?lang=es).
+
+  ▶ DOWNLOAD LINK: every "Get Go Epic" button takes its address from GET_GO_EPIC_URL in the script at the
+    bottom of this file. It is a placeholder for now: put the real link there (one place) when it exists.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Get Go Epic · Plan your week in blocks, live each day one step at a time</title>
+  <meta name="description" content="Go Epic is a free planner app for your phone and computer: plan your week in time blocks, focus on one task at a time, grow streaks, and turn who you want to be into small daily steps. Works offline." />
+  <meta name="keywords" content="Go Epic, weekly planner, time blocking app, habit tracker, streaks, focus mode, life planner, daily routine, planner app free" />
+  <link rel="canonical" href="https://go-epic.web.app/get/" />
+  <link rel="alternate" hreflang="en" href="https://go-epic.web.app/get/" />
+  <link rel="alternate" hreflang="es" href="https://go-epic.web.app/get/?lang=es" />
+  <link rel="alternate" hreflang="x-default" href="https://go-epic.web.app/get/" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#101b42" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+  <!-- Open Graph / social previews -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Go Epic" />
+  <meta property="og:title" content="Get Go Epic · Your week, in blocks you can live" />
+  <meta property="og:description" content="Plan your week in time blocks, focus on one task at a time and watch your streaks grow. Free, on phone and desktop, works offline." />
+  <meta property="og:url" content="https://go-epic.web.app/get/" />
+  <meta property="og:image" content="https://go-epic.web.app/get/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="The Go Epic week board: yellow time blocks with pastel activity cards and a red now-line" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="es_ES" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Get Go Epic · Your week, in blocks you can live" />
+  <meta name="twitter:description" content="Plan your week in time blocks, focus on one task at a time and watch your streaks grow. Free, on phone and desktop." />
+  <meta name="twitter:image" content="https://go-epic.web.app/get/og-image.png" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Go Epic",
+    "applicationCategory": "ProductivityApplication",
+    "operatingSystem": "Android, iOS, Windows, macOS, ChromeOS, Linux (web app)",
+    "description": "Plan your week in time blocks, focus on one task at a time, track habits with streaks and organise your life from who you want to be down to today's small steps.",
+    "url": "https://go-epic.web.app/get/",
+    "image": "https://go-epic.web.app/get/og-image.png",
+    "inLanguage": ["en", "es"],
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+
+  <style>
+    :root {
+      --page: #101b42; --page-2: #16224f; --ink: #fff4e9; --ink-soft: #c6cae2;
+      --plum-a: #8f2859; --plum-b: #621c4b;
+      --jelly-a: #ffdf77; --jelly-b: #f5c945; --jelly-lip: #c99a1e; --jelly-ink: #362643;
+      --card-ink: #302746; --lagoon: #a7e7e3; --foam: #e1f3d0; --lilac: #e1d7ff; --peach: #ffd5bd;
+      --pink: #f4a8b7; --teal: #76e0d0; --now: #ff3b30; --navy-card: #1b2757; --gold: #e0b33a;
+      --serif: Georgia, 'Times New Roman', serif;
+      --wrap: 1120px;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    html, body { margin: 0; background: var(--page); color: var(--ink); }
+    body { font: 17px/1.55 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; overflow-x: clip; -webkit-tap-highlight-color: transparent; }
+    h1, h2, h3 { font-family: var(--serif); letter-spacing: -.02em; line-height: 1.1; margin: 0; }
+    p { margin: 0; }
+    a { color: inherit; }
+    img, svg { display: block; max-width: 100%; }
+    :focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; border-radius: 8px; }
+    .wrap { width: min(var(--wrap), 100% - 32px); margin-inline: auto; }
+    .skip { position: absolute; left: -999px; top: 8px; z-index: 50; background: var(--teal); color: #0b2f2a; padding: 8px 14px; border-radius: 10px; font-weight: 700; }
+    .skip:focus { left: 16px; }
+
+    /* ── Top bar ─────────────────────────────────────────────── */
+    .top { position: sticky; top: 0; z-index: 30; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      background: color-mix(in srgb, var(--page) 82%, transparent); border-bottom: 1px solid rgba(255, 244, 233, .08);
+      padding-top: env(safe-area-inset-top); }
+    .top .wrap { display: flex; align-items: center; gap: 12px; min-height: 60px; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--serif); font-size: 21px; font-weight: 700; }
+    .brand img { width: 36px; height: 36px; border-radius: 10px; }
+    .top nav { display: none; gap: 22px; margin-left: auto; font-size: 15px; }
+    .top nav a { text-decoration: none; color: var(--ink-soft); }
+    .top nav a:hover { color: var(--ink); }
+    .lang { margin-left: auto; display: inline-flex; border: 1.5px solid rgba(255, 244, 233, .25); border-radius: 999px; padding: 2px; }
+    .lang button { border: 0; background: transparent; color: var(--ink-soft); font: 700 13px/1 system-ui, sans-serif; min-width: 40px; min-height: 36px; border-radius: 999px; cursor: pointer; }
+    .lang button[aria-pressed="true"] { background: var(--ink); color: var(--page); }
+    .top .get.small { display: none; }
+
+    /* ── Buttons ─────────────────────────────────────────────── */
+    .get { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; padding: 0 28px;
+      border-radius: 999px; background: var(--pink); color: var(--card-ink); font-weight: 800; font-size: 18px; text-decoration: none;
+      box-shadow: 0 6px 0 #c9788a, 0 14px 30px rgba(244, 168, 183, .35); transition: transform .15s ease, box-shadow .15s ease, background .15s; }
+    .get:hover { background: #f8bfca; transform: translateY(-2px); box-shadow: 0 8px 0 #c9788a, 0 18px 34px rgba(244, 168, 183, .45); }
+    .get:active { transform: translateY(4px); box-shadow: 0 2px 0 #c9788a, 0 6px 14px rgba(244, 168, 183, .3); }
+    .get svg { width: 22px; height: 22px; }
+    .get.small { min-height: 42px; padding: 0 18px; font-size: 15px; box-shadow: 0 4px 0 #c9788a; }
+    .ghost { display: inline-flex; align-items: center; min-height: 56px; padding: 0 22px; border-radius: 999px; text-decoration: none;
+      font-weight: 700; color: var(--ink); border: 1.5px solid rgba(255, 244, 233, .3); }
+    .ghost:hover { border-color: var(--teal); color: var(--teal); }
+
+    /* ── Hero ────────────────────────────────────────────────── */
+    .hero { position: relative; padding: 36px 0 64px; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; inset: -20% -10% auto; height: 120%; z-index: -1;
+      background: radial-gradient(40% 40% at 80% 30%, rgba(143, 40, 89, .55), transparent 70%),
+                  radial-gradient(35% 35% at 10% 10%, rgba(118, 224, 208, .16), transparent 70%),
+                  radial-gradient(30% 30% at 60% 90%, rgba(245, 201, 69, .14), transparent 70%); }
+    .hero .wrap { display: grid; gap: 40px; align-items: center; }
+    .pill { display: inline-flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; padding: 6px 14px; border-radius: 999px;
+      background: rgba(255, 255, 255, .08); color: var(--ink-soft); font-size: 14px; font-weight: 600; }
+    .pill b { color: var(--teal); }
+    .hero h1 { margin-top: 18px; font-size: clamp(48px, 13vw, 92px); }
+    .hero h1 .go { display: block; font-size: .42em; font-weight: 400; color: var(--ink-soft); letter-spacing: 0; margin-bottom: 4px; }
+    .hero h1 .epic { background: linear-gradient(100deg, var(--jelly-a), var(--pink) 55%, var(--teal)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero .tagline { margin-top: 14px; font-family: var(--serif); font-size: clamp(22px, 5.4vw, 30px); line-height: 1.25; }
+    .hero .lead { margin-top: 16px; color: var(--ink-soft); font-size: 18px; max-width: 34em; }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 28px; }
+    .fine { margin-top: 14px; font-size: 14px; color: var(--ink-soft); }
+
+    /* ── Phone mockups (drawn in CSS from the app's own look) ── */
+    .phone { --w: 300px; position: relative; width: var(--w); max-width: 100%; aspect-ratio: 9 / 19; margin-inline: auto;
+      border-radius: 44px; padding: 12px; background: linear-gradient(160deg, #2a3466, #0b1230);
+      box-shadow: 0 0 0 2px #39447a, 0 30px 60px rgba(0, 0, 0, .55), inset 0 0 0 2px #0006; }
+    .phone::before { content: ''; position: absolute; top: 20px; left: 50%; translate: -50% 0; width: 32%; height: 22px; border-radius: 999px; background: #050916; z-index: 3; }
+    .screen { position: relative; height: 100%; border-radius: 33px; overflow: hidden; background: var(--page); padding: 46px 10px 12px; font-size: 11px; line-height: 1.3; }
+    .scr-top { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; }
+    .scr-top .burger { width: 22px; height: 22px; border-radius: 7px; background: rgba(255, 255, 255, .1); display: grid; place-items: center; font-size: 11px; }
+    .scr-top h3 { font-size: 15px; }
+    .scr-top .bulb { margin-left: auto; font-size: 13px; }
+    .day { border-radius: 18px; padding: 8px 8px 10px; background: linear-gradient(170deg, var(--plum-a), var(--plum-b)); }
+    .day h4 { margin: 0 2px 6px; font: 700 15px/1.1 var(--serif); display: flex; justify-content: space-between; align-items: baseline; }
+    .day h4 small { font: 700 9px/1 system-ui, sans-serif; color: var(--pink); letter-spacing: .08em; text-transform: uppercase; }
+    .block { position: relative; margin-bottom: 9px; padding: 6px 6px 7px; border-radius: 14px 17px 15px 12px; color: var(--jelly-ink);
+      background: linear-gradient(150deg, var(--jelly-a), var(--jelly-b));
+      box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), inset 0 -3px 0 rgba(0, 0, 0, .06), 0 5px 0 var(--jelly-lip), 0 9px 16px rgba(0, 0, 0, .3); }
+    .block .bname { font: 700 11.5px/1.2 var(--serif); display: flex; justify-content: space-between; gap: 4px; }
+    .block .bname .n { font: inherit; color: inherit; }
+    .block .bname span:not(.n) { font: 700 8.5px/1.2 system-ui, sans-serif; color: #0d9488; white-space: nowrap; }
+    .block .btime { text-align: center; font-size: 9px; font-weight: 700; opacity: .75; margin: 1px 0 4px; }
+    .card { position: relative; display: flex; flex-direction: column; justify-content: space-between; margin: 4px 0; padding: 4px 6px;
+      min-height: calc(20px + var(--m, 10) * .9px); border-radius: 10px; background: var(--c, var(--lagoon)); color: var(--card-ink);
+      box-shadow: 0 3px 0 rgba(48, 39, 70, .18); }
+    .card b { font-weight: 700; font-size: 10.5px; }
+    .card i { font-style: normal; font-size: 8px; opacity: .7; font-weight: 700; }
+    .card .dur { align-self: flex-end; font-size: 7.5px; font-weight: 800; letter-spacing: .04em; opacity: .75; }
+    .card.done { background: #fbecb8; color: #5a4510; box-shadow: inset 0 2px 4px rgba(0, 0, 0, .12), 0 0 0 1.5px var(--gold); translate: 0 1px; }
+    .card.done::after { content: '✓'; position: absolute; top: 4px; right: 5px; width: 15px; height: 15px; border-radius: 50%;
+      background: var(--teal); color: #0b2f2a; display: grid; place-items: center; font-size: 9px; font-weight: 900; }
+    .card .note { margin: 1px 0 2px; padding: 2px 5px; border-radius: 4px; background: #fff3a8; color: #4a3b10; font-size: 8px; font-weight: 600; box-shadow: 0 1px 2px rgba(0, 0, 0, .2); width: max-content; max-width: 100%; rotate: -1deg; }
+    .free { height: 14px; margin-top: 4px; border-radius: 8px; background: repeating-linear-gradient(-45deg, rgba(54, 38, 67, .12) 0 4px, transparent 4px 8px); font-size: 7.5px; display: grid; place-items: center; font-weight: 700; opacity: .8; }
+    .now { position: absolute; left: -6px; right: -6px; top: var(--at, 50%); height: 2px; background: var(--now); z-index: 2; box-shadow: 0 0 8px var(--now); }
+    .now::before { content: attr(data-t); position: absolute; right: -2px; top: 50%; translate: 0 -50%; padding: 2px 5px; border-radius: 999px; background: var(--now); color: #fff; font-size: 8px; font-weight: 800; }
+    .fab { position: absolute; right: 16px; bottom: 18px; width: 38px; height: 38px; border-radius: 50%; background: var(--pink); color: var(--card-ink); display: grid; place-items: center; font-size: 16px; box-shadow: 0 6px 14px rgba(0, 0, 0, .4); }
+
+    .hero-art { position: relative; padding: 10px 0 20px; }
+    .hero-art .phone { animation: float 7s ease-in-out infinite; }
+    .floaty { position: absolute; z-index: 4; padding: 10px 14px; border-radius: 16px; font-weight: 700; font-size: 14px; color: var(--card-ink);
+      box-shadow: 0 12px 26px rgba(0, 0, 0, .35); }
+    .floaty.f1 { top: 14%; left: max(0px, calc(50% - 220px)); background: var(--foam); rotate: -6deg; animation: float 6s ease-in-out -2s infinite; }
+    .floaty.f2 { bottom: 16%; right: max(0px, calc(50% - 215px)); background: #fbecb8; color: #5a4510; rotate: 5deg; animation: float 8s ease-in-out -4s infinite; }
+    .floaty.f2 em { font-style: normal; }
+    @keyframes float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
+
+    /* ── Value strip ─────────────────────────────────────────── */
+    .strip { padding: 8px 0 40px; }
+    .strip ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .strip li { display: flex; gap: 10px; align-items: center; padding: 14px; border-radius: 18px; background: rgba(255, 255, 255, .06); font-weight: 700; font-size: 15px; }
+    .strip li span:first-child { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 20px; background: var(--c); }
+
+    /* ── Sections ────────────────────────────────────────────── */
+    section { scroll-margin-top: 70px; }
+    .section { padding: 64px 0; }
+    .kicker { display: inline-block; font-size: 13px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--pink); }
+    .section h2 { margin-top: 8px; font-size: clamp(32px, 8vw, 52px); }
+    .section .intro { margin-top: 14px; color: var(--ink-soft); max-width: 40em; font-size: 18px; }
+
+    .feature { display: grid; gap: 30px; align-items: center; margin-top: 56px; }
+    .feature h3 { font-size: clamp(26px, 6.4vw, 38px); margin-top: 8px; }
+    .feature p { margin-top: 12px; color: var(--ink-soft); }
+    .feature ul { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+    .feature li { display: flex; gap: 10px; align-items: flex-start; }
+    .feature li::before { content: ''; flex: none; width: 20px; height: 20px; margin-top: 3px; border-radius: 50%;
+      background: var(--teal) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 10.5l3.2 3L15 6.5' fill='none' stroke='%230b2f2a' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 100% no-repeat; }
+    .feature .art { position: relative; }
+    .feature .phone { --w: 270px; }
+    .badge { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 800; color: var(--card-ink); background: var(--c, var(--jelly-b)); }
+
+    /* Focus screen */
+    .focus-now { margin-top: 6px; padding: 14px 12px; border-radius: 18px; background: var(--peach); color: var(--card-ink); box-shadow: 0 5px 0 rgba(48, 39, 70, .25); }
+    .focus-now small { font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; opacity: .7; }
+    .focus-now h4 { margin: 4px 0 10px; font: 700 21px/1.1 var(--serif); }
+    .ring { width: 92px; height: 92px; margin: 6px auto 8px; border-radius: 50%; display: grid; place-items: center;
+      background: conic-gradient(var(--plum-a) 0 52%, rgba(48, 39, 70, .14) 52% 100%); }
+    .ring div { width: 72px; height: 72px; border-radius: 50%; background: var(--peach); display: grid; place-items: center; text-align: center; font: 700 18px/1 var(--serif); }
+    .ring div small { display: block; font: 700 8px/1.2 system-ui, sans-serif; letter-spacing: 0; text-transform: none; }
+    .tapdone { display: block; text-align: center; padding: 8px; border-radius: 999px; background: var(--card-ink); color: var(--ink); font-weight: 800; font-size: 11px; }
+    .next-h { margin: 14px 4px 6px; font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
+    .next { display: flex; align-items: center; gap: 8px; padding: 8px 10px; margin-bottom: 6px; border-radius: 12px; background: rgba(255, 255, 255, .07); }
+    .next time { font-weight: 800; color: var(--teal); font-size: 10px; min-width: 30px; }
+    .next b { font-size: 11px; }
+
+    /* Canvas screen */
+    .tabs { display: flex; gap: 5px; overflow: hidden; margin-bottom: 8px; }
+    .tabs span { flex: none; padding: 5px 9px; border-radius: 999px; background: rgba(255, 255, 255, .1); font-size: 9.5px; font-weight: 700; white-space: nowrap; }
+    .tabs .lbl { background: var(--jelly-b); color: var(--jelly-ink); border-radius: 8px; }
+    .tabs .on { background: linear-gradient(150deg, var(--jelly-a), var(--jelly-b)); color: var(--jelly-ink); }
+    .ws { padding: 8px; border-radius: 16px; background: linear-gradient(170deg, var(--plum-a), var(--plum-b)); }
+    .feat { padding: 7px; border-radius: 14px; color: var(--jelly-ink); margin-bottom: 8px;
+      background: linear-gradient(150deg, var(--jelly-a), var(--jelly-b)); box-shadow: 0 4px 0 var(--jelly-lip); }
+    .lvl { font-size: 7.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; opacity: .7; }
+    .feat > b { display: block; font: 700 11.5px/1.2 var(--serif); margin: 1px 0 5px; }
+    .story { padding: 6px; border-radius: 11px; background: #fff7ec; color: var(--card-ink); box-shadow: 0 3px 0 rgba(48, 39, 70, .15); }
+    .story > b { display: block; font-size: 9px; line-height: 1.3; margin: 1px 0 5px; font-weight: 600; }
+    .cap { display: block; padding: 5px 8px; margin-top: 4px; border-radius: 999px; background: var(--c, var(--peach)); font-size: 9.5px; font-weight: 700; box-shadow: 0 2px 0 rgba(48, 39, 70, .18); }
+    .freesp { margin-top: 8px; padding: 8px; border-radius: 14px; border: 1.5px dashed rgba(255, 244, 233, .3); }
+    .freesp .lvl { color: var(--ink-soft); }
+
+    /* Progress screen */
+    .habit { padding: 9px 10px; margin-bottom: 7px; border-radius: 14px; background: linear-gradient(170deg, var(--plum-a), var(--plum-b)); }
+    .habit header { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+    .habit b { font-size: 11px; }
+    .habit .fire { font-weight: 800; font-size: 10.5px; color: var(--jelly-a); white-space: nowrap; }
+    .dots { display: grid; grid-template-columns: repeat(14, 1fr); gap: 3px; margin-top: 7px; }
+    .dots i { aspect-ratio: 1; border-radius: 50%; background: rgba(255, 255, 255, .14); }
+    .dots i.y { background: var(--teal); }
+    .dots i.l { background: var(--jelly-b); }
+    .dots i.s { background: rgba(255, 255, 255, .35); }
+    .dots i.t { box-shadow: 0 0 0 1.5px var(--ink); }
+
+    /* Capture screen */
+    .capbox { padding: 10px; border-radius: 16px; background: #fffdf8; color: var(--card-ink); }
+    .capbox .input { padding: 9px 10px; border-radius: 10px; border: 1.5px solid #e3dccf; font-size: 11px; color: #8a8293; display: flex; justify-content: space-between; }
+    .capbox .input b { color: var(--card-ink); }
+    .capnote { display: flex; gap: 8px; align-items: center; padding: 8px; margin-top: 7px; border-radius: 8px; background: var(--c, #fff3c4);
+      background-image: linear-gradient(rgba(255, 255, 255, .25), rgba(0, 0, 0, .03)); box-shadow: 0 2px 0 rgba(0, 0, 0, .08); }
+    .capnote .box { flex: none; width: 16px; height: 16px; border-radius: 4px; border: 2px solid var(--card-ink); }
+    .capnote b { display: block; font-size: 10.5px; }
+    .capnote small { font-size: 8.5px; opacity: .7; }
+    .capnote.late small { color: #b91c1c; opacity: 1; font-weight: 700; }
+
+    /* ── Areas (starter template) ────────────────────────────── */
+    .areas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 26px; }
+    .area { padding: 16px 14px; border-radius: 20px 24px 22px 18px; color: var(--jelly-ink);
+      background: linear-gradient(150deg, var(--jelly-a), var(--jelly-b)); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), 0 6px 0 var(--jelly-lip), 0 12px 24px rgba(0, 0, 0, .3); }
+    .area .ic { font-size: 28px; }
+    .area h3 { font-size: 19px; margin-top: 6px; }
+    .area p { font-size: 14px; margin-top: 4px; opacity: .85; }
+
+    /* ── Themes ──────────────────────────────────────────────── */
+    .themes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
+    .theme { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 18px; background: rgba(255, 255, 255, .06); }
+    .sw { flex: none; position: relative; width: 52px; height: 52px; border-radius: 14px; background: var(--bg); box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .15); overflow: hidden; }
+    .sw::before { content: ''; position: absolute; left: 8px; right: 8px; top: 9px; height: 18px; border-radius: 6px; background: var(--blk); }
+    .sw::after { content: ''; position: absolute; left: 8px; width: 22px; bottom: 9px; height: 10px; border-radius: 999px; background: var(--acc); }
+    .theme > div, .strip li > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+    .theme b { display: block; font-size: 15px; }
+    .theme small { color: var(--ink-soft); font-size: 13px; }
+
+    /* ── Articles ────────────────────────────────────────────── */
+    .articles { display: grid; gap: 20px; margin-top: 30px; }
+    article.post { display: flex; flex-direction: column; border-radius: 24px; overflow: hidden; background: var(--navy-card); box-shadow: 0 16px 34px rgba(0, 0, 0, .3); }
+    .post .pic { position: relative; height: 170px; overflow: hidden; }
+    .post .body { padding: 20px 20px 22px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+    .post .meta { font-size: 13px; font-weight: 700; color: var(--teal); }
+    .post h3 { font-size: 24px; }
+    .post p { color: var(--ink-soft); font-size: 16px; }
+    .post details { margin-top: auto; }
+    .post summary { cursor: pointer; font-weight: 800; color: var(--pink); list-style: none; min-height: 40px; display: flex; align-items: center; }
+    .post summary::-webkit-details-marker { display: none; }
+    .post summary::after { content: '→'; margin-left: 6px; transition: rotate .2s; }
+    .post details[open] summary::after { rotate: 90deg; }
+    .post details p { margin-top: 6px; }
+    /* Article pictures, drawn from the app's shapes */
+    .pic.p1 { background: linear-gradient(170deg, var(--plum-a), var(--plum-b)); }
+    .pic.p1 .b { position: absolute; left: 12%; right: 12%; border-radius: 16px; background: linear-gradient(150deg, var(--jelly-a), var(--jelly-b)); box-shadow: 0 5px 0 var(--jelly-lip); }
+    .pic.p1 .b:nth-child(1) { top: 18px; height: 54px; rotate: -2deg; }
+    .pic.p1 .b:nth-child(2) { top: 86px; height: 66px; rotate: 1.5deg; }
+    .pic.p1 .b i { position: absolute; left: 10px; right: 10px; height: 14px; border-radius: 6px; background: var(--c); }
+    .pic.p1 .x { position: absolute; right: 8%; top: 14px; padding: 6px 10px; border-radius: 10px; background: #fff; color: #888; font-size: 12px; text-decoration: line-through; rotate: 8deg; box-shadow: 0 6px 14px rgba(0, 0, 0, .3); }
+    .pic.p2 { background: radial-gradient(60% 80% at 50% 110%, rgba(245, 201, 69, .45), transparent), linear-gradient(170deg, #1b2757, #101b42); display: grid; place-items: center; }
+    .pic.p2 .stack { display: grid; gap: 6px; justify-items: center; }
+    .pic.p2 .stack span { padding: 6px 14px; border-radius: 999px; font-weight: 800; font-size: 13px; color: var(--card-ink); }
+    .pic.p3 { background: linear-gradient(170deg, var(--plum-a), var(--plum-b)); display: grid; place-items: center; }
+    .pic.p3 .flames { display: flex; gap: 6px; font-size: 26px; }
+    .pic.p3 .flames span { animation: flicker 2.4s ease-in-out infinite; }
+    .pic.p3 .flames span:nth-child(2n) { animation-delay: -.8s; }
+    .pic.p3 .flames span:nth-child(3n) { animation-delay: -1.6s; }
+    .pic.p3 .num { position: absolute; right: 16px; bottom: 12px; font: 700 40px/1 var(--serif); color: var(--jelly-a); }
+    @keyframes flicker { 0%, 100% { scale: 1; } 50% { scale: 1.15; } }
+
+    /* ── Steps ───────────────────────────────────────────────── */
+    .steps { list-style: none; margin: 30px 0 0; padding: 0; display: grid; gap: 16px; counter-reset: s; }
+    .steps li { position: relative; padding: 20px 20px 20px 76px; border-radius: 22px; background: rgba(255, 255, 255, .06); counter-increment: s; }
+    .steps li::before { content: counter(s); position: absolute; left: 18px; top: 18px; width: 42px; height: 42px; border-radius: 50%;
+      display: grid; place-items: center; font: 700 20px/1 var(--serif); background: var(--c); color: var(--card-ink); }
+    .steps h3 { font-size: 20px; }
+    .steps p { margin-top: 4px; color: var(--ink-soft); font-size: 16px; }
+
+    /* ── Quote ───────────────────────────────────────────────── */
+    .quote { margin: 0; padding: 30px 24px; border-radius: 28px; text-align: center; color: var(--jelly-ink);
+      background: linear-gradient(150deg, var(--jelly-a), var(--jelly-b)); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), 0 8px 0 var(--jelly-lip), 0 18px 36px rgba(0, 0, 0, .35); }
+    .quote p { font: italic 700 clamp(22px, 5.6vw, 32px)/1.3 var(--serif); }
+    .quote footer { margin-top: 10px; font-weight: 700; font-size: 15px; opacity: .8; }
+
+    /* ── FAQ ─────────────────────────────────────────────────── */
+    .faq { margin-top: 26px; display: grid; gap: 10px; }
+    .faq details { border-radius: 18px; background: rgba(255, 255, 255, .06); padding: 0 18px; }
+    .faq summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 12px; align-items: center; min-height: 58px; font-weight: 700; }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after { content: '+'; flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .1); font-size: 20px; transition: rotate .2s; }
+    .faq details[open] summary::after { rotate: 45deg; }
+    .faq details p { padding: 0 0 18px; color: var(--ink-soft); }
+
+    /* ── Final call to action ────────────────────────────────── */
+    .final { text-align: center; padding: 70px 0 80px; position: relative; overflow: hidden; }
+    .final::before { content: ''; position: absolute; inset: 0; z-index: -1;
+      background: radial-gradient(50% 60% at 50% 100%, rgba(143, 40, 89, .6), transparent 70%); }
+    .final img { width: 84px; height: 84px; margin: 0 auto 18px; border-radius: 22px; box-shadow: 0 14px 30px rgba(0, 0, 0, .4); }
+    .final h2 { font-size: clamp(34px, 9vw, 58px); }
+    .final p { margin: 14px auto 28px; max-width: 30em; color: var(--ink-soft); font-size: 18px; }
+    .final .cta-row { justify-content: center; }
+
+    footer.site { padding: 26px 0 max(26px, env(safe-area-inset-bottom)); border-top: 1px solid rgba(255, 244, 233, .08); color: var(--ink-soft); font-size: 14px; }
+    footer.site .wrap { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
+
+    /* ── Toast (placeholder link) ────────────────────────────── */
+    .toast { position: fixed; z-index: 60; left: 50%; bottom: max(20px, env(safe-area-inset-bottom)); translate: -50% 140%; opacity: 0;
+      max-width: calc(100% - 32px); padding: 14px 20px; border-radius: 16px; background: var(--ink); color: var(--page); font-weight: 700;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, .45); transition: translate .3s ease, opacity .3s ease; text-align: center; }
+    .toast.show { translate: -50% 0; opacity: 1; }
+
+    /* ── Reveal on scroll ────────────────────────────────────── */
+    .js .reveal { opacity: 0; translate: 0 26px; transition: opacity .7s ease, translate .7s cubic-bezier(.2, .7, .2, 1); }
+    .js .reveal.in { opacity: 1; translate: 0 0; }
+
+    /* ── Larger screens ──────────────────────────────────────── */
+    @media (min-width: 760px) {
+      .top nav { display: flex; }
+      .areas { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .lang { margin-left: 0; }
+      .top .get.small { display: inline-flex; }
+      .articles { grid-template-columns: repeat(3, 1fr); }
+      .steps { grid-template-columns: repeat(3, 1fr); }
+      .steps li { padding: 76px 22px 24px; }
+    }
+    @media (min-width: 920px) {
+      .hero { padding: 64px 0 90px; }
+      .hero .wrap { grid-template-columns: 1.1fr .9fr; }
+      .hero .phone { --w: 330px; }
+      .feature { grid-template-columns: 1fr 1fr; gap: 60px; margin-top: 90px; }
+      .feature.flip .art { order: -1; }
+      .strip ul, .themes { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .feature .phone { --w: 290px; }
+      .section { padding: 90px 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .js .reveal { opacity: 1; translate: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main" data-i="skip">Skip to content</a>
+
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="#top" aria-label="Go Epic"><img src="/icons/icon.svg" alt="" width="36" height="36" />Go Epic</a>
+      <nav aria-label="Page sections">
+        <a href="#features" data-i="nav_features">Features</a>
+        <a href="#stories" data-i="nav_stories">Stories</a>
+        <a href="#how" data-i="nav_how">How to get it</a>
+        <a href="#faq" data-i="nav_faq">FAQ</a>
+      </nav>
+      <div class="lang" role="group" aria-label="Language / Idioma">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="es" aria-pressed="false">ES</button>
+      </div>
+      <!-- placeholder download link: set GET_GO_EPIC_URL in the script at the bottom -->
+      <a class="get small js-get" href="#get-go-epic-link-coming-soon" data-i="get_short">Get Go Epic</a>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ═══ Hero ═══ -->
+    <section class="hero" id="top">
+      <div class="wrap">
+        <div>
+          <p class="pill"><span data-i="pill">Free</span> <b>·</b> <span data-i="pill2">Phone &amp; desktop</span> <b>·</b> <span data-i="pill3">Works offline</span></p>
+          <h1><span class="go" data-i="h1_get">Get</span>Go <span class="epic">Epic</span></h1>
+          <p class="tagline" data-i="tagline">Plan your week in blocks. Live each day one step at a time.</p>
+          <p class="lead" data-i="lead">Go Epic turns the life you want into a week you can actually live: a home in time for everything that matters, one clear task right now, and streaks that show you how far you've come.</p>
+          <div class="cta-row">
+            <!-- placeholder download link: set GET_GO_EPIC_URL in the script at the bottom -->
+            <a class="get js-get" href="#get-go-epic-link-coming-soon">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span data-i="get_long">Get Go Epic, it's free</span>
+            </a>
+            <a class="ghost" href="#features" data-i="see_how">See how it works</a>
+          </div>
+          <p class="fine" data-i="fine">No credit card. Sign in with Google and it installs from your browser in seconds.</p>
+        </div>
+
+        <div class="hero-art" aria-hidden="true">
+          <div class="floaty f1" data-i="floaty1">🔥 12 days in a row</div>
+          <div class="floaty f2"><em data-i="floaty2">✓ Done, and it glows gold</em></div>
+          <div class="phone">
+            <div class="screen">
+              <div class="scr-top"><span class="burger">☰</span><h3 data-i="m_week">Week</h3><span class="bulb">💡</span></div>
+              <div class="day">
+                <h4><span data-i="m_thu">Thursday</span><small data-i="m_today">Today</small></h4>
+                <div class="block">
+                  <div class="bname"><span class="n" data-i="m_dawn">Dawn Rising</span><span data-i="m_full">✓ Full</span></div>
+                  <div class="btime">06:00–06:45</div>
+                  <div class="card done" style="--m:15"><b data-i="m_bible">Read 1 verse and pray</b><span class="dur">15 MIN</span></div>
+                  <div class="card done" style="--m:10;--c:var(--foam)"><b data-i="m_walk">Walk 10 min</b><span class="dur">10 MIN</span></div>
+                  <div class="card" style="--m:20;--c:var(--lilac)"><i>06:25</i><b data-i="m_breakfast">Breakfast with the family</b><span class="dur">20 MIN</span></div>
+                </div>
+                <div class="block">
+                  <div class="bname"><span class="n" data-i="m_guild">Deep work</span><span data-i="m_free">10 min free</span></div>
+                  <div class="btime">08:00–09:30</div>
+                  <div class="card" style="--m:50;--c:var(--peach)"><span class="note" data-i="m_note">☐ Call the dentist · 08:30</span><i>08:00</i><b data-i="m_deep">Deep work block</b><span class="dur">50 MIN</span>
+                    <span class="now" style="--at:58%" data-t="08:29"></span></div>
+                  <div class="card" style="--m:30"><i>08:50</i><b data-i="m_study">Study 20 min</b><span class="dur">30 MIN</span></div>
+                  <div class="free" data-i="m_freeband">10 min free</div>
+                </div>
+                <div class="block">
+                  <div class="bname"><span class="n" data-i="m_family">Family time</span></div>
+                  <div class="btime">18:30–19:30</div>
+                  <div class="card" style="--m:30;--c:var(--foam)"><i>18:30</i><b data-i="m_dinner">Dinner together, no phones</b><span class="dur">1 HR</span></div>
+                </div>
+              </div>
+              <span class="fab">✎</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Value strip ═══ -->
+    <section class="strip" aria-label="Highlights">
+      <div class="wrap">
+        <ul>
+          <li class="reveal"><span style="--c:var(--jelly-b)" aria-hidden="true">📅</span><span data-i="v1">Your week in blocks</span></li>
+          <li class="reveal"><span style="--c:var(--peach)" aria-hidden="true">🎯</span><span data-i="v2">One task at a time</span></li>
+          <li class="reveal"><span style="--c:var(--lilac)" aria-hidden="true">🔥</span><span data-i="v3">Streaks that motivate</span></li>
+          <li class="reveal"><span style="--c:var(--lagoon)" aria-hidden="true">✈️</span><span data-i="v4">Works offline</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ═══ Features ═══ -->
+    <section class="section" id="features">
+      <div class="wrap">
+        <span class="kicker" data-i="f_kicker">What's inside</span>
+        <h2 data-i="f_title">Everything you need to live your best week</h2>
+        <p class="intro" data-i="f_intro">Five simple screens that work together, so planning takes minutes and living the plan feels natural.</p>
+
+        <!-- Week board -->
+        <div class="feature reveal">
+          <div>
+            <span class="badge" style="--c:var(--jelly-b)" data-i="w_badge">📅 Week board</span>
+            <h3 data-i="w_title">Your week, in blocks you can see</h3>
+            <p data-i="w_text">Give every part of your day a home: morning, deep work, family time. Each block has a start and an end it never passes, and every activity is a card as long as the time it takes. A red line shows exactly where you are right now.</p>
+            <ul>
+              <li data-i="w_l1">Copy or move a whole block, or a whole day, to other days in one tap</li>
+              <li data-i="w_l2">Drag cards between blocks and stretch their minutes with a handle</li>
+              <li data-i="w_l3">Tap a card to mark it done and watch it glow gold</li>
+            </ul>
+          </div>
+          <div class="art" aria-hidden="true">
+            <div class="phone">
+              <div class="screen">
+                <div class="scr-top"><span class="burger">☰</span><h3 data-i="m_week">Week</h3><span class="bulb">💡</span></div>
+                <div class="day">
+                  <h4><span data-i="m_sat">Saturday</span></h4>
+                  <div class="block">
+                    <div class="bname"><span class="n" data-i="m_morning">Slow morning</span><span data-i="m_free15">15 min free</span></div>
+                    <div class="btime">08:00–09:30</div>
+                    <div class="card" style="--m:20;--c:var(--lagoon)"><i>08:00</i><b data-i="m_coffee">Coffee and the Bible</b><span class="dur">20 MIN</span></div>
+                    <div class="card" style="--m:45;--c:var(--peach)"><i>08:20</i><b data-i="m_run">Run in the park</b><span class="dur">45 MIN</span></div>
+                    <div class="card" style="--m:10;--c:var(--lilac)"><i>09:05</i><b data-i="m_plan">Plan the week</b><span class="dur">10 MIN</span></div>
+                    <div class="free" data-i="m_free15">15 min free</div>
+                  </div>
+                  <div class="block">
+                    <div class="bname"><span class="n" data-i="m_home">Home</span><span data-i="m_full">✓ Full</span></div>
+                    <div class="btime">10:00–11:00</div>
+                    <div class="card done" style="--m:30;--c:var(--foam)"><b data-i="m_tidy">Tidy up 10 min</b><span class="dur">30 MIN</span></div>
+                    <div class="card" style="--m:30;--c:var(--lagoon)"><i>10:30</i><b data-i="m_garden">Garden with the kids</b><span class="dur">30 MIN</span></div>
+                  </div>
+                  <div class="block">
+                    <div class="bname"><span class="n" data-i="m_arena">Fun</span></div>
+                    <div class="btime">20:00–21:00</div>
+                    <div class="card" style="--m:40;--c:var(--lilac)"><i>20:00</i><b data-i="m_episode">Watch an episode</b><span class="dur">40 MIN</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Focus -->
+        <div class="feature flip reveal">
+          <div>
+            <span class="badge" style="--c:var(--peach)" data-i="fo_badge">🎯 Focus</span>
+            <h3 data-i="fo_title">Right now, only one thing</h3>
+            <p data-i="fo_text">Focus shows the task that is running, the time it has left and what comes next. No long list to scroll, no decisions to make. When it's done, a tap is all it takes.</p>
+            <ul>
+              <li data-i="fo_l1">The running task in big, clear letters</li>
+              <li data-i="fo_l2">Mark it done, late, in progress or skipped</li>
+              <li data-i="fo_l3">The rest of your day waiting calmly below</li>
+            </ul>
+          </div>
+          <div class="art" aria-hidden="true">
+            <div class="phone">
+              <div class="screen">
+                <div class="scr-top"><span class="burger">☰</span><h3>Focus</h3></div>
+                <div class="focus-now">
+                  <small data-i="m_nowlbl">Now · 08:00–08:50</small>
+                  <h4 data-i="m_deep">Deep work block</h4>
+                  <div class="ring"><div>21<small data-i="m_left">min left</small></div></div>
+                  <span class="tapdone" data-i="m_tapdone">Tap when it's done ✓</span>
+                </div>
+                <p class="next-h" data-i="m_next">Next</p>
+                <div class="next"><time>08:50</time><b data-i="m_study">Study 20 min</b></div>
+                <div class="next"><time>12:00</time><b data-i="m_lunch">Lunch and a short walk</b></div>
+                <div class="next"><time>18:30</time><b data-i="m_dinner">Dinner together, no phones</b></div>
+                <div class="next"><time>22:00</time><b data-i="m_screens">Screens off at 10 pm</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Canvas -->
+        <div class="feature reveal">
+          <div>
+            <span class="badge" style="--c:var(--lilac)" data-i="c_badge">🗺️ Canvas</span>
+            <h3 data-i="c_title">From who you want to be to what you do today</h3>
+            <p data-i="c_text">Go Epic organises your life in five levels: Area → Epic → Feature → Story → Activity. An Epic is who you are ("I am strong and healthy"), a Feature is what you live, a Story is the road, and an Activity is today's small step. Drag them around the Canvas until it feels right; nothing changes until you press Save.</p>
+            <ul>
+              <li data-i="c_l1">Start from a ready-made template and make it yours</li>
+              <li data-i="c_l2">Ideas wait in Free Space until you give them a place</li>
+              <li data-i="c_l3">Undo and redo every move</li>
+            </ul>
+          </div>
+          <div class="art" aria-hidden="true">
+            <div class="phone">
+              <div class="screen">
+                <div class="scr-top"><span class="burger">☰</span><h3>Canvas</h3><span class="bulb">💡</span></div>
+                <div class="tabs"><span class="lbl">EPICS:</span><span class="on" data-i="m_epic1">I am strong and healthy</span><span data-i="m_epic2">I walk with God</span></div>
+                <div class="ws">
+                  <div class="feat">
+                    <span class="lvl">Feature</span>
+                    <b data-i="m_feat1">I move every day and eat well</b>
+                    <div class="story">
+                      <span class="lvl">Story</span>
+                      <b data-i="m_story1">As an active person, I want to walk every morning after coffee, so that I have energy all day</b>
+                      <span class="cap" style="--c:var(--peach)" data-i="m_walk">Walk 10 min</span>
+                      <span class="cap" style="--c:var(--lagoon)" data-i="m_stretch">Stretch 5 min</span>
+                    </div>
+                  </div>
+                  <div class="feat">
+                    <span class="lvl">Feature</span>
+                    <b data-i="m_feat2">I sleep well and rest</b>
+                    <div class="story">
+                      <span class="lvl">Story</span>
+                      <b data-i="m_story2">As someone who cares for their rest, I want to unplug early, so that I sleep deeply</b>
+                      <span class="cap" style="--c:var(--lilac)" data-i="m_screens">Screens off at 10 pm</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="freesp"><span class="lvl" data-i="m_freespace">Free Space</span><span class="cap" style="--c:var(--foam)" data-i="m_idea">Learn to cook a new dish</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="feature flip reveal">
+          <div>
+            <span class="badge" style="--c:var(--lagoon)" data-i="p_badge">🔥 Progress</span>
+            <h3 data-i="p_title">Streaks that keep you going</h3>
+            <p data-i="p_text">Every activity of your week becomes a habit, with its streak and the last 14 days drawn as dots. A day you skip on purpose pauses a streak instead of erasing it, so one busy Tuesday never undoes a great month.</p>
+            <ul>
+              <li data-i="p_l1">See at a glance what you keep and what slips</li>
+              <li data-i="p_l2">Repeating tasks get their own streaks too</li>
+              <li data-i="p_l3">Only what you planned counts</li>
+            </ul>
+          </div>
+          <div class="art" aria-hidden="true">
+            <div class="phone">
+              <div class="screen">
+                <div class="scr-top"><span class="burger">☰</span><h3 data-i="m_progress">Progress</h3></div>
+                <div class="habit"><header><b data-i="m_bible">Read 1 verse and pray</b><span class="fire">🔥 23</span></header>
+                  <div class="dots"><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y t"></i></div></div>
+                <div class="habit"><header><b data-i="m_walk">Walk 10 min</b><span class="fire">🔥 12</span></header>
+                  <div class="dots"><i></i><i class="y"></i><i class="s"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="l"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y t"></i></div></div>
+                <div class="habit"><header><b data-i="m_deep">Deep work block</b><span class="fire">🔥 8</span></header>
+                  <div class="dots"><i class="y"></i><i class="y"></i><i></i><i></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="s"></i><i class="s"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="t"></i></div></div>
+                <div class="habit"><header><b data-i="m_dinner">Dinner together, no phones</b><span class="fire">🔥 5</span></header>
+                  <div class="dots"><i class="y"></i><i></i><i class="y"></i><i class="y"></i><i></i><i class="y"></i><i class="y"></i><i></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="l"></i><i class="t"></i></div></div>
+                <div class="habit"><header><b data-i="m_friend">Write to a friend</b><span class="fire">🔥 4</span></header>
+                  <div class="dots"><i class="s"></i><i class="s"></i><i class="y"></i><i class="s"></i><i class="s"></i><i class="s"></i><i class="y"></i><i class="s"></i><i class="s"></i><i class="s"></i><i class="y"></i><i class="s"></i><i class="y"></i><i class="s t"></i></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Capture -->
+        <div class="feature reveal">
+          <div>
+            <span class="badge" style="--c:var(--foam)" data-i="ca_badge">💡 Capture</span>
+            <h3 data-i="ca_title">Catch it before it slips away</h3>
+            <p data-i="ca_text">A call, an errand, a sudden idea: type it and press Enter. Tasks land on the right day and hour of your week as little notes, repeating ones come back every week, and anything left open from yesterday waits at the foot of the screen until you finish it.</p>
+            <ul>
+              <li data-i="ca_l1">Pinned right on top of the activity at that hour</li>
+              <li data-i="ca_l2">Repeat on the days you choose</li>
+              <li data-i="ca_l3">Turn any task into an Activity of your week</li>
+            </ul>
+          </div>
+          <div class="art" aria-hidden="true">
+            <div class="phone">
+              <div class="screen">
+                <div class="scr-top"><span class="burger">☰</span><h3>Capture</h3></div>
+                <div class="capbox">
+                  <div class="input"><b data-i="m_typing">Buy flowers for Mom|</b><span>↵</span></div>
+                  <div class="capnote" style="--c:#fff3c4"><span class="box"></span><div><b data-i="m_dentist">Call the dentist</b><small data-i="m_today1030">Today · 08:30</small></div></div>
+                  <div class="capnote" style="--c:#e1f3d0"><span class="box"></span><div><b data-i="m_gym">Gym</b><small data-i="m_repeat">Tu Th · 07:00</small></div></div>
+                  <div class="capnote late" style="--c:#ffd5bd"><span class="box"></span><div><b data-i="m_bills">Pay the electric bill</b><small data-i="m_from">From Mon 16</small></div></div>
+                  <div class="capnote" style="--c:#e1d7ff"><span class="box"></span><div><b data-i="m_gift">Birthday gift for Ana</b><small data-i="m_sat2">Sat · any time</small></div></div>
+                  <div class="capnote" style="--c:#a7e7e3"><span class="box"></span><div><b data-i="m_car">Renew car registration</b><small data-i="m_mon">Mon · 12:00</small></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Areas of life (starter template) -->
+        <div class="reveal" style="margin-top:80px">
+          <span class="kicker" data-i="a_kicker">A ready-made start</span>
+          <h2 style="font-size:clamp(28px,7vw,42px);margin-top:8px" data-i="a_title">Four areas of life, ready on day one</h2>
+          <p class="intro" data-i="a_intro">Not sure where to begin? The starter template gives you four areas, eight Epics and a first small step in each, written for real people. Keep what fits, rename the rest.</p>
+          <div class="areas">
+            <div class="area"><div class="ic" aria-hidden="true">🏛️</div><h3 data-i="a1">The Temple</h3><p data-i="a1t">Body, faith and money</p></div>
+            <div class="area"><div class="ic" aria-hidden="true">🏰</div><h3 data-i="a2">The Castle</h3><p data-i="a2t">Home, family and friends</p></div>
+            <div class="area"><div class="ic" aria-hidden="true">🗼</div><h3 data-i="a3">The Tower</h3><p data-i="a3t">Work and learning</p></div>
+            <div class="area"><div class="ic" aria-hidden="true">🎪</div><h3 data-i="a4">The Arena</h3><p data-i="a4t">Fun, hobbies and adventure</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Themes ═══ -->
+    <section class="section" id="themes" style="padding-top:20px">
+      <div class="wrap reveal">
+        <span class="kicker" data-i="t_kicker">Make it yours</span>
+        <h2 data-i="t_title">Eight looks, one you</h2>
+        <p class="intro" data-i="t_intro">Bright and playful for home, calm and grey for the office screen. Pick a theme and the whole app, even the installed app's colours, follows.</p>
+        <div class="themes">
+          <div class="theme"><span class="sw" style="--bg:#101b42;--blk:#f5c945;--acc:#f4a8b7"></span><div><b>Epic</b><small data-i="t1">Navy, jelly and pastels</small></div></div>
+          <div class="theme"><span class="sw" style="--bg:#fbeaf3;--blk:#f6eff1;--acc:#b04a73"></span><div><b>Pink Pop</b><small data-i="t2">Soft pink, light</small></div></div>
+          <div class="theme"><span class="sw" style="--bg:#1b141f;--blk:#33283a;--acc:#e39bbf"></span><div><b>Petal Punk</b><small data-i="t3">Deep plum nights</small></div></div>
+          <div class="theme"><span class="sw" style="--bg:#fff6ef;--blk:#f7efe8;--acc:#b9562a"></span><div><b>Squeeze Me</b><small data-i="t4">Peach and terracotta</small></div></div>
+          <div class="theme"><span class="sw" style="--bg:#1a1918;--blk:#47433e;--acc:#fb923c"></span><div><b>Smoked Citrus</b><small data-i="t5">Charcoal and tangerine</small></div></div>
+          <div class="theme"><span class="sw" style="--bg:#fff1e5;--blk:#f4ead8;--acc:#b5652a"></span><div><b>Sunburnt Toast</b><small data-i="t6">Warm golden toast</small></div></div>
+          <div class="theme"><span class="sw" style="--bg:#c6c9cd;--blk:#b1b5ba;--acc:#9aa2ab"></span><div><b>Office</b><small data-i="t7">Quiet greys for work</small></div></div>
+          <div class="theme"><span class="sw" style="--bg:#2b2e33;--blk:#3a3e44;--acc:#59616b"></span><div><b>Graphite</b><small data-i="t8">Dark and easy on the eyes</small></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Quote ═══ -->
+    <section class="section" style="padding-top:10px" aria-label="Idea">
+      <div class="wrap reveal">
+        <blockquote class="quote">
+          <p data-i="q">"A good life isn't built in a year. It's built one week at a time, one block at a time, one small step at a time."</p>
+          <footer data-i="q_by">The idea behind Go Epic</footer>
+        </blockquote>
+      </div>
+    </section>
+
+    <!-- ═══ Stories (articles) ═══ -->
+    <section class="section" id="stories">
+      <div class="wrap">
+        <span class="kicker" data-i="s_kicker">Stories</span>
+        <h2 data-i="s_title">Small ideas for big weeks</h2>
+        <p class="intro" data-i="s_intro">The thinking behind Go Epic, in three short reads.</p>
+        <div class="articles">
+          <article class="post reveal">
+            <div class="pic p1" aria-hidden="true">
+              <div class="b"><i style="--c:var(--lagoon);top:10px"></i><i style="--c:var(--peach);top:30px"></i></div>
+              <div class="b"><i style="--c:var(--lilac);top:12px"></i><i style="--c:var(--foam);top:32px;width:50%"></i></div>
+              <span class="x" data-i="s1_x">to-do list #47</span>
+            </div>
+            <div class="body">
+              <span class="meta" data-i="s1_meta">3 min read · Planning</span>
+              <h3 data-i="s1_title">Why blocks beat to-do lists</h3>
+              <p data-i="s1_p1">A to-do list tells you what, but never when. Twenty items quietly ask you to choose, again and again, all day long, and every choice wears you down a little.</p>
+              <details>
+                <summary data-i="read_more">Read more</summary>
+                <p data-i="s1_p2">Blocks answer the question once, in the calm of a Sunday: this is when I write, this is when I walk, this is when I'm home. When the hour comes you don't decide, you begin.</p>
+                <p data-i="s1_p3">And because every block has an end, it also gives you permission to stop. Go Epic never lets a block overflow: if it's full, it's full, and that honesty is what makes the plan believable.</p>
+              </details>
+            </div>
+          </article>
+          <article class="post reveal">
+            <div class="pic p2" aria-hidden="true">
+              <div class="stack">
+                <span style="background:var(--lilac)" data-i="s2_a">Area · The Temple</span>
+                <span style="background:var(--jelly-b)" data-i="s2_e">Epic · I am strong</span>
+                <span style="background:var(--lagoon)" data-i="s2_f">Feature · I move every day</span>
+                <span style="background:var(--peach)" data-i="s2_t">Activity · Walk 10 min</span>
+              </div>
+            </div>
+            <div class="body">
+              <span class="meta" data-i="s2_meta">4 min read · Identity</span>
+              <h3 data-i="s2_title">Start with who, not what</h3>
+              <p data-i="s2_p1">Goals like "lose ten pounds" fade by February. Identity lasts: "I am strong and healthy." It describes a person, and people act like who they believe they are.</p>
+              <details>
+                <summary data-i="read_more">Read more</summary>
+                <p data-i="s2_p2">That's why every Epic in Go Epic is written as who you already are, every Feature as what that person lives, and every Story as the road that gets there.</p>
+                <p data-i="s2_p3">At the end of the road sits an Activity small enough to do today. Ten minutes of walking isn't a chore when it's simply what someone like you does.</p>
+              </details>
+            </div>
+          </article>
+          <article class="post reveal">
+            <div class="pic p3" aria-hidden="true">
+              <div class="flames"><span>🔥</span><span>🔥</span><span>🔥</span><span>🔥</span><span>🔥</span></div>
+              <span class="num">13</span>
+            </div>
+            <div class="body">
+              <span class="meta" data-i="s3_meta">3 min read · Habits</span>
+              <h3 data-i="s3_title">The quiet power of a streak</h3>
+              <p data-i="s3_p1">Motivation comes and goes; a streak just keeps counting. Twelve little flames in a row make the thirteenth day easier than the first ever was.</p>
+              <details>
+                <summary data-i="read_more">Read more</summary>
+                <p data-i="s3_p2">Go Epic counts only what you actually planned. A day you skip on purpose pauses the streak instead of breaking it, so rest never feels like failure.</p>
+                <p data-i="s3_p3">And every finished card gets a little gold, a bounce and, when you close a whole block, a burst of sparkles. Small celebrations, every single day.</p>
+              </details>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ How to get it ═══ -->
+    <section class="section" id="how">
+      <div class="wrap">
+        <span class="kicker" data-i="h_kicker">How to get it</span>
+        <h2 data-i="h_title">Ready in under a minute</h2>
+        <ol class="steps">
+          <li class="reveal" style="--c:var(--pink)"><h3 data-i="h1">Tap "Get Go Epic"</h3><p data-i="h1t">Any button on this page takes you there. It's free.</p></li>
+          <li class="reveal" style="--c:var(--jelly-b)"><h3 data-i="h2">Sign in with Google</h3><p data-i="h2t">One tap, no new password. Your week is private: only your account can read it.</p></li>
+          <li class="reveal" style="--c:var(--teal)"><h3 data-i="h3">Add it to your home screen</h3><p data-i="h3t">iPhone: Safari → Share → Add to Home Screen. Android or computer: Chrome → Install app.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ═══ FAQ ═══ -->
+    <section class="section" id="faq" style="padding-top:20px">
+      <div class="wrap reveal">
+        <span class="kicker" data-i="faq_kicker">Questions</span>
+        <h2 data-i="faq_title">Good to know</h2>
+        <div class="faq">
+          <details><summary data-i="faq1q">Is Go Epic free?</summary><p data-i="faq1a">Yes. Sign in with your Google account and start planning, no credit card needed.</p></details>
+          <details><summary data-i="faq2q">Does it work on iPhone?</summary><p data-i="faq2a">Yes. Open it in Safari and choose Share → Add to Home Screen. From then on it opens like any other app, full screen.</p></details>
+          <details><summary data-i="faq3q">And on Android, tablets and computers?</summary><p data-i="faq3a">Yes. In Chrome choose Install app. Go Epic adapts to phones, tablets and desktop screens.</p></details>
+          <details><summary data-i="faq4q">Can I use it without internet?</summary><p data-i="faq4a">Yes. Your changes show at once and sync by themselves when you're back online.</p></details>
+          <details><summary data-i="faq5q">Is it in Spanish?</summary><p data-i="faq5a">Yes, Go Epic speaks English and Spanish.</p></details>
+          <details><summary data-i="faq6q">Do I have to set everything up myself?</summary><p data-i="faq6a">No. Start from the ready-made template with four areas of life and small first steps, then shape it into your own.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Final call to action ═══ -->
+    <section class="final" aria-labelledby="final-title">
+      <div class="wrap reveal">
+        <img src="/icons/icon.svg" alt="Go Epic icon" width="84" height="84" />
+        <h2 id="final-title" data-i="end_title">Your epic week starts now</h2>
+        <p data-i="end_text">Plan it once, live it every day, and watch the small steps add up to the person you want to be.</p>
+        <div class="cta-row">
+          <!-- placeholder download link: set GET_GO_EPIC_URL in the script at the bottom -->
+          <a class="get js-get" href="#get-go-epic-link-coming-soon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M5 20h14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span data-i="get_long">Get Go Epic, it's free</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site">
+    <div class="wrap">
+      <span>© 2026 Go Epic</span>
+      <span data-i="foot">Made with care for people who want more from their week.</span>
+    </div>
+  </footer>
+
+  <div class="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    /* ▶ THE DOWNLOAD LINK. A placeholder for now (it only shows a "coming soon" note).
+       Put the real address here when it exists, e.g. 'https://go-epic.web.app/' or a store link:
+       every "Get Go Epic" button on the page (class js-get) takes it. */
+    var GET_GO_EPIC_URL = '#get-go-epic-link-coming-soon';
+
+    var ES = {
+      skip: 'Saltar al contenido',
+      nav_features: 'Funciones', nav_stories: 'Artículos', nav_how: 'Cómo obtenerla', nav_faq: 'Preguntas',
+      get_short: 'Descargar Go Epic',
+      pill: 'Gratis', pill2: 'Teléfono y computadora', pill3: 'Funciona sin internet',
+      tagline: 'Planea tu semana en bloques. Vive cada día paso a paso.',
+      lead: 'Go Epic convierte la vida que quieres en una semana que de verdad puedes vivir: un lugar en tu tiempo para todo lo que importa, una sola tarea clara ahora mismo y rachas que te muestran cuánto has avanzado.',
+      get_long: 'Descarga Go Epic, es gratis', see_how: 'Mira cómo funciona',
+      fine: 'Sin tarjeta de crédito. Entras con Google y se instala desde tu navegador en segundos.',
+      floaty1: '🔥 12 días seguidos', floaty2: '✓ Hecho, y brilla en oro',
+      m_week: 'Semana', m_thu: 'Jueves', m_today: 'Hoy', m_dawn: 'Amanecer', m_full: '✓ Lleno',
+      m_bible: 'Leer 1 versículo y orar', m_walk: 'Caminar 10 min', m_breakfast: 'Desayunar en familia',
+      m_guild: 'Trabajo profundo', m_free: '10 min libres', m_note: '☐ Llamar al dentista · 08:30',
+      m_deep: 'Bloque de trabajo profundo', m_study: 'Estudiar 20 min', m_freeband: '10 min libres',
+      m_family: 'Tiempo en familia', m_dinner: 'Cenar juntos sin teléfono',
+      v1: 'Tu semana en bloques', v2: 'Una tarea a la vez', v3: 'Rachas que motivan', v4: 'Funciona sin internet',
+      f_kicker: 'Lo que trae', f_title: 'Todo lo que necesitas para vivir tu mejor semana',
+      f_intro: 'Cinco pantallas sencillas que trabajan juntas: planear toma minutos y vivir el plan se siente natural.',
+      w_badge: '📅 Tablero semanal', w_title: 'Tu semana, en bloques que puedes ver',
+      w_text: 'Dale un lugar a cada parte de tu día: la mañana, el trabajo profundo, el tiempo en familia. Cada bloque tiene un inicio y un fin que nunca rebasa, y cada actividad es una tarjeta tan larga como el tiempo que toma. Una línea roja te muestra exactamente dónde estás ahora.',
+      w_l1: 'Copia o mueve un bloque entero, o un día entero, a otros días con un toque',
+      w_l2: 'Arrastra tarjetas entre bloques y estira sus minutos con una manija',
+      w_l3: 'Toca una tarjeta para marcarla hecha y mírala brillar en oro',
+      m_sat: 'Sábado', m_morning: 'Mañana tranquila', m_free15: '15 min libres', m_coffee: 'Café y la Biblia',
+      m_run: 'Correr en el parque', m_plan: 'Planear la semana', m_home: 'Casa', m_tidy: 'Ordenar 10 min',
+      m_garden: 'Jardín con los niños', m_arena: 'Diversión', m_episode: 'Ver un episodio',
+      fo_badge: '🎯 Enfoque', fo_title: 'Ahora mismo, solo una cosa',
+      fo_text: 'Enfoque te muestra la tarea que está corriendo, el tiempo que le queda y lo que sigue. Sin listas largas que recorrer, sin decisiones que tomar. Cuando terminas, basta un toque.',
+      fo_l1: 'La tarea en curso en letras grandes y claras', fo_l2: 'Márcala hecha, tarde, en progreso u omitida',
+      fo_l3: 'El resto de tu día esperando tranquilo abajo',
+      m_nowlbl: 'Ahora · 08:00–08:50', m_left: 'min restantes', m_tapdone: 'Toca cuando termines ✓', m_next: 'Sigue',
+      m_lunch: 'Comer y caminar un poco', m_screens: 'Apagar pantallas a las 10 pm',
+      c_badge: '🗺️ Canvas', c_title: 'De quién quieres ser a lo que haces hoy',
+      c_text: 'Go Epic organiza tu vida en cinco niveles: Área → Epic → Feature → Story → Actividad. Un Epic es quién eres («Soy fuerte y saludable»), un Feature es lo que vives, una Story es el camino y una Actividad es el pequeño paso de hoy. Muévelos por el Canvas hasta que se sienta bien; nada cambia hasta que presionas Guardar.',
+      c_l1: 'Empieza con una plantilla lista y hazla tuya', c_l2: 'Las ideas esperan en el Espacio libre hasta que les das un lugar',
+      c_l3: 'Deshaz y rehaz cada movimiento',
+      m_epic1: 'Soy fuerte y saludable', m_epic2: 'Camino con Dios', m_feat1: 'Me muevo cada día y como sano',
+      m_story1: 'Como persona activa, quiero caminar cada mañana después del café, para tener energía todo el día',
+      m_stretch: 'Estirarme 5 min', m_feat2: 'Duermo bien y descanso',
+      m_story2: 'Como alguien que cuida su descanso, quiero desconectarme temprano por la noche, para dormir profundo',
+      m_freespace: 'Espacio libre', m_idea: 'Aprender a cocinar un platillo nuevo',
+      p_badge: '🔥 Progreso', p_title: 'Rachas que te mantienen en marcha',
+      p_text: 'Cada actividad de tu semana se vuelve un hábito, con su racha y los últimos 14 días dibujados en puntos. Un día que omites a propósito pausa la racha en vez de borrarla, así que un martes ocupado nunca deshace un gran mes.',
+      p_l1: 'Ve de un vistazo lo que mantienes y lo que se te escapa', p_l2: 'Las tareas que se repiten también tienen su racha',
+      p_l3: 'Solo cuenta lo que planeaste',
+      m_progress: 'Progreso', m_friend: 'Escribir a un amigo',
+      ca_badge: '💡 Captura', ca_title: 'Atrápalo antes de que se te escape',
+      ca_text: 'Una llamada, un pendiente, una idea repentina: escríbela y presiona Enter. Las tareas caen en el día y la hora correctos de tu semana como notitas, las que se repiten vuelven cada semana y lo que quedó abierto de ayer te espera al pie de la pantalla hasta que lo termines.',
+      ca_l1: 'Pegada justo encima de la actividad de esa hora', ca_l2: 'Se repite los días que elijas',
+      ca_l3: 'Convierte cualquier tarea en una Actividad de tu semana',
+      m_typing: 'Comprar flores para mamá|', m_dentist: 'Llamar al dentista', m_today1030: 'Hoy · 08:30',
+      m_gym: 'Gimnasio', m_repeat: 'Ma Ju · 07:00', m_bills: 'Pagar la luz', m_from: 'Desde lun 16',
+      m_gift: 'Regalo de cumpleaños para Ana', m_sat2: 'Sáb · a cualquier hora', m_car: 'Renovar el registro del carro', m_mon: 'Lun · 12:00',
+      a_kicker: 'Un comienzo listo', a_title: 'Cuatro áreas de la vida, listas desde el primer día',
+      a_intro: '¿No sabes por dónde empezar? La plantilla inicial te da cuatro áreas, ocho Epics y un primer paso pequeño en cada uno, escritos para personas reales. Quédate con lo que te sirva y renombra lo demás.',
+      a1: 'El Templo', a1t: 'Cuerpo, fe y dinero', a2: 'El Castillo', a2t: 'Hogar, familia y amigos',
+      a3: 'La Torre', a3t: 'Trabajo y aprendizaje', a4: 'La Arena', a4t: 'Diversión, pasatiempos y aventura',
+      t_kicker: 'Hazla tuya', t_title: 'Ocho estilos, un solo tú',
+      t_intro: 'Alegre y colorida para la casa, tranquila y gris para la pantalla de la oficina. Elige un tema y toda la app lo sigue, hasta los colores de la app instalada.',
+      t1: 'Azul marino, jalea y pasteles', t2: 'Rosa suave, claro', t3: 'Noches de ciruela profunda', t4: 'Durazno y terracota',
+      t5: 'Carbón y mandarina', t6: 'Pan tostado dorado', t7: 'Grises tranquilos para el trabajo', t8: 'Oscuro y suave para la vista',
+      q: '«Una buena vida no se construye en un año. Se construye una semana a la vez, un bloque a la vez, un pasito a la vez.»',
+      q_by: 'La idea detrás de Go Epic',
+      s_kicker: 'Artículos', s_title: 'Ideas pequeñas para semanas grandes', s_intro: 'Lo que hay detrás de Go Epic, en tres lecturas cortas.',
+      read_more: 'Leer más',
+      s1_x: 'lista de pendientes #47', s1_meta: '3 min de lectura · Planeación', s1_title: 'Por qué los bloques le ganan a las listas de pendientes',
+      s1_p1: 'Una lista de pendientes te dice qué, pero nunca cuándo. Veinte cosas te piden en silencio que elijas, una y otra vez, todo el día, y cada decisión te desgasta un poquito.',
+      s1_p2: 'Los bloques responden la pregunta una sola vez, en la calma de un domingo: a esta hora escribo, a esta hora camino, a esta hora estoy en casa. Cuando llega la hora no decides, empiezas.',
+      s1_p3: 'Y como cada bloque tiene un fin, también te da permiso de parar. Go Epic nunca deja que un bloque se desborde: si está lleno, está lleno, y esa honestidad es lo que hace creíble el plan.',
+      s2_a: 'Área · El Templo', s2_e: 'Epic · Soy fuerte', s2_f: 'Feature · Me muevo cada día', s2_t: 'Actividad · Caminar 10 min',
+      s2_meta: '4 min de lectura · Identidad', s2_title: 'Empieza por el quién, no por el qué',
+      s2_p1: 'Metas como «bajar cinco kilos» se desvanecen en febrero. La identidad perdura: «Soy fuerte y saludable». Describe a una persona, y las personas actúan como quien creen que son.',
+      s2_p2: 'Por eso cada Epic en Go Epic se escribe como quien ya eres, cada Feature como lo que esa persona vive y cada Story como el camino que lleva hasta ahí.',
+      s2_p3: 'Al final del camino hay una Actividad tan pequeña que puedes hacerla hoy. Caminar diez minutos no es una carga cuando es simplemente lo que hace alguien como tú.',
+      s3_meta: '3 min de lectura · Hábitos', s3_title: 'El poder silencioso de una racha',
+      s3_p1: 'La motivación va y viene; una racha solo sigue contando. Doce llamitas seguidas hacen que el día trece sea más fácil de lo que fue el primero.',
+      s3_p2: 'Go Epic cuenta solo lo que de verdad planeaste. Un día que omites a propósito pausa la racha en vez de romperla, así que descansar nunca se siente como fracasar.',
+      s3_p3: 'Y cada tarjeta terminada recibe un poco de oro, un rebote y, cuando cierras un bloque entero, una lluvia de chispas. Pequeñas celebraciones, todos los días.',
+      h_kicker: 'Cómo obtenerla', h_title: 'Lista en menos de un minuto',
+      h1: 'Toca «Descargar Go Epic»', h1t: 'Cualquier botón de esta página te lleva ahí. Es gratis.',
+      h2: 'Entra con Google', h2t: 'Un toque, sin contraseña nueva. Tu semana es privada: solo tu cuenta puede leerla.',
+      h3: 'Agrégala a tu pantalla de inicio', h3t: 'iPhone: Safari → Compartir → Agregar a inicio. Android o computadora: Chrome → Instalar app.',
+      faq_kicker: 'Preguntas', faq_title: 'Bueno saberlo',
+      faq1q: '¿Go Epic es gratis?', faq1a: 'Sí. Entra con tu cuenta de Google y empieza a planear, sin tarjeta de crédito.',
+      faq2q: '¿Funciona en iPhone?', faq2a: 'Sí. Ábrela en Safari y elige Compartir → Agregar a inicio. Desde entonces se abre como cualquier otra app, en pantalla completa.',
+      faq3q: '¿Y en Android, tabletas y computadoras?', faq3a: 'Sí. En Chrome elige Instalar app. Go Epic se adapta a teléfonos, tabletas y pantallas de escritorio.',
+      faq4q: '¿Puedo usarla sin internet?', faq4a: 'Sí. Tus cambios se ven al instante y se sincronizan solos cuando vuelves a estar en línea.',
+      faq5q: '¿Está en español?', faq5a: 'Sí, Go Epic habla español e inglés.',
+      faq6q: '¿Tengo que armar todo yo solo?', faq6a: 'No. Empieza con la plantilla lista, con cuatro áreas de la vida y pequeños primeros pasos, y luego dale tu propia forma.',
+      end_title: 'Tu semana épica empieza ahora',
+      end_text: 'Planéala una vez, vívela cada día y mira cómo los pasos pequeños te van convirtiendo en la persona que quieres ser.',
+      foot: 'Hecha con cariño para quienes quieren más de su semana.'
+    };
+    var META = {
+      en: { title: document.title, desc: document.querySelector('meta[name="description"]').content, soon: 'The download link is coming soon. Thanks for your interest!' },
+      es: { title: 'Get Go Epic · Planea tu semana en bloques y vive cada día paso a paso',
+            desc: 'Go Epic es una app gratis para tu teléfono y tu computadora: planea tu semana en bloques de tiempo, enfócate en una tarea a la vez, crea rachas y convierte quién quieres ser en pequeños pasos diarios. Funciona sin internet.',
+            soon: 'El enlace de descarga llega muy pronto. ¡Gracias por tu interés!' }
+    };
+
+    document.documentElement.classList.add('js');
+    var EN = {};
+    var nodes = document.querySelectorAll('[data-i]');
+    nodes.forEach(function (el) { EN[el.dataset.i] = el.innerHTML; });
+    var lang = 'en';
+
+    function setLang(next) {
+      lang = next === 'es' ? 'es' : 'en';
+      var dict = lang === 'es' ? ES : EN;
+      nodes.forEach(function (el) { var v = dict[el.dataset.i]; if (v != null) el.innerHTML = v; });
+      document.documentElement.lang = lang;
+      document.title = META[lang].title;
+      document.querySelector('meta[name="description"]').content = META[lang].desc;
+      document.querySelectorAll('.lang button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === lang)); });
+      try { localStorage.setItem('go-epic-get-lang', lang); } catch (e) {}
+    }
+    document.querySelectorAll('.lang button').forEach(function (b) {
+      b.addEventListener('click', function () { setLang(b.dataset.lang); });
+    });
+    var wanted = new URLSearchParams(location.search).get('lang');
+    if (!wanted) { try { wanted = localStorage.getItem('go-epic-get-lang'); } catch (e) {} }
+    if (!wanted) wanted = (navigator.language || '').toLowerCase().indexOf('es') === 0 ? 'es' : 'en';
+    if (wanted === 'es') setLang('es');
+
+    // Download buttons: the real link when GET_GO_EPIC_URL has one, else a friendly "coming soon" note.
+    var placeholder = GET_GO_EPIC_URL.charAt(0) === '#';
+    var toast = document.querySelector('.toast'), toastTimer;
+    document.querySelectorAll('.js-get').forEach(function (a) {
+      a.setAttribute('href', GET_GO_EPIC_URL);
+      a.addEventListener('click', function (e) {
+        if (!placeholder) return;
+        e.preventDefault();
+        toast.textContent = META[lang].soon;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 3200);
+      });
+    });
+
+    // Sections slide in as they come on screen
+    var reveals = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: .08 });
+      reveals.forEach(function (el) { io.observe(el); });
+    } else {
+      reveals.forEach(function (el) { el.classList.add('in'); });
+    }
+  </script>
+</body>
+</html>

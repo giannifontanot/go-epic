@@ -8,6 +8,8 @@ The two screens that mattered most in Epic Manager, rebuilt on Firebase with no 
 - **Capture** — a floating ✎: type an idea and press Enter; it waits in the Canvas's Free Space until you file it in a story or plan it in the Week.
 - **Focus** — today, one task at a time: the running task with its time left, then the rest of the day. A tap marks a task done for today.
 
+**Get Go Epic** — the promotional landing page is at `/get/` (`public/get/index.html`, a static page outside the app, English and Spanish). Its download buttons use a placeholder link: set `GET_GO_EPIC_URL` in that file.
+
 It is an installable app (PWA): on iPhone open it in Safari → Share → **Add to Home Screen**; on Android/desktop Chrome use **Install app**. It opens offline, and shows an *Update* bar when a new version is published.
 
 Built with Angular 22 (standalone components, signals), Firebase Auth (Google sign-in), Cloud Firestore (with the device cache, so it works offline) and Firebase Hosting. Everything fits the free **Spark** plan: no credit card.
