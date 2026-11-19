@@ -1,5 +1,5 @@
 import {
-  Block, PASTELS, Task, blockColors, cloneBlock, dateKey, dayOf, fits, formatClock, freeMinutes, moveItem, nowPosition, countdown,
+  Block, PASTELS, Task, blockColors, cloneBlock, dateKey, dayOf, fits, formatClock, freeMinutes, moveItem, stepTask, nowPosition, countdown,
   parseClock, placeBlock, stretchedEnd, resizedMinutes, taskStarts, taskTotal, timeline, uniqueName, validMinutes, windowError, moveToHour, addDayBlocks,
 } from './week.model';
 
@@ -99,6 +99,22 @@ describe('week model', () => {
     expect(countdown(plan, 400)).toBeNull();                                      // inactive ones are skipped: between tasks
     expect(countdown(plan, 435)).toEqual({ taskId: 'd', left: 45, share: 0.75 });
     expect(countdown(plan, 480)).toBeNull();                                      // over
+  });
+
+  it('steps a card up or down, across into the block above or below at its edges', () => {
+    const day = () => [
+      block('a', '06:00', '07:00', [task('a1', 20), task('a2', 20)]),
+      block('b', '07:00', '07:30', [task('b1', 10)]),
+      block('c', '08:00', null, [task('c1', 10)]),
+    ];
+    const ids = (r: ReturnType<typeof stepTask>) => (r && 'blocks' in r ? r.blocks.map((b) => b.id + ':' + b.tasks.map((t) => t.id).join(',')) : r);
+    expect(ids(stepTask(day(), 'a', 0, 1))).toEqual(['a:a2,a1', 'b:b1', 'c:c1']);          // inside its block
+    expect(ids(stepTask(day(), 'a', 1, 1))).toEqual(['a:a1', 'b:a2,b1', 'c:c1']);           // last ▼: first of the block below
+    expect(ids(stepTask(day(), 'c', 0, -1))).toEqual(['a:a1,a2', 'b:b1,c1']);               // first ▲: last of the block above; its emptied block goes
+    expect(stepTask(day(), 'a', 0, -1)).toBeNull();                                         // the day's first
+    expect(stepTask(day(), 'c', 0, 1)).toBeNull();                                          // the day's last
+    const full = day().map((b) => (b.id === 'b' ? { ...b, tasks: [task('b1', 25)] } : b));
+    expect(stepTask(full, 'a', 1, 1)).toEqual({ noRoom: full[1] });                         // 20 min do not fit in 5 free
   });
 
   it('puts the now-line inside the running task, at the share already gone', () => {

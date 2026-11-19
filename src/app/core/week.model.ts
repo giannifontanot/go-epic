@@ -164,6 +164,33 @@ export function moveItem<T>(items: T[], from: number, to: number): T[] {
   return copy;
 }
 
+/**
+ * ▲/▼ on a card (Gianni): one place up or down inside its block; from the top of a block, ▲ takes it to the end of the
+ * block above, and from the bottom, ▼ to the start of the block below, when that block has room for its minutes (its
+ * end is a hard limit). A block it leaves empty goes, as with a drag. `null` = nowhere to go (the day's first or last);
+ * `noRoom` = the neighbour block is full.
+ */
+export function stepTask(blocks: Block[], blockId: string, index: number, offset: -1 | 1): { blocks: Block[] } | { noRoom: Block } | null {
+  const bi = blocks.findIndex((b) => b.id === blockId);
+  const block = blocks[bi];
+  const task = block?.tasks[index];
+  if (!task) return null;
+  const to = index + offset;
+  if (to >= 0 && to < block.tasks.length) {
+    return { blocks: blocks.map((b, i) => (i === bi ? { ...b, tasks: moveItem(b.tasks, index, to) } : b)) };
+  }
+  const next = blocks[bi + offset];
+  if (!next) return null;
+  if (!fits(next, validMinutes(task.minutes))) return { noRoom: next };
+  return {
+    blocks: blocks.map((b, i) => {
+      if (i === bi) return { ...b, tasks: b.tasks.filter((_, k) => k !== index) };
+      if (i === bi + offset) return { ...b, tasks: offset < 0 ? [...b.tasks, task] : [task, ...b.tasks] };
+      return b;
+    }).filter((b) => b.tasks.length > 0),
+  };
+}
+
 /** `name`, or `name 2`, `name 3`… when another block of the day already uses it. */
 export function uniqueName(names: string[], name: string): string {
   const used = new Set(names.map((n) => n.trim().toLowerCase()));

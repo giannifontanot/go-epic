@@ -161,9 +161,9 @@
                     }
                     @if (arranging()) {
                       <span class="t-tools">
-                        <button type="button" class="round" [disabled]="tfirst" [attr.aria-label]="i18n.t('week.taskUp')" [title]="i18n.t('week.taskUp')"
+                        <button type="button" class="round" [disabled]="!canStep(tfirst, tlast, bfirst, blast, -1)" [attr.aria-label]="i18n.t('week.taskUp')" [title]="i18n.t('week.taskUp')"
                                 (click)="$event.stopPropagation(); moveTask(day, block, ti, -1)">▲</button>
-                        <button type="button" class="round" [disabled]="tlast" [attr.aria-label]="i18n.t('week.taskDown')" [title]="i18n.t('week.taskDown')"
+                        <button type="button" class="round" [disabled]="!canStep(tfirst, tlast, bfirst, blast, 1)" [attr.aria-label]="i18n.t('week.taskDown')" [title]="i18n.t('week.taskDown')"
                                 (click)="$event.stopPropagation(); moveTask(day, block, ti, 1)">▼</button>
                         <button type="button" class="round push" [attr.aria-label]="i18n.t('week.taskActions') + ': ' + task.title" [title]="i18n.t('week.taskActions')"
                                 (click)="$event.stopPropagation(); openTask(day, block, task)">✎</button>
