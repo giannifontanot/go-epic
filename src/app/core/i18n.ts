@@ -162,6 +162,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'capture.toActivityAsk': { en: 'Convert "{task}" to an activity? It goes to the Canvas\'s Free Space and leaves your tasks.', es: '¿Convertir "{task}" en actividad? Pasa al Espacio libre del Canvas y sale de tus tareas.' },
   'capture.activityMinutes': { en: 'Minutes of the activity', es: 'Minutos de la actividad' },
   'capture.toActivityWait': { en: 'The library is still loading. Try again in a moment.', es: 'La biblioteca aún se está cargando. Inténtalo en un momento.' },
+  'week.minutesLeft': { en: '{n} min left', es: 'Quedan {n} min' },
   'week.confirmDeleteTask': { en: 'Delete "{task}"?', es: '¿Eliminar "{task}"?' },
   'week.noRoom': { en: 'No room in "{block}": {n} min free.', es: 'No cabe en "{block}": {n} min libres.' },
   'week.newTask': { en: 'New Activity', es: 'Nueva Actividad' },

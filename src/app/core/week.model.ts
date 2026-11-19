@@ -294,6 +294,20 @@ export function timeline(plan: DayPlan): TimedTask[] {
 }
 
 /**
+ * The running activity's countdown (Gianni, as in Epic Manager's Focus bar): only while an active task is really under
+ * way (started, not yet over, with minutes), the minutes still left and their share of the task (1 = just started).
+ */
+export function countdown(plan: DayPlan, now: number): { taskId: string; left: number; share: number } | null {
+  const pos = nowPosition(plan, now);
+  const item = pos && timeline(plan).find((t) => t.task.id === pos.taskId);
+  if (!item || item.start === null || item.end === null) return null;
+  const length = item.end - item.start;
+  if (length <= 0 || now < item.start || now >= item.end) return null;
+  const left = item.end - now;
+  return { taskId: item.task.id, left, share: left / length };
+}
+
+/**
  * Where the now-line goes: inside the active task that started last (with a start time), at the share of it
  * already elapsed. Before the first task it sits at that task's top; after the last one at its bottom.
  */

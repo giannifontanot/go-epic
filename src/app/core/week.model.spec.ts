@@ -1,5 +1,5 @@
 import {
-  Block, PASTELS, Task, blockColors, cloneBlock, dateKey, dayOf, fits, formatClock, freeMinutes, moveItem, nowPosition,
+  Block, PASTELS, Task, blockColors, cloneBlock, dateKey, dayOf, fits, formatClock, freeMinutes, moveItem, nowPosition, countdown,
   parseClock, placeBlock, stretchedEnd, resizedMinutes, taskStarts, taskTotal, timeline, uniqueName, validMinutes, windowError, moveToHour, addDayBlocks,
 } from './week.model';
 
@@ -88,6 +88,17 @@ describe('week model', () => {
     const before = blockColors(tasks, memo);
     expect(blockColors([...tasks].reverse(), memo)).toEqual([...before].reverse());
     expect(memo.size).toBe(tasks.filter((t) => !t.color).length);
+  });
+
+  it('counts down only the activity running now, by the minutes still left', () => {
+    const plan = { blocks: [block('b', '06:00', null, [task('a', 30), task('z', 0), task('c', 30, { active: false }), task('d', 60)])] };
+    expect(countdown(plan, 300)).toBeNull();                                      // nothing started yet
+    expect(countdown(plan, 360)).toEqual({ taskId: 'a', left: 30, share: 1 });     // just started: all of it left
+    expect(countdown(plan, 375)).toEqual({ taskId: 'a', left: 15, share: 0.5 });
+    expect(countdown(plan, 390)).toBeNull();                                      // a 0-minute task has nothing to count
+    expect(countdown(plan, 400)).toBeNull();                                      // inactive ones are skipped: between tasks
+    expect(countdown(plan, 435)).toEqual({ taskId: 'd', left: 45, share: 0.75 });
+    expect(countdown(plan, 480)).toBeNull();                                      // over
   });
 
   it('puts the now-line inside the running task, at the share already gone', () => {

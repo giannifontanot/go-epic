@@ -5,7 +5,7 @@ import { flip, flipNow } from '../../core/flip';
 import { TextSettings } from '../../core/text-settings';
 import { I18n } from '../../core/i18n';
 import {
-  addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, Task, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId, resizedMinutes, stretchedEnd,
+  addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, countdown, Task, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId, resizedMinutes, stretchedEnd,
   moveToHour, nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
 } from '../../core/week.model';
 import { Library, fileTask, followLibrary, nodeById, paperAge, pathOf, updateNode } from '../../core/library.model';
@@ -233,6 +233,20 @@ export class WeekBoard {
   /** Where today's now-line sits: the running task and the share of it already gone. */
   protected readonly now = computed(() => nowPosition(this.store.week()[this.store.today()], this.store.nowMinutes()));
   protected readonly nowLabel = computed(() => formatClock(this.store.nowMinutes()));
+  /** The running activity's countdown bar at its foot (Gianni): the minutes left, shrinking from the left. */
+  protected readonly left = computed(() => countdown(this.store.week()[this.store.today()], this.store.nowMinutes()));
+  protected leftMinutes(minutes: number): number {
+    return Math.max(1, Math.ceil(minutes));
+  }
+  protected leftLabel(minutes: number): string {
+    return this.i18n.t('week.minutesLeft', { n: this.leftMinutes(minutes) });
+  }
+  /** Today's running card, still open (not marked finished or skipped), on the locked board. */
+  protected counting(day: Day, task: Task): boolean {
+    if (this.arranging() || day !== this.store.today() || this.left()?.taskId !== task.id) return false;
+    const st = this.cardStatus(day, task);
+    return st !== 'done' && st !== 'late' && st !== 'skipped';
+  }
 
   /**
    * Scrolls so today's now-line sits exactly in the middle of the screen (on entering, today's column when it has no
