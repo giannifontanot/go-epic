@@ -124,8 +124,11 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'week.overdue': { en: 'Overdue, still open', es: 'Atrasadas, sin hacer' },
   'week.todoFrom': { en: 'from {day}', es: 'del {day}' },
   'week.allDay': { en: 'All day', es: 'Todo el día' },
+<<<<<<< HEAD
   'week.trayFold': { en: 'Fold the list down', es: 'Bajar la lista' },
   'week.trayOpen': { en: 'Show the list', es: 'Mostrar la lista' },
+=======
+>>>>>>> origin/claude/all-day-tasks-bottom-ldvi01
   'week.todos': { en: 'Tasks', es: 'Tareas' },
   'week.foldBlock': { en: 'Close this block', es: 'Cerrar este bloque' },
   'week.unfoldBlock': { en: 'Open this block', es: 'Abrir este bloque' },
