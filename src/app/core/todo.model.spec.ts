@@ -41,6 +41,16 @@ describe('todo model', () => {
     expect(loose.map((t) => t.id)).toEqual(['d']);                               // only the ones with no hour
   });
 
+  it('breaks a tie between two activities in favour of the earlier one, and prefers the one running', () => {
+    const plan: DayPlan = { blocks: [
+      { id: 'm', name: 'M', start: '09:00', end: '10:00', tasks: [{ id: 'am', title: 'Am', minutes: 60, color: null, active: true, ref: null }] },
+      { id: 'n', name: 'N', start: '12:00', end: '13:00', tasks: [{ id: 'pm', title: 'Pm', minutes: 60, color: null, active: true, ref: null }] },
+    ] };
+    const { onTask } = pinTodos(plan, [todo('half', { time: '11:00' }), todo('edge', { time: '12:00' }), todo('ended', { time: '10:00' })]);
+    expect(onTask.get('am')?.map((t) => t.id)).toEqual(['ended', 'half']);   // 11:00 is 60 min from both: the earlier wins
+    expect(onTask.get('pm')?.map((t) => t.id)).toEqual(['edge']);            // 12:00 is when Pm starts: it is running
+  });
+
   it('leaves timed todos loose when the day has no activity with a time', () => {
     const plan: DayPlan = { blocks: [{ id: 'b', name: 'B', start: null, end: null, tasks: [
       { id: 't1', title: 'Work', minutes: 60, color: null, active: true, ref: null }] }] };

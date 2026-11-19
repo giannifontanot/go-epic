@@ -108,10 +108,12 @@ export function pinTodos(plan: DayPlan, todos: Todo[]): { onTask: Map<string, To
 
 /** The id of the activity running at `at`, else the one nearest to it in time (ties: the earlier one). */
 function closestActivity(timed: { task: { id: string }; start: number | null; end: number | null }[], at: number): string | undefined {
+  const running = timed.find((t) => at >= (t.start as number) && at < (t.end as number));
+  if (running) return running.task.id;
   let best: { id: string; gap: number; start: number } | undefined;
   for (const t of timed) {
     const start = t.start as number, end = t.end as number;
-    const gap = at < start ? start - at : at >= end ? at - end + 1 : 0;
+    const gap = at < start ? start - at : at - end;   // minutes to its nearer edge
     if (!best || gap < best.gap || (gap === best.gap && start < best.start)) best = { id: t.task.id, gap, start };
   }
   return best?.id;
