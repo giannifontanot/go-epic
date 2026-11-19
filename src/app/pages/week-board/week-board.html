@@ -185,6 +185,14 @@
                       @if (sizing()?.taskId === task.id) { <span class="end-badge">{{ sizingBadge(block, ti, task) }}</span> }
                     </span>
                   }
+                  <!-- the running activity's countdown (Gianni, as in Epic Manager): a thick bar at its foot whose fill is the minutes
+                       left, shrinking from the left; not once it is marked finished or skipped, nor while arranging -->
+                  @if (counting(day, task)) {
+                    <span class="t-left" role="progressbar" aria-valuemin="0" [attr.aria-valuemax]="task.minutes" [attr.aria-valuenow]="leftMinutes(left()!.left)"
+                          [attr.aria-label]="leftLabel(left()!.left)" [title]="leftLabel(left()!.left)">
+                      <span class="t-left-fill" [style.width.%]="left()!.share * 100"></span>
+                    </span>
+                  }
                   @if (day === store.today() && now()?.taskId === task.id) {
                     <span class="now-line" [style.top.%]="now()!.fraction * 100">
                       <!-- a tap on the time centres the line on screen (Gianni) -->

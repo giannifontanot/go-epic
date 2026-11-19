@@ -14,6 +14,7 @@
   --red: #dc2626;
   --navy-card: #1b2757;
   --light: #fff4e9;   /* a light surface against the dark inks (option lists, the selected Copy/Move): never the --ink token, which is dark in Office */
+  --countdown: #c9524c;   /* the running activity's countdown bar: a muted red, not as bright as the now-line */
   --now: #ff3b30;   /* the now-line: red; the Office theme makes it quiet unless Ajustes asks for red */
   --tap: 36px;
   color-scheme: dark;
@@ -185,6 +186,12 @@ dialog.status-menu h2 { margin: 0 0 12px; font-size: 20px; overflow-wrap: anywhe
 .quick-add { min-height: 40px; padding: 6px 12px; border: 1px dashed rgba(54, 38, 67, .4); border-radius: 12px; background: rgba(255, 255, 255, .45); color: var(--jelly-ink); font-size: 16px; }
 .quick-add::placeholder { color: rgba(54, 38, 67, .6); }
 
+/* The running activity's countdown (Gianni, as in Epic Manager's Focus bar): a thick bar at the card's foot, much
+   bolder than the now-line; its fill is the minutes left, anchored right, so it shrinks from the left. Muted, never
+   loud: each theme sets --countdown (a soft red in Epic) */
+.t-left { display: block; height: 9px; margin: 8px 0 0; border-radius: 999px; overflow: hidden; pointer-events: none;
+  background: color-mix(in srgb, var(--countdown) 22%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--countdown) 35%, transparent); }
+.t-left-fill { display: block; height: 100%; margin-left: auto; border-radius: inherit; background: var(--countdown); transition: width .6s ease; }
 .now-line { position: absolute; z-index: 5; left: -22px; right: -22px; height: 0; border-top: 2px solid var(--now); pointer-events: none; }   /* over the cards and their pinned notes (Gianni: nothing hides it) */
 .now-badge { position: absolute; right: 26px; top: -11px; padding: 1px 6px; border: 0; border-radius: 999px; background: var(--now); color: var(--now-ink, #fff); font-size: 11px; font-weight: 800; line-height: 1.45; min-height: 0; pointer-events: auto; }
 .now-badge::before { content: ''; position: absolute; inset: -12px -10px; }   /* a tap target of about 40px around the small badge: a tap centres the line */
@@ -808,6 +815,7 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
    surfaces get their grey by hand. ───────────────────────────────────────────────────────────────────────────── */
 /* Office (Gianni): quiet light greys for a work screen */
 html[data-theme='office'] {
+  --countdown: #5f6770;
   --page: #c6c9cd; --ink: #26292d; --ink-soft: #555a61;
   --plum-a: #b8bcc1; --plum-b: #b1b5ba; --jelly-a: #cdd0d3; --jelly-b: #c6c9cd; --jelly-ink: #2a2d31; --card-ink: #2a2d31;
   --pink: #9aa2ab; --teal: #7f8b96; --red: #8f4444; --navy-card: #cfd1d4; --light: #dfe1e4;
@@ -823,6 +831,7 @@ html[data-theme='office'] {
 /* Graphite (Gianni): dark, but kind to the eyes: deep greys, never black, and soft grey ink instead of white, so the
    contrast stays gentle */
 html[data-theme='graphite'] {
+  --countdown: #9aa2ab;
   --page: #2b2e33; --ink: #c9ccd1; --ink-soft: #8f959d;
   --plum-a: #34383e; --plum-b: #31353a; --jelly-a: #3d4147; --jelly-b: #3a3e44; --jelly-ink: #c9ccd1; --card-ink: #c9ccd1;
   --pink: #59616b; --teal: #6c7884; --red: #a85a54; --navy-card: #33373d; --light: #3d4147;
@@ -839,6 +848,7 @@ html[data-theme='graphite'] {
    palettes, not grey: pastel cards, gold Done and Canvas colours stay; the page, days, blocks and windows turn pink.
    They share the structural rules below with the grey themes (shadows, veils, accent inks, tints) through --g-*. */
 html[data-theme='pinkpop'] {
+  --countdown: #b5546d;
   --page: #fbeaf3; --ink: #2a1f2b; --ink-soft: #6b5566;
   --plum-a: #f4e4ec; --plum-b: #ecd6e1; --jelly-a: #fdfafa; --jelly-b: #f6eff1; --jelly-ink: #3b2a35; --card-ink: #2a1f2b;   /* porcelain blocks, blush days */
   --block-edge: #e3a6c1;                                           /* the pink stays only on the block's border (Gianni: not loud) */
@@ -851,6 +861,7 @@ html[data-theme='pinkpop'] {
 }
 html[data-theme='pinkpop'] body { min-height: 100dvh; background: linear-gradient(135deg, #fff7fb 0%, #fbeaf3 35%, #f5d6e7 70%, #fff7fb 100%) fixed; }
 html[data-theme='petalpunk'] {
+  --countdown: #d98a9a;
   --page: #1b141f; --ink: #f6e9f1; --ink-soft: #c7b2c1;
   --plum-a: #2e2238; --plum-b: #251b2d; --jelly-a: #3d3043; --jelly-b: #33283a; --jelly-ink: #f4e6ef; --card-ink: #2a1020;   /* plum velvet blocks (Gianni: the hot pink shouted) */
   --block-edge: #c98aac;                                           /* a rose border is all the pink a block keeps */
@@ -864,6 +875,7 @@ html[data-theme='petalpunk'] {
 html[data-theme='petalpunk'] body { min-height: 100dvh; background: linear-gradient(145deg, #151018 0%, #1e1722 45%, #251b29 100%) fixed; }
 /* Squeeze Me (light) and Smoked Citrus (dark): the orange pair from Epic Manager ("Pro_SqueezeMe", "Pro_SmokedCitrus") */
 html[data-theme='squeezeme'] {
+  --countdown: #b95c3d;
   --page: #fff6ef; --ink: #1f2937; --ink-soft: #5b4a3f;
   --plum-a: #f9ece2; --plum-b: #f3e0d2; --jelly-a: #fffbf8; --jelly-b: #f7efe8; --jelly-ink: #3a2416; --card-ink: #1f2937;   /* linen blocks, apricot days */
   --block-edge: #e8b08a;                                           /* apricot border */
@@ -876,6 +888,7 @@ html[data-theme='squeezeme'] {
 }
 html[data-theme='squeezeme'] body { min-height: 100dvh; background: linear-gradient(135deg, #fffaf7 0%, #fff6ef 35%, #fde7d9 70%, #fffaf7 100%) fixed; }
 html[data-theme='smokedcitrus'] {
+  --countdown: #d7773f;
   --page: #1a1918; --ink: #f5efe8; --ink-soft: #cfc3b6;
   --plum-a: #2c2b29; --plum-b: #232220; --jelly-a: #47433e; --jelly-b: #3b3834; --jelly-ink: #f3ece4; --card-ink: #2a1406;   /* blocks in warm smoked stone (Gianni: the orange blocks shouted) */
   --pink: #fb923c; --teal: #fdba74; --red: #f87171; --navy-card: #2c2b29; --light: #ffedd5;
@@ -895,6 +908,7 @@ html[data-theme='smokedcitrus'] input.block-name { border-bottom-color: rgba(253
 html[data-theme='smokedcitrus'] .task .round:not(.danger-x) { color: var(--card-ink); border-color: rgba(42, 20, 6, .45); }
 /* Sunburnt Toast (light): Epic Manager's golden orange ("Pro_SunburntToast"): warm toast pages, golden blocks */
 html[data-theme='sunburnt'] {
+  --countdown: #a9522f;
   --page: #fff1e5; --ink: #1f2937; --ink-soft: #5c4633;
   --plum-a: #f7e8d8; --plum-b: #f0dcc6; --jelly-a: #fdf8ef; --jelly-b: #f4ead8; --jelly-ink: #3b2a12; --card-ink: #1f2937;   /* oat blocks, toast days */
   --block-edge: #dcae63;                                           /* honey border */
