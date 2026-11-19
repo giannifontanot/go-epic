@@ -1,4 +1,4 @@
-import { DAYS, Day, DayPlan, dateKey, parseClock, timeline } from './week.model';
+import { Block, DAYS, Day, DayPlan, Task, dateKey, parseClock, taskStarts, timeline } from './week.model';
 
 /**
  * A task from Capture (Gianni): a one-off to-do, not an Activity of the library. It has a day (a date) and maybe an
@@ -161,4 +161,32 @@ export function checkTodo(todo: Todo, done: boolean, date: string, now: number):
   }
   const moved = done && todo.date !== null && todo.date < date ? date : todo.date;
   return { ...todo, done: done ? now : null, date: moved };
+}
+
+/** One activity of the day overview, with its start and the timed tasks pinned to it. */
+export interface OverviewActivity { task: Task; start: number | null; todos: Todo[] }
+/**
+ * The day at a glance (Gianni: a nested bullet list): the all-day tasks first (the ones rolled over from earlier days,
+ * then the date's tasks with no hour), then each block in the day's order with its active activities and, under each,
+ * the timed tasks pinned to it (as on the board: the activity running at their hour, else the closest one); `later`
+ * holds timed tasks no activity can take (none is timed, or theirs is switched off), by hour.
+ */
+export interface DayOverview { allDay: Todo[]; blocks: { block: Block; activities: OverviewActivity[] }[]; later: Todo[] }
+export function dayOverview(plan: DayPlan, todos: Todo[], date: string, day: Day): DayOverview {
+  const own = todosForDate(todos, date, day);
+  const allDay = [...overdueTodos(todos, date), ...own.filter((t) => t.time === null).sort((a, b) => a.created - b.created)];
+  const pins = pinTodos(plan, own.filter((t) => t.time !== null));
+  const later = [...pins.loose];
+  const blocks = plan.blocks.map((block) => {
+    const starts = taskStarts(block);
+    const activities: OverviewActivity[] = [];
+    block.tasks.forEach((task, i) => {
+      const pinned = pins.onTask.get(task.id) ?? [];
+      if (task.active) activities.push({ task, start: starts[i], todos: pinned });
+      else later.push(...pinned);
+    });
+    return { block, activities };
+  }).filter((b) => b.activities.length);
+  later.sort((a, b) => (a.time ?? '').localeCompare(b.time ?? ''));
+  return { allDay, blocks, later };
 }

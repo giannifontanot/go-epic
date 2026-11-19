@@ -1,4 +1,4 @@
-import { Todo, allDayTodos, checkTodo, doneTodos, openTodos, overdueTodos, pastDueTodos, pinTodos, sanitizeTodo, todosForDate, weekDate } from './todo.model';
+import { Todo, allDayTodos, dayOverview, checkTodo, doneTodos, openTodos, overdueTodos, pastDueTodos, pinTodos, sanitizeTodo, todosForDate, weekDate } from './todo.model';
 import { DayPlan } from './week.model';
 
 const todo = (id: string, extra: Partial<Todo> = {}): Todo => ({ id, title: id, date: '2026-11-10', time: null, done: null, created: 1, repeat: [], doneOn: {}, ...extra });
@@ -101,5 +101,28 @@ describe('todo model', () => {
     const gym = todo('gym', { repeat: ['MONDAY'], doneOn: { '2026-11-02': 1 } });
     expect(checkTodo(gym, true, '2026-11-09', 7).doneOn).toEqual({ '2026-11-02': 1, '2026-11-09': 7 });
     expect(checkTodo(gym, false, '2026-11-02', 7).doneOn).toEqual({});
+  });
+
+  it('lays out the day overview: all-day tasks first, then blocks, activities and their timed tasks', () => {
+    const plan: DayPlan = { blocks: [
+      { id: 'b1', name: 'Morning', start: '07:00', end: '09:00', tasks: [
+        { id: 'run', title: 'Run', minutes: 30, color: null, active: true, ref: null },
+        { id: 'off', title: 'Off', minutes: 30, color: null, active: false, ref: null },
+      ] },
+      { id: 'b2', name: 'Empty', start: null, end: null, tasks: [{ id: 'gone', title: 'Gone', minutes: 10, color: null, active: false, ref: null }] },
+      { id: 'b3', name: 'Work', start: '09:00', end: '12:00', tasks: [{ id: 'mail', title: 'Mail', minutes: 60, color: null, active: true, ref: null }] },
+    ] };
+    const list = [
+      todo('old', { date: '2026-11-09' }),
+      todo('free2', { created: 3 }), todo('free1', { created: 2 }),
+      todo('call', { time: '10:15' }), todo('jog', { time: '07:10' }), todo('late', { time: '07:40' }),
+      todo('other', { date: '2026-11-11', time: '10:00' }),
+    ];
+    const view = dayOverview(plan, list, '2026-11-10', 'TUESDAY');
+    expect(view.allDay.map((t) => t.id)).toEqual(['old', 'free1', 'free2']);
+    expect(view.blocks.map((b) => b.block.name)).toEqual(['Morning', 'Work']);
+    expect(view.blocks[0].activities.map((a) => [a.task.id, a.start, a.todos.map((t) => t.id)])).toEqual([['run', 420, ['jog']]]);
+    expect(view.blocks[1].activities[0].todos.map((t) => t.id)).toEqual(['call']);
+    expect(view.later.map((t) => t.id)).toEqual(['late']);   // it sat on the switched-off activity
   });
 });
