@@ -178,6 +178,22 @@ dialog.info-card::backdrop { background: rgba(4, 9, 30, .55); }
 .info-where .pc-epic { padding-right: 6px; }
 .info-where .pc-story strong { font-size: 15px; line-height: 1.4; }
 .info-foot { display: flex; justify-content: flex-end; margin-top: 14px; }
+/* the day overview (Gianni): a nested bullet list, blocks › activities › tasks, all-day tasks first */
+.ov-list, .ov-list ul { list-style: none; margin: 0; padding: 0; }
+.ov-list { display: grid; gap: 14px; margin-top: 6px; font-size: calc(15px * var(--esc, 1)); }
+.ov-list ul { display: grid; gap: 6px; margin-top: 6px; padding-left: 14px; border-left: 2px solid color-mix(in srgb, var(--ink) 18%, transparent); }
+.ov-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
+.ov-head strong { font-family: Georgia, serif; font-size: calc(17px * var(--esc, 1)); overflow-wrap: anywhere; }
+.ov-block > .ov-head::before { content: ''; flex: none; align-self: center; width: 10px; height: 10px; border-radius: 3px; background: var(--jelly-b); }
+.ov-line, .ov-todo { display: flex; align-items: baseline; gap: 8px; }
+.ov-act > .ov-line::before { content: '•'; color: var(--ink-soft); }
+.ov-time { flex: none; color: var(--ink-soft); font-size: .88em; font-variant-numeric: tabular-nums; }
+.ov-title { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.ov-act > .ov-line .ov-title { font-weight: 700; }
+.ov-check { flex: none; width: 1.1em; color: var(--ink-soft); }
+.ov-state { flex: none; color: var(--teal); }
+.ov-from { flex: none; color: #f08a8a; font-size: .82em; }
+.ov-list .done > .ov-line .ov-title, .ov-todo.done .ov-title { text-decoration: line-through; opacity: .6; }
 dialog.status-menu h2 { margin: 0 0 12px; font-size: 20px; overflow-wrap: anywhere; }
 .status-options { display: grid; gap: 8px; }
 .status-options button { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; border: 0; border-radius: 14px; background: rgba(255, 255, 255, .08); color: var(--ink); font-size: 16px; font-weight: 700; text-align: left; }
@@ -320,6 +336,7 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 .capture-fab:hover { background: #f8bfca; }
 /* Week board: the + (new task) is the floating ✎'s twin, standing 12px above it; only a symbol, no words (Gianni) */
 .new-fab { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 64px); font-size: 28px; line-height: 1; }
+.overview-fab { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 128px); display: grid; place-items: center; }   /* the day overview stands above + (Gianni) */
 /* while arranging, the ✎'s spot holds a third ✓ Finish (Gianni): drawn like the other two Finish chips (teal, 700
    weight, 16px ✓, no heavy shadow; the bold 26px one was too much), as tall as the foot's, centred where the ✎ is */
 .capture-fab.finish-fab { width: 44px; height: 44px; right: calc(max(16px, env(safe-area-inset-right)) + 4px);

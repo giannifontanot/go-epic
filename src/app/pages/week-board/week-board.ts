@@ -14,7 +14,7 @@ import { CaptureUi } from '../capture/capture-ui';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { STATUSES, Status, isFinished } from '../../core/status.model';
-import { Todo, allDayTodos, overdueTodos, pastDueTodos, pinTodos, todosForDate, weekDate } from '../../core/todo.model';
+import { Todo, allDayTodos, dayOverview, overdueTodos, pastDueTodos, pinTodos, todosForDate, weekDate } from '../../core/todo.model';
 import { TodoDialog, TodoSave } from '../capture/todo-dialog';
 import { TodoStore } from '../../core/todo.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
@@ -486,6 +486,35 @@ export class WeekBoard {
   protected onInfoBackdrop(event: MouseEvent): void {
     const d = this.infoDialog()?.nativeElement;
     if (d && isBackdropClick(event, d)) void closeDialog(d);
+  }
+
+  /**
+   * The day overview (Gianni): a round button above + opens today as a nested bullet list, all-day tasks first, then
+   * each block with its activities and, under each, its timed tasks (todo.model `dayOverview`).
+   */
+  private readonly overviewDialog = viewChild<ElementRef<HTMLDialogElement>>('overviewDialog');
+  protected readonly overviewOpen = signal(false);
+  protected readonly overview = computed(() => {
+    if (!this.overviewOpen()) return null;
+    const day = this.store.today();
+    return dayOverview(this.store.week()[day], this.todos.todos(), this.store.todayKey(), day);
+  });
+  protected readonly overviewTitle = computed(() =>
+    this.store.now().toLocaleDateString(this.i18n.lang(), { weekday: 'long', day: 'numeric', month: 'long' }));
+  protected openOverview(): void {
+    this.overviewOpen.set(true);
+    const d = this.overviewDialog()?.nativeElement;
+    if (d) openDialog(d);
+  }
+  protected closeOverview(): void {
+    void closeDialog(this.overviewDialog()?.nativeElement);
+  }
+  protected onOverviewBackdrop(event: MouseEvent): void {
+    const d = this.overviewDialog()?.nativeElement;
+    if (d && isBackdropClick(event, d)) void closeDialog(d);
+  }
+  protected clock(minutes: number | null): string {
+    return minutes === null ? '' : formatClock(minutes);
   }
 
   protected statusIcon(status: Status): string {
