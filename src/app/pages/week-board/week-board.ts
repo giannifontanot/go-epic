@@ -493,16 +493,14 @@ export class WeekBoard {
    * each block with its activities and, under each, its timed tasks (todo.model `dayOverview`).
    */
   private readonly overviewDialog = viewChild<ElementRef<HTMLDialogElement>>('overviewDialog');
-  protected readonly overviewOpen = signal(false);
+  // always built (cheap), so the window has its full size when openDialog measures it to grow out of the button
   protected readonly overview = computed(() => {
-    if (!this.overviewOpen()) return null;
     const day = this.store.today();
     return dayOverview(this.store.week()[day], this.todos.todos(), this.store.todayKey(), day);
   });
   protected readonly overviewTitle = computed(() =>
     this.store.now().toLocaleDateString(this.i18n.lang(), { weekday: 'long', day: 'numeric', month: 'long' }));
   protected openOverview(): void {
-    this.overviewOpen.set(true);
     const d = this.overviewDialog()?.nativeElement;
     if (d) openDialog(d);
   }

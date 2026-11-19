@@ -352,7 +352,7 @@
   <button type="button" class="capture-fab finish-fab" [attr.aria-label]="i18n.t('week.finish')" [title]="i18n.t('week.finish')" (click)="toggleArrange()">✓</button>
 }
 <!-- the day overview (Gianni): today as a nested bullet list, all-day tasks first, then blocks › activities › tasks -->
-<dialog #overviewDialog class="info-card day-overview" [attr.aria-label]="i18n.t('week.overview')" (click)="onOverviewBackdrop($event)" (close)="overviewOpen.set(false)">
+<dialog #overviewDialog class="info-card day-overview" [attr.aria-label]="i18n.t('week.overview')" (click)="onOverviewBackdrop($event)">
   @if (overview(); as view) {
     <div class="info-head">
       <h2>{{ overviewTitle() }}</h2>
