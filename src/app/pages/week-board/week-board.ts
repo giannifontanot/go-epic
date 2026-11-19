@@ -28,6 +28,8 @@ import { readTrayFolded, writeTrayFolded } from '../../core/tray-fold';
 const FOLD_KEY = 'go-epic-week-folded';
 /** How long the page stays still before it glides back to the red line (Gianni: about 4 s). */
 const NOW_IDLE_MS = 4000;
+/** Two taps on the now-line's badge this close together are a double tap (centres the line while arranging). */
+const DOUBLE_TAP_MS = 400;
 /** The ids of the blocks shown folded on this device (a view preference). */
 function readFolded(): Set<string> {
   try {
@@ -265,6 +267,18 @@ export class WeekBoard {
     const smooth = typeof matchMedia === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
     target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: smooth ? 'smooth' : 'auto' });
   }
+
+  /**
+   * The now-line's time badge: a tap centres the line; while arranging only a double tap does (Gianni: nothing may
+   * scroll the board while editing unless asked), so a stray tap on the badge never moves the page.
+   */
+  protected badgeTap(): void {
+    if (!this.arranging()) { this.centreOnNow(true); return; }
+    const now = Date.now();
+    if (now - this.lastBadgeTap <= DOUBLE_TAP_MS) { this.lastBadgeTap = 0; this.centreOnNow(true); return; }
+    this.lastBadgeTap = now;
+  }
+  private lastBadgeTap = 0;
 
   /** The details belong to a day's + (a new block with its first activity), not to a block's own +. */
   protected isNewBlock(edit: TaskEdit): boolean {
