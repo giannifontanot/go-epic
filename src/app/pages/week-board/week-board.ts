@@ -5,7 +5,7 @@ import { flip, flipNow } from '../../core/flip';
 import { TextSettings } from '../../core/text-settings';
 import { I18n } from '../../core/i18n';
 import {
-  addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, countdown, Task, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, newId, resizedMinutes, stretchedEnd,
+  addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, countdown, Task, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, stepTask, newId, resizedMinutes, stretchedEnd,
   moveToHour, nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
 } from '../../core/week.model';
 import { Library, fileTask, followLibrary, nodeById, paperAge, pathOf, updateNode } from '../../core/library.model';
@@ -725,9 +725,27 @@ export class WeekBoard {
     this.editing.set({ day, blockId: block.id, task: structuredClone(task), isNew: false });
   }
 
-  protected moveTask(day: Day, block: Block, index: number, offset: number): void {
-    flip(document, this.injector, () =>
-      this.store.update(day, (blocks) => blocks.map((b) => (b.id === block.id ? { ...b, tasks: moveItem(b.tasks, index, index + offset) } : b))));
+  /** ▲/▼ on a card: one place in its block, or across into the block above/below at its edges (`stepTask`), gliding there. */
+  protected moveTask(day: Day, block: Block, index: number, offset: -1 | 1): void {
+    const step = stepTask(this.blocks(day), block.id, index, offset);
+    if (!step) return;
+    if ('noRoom' in step) {
+      this.notice.set(this.i18n.t('week.noRoom', { block: step.noRoom.name, n: Math.max(0, freeMinutes(step.noRoom) ?? 0) }));
+      return;
+    }
+    this.notice.set('');
+    const taskId = block.tasks[index]?.id;
+    flip(document, this.injector, () => this.store.update(day, (blocks) => {
+      // read again from the current week (another tab may have changed it): the card at its current place moves
+      const from = blocks.find((b) => b.id === block.id);
+      const at = from ? from.tasks.findIndex((t) => t.id === taskId) : -1;
+      const now = at < 0 ? null : stepTask(blocks, block.id, at, offset);
+      return now && 'blocks' in now ? now.blocks : blocks;
+    }));
+  }
+  /** ▲ is off only on the day's very first card, ▼ only on its very last (Gianni: at a block's edge they cross over). */
+  protected canStep(first: boolean, last: boolean, firstBlock: boolean, lastBlock: boolean, offset: -1 | 1): boolean {
+    return offset < 0 ? !(first && firstBlock) : !(last && lastBlock);
   }
 
   /**
