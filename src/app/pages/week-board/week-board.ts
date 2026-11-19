@@ -422,7 +422,7 @@ export class WeekBoard {
   }
 
   // --- Today's states on the board (Gianni): a tap on a card of today marks it Done (again: To do); a long press
-  //     (500 ms, or a right click) opens the state menu. The state shows in the middle of the card. ---
+  //     (500 ms, or a right click) opens the state menu. The state shows as a small figure at the card's top right. ---
   protected readonly statuses = STATUSES;
   protected readonly picking = signal<Task | null>(null);
   private readonly statusDialog = viewChild<ElementRef<HTMLDialogElement>>('statusDialog');

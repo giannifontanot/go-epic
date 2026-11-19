@@ -134,6 +134,22 @@
                     }
                     <span class="t-time">{{ startLabel(block, ti) }}</span>
                     <span class="t-title" [title]="task.title">{{ task.title || i18n.t('week.newTask') }}</span>
+                    <!-- Today's state: a small figure at the activity's top right, in the theme's colours (Gianni: no pill in the
+                         middle); in the row, so it never covers a pinned note -->
+                    @if (cardStatus(day, task); as st) {
+                      @if (st !== 'todo') {
+                        <span class="t-state" [attr.data-status]="st" role="img" [attr.aria-label]="i18n.t('status.' + st)" [title]="i18n.t('status.' + st)">
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            @switch (st) {
+                              @case ('done') { <path class="t-check" d="M5 12.5l4.5 4.5L19 7" /> }
+                              @case ('late') { <circle cx="12" cy="12" r="7.5" /><path d="M12 8v4.5l3 2" /> }
+                              @case ('progress') { <circle cx="12" cy="12" r="7.5" /><path class="fill" d="M12 4.5a7.5 7.5 0 0 1 0 15z" /> }
+                              @case ('skipped') { <path d="M6 7l5 5-5 5M13 7l5 5-5 5" /> }
+                            }
+                          </svg>
+                        </span>
+                      }
+                    }
                     @if (arranging()) {
                       <span class="t-tools">
                         <button type="button" class="round" [disabled]="tfirst" [attr.aria-label]="i18n.t('week.taskUp')" [title]="i18n.t('week.taskUp')"
@@ -159,13 +175,6 @@
                       <span class="grip-bar"></span>
                       @if (sizing()?.taskId === task.id) { <span class="end-badge">{{ sizingBadge(block, ti, task) }}</span> }
                     </span>
-                  }
-                  <!-- Today's state, in the middle of the card (Gianni) -->
-                  @if (cardStatus(day, task); as st) {
-                    @if (st === 'done') {
-                      <!-- Done: a ✓ that draws itself when the card has just been won (.won) -->
-                      <span class="t-status" data-status="done"><svg class="t-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7" /></svg>{{ i18n.t('status.done') }}</span>
-                    } @else if (st !== 'todo') { <span class="t-status" [attr.data-status]="st">{{ statusIcon(st) }} {{ i18n.t('status.' + st) }}</span> }
                   }
                   @if (day === store.today() && now()?.taskId === task.id) {
                     <span class="now-line" [style.top.%]="now()!.fraction * 100">
