@@ -13,7 +13,7 @@ import { CaptureUi } from '../capture/capture-ui';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { STATUSES, Status, isFinished } from '../../core/status.model';
-import { PinnedTodo, Todo, overdueTodos, pastDueTodos, pinTodos, stackPins, todosForDate, weekDate } from '../../core/todo.model';
+import { PinnedTodo, Todo, allDayTodos, overdueTodos, pastDueTodos, pinTodos, stackPins, todosForDate, weekDate } from '../../core/todo.model';
 import { TodoDialog, TodoSave } from '../capture/todo-dialog';
 import { TodoStore } from '../../core/todo.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
@@ -128,7 +128,7 @@ export class WeekBoard {
   protected readonly mobileDay = signal<Day>(this.store.today());
   /**
    * Capture's tasks on the board (Gianni): each day of this week shows the tasks dated that day, pinned over the
-   * activity running at their hour; the others (no hour, or an hour no activity covers) at the top of the day.
+   * activity running at their hour; the others (no hour, or an hour no activity covers) at the foot of the day.
    */
   protected readonly todos = inject(TodoStore);
   /**
@@ -161,16 +161,19 @@ export class WeekBoard {
   }
   /**
    * The tray at the foot of the screen (Gianni): single tasks left open on earlier days, then today's open tasks whose
-   * hour has already passed (they leave their card, so they show once).
+   * hour has already passed (they leave their card, so they show once), then today's open all-day tasks (no hour:
+   * Gianni wants them down here with the overdue ones, not at the top of the day).
    */
   protected readonly overdue = computed(() => {
     const all = this.todos.todos();
     const today = this.store.todayKey();
-    return [...overdueTodos(all, today), ...pastDueTodos(all, today, this.store.today(), this.store.nowMinutes())];
+    const day = this.store.today();
+    return [...overdueTodos(all, today), ...pastDueTodos(all, today, day, this.store.nowMinutes()), ...allDayTodos(all, today, day)];
   });
-  /** Under a tray task's name: "from Mon 9" for an earlier day, "Today" for one whose hour has passed. */
+  /** Under a tray task's name: "from Mon 9" for an earlier day, "Today" for one whose hour has passed, "All day" without one. */
   protected trayLabel(todo: Todo): string {
-    return this.rolledOver(todo) ? this.fromLabel(todo) : this.i18n.t('capture.today');
+    if (this.rolledOver(todo)) return this.fromLabel(todo);
+    return this.i18n.t(todo.time === null ? 'week.allDay' : 'capture.today');
   }
   /** A single task left open on an earlier day (a repeating one in the tray is always today's occurrence). */
   private rolledOver(todo: Todo): boolean {

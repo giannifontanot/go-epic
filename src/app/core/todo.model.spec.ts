@@ -1,4 +1,4 @@
-import { Todo, checkTodo, doneTodos, openTodos, overdueTodos, pastDueTodos, pinTodos, sanitizeTodo, stackPins, todosForDate, weekDate } from './todo.model';
+import { Todo, allDayTodos, checkTodo, doneTodos, openTodos, overdueTodos, pastDueTodos, pinTodos, sanitizeTodo, stackPins, todosForDate, weekDate } from './todo.model';
 import { DayPlan } from './week.model';
 
 const todo = (id: string, extra: Partial<Todo> = {}): Todo => ({ id, title: id, date: '2026-11-10', time: null, done: null, created: 1, repeat: [], doneOn: {}, ...extra });
@@ -69,6 +69,14 @@ describe('todo model', () => {
       todo('gym', { date: null, time: '07:00', repeat: ['WEDNESDAY'] }), todo('gymDone', { date: null, time: '07:00', repeat: ['WEDNESDAY'], doneOn: { '2026-11-11': 2 } }),
       todo('yesterday', { date: '2026-11-10', time: '07:00' })];
     expect(pastDueTodos(list, '2026-11-11', 'WEDNESDAY', 12 * 60).map((t) => t.id)).toEqual(['gym', 'early', 'late']);
+  });
+
+  it("lists today's open tasks with no hour, a repeating one as today sees it, oldest captured first", () => {
+    const list = [todo('b', { date: '2026-11-11', created: 20 }), todo('a', { date: '2026-11-11', created: 10 }),
+      todo('timed', { date: '2026-11-11', time: '18:00' }), todo('done', { date: '2026-11-11', done: 1 }),
+      todo('gym', { date: null, repeat: ['WEDNESDAY'], created: 5 }), todo('gymDone', { date: null, repeat: ['WEDNESDAY'], doneOn: { '2026-11-11': 2 } }),
+      todo('yesterday', { date: '2026-11-10' }), todo('tomorrow', { date: '2026-11-12' })];
+    expect(allDayTodos(list, '2026-11-11', 'WEDNESDAY').map((t) => t.id)).toEqual(['gym', 'a', 'b']);
   });
 
   it('checks a rolled-over task on the day it is ticked, and a repeating one per date', () => {
