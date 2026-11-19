@@ -658,9 +658,8 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .todo-note .todo-time { flex: none; font-size: 12px; opacity: .75; }
 .todo-note.checked { opacity: .65; }
 .todo-note.checked .todo-title { text-decoration: line-through; }
-.todo-stack { position: absolute; right: 8px; left: 8px; z-index: 3; display: grid; gap: 4px; translate: 0 -22px; cursor: default; }
-.todo-note.pinned { rotate: -0.6deg; }
-.todo-note.pinned:nth-child(even) { rotate: 0.5deg; }
+/* On top of the activity at their hour, in the card's flow (Gianni: not hovering over it) */
+.todo-pins { list-style: none; margin: -2px -4px 8px; padding: 0; display: grid; gap: 4px; cursor: default; }
 
 /* Today's state on a Week card (tap = Done, long press = menu): a badge in the middle of the card */
 .t-status { position: absolute; left: 50%; top: 50%; translate: -50% -50%; z-index: 2; padding: 4px 12px; border-radius: 999px; white-space: nowrap;
