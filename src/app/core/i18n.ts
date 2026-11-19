@@ -176,6 +176,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'task.newBlockTitle': { en: 'Create new Block + Activity', es: 'Crear nuevo Block + Actividad' },
   'task.pickActivity': { en: 'Open the list', es: 'Abrir la lista' },
   'task.pickCount': { en: '{n} activities', es: '{n} actividades' },
+  'task.twoWays': { en: 'Activity: from the list or typed', es: 'Actividad: de la lista o escrita' },
   'task.orNew': { en: 'or name a new one', es: 'o escribe una nueva' },
   'task.allEpics': { en: 'All', es: 'Todos' },
   'task.pickFromList': { en: 'Choose from the list ({n})', es: 'Elegir de la lista ({n})' },

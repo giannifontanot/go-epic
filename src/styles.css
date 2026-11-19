@@ -460,7 +460,13 @@ dialog.editor:is(.new-block, .new-activity) header .danger { flex: none; backgro
 /* The two ways in (existing activity / new name), each in its own bordered box; the one in use gets a teal border,
    the other greys out (Gianni: plainly one or the other) */
 .field.choice { padding: 10px 12px 12px; border: 1.5px solid color-mix(in srgb, var(--ink) 22%, transparent); border-radius: 16px; transition: opacity .2s, filter .2s, border-color .2s; }
-.field.choice.chosen { border-color: var(--teal); }
+.field.choice.chosen { border-color: var(--teal); border-width: 2.5px; }
+/* the outer ring around both ways to one Activity (Gianni), with its small label; the inner teal ring is the way in use */
+.activity-ways { min-width: 0; margin: 0; padding: 0; border: 0; }
+.activity-ways.two { margin: 4px 0 12px; padding: 6px 10px 10px; border: 1.5px solid color-mix(in srgb, var(--ink) 30%, transparent); border-radius: 20px; }
+.activity-ways > legend { padding: 0 8px; color: var(--ink-soft); font-size: calc(13px * var(--esc, 1)); font-weight: 700; }
+.activity-ways.two > .field.choice { margin-bottom: 0; }
+.color-btn:disabled { filter: grayscale(1); cursor: default; }
 .color-row { display: flex; width: 100%; margin: 0 0 14px; }
 .color-row .color-label { flex: 1 1 auto; text-align: left; }
 .color-row .color-now { font-weight: 600; opacity: .7; }
@@ -507,7 +513,7 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 .pc-nest > .pc-activity { margin-top: 0; }
 /* The Where card's Activity line as the way to pick an existing one: the whole capsule is a button, with a hint line */
 .pc-activity.pc-pickable { position: relative; display: flex; align-items: stretch; padding: 0; outline: 2px solid transparent; outline-offset: 2px; transition: outline-color .2s; }
-.pc-activity.pc-pickable.chosen { outline-color: var(--teal); }
+.pc-activity.pc-pickable.chosen { outline: 2.5px solid var(--teal); outline-offset: 3px; }
 .pc-act-open { position: relative; flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; padding: 8px 12px; min-height: 44px; border: 0; background: transparent; color: inherit; text-align: left; font: inherit; cursor: pointer; }
 .pc-act-open strong { font-family: Georgia, serif; }
 .pc-activity .pc-empty { color: #8b3a62; }
