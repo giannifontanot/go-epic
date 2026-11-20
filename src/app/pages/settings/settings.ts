@@ -9,7 +9,7 @@ import { ThemeService } from '../../core/theme';
  * Ajustes (⚙ in the ☰ menu): a window over the page you are on, not a page of its own (Gianni: going to another page
  * and then looking for the Week again felt wrong); closing it (×, Done, Esc or the backdrop) leaves you where you were.
  * Opened by the action menu's ⚙ (the ☰ menu is gone). It holds who is signed in, English / Español, the weighted
- * buttons, the red time line and Sign out; the themes are the action menu's palette (Gianni). Kept on this device.
+ * buttons, and the red time line (no Sign out: Gianni, it left the app altogether); the themes are the action menu's palette (Gianni). Kept on this device.
  */
 @Component({
   selector: 'app-settings',
@@ -45,7 +45,6 @@ import { ThemeService } from '../../core/theme';
         </span>
       </label>
       <footer class="settings-foot">
-        <button type="button" class="chip quiet sign-out" (click)="signOut()">{{ i18n.t('nav.signOut') }}</button>
         <button type="button" class="primary" (click)="close()">{{ i18n.t('task.done') }}</button>
       </footer>
     </dialog>
@@ -68,11 +67,6 @@ export class Settings implements AfterViewInit {
 
   protected close(): void {
     void closeDialog(this.dialog().nativeElement);
-  }
-
-  protected signOut(): void {
-    this.close();
-    void this.auth.signOut();
   }
 
   protected onBackdrop(event: MouseEvent): void {

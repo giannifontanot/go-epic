@@ -386,17 +386,20 @@ html.tilt .title-btn { translate: none; }   /* it leans with its title, never sl
 .page-fan.title-fan { z-index: 32; right: auto; }
 @media (prefers-reduced-motion: reduce) { .title-chev { transition: none; } }
 .theme-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 64px);
-  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(360px, calc(100vw - max(16px, env(safe-area-inset-right)) - 76px));
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-/* each tile wears its own theme's page colour and ink, never the look that is on (Gianni): light ones on top, dark below */
-.theme-tile { position: relative; display: grid; justify-items: center; gap: 4px; min-height: 40px; padding: 6px 4px 7px; border: 0; border-radius: 16px;
+  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(232px, calc(100vw - max(16px, env(safe-area-inset-right)) - 88px));
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+/* two straight columns of square tiles (Gianni: a vertical menu, the dark themes on the left, the light ones on the
+   right, each row a family: Epic | Clear Sky, Petal Punk | Pink Pop, Smoked Citrus | Sunburnt, Graphite | Office); they
+   never lean with the phone, so they stay square and never overlap. Each wears its own theme's page colour and ink. */
+.theme-tile { position: relative; display: grid; align-content: center; justify-items: center; gap: 5px;
+  aspect-ratio: 1; min-width: 0; padding: 8px 6px 7px; border: 0; border-radius: 16px;
   background: var(--tile-bg, #fff6ef); color: #2a2433; box-shadow: inset 0 0 0 1px rgba(42, 36, 51, .12), 0 8px 22px rgba(1, 6, 29, .4);
   font: inherit; cursor: pointer; }
 .theme-tile.dark { color: #fff4e9; box-shadow: inset 0 0 0 1px rgba(255, 244, 233, .14), 0 8px 22px rgba(1, 6, 29, .4); }
-.theme-tile .theme-preview { width: 100%; height: auto; aspect-ratio: 5 / 4; }
+.theme-tile .theme-preview { width: 70%; height: auto; aspect-ratio: 5 / 4; }
 .theme-tile-name { font-size: 12px; font-weight: 600; line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
 .theme-tile.on { box-shadow: 0 0 0 3px #0d9488, 0 8px 22px rgba(1, 6, 29, .4); }   /* fixed teal: the same on every tile and look */
-.theme-tile-check { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%;
+.theme-tile-check { position: absolute; top: -5px; right: -5px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%;
   background: #0d9488; color: #fff; font-size: 13px; font-weight: 700; }
 .theme-tile:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
 /* while arranging, the ✎'s spot holds a third ✓ Finish (Gianni): the same size and place as the other round buttons,
@@ -897,7 +900,6 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .settings-head { display: flex; align-items: center; justify-content: space-between; }
 .settings-head h2 { margin: 0; font-size: 24px; }
 .settings-foot { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 18px; }
-.settings-foot .sign-out { margin-right: auto; min-height: 42px; }
 .settings-user { margin: 6px 0 0; color: var(--ink-soft); font-size: 13px; overflow-wrap: anywhere; }
 .setting-row.lang-row { align-items: center; justify-content: space-between; flex-wrap: wrap; cursor: default; }
 .lang-choice { margin: 0; flex: 0 1 240px; }
@@ -1119,7 +1121,11 @@ html:is([data-theme='office'], [data-theme='graphite']) .update-button { backgro
 }
 html:is([data-theme='office'], [data-theme='graphite']) .sparkle { color: var(--g-sparkle); text-shadow: none; }
 /* text on the accent greys (selected chips, primary buttons, the menu's current page, done dots) */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.chip.quiet.on, .finish-fab, .primary, .page-tile.on, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.chip.quiet.on, .finish-fab, .primary, .page-tile.on, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary,
+  .ask-actions .ask-ok:not(.danger), .ov-days button[aria-selected='true'], .status-options button.on, .day-tabs button[aria-selected='true'], .menu-fab.open,
+  .page-fab.open, .pick-choose, .t-state:is([data-status='done'], [data-status='progress'])) { color: var(--g-on-ink) !important; }
+/* every button filled with the theme's strong accent carries the theme's light ink on it (Gianni: dark text on Pink Pop's
+   strong pink could not be read); the dark themes' accents are pale, so there the same token is dark ink */
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.primary, button.primary, .capture-fab:not(.finish-fab)):hover:not(:disabled) { background: color-mix(in srgb, var(--pink) 85%, #000) !important; }   /* hover darkens the theme's accent; the fixed pale-pink hover would wash out its ink */
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .capture-fab.finish-fab:hover { background: color-mix(in srgb, var(--teal) 85%, #000); }
 /* the light themes' round buttons (themes, day overview, +, ✎) are soft, not the dark accent (Gianni: too dark there):
@@ -1222,9 +1228,26 @@ html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray {
 .look-pill button { width: 54px; height: 54px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .1); color: var(--ink); font-size: 24px; font-weight: 400; }
 .look-pill button:disabled { opacity: .35; }
 .look-value { min-width: 70px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; font-size: 18px; }
-html.tilt :is(.look-row, .look-fab, .look-pill, .look-pill button) { rotate: none; translate: none; }
+html.tilt :is(.look-row, .look-fab, .look-pill, .look-pill button, .theme-tile) { rotate: none; translate: none; }
 html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) .look-pill button { background: color-mix(in srgb, var(--ink) 10%, transparent); }
 @media (prefers-reduced-motion: reduce) { .look-row, .look-pill, .look-pill.closing { animation: none; } }
+/* The edit tools have their own colour, never the main menu's (Gianni: in Pink Pop both were the same pink, so you
+   could not tell which menu you were in): a dark button with white ink, in every theme. On the dark themes it is the
+   page's own dark (as before); on the light ones a deep shade of the theme. The ✓ Finish wears it too, with a thin
+   ring in the theme's accent (Epic keeps its teal ✓, which already differs from its pink menu). */
+:root { --edit-fab: color-mix(in srgb, var(--navy-card) 82%, var(--ink)); --edit-ink: var(--ink); --edit-ring: color-mix(in srgb, var(--ink) 45%, transparent);
+  --edit-open: var(--teal); --edit-open-ink: var(--g-on-ink, #0b2f2a); }
+html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) {
+  --edit-fab: color-mix(in srgb, var(--fab-ink) 55%, #16121c); --edit-ink: #fff; --edit-ring: rgba(255, 255, 255, .35);
+  --edit-open: #fff; --edit-open-ink: color-mix(in srgb, var(--fab-ink) 55%, #16121c); }
+html .capture-fab.look-fab.look-fab.look-fab:not(.open), html .look-stack .capture-fab.finish-fab {
+  background: var(--edit-fab); color: var(--edit-ink); border: 1.5px solid var(--edit-ring); box-shadow: 0 4px 14px rgba(0, 0, 0, .28); }
+html .look-stack .capture-fab.finish-fab { border: 0; box-shadow: 0 0 0 2.5px var(--pink), 0 4px 14px rgba(0, 0, 0, .28); color: var(--edit-ink) !important; }
+html:not([data-theme]) .look-stack .capture-fab.finish-fab, html[data-theme='epic'] .look-stack .capture-fab.finish-fab {
+  background: var(--teal); color: #0b2f2a !important; box-shadow: none; }
+html .capture-fab.look-fab.look-fab.open { background: var(--edit-open); color: var(--edit-open-ink) !important; border-color: var(--edit-open); }
+html body :is(.capture-fab.look-fab.look-fab.look-fab:not(.open), .look-stack .capture-fab.finish-fab.finish-fab.finish-fab):hover:not(:disabled) { background: color-mix(in srgb, var(--edit-fab) 82%, #fff) !important; }
+html:is(:not([data-theme]), [data-theme='epic']) body .look-stack .capture-fab.finish-fab.finish-fab.finish-fab:hover:not(:disabled) { background: color-mix(in srgb, var(--teal) 85%, #000) !important; }
 
 /* A delete waits 8 s with a Cancel (Undo, Gianni), in the same question window: the seconds left, Cancel first and a red
    line along the window's foot that shrinks to nothing as the time runs out; what waits is dimmed where it shows */
