@@ -1214,11 +1214,16 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
    the list scroll), and the week leaves that much room under its last block (--tray-h, measured) */
 .overdue-tray { --folder: var(--navy-card); position: fixed; z-index: 15; left: max(12px, env(safe-area-inset-left));
   right: calc(max(16px, env(safe-area-inset-right)) + 72px); bottom: 0; max-width: 560px; max-height: calc(100dvh - 12px); display: flex; flex-direction: column;
-  filter: drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
+  --tray-edge: #dc2626;
+  /* a thin red line around the whole folder (Gianni: so it is noticed): up the tab, over it, down, along the flare and
+     the folder's top edge to its far right. Three 1.5px shadows of the folder's own shape draw it, curves included;
+     the bottom edge is the screen's, so it shows no line there */
+  filter: drop-shadow(1.5px 0 0 var(--tray-edge)) drop-shadow(-1.5px 0 0 var(--tray-edge)) drop-shadow(0 -1.5px 0 var(--tray-edge))
+    drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
 /* The tab is a button (Gianni): it folds the folder down to its lip, leaving only the tab, and back */
 .overdue-head { position: relative; flex: none; align-self: flex-start; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 22px);
   min-height: 40px; margin: 0; padding: 9px 16px 5px; border: 0; border-radius: 14px 14px 0 0; background: var(--folder);
-  box-shadow: inset 0 3px 0 rgba(220, 38, 38, .55); cursor: pointer;
+  cursor: pointer;
   font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft); text-align: left; }
 .overdue-head span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* the tab's foot flares into the folder's edge, as on a real folder */
@@ -1239,7 +1244,8 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
 .board.has-tray.tray-folded { padding-bottom: calc(var(--tray-h, 56px) + 16px); }
 @media (prefers-reduced-motion: reduce) { .overdue-body, .overdue-body > ul, .overdue-chev { transition: none; } }
 html.tilt .overdue-head { rotate: none; translate: none; }   /* the tab is part of its folder: it never leans off it */
-html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray { filter: grayscale(1) drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
+html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray { filter: grayscale(1) drop-shadow(1.5px 0 0 var(--tray-edge))
+  drop-shadow(-1.5px 0 0 var(--tray-edge)) drop-shadow(0 -1.5px 0 var(--tray-edge)) drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }   /* the red line after the grey, so it stays red */
 @media (min-width: 821px) { .overdue-tray { left: 50%; right: auto; width: min(560px, calc(100vw - 180px)); translate: -50% 0; } }
 
 /* Edit tools (LookStack, Gianni): while editing, round buttons stack at the bottom right above the ✓ Finish: Aa, AV,
