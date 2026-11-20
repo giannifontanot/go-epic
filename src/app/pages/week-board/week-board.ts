@@ -171,9 +171,12 @@ export class WeekBoard {
       timer = setTimeout(() => { timer = null; if (!touching) this.centreOnNow(false); }, NOW_IDLE_MS);
     };
     // The spotlight (Gianni): a scroll of our own (centring the line) keeps it coming; any other scroll fades it away.
+    // The scroll events a phone still sends just after the centring has settled (its toolbars collapsing, the last
+    // frames of a smooth scroll) are not his: for a moment after lighting they leave it on; his own scroll comes with a
+    // finger or the wheel (takeOver), which turns it off at once.
     const scrolled = () => {
       if (this.autoScroll) this.endAutoScroll(160);
-      else this.spotlight.set(false);
+      else if (Date.now() - this.litAt > 700) this.spotlight.set(false);
       arm();
     };
     const takeOver = () => { if (this.autoScroll) { clearTimeout(this.autoScroll); this.autoScroll = null; } this.spotlight.set(false); };
@@ -210,8 +213,11 @@ export class WeekBoard {
   }
   private light(): void {
     const line = document.querySelector<HTMLElement>('article.day.today .now-line');
-    this.spotlight.set(!this.arranging() && !!line?.closest('.block') && line.getClientRects().length > 0);
+    const on = !this.arranging() && !!line?.closest('.block') && line.getClientRects().length > 0;
+    if (on) this.litAt = Date.now();
+    this.spotlight.set(on);
   }
+  private litAt = 0;
   protected readonly mobileDay = signal<Day>(this.store.today());
   private readonly swipe = new SwipeTracker();
   /**
@@ -263,7 +269,7 @@ export class WeekBoard {
     // They float in the tray at the foot instead: the rolled-over ones on every day, today's past-due ones only today
     // (a repeating task keeps its notes on its other days).
     const today = this.store.today();
-    const tray = new Set(this.overdue().map((t) => t.id));
+    const tray = new Set(this.trayItems().map((i) => i.todo.id));
     const rolled = new Set(this.overdue().filter((t) => this.rolledOver(t)).map((t) => t.id));
     for (const day of DAYS) {
       const away = day === today ? tray : rolled;
@@ -287,12 +293,37 @@ export class WeekBoard {
     return [...overdueTodos(all, today), ...pastDueTodos(all, today, day, this.store.nowMinutes()), ...allDayTodos(all, today, day)];
   });
   /**
+   * A task checked in the tray stays there, shown checked, until the tray is opened again (Gianni: to see what he
+   * ticked): its place in the list and its label are kept from the moment it was checked; unchecking it works too.
+   */
+  private readonly held = signal(new Map<string, { at: number; label: string }>());
+  protected readonly trayItems = computed(() => {
+    const items: { todo: Todo; label: string; checked: boolean }[] =
+      this.overdue().map((todo) => ({ todo, label: this.trayLabel(todo), checked: false }));
+    const shown = new Set(items.map((i) => i.todo.id));
+    const today = this.store.todayKey();
+    const kept = [...this.held()].sort((a, b) => a[1].at - b[1].at);
+    for (const [id, { at, label }] of kept) {
+      const todo = this.todos.todos().find((t) => t.id === id);
+      if (!todo || shown.has(id)) continue;                               // deleted, or open again (it is back on its own)
+      const checked = todo.repeat.length ? todo.doneOn[today] !== undefined : todo.done !== null;
+      items.splice(Math.min(at, items.length), 0, { todo, label, checked });
+    }
+    return items;
+  });
+  protected trayCheck(item: { todo: Todo; label: string; checked: boolean }): void {
+    const at = this.trayItems().indexOf(item);
+    if (!item.checked) this.held.update((m) => new Map(m).set(item.todo.id, { at, label: item.label }));
+    this.todos.setDone(item.todo.id, !item.checked, this.dates()[this.store.today()]);
+  }
+  /**
    * The tray folds down to its top border (Gianni): a tap on the border slides the list out of sight, another tap
    * brings it back; remembered on this device (core/tray-fold).
    */
   protected readonly trayFolded = signal(readTrayFolded());
   protected toggleTray(): void {
     const folded = !this.trayFolded();
+    if (!folded) this.held.set(new Map());   // opened again: the tasks checked last time have gone
     this.trayFolded.set(folded);
     writeTrayFolded(folded);
   }

@@ -739,7 +739,7 @@ dialog.editor.color-window { width: min(340px, calc(100vw - 32px)); height: fit-
 /* the spotlight (Gianni): while the board rests centred on now, the other blocks dim a very little, so the current one
    stands out; it fades in and out (instant under reduced motion) */
 .board.locked .block { transition: filter .6s ease; }
-.board.locked.spot .block:not(:has(.now-line)) { filter: brightness(.9) saturate(.9); }
+.board.locked.spot .block:not(:has(.now-line)) { filter: brightness(.8) saturate(.75); }   /* visible but calm (Gianni did not notice .9) */
 @media (prefers-reduced-motion: reduce) { .board.locked .block { transition: none; } }
 .block-body { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr; transition: grid-template-rows .4s cubic-bezier(.22, 1, .36, 1), opacity .3s ease; }
 .block-body.closed { grid-template-rows: 0fr; opacity: 0; }
