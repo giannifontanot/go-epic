@@ -240,10 +240,14 @@
     .q p { margin: 0; }
     .q cite { display: block; margin-top: .7em; font: 600 .55em/1.2 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       font-style: normal; letter-spacing: .12em; text-transform: uppercase; color: #9a6a12; }
-    .q-dots { display: flex; justify-content: center; margin-top: 18px; }
-    .q-dots button { width: 26px; height: 32px; padding: 0; border: 0; background: transparent; cursor: pointer; display: grid; place-items: center; }
-    .q-dots button::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: rgba(16, 27, 66, .22); transition: background-color .4s, transform .4s; }
-    .q-dots button[aria-current]::before { background: #c9a227; transform: scale(1.35); }
+    .q-dots { display: flex; align-items: center; justify-content: center; margin-top: 14px; }
+    .q-dots button { width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #8a8a96; cursor: pointer; display: grid; place-items: center; }
+    .q-dots button:hover { color: #101b42; }
+    .q-dots button:focus-visible { outline: 2px solid #c9a227; outline-offset: -2px; }
+    .q-dots svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .q-pips { display: flex; gap: 6px; padding: 0 4px; }
+    .q-pips i { width: 6px; height: 6px; border-radius: 50%; background: rgba(16, 27, 66, .22); transition: background-color .4s, transform .4s; }
+    .q-pips i.on { background: #c9a227; transform: scale(1.4); }
     .q-dots:not(:has(button)) { display: none; }
     .quote b { display: block; margin-bottom: .55em; font: 900 1.12em/1.15 'Cinzel Decorative', Georgia, serif; font-style: normal; letter-spacing: .01em; }
     .quote em { font-style: italic; color: #9a6a12; }
@@ -865,9 +869,9 @@
     };
     var UI = {
       en: { back: 'Back', end: 'Go to the last slide', next: 'Next', again: 'Start over', step: 'Slide %n of %t', go: 'Go to slide %n', tour: 'Go Epic tour', nav: 'Tour',
-            soon: 'The download link is coming soon. Thanks for your interest!', left: '{n} min left', qs: 'Quotes', q: 'Quote {n} of {t}' },
+            soon: 'The download link is coming soon. Thanks for your interest!', left: '{n} min left', qs: 'Quotes', qp: 'Previous quote', qn: 'Next quote' },
       es: { back: 'Atrás', end: 'Ir a la última lámina', next: 'Siguiente', again: 'Volver al inicio', step: 'Paso %n de %t', go: 'Ir al paso %n', tour: 'Recorrido por Go Epic', nav: 'Recorrido',
-            soon: 'El enlace de descarga llega muy pronto. ¡Gracias por tu interés!', left: 'quedan {n} min', qs: 'Frases', q: 'Frase {n} de {t}' }
+            soon: 'El enlace de descarga llega muy pronto. ¡Gracias por tu interés!', left: 'quedan {n} min', qs: 'Frases', qp: 'Frase anterior', qn: 'Frase siguiente' }
     };
     var META = {
       en: { title: document.title, desc: document.querySelector('meta[name="description"]').content },
@@ -900,7 +904,7 @@
       document.getElementById('tour').setAttribute('aria-label', t.tour);
       document.querySelector('.nav').setAttribute('aria-label', t.nav);
       qBox.setAttribute('aria-label', t.qs);
-      qDots.forEach(function (b, i) { b.setAttribute('aria-label', t.q.replace('{n}', i + 1).replace('{t}', qDots.length)); });
+      qPrev.setAttribute('aria-label', t.qp); qNext.setAttribute('aria-label', t.qn);
     }
 
     // Each phone screen plays its little story in a loop (CSS keyed on .run, numbers here), so anyone sees what happens.
@@ -1013,9 +1017,21 @@
       announce.textContent = fmt(UI[lang].step, n);
     }
 
-    // The last slide's quotes fade one into the next every 7 s while that slide is shown (Gianni). A dot shows its quote
-    // and stops the turning; a mouse over them or the keyboard inside them pauses it; nothing turns under reduced motion.
+    // The last slide's quotes fade one into the next every 7 s while that slide is shown (Gianni). ‹ › (40px taps) step
+    // them and stop the turning, the small pips between only show where you are; a mouse over them or the keyboard inside
+    // them pauses it; nothing turns under reduced motion.
     var qBox = document.querySelector('.quote'), qs = [].slice.call(qBox.querySelectorAll('.q')), qDots = [];
+    var qTrack = qBox.querySelector('.q-track'), qNav = qBox.querySelector('.q-dots'), qPips = document.createElement('span');
+    function qButton(path, step) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.innerHTML = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="' + path + '"/></svg>';
+      b.addEventListener('click', function () { qStopped = true; qTrack.setAttribute('aria-live', 'polite'); quoteTo(qAt + step); quoteTick(); });
+      return b;
+    }
+    var qPrev = qButton('M9 2 4 7l5 5', -1), qNext = qButton('M5 2l5 5-5 5', 1);
+    qPips.className = 'q-pips';
+    qPips.setAttribute('aria-hidden', 'true');
     var qAt = 0, qTimer = 0, qStopped = false, qHover = false, qFocus = false;
     function quoteTo(i) {
       qAt = (i + qs.length) % qs.length;
@@ -1024,20 +1040,15 @@
         el.classList.toggle('on', on);
         if (on) el.removeAttribute('aria-hidden'); else el.setAttribute('aria-hidden', 'true');
       });
-      qDots.forEach(function (b, k) { if (k === qAt) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+      qDots.forEach(function (d, k) { d.classList.toggle('on', k === qAt); });
     }
     function quoteTick() {
       clearTimeout(qTimer); qTimer = 0;
       if (reduce || qStopped || qHover || qFocus || cur !== N - 1 || document.hidden) return;
       qTimer = setTimeout(function () { quoteTo(qAt + 1); quoteTick(); }, 7000);
     }
-    qs.forEach(function (el, i) {
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.addEventListener('click', function () { qStopped = true; quoteTo(i); quoteTick(); });
-      qBox.querySelector('.q-dots').appendChild(b);
-      qDots.push(b);
-    });
+    qs.forEach(function () { var d = document.createElement('i'); qPips.appendChild(d); qDots.push(d); });
+    qNav.appendChild(qPrev); qNav.appendChild(qPips); qNav.appendChild(qNext);
     qBox.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') { qHover = true; quoteTick(); } });
     qBox.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') { qHover = false; quoteTick(); } });
     qBox.addEventListener('focusin', function () { qFocus = true; quoteTick(); });
