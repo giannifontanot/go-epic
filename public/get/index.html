@@ -1248,7 +1248,7 @@
       var x = from ? from.x : r.left + r.width / 2, y = from ? from.y : r.top + r.height / 2;
       return (x - r.left) + 'px ' + (y - r.top) + 'px';
     }
-    function play(el, frames, ease, pseudo) {
+    function animateSheet(el, frames, ease, pseudo) {
       try { return el.animate(frames, { duration: 300, easing: ease, fill: 'forwards', pseudoElement: pseudo }); } catch (e) { return null; }
     }
     function showSheet(point) {
@@ -1264,16 +1264,16 @@
       sheet.showModal();
       if (still && still.matches) return;
       sheet.style.transformOrigin = originOf(sheet.getBoundingClientRect());
-      play(sheet, [{ transform: 'scale(.04)', opacity: 0 }, { transform: 'scale(.04)', opacity: 1, offset: .2 }, { transform: 'scale(1)', opacity: 1 }], 'cubic-bezier(0, 0, .6, 1)');
-      play(sheet, [{ opacity: 0 }, { opacity: 1 }], 'linear', '::backdrop');
+      animateSheet(sheet, [{ transform: 'scale(.04)', opacity: 0 }, { transform: 'scale(.04)', opacity: 1, offset: .2 }, { transform: 'scale(1)', opacity: 1 }], 'cubic-bezier(0, 0, .6, 1)');
+      animateSheet(sheet, [{ opacity: 0 }, { opacity: 1 }], 'linear', '::backdrop');
     }
     function hideSheet() {
       if (!sheet.open || closing) return;
       if (still && still.matches) { sheet.close(); return; }
       closing = true;
       sheet.style.transformOrigin = originOf(sheet.getBoundingClientRect());
-      var a = play(sheet, [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(.04)', opacity: 1, offset: .8 }, { transform: 'scale(.04)', opacity: 0 }], 'cubic-bezier(.4, 0, 1, 1)');
-      play(sheet, [{ opacity: 1 }, { opacity: 0 }], 'linear', '::backdrop');
+      var a = animateSheet(sheet, [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(.04)', opacity: 1, offset: .8 }, { transform: 'scale(.04)', opacity: 0 }], 'cubic-bezier(.4, 0, 1, 1)');
+      animateSheet(sheet, [{ opacity: 1 }, { opacity: 0 }], 'linear', '::backdrop');
       function done() { if (!closing) return; closing = false; sheet.close(); sheet.getAnimations({ subtree: true }).forEach(function (x) { x.cancel(); }); }
       if (a) a.finished.then(done, done); else done();
     }
