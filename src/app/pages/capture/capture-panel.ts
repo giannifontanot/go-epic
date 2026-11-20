@@ -1,5 +1,5 @@
 import { Ask } from '../../shared/ask';
-import { Undo } from '../../shared/undo';
+import { Undo, UndoToast } from '../../shared/undo';
 import { Component, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
@@ -87,12 +87,14 @@ import { TodoDialog, TodoSave } from './todo-dialog';
         </ul>
       }
       </div>
+      <!-- inside the panel: the App's note would sit under this modal window, out of reach (Undo) -->
+      <app-undo-toast place="panel" />
     </dialog>
     @if (editingTodo(); as todo) {
       <app-todo-dialog [todo]="todo" (save)="saveTodo($event)" (closed)="editingTodo.set(null)" />
     }
   `,
-  imports: [TodoDialog],
+  imports: [TodoDialog, UndoToast],
 })
 export class CapturePanel {
   protected readonly i18n = inject(I18n);

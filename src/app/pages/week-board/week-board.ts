@@ -443,7 +443,6 @@ export class WeekBoard {
     const smooth = typeof matchMedia === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.endAutoScroll(400);                                                  // no scroll at all (an edge): it still lights
     if (!smooth) { target.scrollIntoView({ block: 'center', inline: 'nearest' }); return; }
-    target.scrollIntoView({ block: 'nearest', inline: 'nearest' });           // sideways, if ever needed, at once
     this.glideTo(window.scrollY + target.getBoundingClientRect().top + target.offsetHeight / 2 - view / 2);
   }
 
