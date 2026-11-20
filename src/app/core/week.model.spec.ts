@@ -125,6 +125,11 @@ describe('week model', () => {
     expect(taskStarts(up.blocks[1])).toEqual([450]);                                       // b2 keeps 07:30
     const late = [block('a', '23:00', '23:50', [task('a1', 50)]), block('b', '23:50', '23:59', [task('b1', 20)])];
     expect(stepTask(late, 'b', 0, -1)).toEqual({ noRoom: late[0] });                       // never past midnight
+    // zero-minute cards left behind keep a real window (at least a minute), never an empty one that reads as unbounded
+    const zero = [block('a', '07:00', '08:00', [task('z', 0), task('a1', 60)]), block('b', '08:00', '09:00', [task('b1', 60)])];
+    expect(times(stepTask(zero, 'a', 1, 1))).toEqual(['a 07:00-07:01', 'b 07:00-09:00']);
+    const zeroUp = [block('a', '06:00', '07:00', [task('a1', 60)]), block('b', '07:00', '08:00', [task('b1', 60), task('z', 0)])];
+    expect(times(stepTask(zeroUp, 'b', 0, -1))).toEqual(['a 06:00-08:00', 'b 07:59-08:00']);
   });
 
   it('snaps a handle to 5-minute steps', () => {

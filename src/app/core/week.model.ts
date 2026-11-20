@@ -195,6 +195,7 @@ export function stepTask(blocks: Block[], blockId: string, index: number, offset
   const free = freeMinutes(next);
   const short = free === null ? 0 : Math.max(0, m - free);
   const rest = block.tasks.filter((_, k) => k !== index);
+  const restTotal = rest.reduce((sum, t) => sum + validMinutes(t.minutes), 0);
   let joined: Block;
   let left: Block;
   if (offset < 0) {
@@ -202,13 +203,17 @@ export function stepTask(blocks: Block[], blockId: string, index: number, offset
     if (short && end !== null && end + short > 1439) return { noRoom: next };
     joined = { ...next, end: short && end !== null ? formatClock(end + short) : next.end, tasks: [...next.tasks, task] };
     const start = parseClock(block.start);
-    left = { ...block, start: start === null ? block.start : formatClock(Math.min(1439, start + m)), tasks: rest };
+    const own = parseClock(block.end);
+    // its window keeps at least a minute (zero-minute cards may stay): an empty window would read as unbounded
+    const latest = own === null ? 1439 : own - Math.max(1, restTotal);
+    left = { ...block, start: start === null ? block.start : formatClock(Math.max(start, Math.min(latest, start + m))), tasks: rest };
   } else {
     const start = parseClock(next.start);
     if (short && start !== null && start - short < 0) return { noRoom: next };
     joined = { ...next, start: short && start !== null ? formatClock(start - short) : next.start, tasks: [task, ...next.tasks] };
     const end = parseClock(block.end);
-    left = { ...block, end: end === null || parseClock(block.start) === null ? block.end : formatClock(end - m), tasks: rest };
+    const own = parseClock(block.start);
+    left = { ...block, end: end === null || own === null ? block.end : formatClock(Math.min(end, Math.max(own + Math.max(1, restTotal), end - m))), tasks: rest };
   }
   return {
     blocks: blocks.map((b, i) => (i === bi ? left : i === bi + offset ? joined : b)).filter((b) => b.tasks.length > 0),
