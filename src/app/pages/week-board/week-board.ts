@@ -567,8 +567,8 @@ export class WeekBoard {
     const y0 = event.clientY;
     this.sizing.set({ taskId: task.id, minutes: validMinutes(task.minutes) });
     const from = validMinutes(task.minutes);
-    // in 5-minute steps (Gianni)
-    const move = (e: PointerEvent) => this.sizing.set({ taskId: task.id, minutes: resizedMinutes(block, task.id, snapDelta(from, (e.clientY - y0) / this.text.pxPerMin())) });
+    // in 5-minute steps (Gianni); at a thin scale the finger travels at least 1px a minute, so a step is never a twitch
+    const move = (e: PointerEvent) => this.sizing.set({ taskId: task.id, minutes: resizedMinutes(block, task.id, snapDelta(from, (e.clientY - y0) / Math.max(1, this.text.pxPerMin()))) });
     const done = (commit: boolean) => () => {
       handle.removeEventListener('pointermove', move);
       handle.removeEventListener('pointerup', up);
@@ -609,10 +609,6 @@ export class WeekBoard {
     return { from: formatClock(start), to: formatClock(start + total) };
   }
 
-  /** A captured task's paper age (0 fresh, 1 parchment, 2 old stained), from its library task; null keeps the pastel. */
-  protected paper(task: Task): 0 | 1 | 2 | null {
-    return paperAge(nodeById(this.library.library(), task.ref), this.store.now().getTime());
-  }
 
   // --- Today's states on the board (Gianni): a tap on a card of today marks it Done (again: To do); a long press
   //     (500 ms, or a right click) opens the state menu. The state shows as a small figure at the card's top right. ---

@@ -66,7 +66,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'theme.office': { en: 'Office', es: 'Oficina' },
   'theme.pinkpop': { en: 'Pink Pop', es: 'Pink Pop' },
   'theme.petalpunk': { en: 'Petal Punk', es: 'Petal Punk' },
-  'theme.squeezeme': { en: 'Squeeze Me', es: 'Squeeze Me' },
+  'theme.squeezeme': { en: 'Clear Sky', es: 'Cielo claro' },
   'theme.sunburnt': { en: 'Sunburnt Toast', es: 'Sunburnt Toast' },
   'theme.smokedcitrus': { en: 'Smoked Citrus', es: 'Smoked Citrus' },
   'theme.graphite': { en: 'Graphite', es: 'Grafito' },

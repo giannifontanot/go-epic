@@ -91,7 +91,7 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 
 .tasks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .task { position: relative; display: flex; flex-direction: column; justify-content: space-between;
-  min-height: calc(46px + var(--mins, 0) * var(--px-min, 1px)); padding: 8px 12px 6px; border-radius: 16px;
+  min-height: calc(36px + var(--mins, 0) * var(--px-min, .5px)); padding: 6px 12px 4px; border-radius: 16px;   /* thin to start (Gianni), px grows them */
   background: var(--tone); color: var(--card-ink); box-shadow: 0 5px 0 rgba(48, 39, 70, .25); }
 .board:not(.locked) .task { cursor: pointer; transition: translate .18s ease, rotate .18s ease; }
 @media (hover: hover) { .board:not(.locked) .task:hover { translate: 0 -3px; rotate: -.35deg; } }
@@ -921,9 +921,9 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 [data-preview='petalpunk'] .theme-preview { background: #1b141f; }
 [data-preview='petalpunk'] .tp-day { background: linear-gradient(155deg, #2e2238, #251b2d); }
 [data-preview='petalpunk'] .tp-block { background: linear-gradient(150deg, #3d3043, #33283a); box-shadow: 0 0 0 1px #c98aac; }
-[data-preview='squeezeme'] .theme-preview { background: #fff6ef; }
-[data-preview='squeezeme'] .tp-day { background: linear-gradient(155deg, #f9ece2, #f3e0d2); }
-[data-preview='squeezeme'] .tp-block { background: #fbf5f0; box-shadow: 0 0 0 1px #e8b08a; }
+[data-preview='squeezeme'] .theme-preview { background: #eef4fc; }
+[data-preview='squeezeme'] .tp-day { background: linear-gradient(155deg, #e2ecf9, #d6e3f5); }
+[data-preview='squeezeme'] .tp-block { background: #f6f9fe; box-shadow: 0 0 0 1px #a9c1e8; }
 [data-preview='smokedcitrus'] .theme-preview { background: #1a1918; }
 [data-preview='smokedcitrus'] .tp-day { background: linear-gradient(155deg, #2c2b29, #232220); }
 [data-preview='smokedcitrus'] .tp-block { background: linear-gradient(150deg, #47433e, #3b3834); box-shadow: inset 0 1px 0 rgba(251, 146, 60, .5); }
@@ -996,19 +996,22 @@ html[data-theme='petalpunk'] {
 }
 html[data-theme='petalpunk'] body { min-height: 100dvh; background: linear-gradient(145deg, #151018 0%, #1e1722 45%, #251b29 100%) fixed; }
 /* Squeeze Me (light) and Smoked Citrus (dark): the orange pair from Epic Manager ("Pro_SqueezeMe", "Pro_SmokedCitrus") */
+/* Clear Sky (light; it keeps the id `squeezeme` so a saved choice still finds it): Epic's light partner (Gianni: the
+   light themes looked too much like the pinks and the citrus; a panel gave each column one family: blue, pink, orange,
+   grey). Pale sky pages, soft blue days, porcelain blocks with a periwinkle edge, a muted cobalt accent. */
 html[data-theme='squeezeme'] {
-  --countdown: #b95c3d;
-  --page: #fff6ef; --ink: #1f2937; --ink-soft: #5b4a3f;
-  --plum-a: #f9ece2; --plum-b: #f3e0d2; --jelly-a: #fffbf8; --jelly-b: #f7efe8; --jelly-ink: #3a2416; --card-ink: #1f2937;   /* linen blocks, apricot days */
-  --block-edge: #e8b08a;                                           /* apricot border */
-  --pink: #b9562a; --teal: #9a4521; --red: #b91c1c; --navy-card: #fffaf7; --light: #fffaf7;
+  --countdown: #5a7bb5;
+  --page: #eef4fc; --ink: #1f2937; --ink-soft: #4a5872;
+  --plum-a: #e2ecf9; --plum-b: #d6e3f5; --jelly-a: #fbfdff; --jelly-b: #eef3fa; --jelly-ink: #1e2a44; --card-ink: #1f2937;   /* porcelain blocks, sky days */
+  --block-edge: #a9c1e8;                                           /* periwinkle border */
+  --pink: #3d68b0; --teal: #2f5596; --red: #b91c1c; --navy-card: #f8fbff; --light: #f8fbff;
   --now: #dc2626;
-  --g-lip: #e6cdb9; --g-shadow: rgba(120, 60, 25, .12); --g-soft-ink: #9a4521; --g-end: #b9562a; --g-end-ink: #fffaf7;
-  --g-chip: #fcd9bf; --g-badge-ring: #f3b48a; --g-veil: rgba(80, 35, 10, .35); --g-veil-strong: rgba(80, 35, 10, .6);
-  --g-on-ink: #fffaf7; --g-tint: 154, 52, 18; --g-edge: #f3b48a; --g-placeholder: #a07a64;
+  --g-lip: #cfdcef; --g-shadow: rgba(30, 60, 120, .12); --g-soft-ink: #2f5596; --g-end: #3d68b0; --g-end-ink: #f8fbff;
+  --g-chip: #d3e2f8; --g-badge-ring: #9fbbe6; --g-veil: rgba(15, 35, 80, .35); --g-veil-strong: rgba(15, 35, 80, .6);
+  --g-on-ink: #f8fbff; --g-tint: 47, 85, 150; --g-edge: #a9c1e8; --g-placeholder: #7486a3;
   color-scheme: light;
 }
-html[data-theme='squeezeme'] body { min-height: 100dvh; background: linear-gradient(135deg, #fffaf7 0%, #fff6ef 35%, #fde7d9 70%, #fffaf7 100%) fixed; }
+html[data-theme='squeezeme'] body { min-height: 100dvh; background: linear-gradient(135deg, #f8fbff 0%, #eef4fc 35%, #dde9f8 70%, #f8fbff 100%) fixed; }
 html[data-theme='smokedcitrus'] {
   --countdown: #d7773f;
   --page: #1a1918; --ink: #f5efe8; --ink-soft: #cfc3b6;
@@ -1122,7 +1125,7 @@ html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], 
 /* the light themes' round buttons (themes, day overview, +, ✎) are soft, not the dark accent (Gianni: too dark there):
    a pale tone of the theme with its accent as ink, so the stack reads light like the page */
 html[data-theme='pinkpop'] { --fab: #f6c9dc; --fab-ink: #7a2a52; }
-html[data-theme='squeezeme'] { --fab: #fdd0b0; --fab-ink: #7a3414; }
+html[data-theme='squeezeme'] { --fab: #d3e2f8; --fab-ink: #1e3f7a; }
 html[data-theme='sunburnt'] { --fab: #f8d4a8; --fab-ink: #743f14; }
 html[data-theme='office'] { --fab: #e1e3e6; --fab-ink: #3d4248; }
 html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) .capture-fab:not(.finish-fab):not(.open) {
@@ -1203,22 +1206,22 @@ html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray {
   display: flex; flex-direction: column-reverse; align-items: flex-end; gap: 12px; pointer-events: none; }
 .look-row { display: flex; align-items: center; gap: 10px; pointer-events: auto; animation: look-rise .34s cubic-bezier(0, 0, .2, 1) calc(var(--i, 0) * 40ms) backwards; }
 @keyframes look-rise { from { opacity: 0; transform: translateY(calc((var(--i, 0) + 1) * 64px)) scale(.4); } }
-/* As big as the pink round buttons (Gianni; a panel: the same 52px, so they read as one family, and the dark fill is
-   made visible by a slightly lighter ring rather than by a larger size), light strokes, no bold */
-.capture-fab.look-fab { position: relative; inset: auto; display: grid; place-items: center; width: 52px; height: 52px;
-  background: var(--navy-card); color: var(--ink); border: 1.5px solid color-mix(in srgb, var(--ink) 32%, transparent); font-size: 19px; }
-.capture-fab.look-fab:hover { background: color-mix(in srgb, var(--navy-card) 80%, var(--ink)); }
+/* Bigger than the pink round buttons (Gianni: at the same 52px the dark ones still looked smaller; a panel: a dark
+   fill on the dark page reads about a sixth smaller, so 60px, a lighter fill and a clearer thin ring), light strokes, no bold */
+.capture-fab.look-fab { position: relative; inset: auto; display: grid; place-items: center; width: 60px; height: 60px;
+  background: color-mix(in srgb, var(--navy-card) 82%, var(--ink)); color: var(--ink); border: 1.5px solid color-mix(in srgb, var(--ink) 45%, transparent); font-size: 22px; }
+.capture-fab.look-fab:hover { background: color-mix(in srgb, var(--navy-card) 72%, var(--ink)); }
 .capture-fab.look-fab.open { background: var(--teal); color: #0b2f2a; border-color: var(--teal); }
 .look-icon { font-weight: 500; letter-spacing: -.01em; line-height: 1; }
-.look-icon.px { font-size: 18px; }
+.look-icon.px { font-size: 21px; }
 .look-pill { display: flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; background: var(--navy-card); color: var(--ink);
   box-shadow: 0 6px 18px rgba(1, 6, 29, .4); transform-origin: right center; animation: pill-in .24s cubic-bezier(0, 0, .2, 1); }
 .look-pill.closing { animation: pill-out .22s cubic-bezier(.4, 0, 1, 1) forwards; }
 @keyframes pill-in { from { opacity: 0; transform: translateX(24px) scaleX(.3); } }
 @keyframes pill-out { to { opacity: 0; transform: translateX(24px) scaleX(.3); } }
-.look-pill button { width: 46px; height: 46px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .1); color: var(--ink); font-size: 24px; font-weight: 400; }
+.look-pill button { width: 54px; height: 54px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .1); color: var(--ink); font-size: 24px; font-weight: 400; }
 .look-pill button:disabled { opacity: .35; }
-.look-value { min-width: 64px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; font-size: 16px; }
+.look-value { min-width: 70px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; font-size: 18px; }
 html.tilt :is(.look-row, .look-fab, .look-pill, .look-pill button) { rotate: none; translate: none; }
 html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) .look-pill button { background: color-mix(in srgb, var(--ink) 10%, transparent); }
 @media (prefers-reduced-motion: reduce) { .look-row, .look-pill, .look-pill.closing { animation: none; } }
@@ -1226,10 +1229,12 @@ html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'
 /* A delete waits 8 s with a Cancel (Undo, Gianni), in the same question window: the seconds left, Cancel first and a red
    line along the window's foot that shrinks to nothing as the time runs out; what waits is dimmed where it shows */
 dialog.ask-window { overflow: hidden; }
-dialog.ask-window .ask-count { display: flex; align-items: baseline; gap: 10px; margin: -6px 0 18px; color: var(--ink-soft); font-size: 15px; }
-dialog.ask-window .ask-sec { min-width: 1.2ch; color: var(--ink); font-size: 40px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
-.ask-timer { position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: rgba(255, 255, 255, .08); }
-.ask-timer i { display: block; height: 100%; background: #e5484d; transform-origin: left center; animation: ask-drain var(--secs, 8s) linear forwards; }
+dialog.ask-window { padding-bottom: 26px; }
+dialog.ask-window .ask-count { display: flex; flex-direction: column; align-items: center; gap: 4px; margin: 4px 0 20px; color: var(--ink-soft); font-size: 15px; text-align: center; }
+dialog.ask-window .ask-sec { color: var(--ink); font-size: 72px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }   /* big, in the middle (Gianni) */
+dialog.ask-window:has(.ask-count) #ask-text { text-align: center; }
+.ask-timer { position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: rgba(255, 255, 255, .08); }
+.ask-timer i { display: block; height: 100%; background: #e5484d; transform-origin: right center; animation: ask-drain var(--secs, 8s) linear forwards; }   /* it runs out towards the right */
 @keyframes ask-drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 @media (prefers-reduced-motion: reduce) { .ask-timer i { transform: scaleX(var(--frac, 1)); } }   /* no glide: it steps each second */
 html:is([data-theme='office'], [data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt']) .ask-timer { background: rgba(0, 0, 0, .08); }
