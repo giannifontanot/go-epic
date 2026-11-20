@@ -236,9 +236,9 @@ export class TaskDialog implements AfterViewInit {
   protected readonly tracked = computed(() => {
     const own = this.trackSet();
     if (own !== null) return own;
-    const lib = this.library();
-    const ref = this.edit().task.ref;
-    const node = this.linkedNode() ?? this.twin() ?? (ref ? nodeById(lib, ref) : undefined);
+    // The draft's own identity, as Done files it (a saved card opens linked to its Activity): an unlinked card that
+    // becomes a new Activity starts untracked, never inheriting the Activity it was unlinked from.
+    const node = this.linkedNode() ?? this.twin();
     return node?.kind === 'task' && node.track === true;
   });
   protected readonly linkedNode = computed(() => {
