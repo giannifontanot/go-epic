@@ -4,7 +4,8 @@ import { Injectable, effect, signal } from '@angular/core';
 export const THEMES = ['epic', 'pinkpop', 'petalpunk', 'squeezeme', 'sunburnt', 'smokedcitrus', 'office', 'graphite'] as const;
 export type Theme = (typeof THEMES)[number];
 /** Light and dark, four each: the themes button shows the light ones on its top row, the dark ones below (Gianni). */
-export const LIGHT_THEMES: readonly Theme[] = ['pinkpop', 'squeezeme', 'sunburnt', 'office'];
+/** Each column one family over its dark partner (Gianni): blue (Clear Sky over Epic), pink, orange, grey. */
+export const LIGHT_THEMES: readonly Theme[] = ['squeezeme', 'pinkpop', 'sunburnt', 'office'];
 export const DARK_THEMES: readonly Theme[] = ['epic', 'petalpunk', 'smokedcitrus', 'graphite'];
 
 /** This device's choice: each device keeps its own (an office computer can stay discreet while the phone stays Epic). */
@@ -12,7 +13,7 @@ export const THEME_KEY = 'go-epic-theme';
 /** Ajustes › "Red time line": the Week board's now-line always red, even in a quiet theme ('1' = on, this device). */
 export const RED_LINE_KEY = 'go-epic-red-line';
 /** The browser bar colour of each theme (meta theme-color), the page colour. */
-export const THEME_BAR: Record<Theme, string> = { epic: '#101b42', pinkpop: '#fbeaf3', petalpunk: '#1b141f', squeezeme: '#fff6ef', sunburnt: '#fff1e5', smokedcitrus: '#1a1918', office: '#c6c9cd', graphite: '#2b2e33' };
+export const THEME_BAR: Record<Theme, string> = { epic: '#101b42', pinkpop: '#fbeaf3', petalpunk: '#1b141f', squeezeme: '#eef4fc', sunburnt: '#fff1e5', smokedcitrus: '#1a1918', office: '#c6c9cd', graphite: '#2b2e33' };
 
 /**
  * The web app manifest of a theme: the same app with the theme's page colour as its theme and background colour, so

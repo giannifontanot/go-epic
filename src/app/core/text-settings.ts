@@ -21,11 +21,15 @@ export const TEXT_SPACINGS = [-0.02, 0, 0.03, 0.06, 0.1];
  * The px stepper (Epic Manager's length zoom): how many pixels each minute of an activity (and of a block's free time)
  * takes on the Week board.
  */
-export const PX_PER_MIN_STEPS = [1, 1.6, 2, 3];
-/** 1 px a minute by default (Gianni: 1.6 left too much room between a card's title and its minutes). */
-export const PX_PER_MIN_DEFAULT = 1;
-/** The scale that was the default before; a device saved it only because it was the default, so it reads as unset. */
-const OLD_DEFAULT = 1.6;
+export const PX_PER_MIN_STEPS = [0.3, 0.5, 0.7, 1, 1.4];
+/**
+ * Half a pixel a minute by default (Gianni: at 1 the activities were already as tall as he wants them at most, so px
+ * could only make them huge; a panel: start thin, a 60-minute card about 64px, with room to grow to the old size and
+ * a little past it).
+ */
+export const PX_PER_MIN_DEFAULT = 0.5;
+/** This version of the scale; a value saved under an older one was the old default saved with Aa / AV and reads as unset. */
+const PX_VERSION = 3;
 /** A saved or typed scale kept inside the stepper's range (anything not a number falls back to the default). */
 export function clampPxPerMin(px: unknown): number {
   const n = typeof px === 'number' && Number.isFinite(px) ? px : PX_PER_MIN_DEFAULT;
@@ -67,8 +71,8 @@ export class TextSettings {
   constructor() {
     try {
       const saved = JSON.parse(localStorage.getItem(KEY) ?? 'null') as { size?: number; spacing?: number; px?: number; pxv?: number } | null;
-      // a 1.6 saved before `pxv` was only the old default (saved with Aa / AV), so it takes the new default
-      if (saved && saved.px !== undefined && (saved.pxv === 2 || saved.px !== OLD_DEFAULT)) this.pxPerMin.set(clampPxPerMin(saved.px));
+      // a scale saved under an older version was only that version's default (saved with Aa / AV): the new default
+      if (saved && saved.px !== undefined && saved.pxv === PX_VERSION) this.pxPerMin.set(clampPxPerMin(saved.px));
       if (saved && Number.isFinite(saved.size)) this.size.set(Math.min(TEXT_MAX_SIZE, Math.max(TEXT_MIN_SIZE, saved.size!)));
       if (saved && Number.isFinite(saved.spacing)) this.spacing.set(Math.min(TEXT_MAX_SPACING, Math.max(TEXT_MIN_SPACING, saved.spacing!)));
     } catch { /* a view preference only */ }
@@ -82,7 +86,7 @@ export class TextSettings {
   }
 
   private save(): void {
-    try { localStorage.setItem(KEY, JSON.stringify({ size: this.size(), spacing: this.spacing(), px: this.pxPerMin(), pxv: 2 })); } catch { /* view preference */ }
+    try { localStorage.setItem(KEY, JSON.stringify({ size: this.size(), spacing: this.spacing(), px: this.pxPerMin(), pxv: PX_VERSION })); } catch { /* view preference */ }
     this.apply();
   }
 

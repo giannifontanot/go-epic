@@ -1,4 +1,4 @@
-import { PX_PER_MIN_STEPS, TEXT_DEFAULT_SIZE, TEXT_SIZES, TEXT_SPACINGS, appSpacing, clampPxPerMin, stepValue, textScale } from './text-settings';
+import { PX_PER_MIN_DEFAULT, PX_PER_MIN_STEPS, TEXT_DEFAULT_SIZE, TEXT_SIZES, TEXT_SPACINGS, appSpacing, clampPxPerMin, stepValue, textScale } from './text-settings';
 
 describe('text settings', () => {
   it('grows the other labels gently with the activities\' text', () => {
@@ -30,18 +30,19 @@ describe('text settings', () => {
 });
 
 describe('px per minute', () => {
-  it('steps through 1, 1.6, 2 and 3 px a minute', () => {
-    expect(stepValue(PX_PER_MIN_STEPS, 1.6, 1)).toBe(2);
-    expect(stepValue(PX_PER_MIN_STEPS, 1.6, -1)).toBe(1);
-    expect(stepValue(PX_PER_MIN_STEPS, 1, 1)).toBe(1.6);
-    expect(stepValue(PX_PER_MIN_STEPS, 3, 1)).toBe(3);
-    expect(stepValue(PX_PER_MIN_STEPS, 1, -1)).toBe(1);
+  it('steps through 0.3, 0.5, 0.7, 1 and 1.4 px a minute', () => {
+    expect(stepValue(PX_PER_MIN_STEPS, 0.5, 1)).toBe(0.7);
+    expect(stepValue(PX_PER_MIN_STEPS, 0.5, -1)).toBe(0.3);
+    expect(stepValue(PX_PER_MIN_STEPS, 1, 1)).toBe(1.4);
+    expect(stepValue(PX_PER_MIN_STEPS, 1.4, 1)).toBe(1.4);
+    expect(stepValue(PX_PER_MIN_STEPS, 0.3, -1)).toBe(0.3);
   });
-  it('keeps a saved scale inside the range, 1 (the default) when it is not a number', () => {
-    expect(clampPxPerMin(2)).toBe(2);
-    expect(clampPxPerMin(9)).toBe(3);
-    expect(clampPxPerMin(0)).toBe(1);
-    expect(clampPxPerMin('x')).toBe(1);
-    expect(clampPxPerMin(Number.NaN)).toBe(1);
+  it('keeps a saved scale inside the range, 0.5 (the default) when it is not a number', () => {
+    expect(clampPxPerMin(0.7)).toBe(0.7);
+    expect(clampPxPerMin(3)).toBe(1.4);
+    expect(clampPxPerMin(0)).toBe(0.3);
+    expect(clampPxPerMin('x')).toBe(PX_PER_MIN_DEFAULT);
+    expect(clampPxPerMin(Number.NaN)).toBe(PX_PER_MIN_DEFAULT);
+    expect(PX_PER_MIN_DEFAULT).toBe(0.5);
   });
 });

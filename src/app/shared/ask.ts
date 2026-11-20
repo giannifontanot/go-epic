@@ -71,8 +71,8 @@ export class Ask {
           <span>{{ i18n.t(undo.left() === 1 ? 'undo.second' : 'undo.seconds') }}</span>
         </p>
         <div class="ask-actions">
-          <button #undoCancel type="button" class="ask-ok undo-keep" (click)="keep()">{{ i18n.t('task.cancel') }}</button>
           <button type="button" class="ask-cancel undo-now" (click)="undo.flush()">{{ i18n.t('undo.now') }}</button>
+          <button #undoCancel type="button" class="ask-ok undo-keep" (click)="keep()">{{ i18n.t('task.cancel') }}</button>
         </div>
         <span class="ask-timer" aria-hidden="true"><i [style.--secs]="seconds + 's'" [style.--frac]="undo.left() / seconds"></i></span>
       } @else if (shown(); as q) {

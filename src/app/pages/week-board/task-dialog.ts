@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, computed, effect, inject, input, output, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
-import { LibNode, Library, Where, WhereLevel, emptyWhere, nodeById, paperAge, pathOf, pickWhere, taskByTitle, tasksWithin, twinTask, whereOf } from '../../core/library.model';
+import { LibNode, Library, Where, WhereLevel, emptyWhere, nodeById, pathOf, pickWhere, taskByTitle, tasksWithin, twinTask, whereOf } from '../../core/library.model';
 import { ColorWindow } from '../../shared/color-window';
 import { WhereCard } from '../../shared/where-card';
 import { Block, DAYS, Day, Task, Week, fits, freeMinutes, validMinutes } from '../../core/week.model';
@@ -161,12 +161,12 @@ export interface TaskSave {
               @if (option.story) {
                 <span class="pc-feature"><small>{{ i18n.t('canvas.feature') }}</small><strong>@for (part of hits(option.feature); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong>
                   <span class="pc-story"><small>{{ i18n.t('canvas.story') }}</small><strong>@for (part of hits(option.story); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong>
-                    <span class="pc-activity" [style.background]="option.paper === null ? option.tone : null" [style.--tone]="option.tone" [attr.data-paper]="option.paper">
+                    <span class="pc-activity" [style.background]="option.tone">
                       <small>{{ i18n.t('canvas.task') }}</small><strong>@for (part of hits(option.node.title); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong></span>
                   </span>
                 </span>
               } @else {
-                <span class="pc-activity" [style.background]="option.paper === null ? option.tone : null" [style.--tone]="option.tone" [attr.data-paper]="option.paper">
+                <span class="pc-activity" [style.background]="option.tone">
                   <small>{{ i18n.t('canvas.task') }}</small><strong>@for (part of hits(option.node.title); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong></span>
               }
             </span>
@@ -250,13 +250,12 @@ export class TaskDialog implements AfterViewInit {
   /** Every existing activity as a card, with its Epic (id and title), Feature and Story. */
   protected readonly pickAll = computed(() => {
     const lib = this.library();
-    const now = Date.now();
     return this.existing().map(({ node }) => {
       const path = pathOf(lib, node.id).slice(0, -1);
       const of = (kind: string) => path.find((n) => n.kind === kind);
       const epic = of('epic');
       return { node, epicId: epic?.id ?? this.FREE, epic: epic?.title ?? '', feature: of('feature')?.title ?? '', story: of('story')?.title ?? '',
-        tone: node.color || '#ffd5bd', paper: paperAge(node, now) };
+        tone: node.color || '#ffd5bd' };   // activities never age (Gianni: only loose tasks do)
     });
   });
   /** The Epic tabs: each Epic that holds some of these activities (by name), Free Space last, with their counts. */

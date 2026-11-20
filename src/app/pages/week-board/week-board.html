@@ -90,7 +90,7 @@
             <div class="block-inner">
             <ul class="tasks">
               @for (task of block.tasks; track task.id; let ti = $index, tfirst = $first, tlast = $last) {
-                <li class="task" [class.deleting]="undo.isPending(task.id)" [attr.data-flip]="task.id" [attr.data-task]="task.id" [style.--tone]="tones[ti]" [style.--mins]="shownMinutes(task)" [attr.data-paper]="paper(task)" [class.done]="isDone(day, task)" [attr.data-status]="day === store.today() ? store.status(task.id) : null" [class.off]="!task.active"
+                <li class="task" [class.deleting]="undo.isPending(task.id)" [attr.data-flip]="task.id" [attr.data-task]="task.id" [style.--tone]="tones[ti]" [style.--mins]="shownMinutes(task)" [class.done]="isDone(day, task)" [attr.data-status]="day === store.today() ? store.status(task.id) : null" [class.off]="!task.active"
                     (click)="cardTap(day, block, task)" (pointerdown)="pressStart($event, day, task)" (pointermove)="pressMove($event)"
                     (pointerup)="pressEnd()" (pointerleave)="pressEnd()" (pointercancel)="pressEnd()" (contextmenu)="cardMenu($event, day, task)">
                   <!-- Capture's tasks at an hour: on top of the activity running then, else the closest one in time, in the card's
