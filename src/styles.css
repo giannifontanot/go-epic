@@ -414,6 +414,9 @@ dialog.capture-panel::backdrop, dialog.editor::backdrop, dialog.transfer::backdr
 dialog.capture-panel header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 dialog.capture-panel h2 { margin: 0; font-size: 22px; }
 .capture-add { display: flex; gap: 8px; margin-bottom: 10px; }
+.capture-when { margin: 0 0 6px; }
+.capture-when .repeat-days { margin: 0 0 8px; }
+.capture-when .hint { margin: 6px 0 0; }
 .capture-add input, .c-edit { flex: 1; min-width: 0; min-height: 44px; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px; background: var(--page); color: var(--ink); font-size: 16px; }
 /* The box for a new task always shows its blue border, so it reads as a box at a glance; tapped, it turns stronger with a ring (Gianni) */
 .capture-add input { --c-blue: #7fb2ff; border: 1.5px solid color-mix(in srgb, var(--c-blue) 70%, transparent); border-radius: 14px; transition: border-color .15s, box-shadow .15s; }
