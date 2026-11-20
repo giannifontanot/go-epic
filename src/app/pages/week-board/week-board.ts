@@ -856,8 +856,11 @@ export class WeekBoard {
   protected async deleteBlock(day: Day, block: Block): Promise<void> {
     if (!(await this.asks.ask({ message: this.i18n.t('week.confirmDeleteBlock', { block: block.name }), ok: this.i18n.t('task.delete'), danger: true }))) return;
     // Gianni: a second chance; it goes after 5 s unless Cancel is pressed
-    this.undo.later(this.i18n.t('undo.deleting', { name: block.name }), [block.id],
-      () => this.store.update(day, (blocks) => blocks.filter((b) => b.id !== block.id)));
+    // it goes from wherever it is when the time is up (it may have been moved meanwhile)
+    this.undo.later(this.i18n.t('undo.deleting', { name: block.name }), [block.id], () => {
+      const now = this.days.find((d) => this.blocks(d).some((b) => b.id === block.id));
+      if (now) this.store.update(now, (blocks) => blocks.filter((b) => b.id !== block.id));
+    });
   }
 
   protected openTransfer(day: Day, block: Block): void {
@@ -1088,8 +1091,12 @@ export class WeekBoard {
   protected async deleteTask(day: Day, block: Block, task: Task): Promise<void> {
     const message = this.i18n.t('week.confirmDeleteTask', { task: task.title || this.i18n.t('week.newTask') });
     if (!(await this.asks.ask({ message, ok: this.i18n.t('task.delete'), danger: true }))) return;
-    this.undo.later(this.i18n.t('undo.deleting', { name: task.title || this.i18n.t('week.newTask') }), [task.id],
-      () => this.removeTask(day, block.id, task.id));
+    this.undo.later(this.i18n.t('undo.deleting', { name: task.title || this.i18n.t('week.newTask') }), [task.id], () => {
+      for (const d of this.days) {                                           // where it is now (its block may have moved)
+        const holder = this.blocks(d).find((b) => b.tasks.some((t) => t.id === task.id));
+        if (holder) { this.removeTask(d, holder.id, task.id); return; }
+      }
+    });
   }
 
   /** A block lives only through its tasks: removing its last task removes the block. */
