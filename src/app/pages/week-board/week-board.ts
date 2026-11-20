@@ -29,8 +29,8 @@ import { SwipeTracker, stepDay } from '../../core/swipe';
 const ENTER_SETTLE_MS = 1900;
 
 /**
- * Whether an element is really on the board: laid out and not in a hidden day (on a phone the other days stay in
- * the layout, invisible, so every day takes the tallest day's height).
+ * Whether an element is really on the board: laid out and not in a hidden day (on a phone only the day shown is laid
+ * out; the others are display: none).
  */
 function shownOnScreen(el: HTMLElement): boolean {
   return el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';

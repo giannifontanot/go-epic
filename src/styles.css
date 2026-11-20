@@ -224,13 +224,11 @@ dialog.status-menu h2 { margin: 0 0 12px; font-size: 20px; overflow-wrap: anywhe
   .day-tabs button[aria-selected='true'] { background: var(--pink); border-color: var(--pink); color: var(--card-ink); }
   .day-tabs button.today:not([aria-selected='true']) { border-color: var(--pink); }
   .week { grid-auto-flow: row; grid-auto-columns: auto; grid-template-columns: minmax(0, 1fr); overflow: visible; }
-  /* one day at a time, every day the same size (Gianni: swiping between days of different heights looked bad): all
-     seven share one grid cell, so the column is as tall as the tallest day; the others stay there hidden */
+  /* one day at a time, and only the day shown takes room (Gianni: when every day was as tall as the tallest one, a
+     short day left a big blank space under its last block, and above the foot's ✓ Finish while arranging) */
   .week { grid-template-areas: 'day'; }
-  .day { grid-area: day; visibility: hidden; }
-  .day.mobile-on { visibility: visible; }
-  /* while arranging, only the day shown takes room (Gianni: a taller hidden day left a blank gap above the foot's ✓ Finish) */
-  .board:not(.locked) .day:not(.mobile-on) { display: none; }
+  .day { grid-area: day; }
+  .day:not(.mobile-on) { display: none; }
 }
 
 /* Task details: the Floating Canvas editor look */
@@ -361,7 +359,7 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
   max-height: calc(100dvh - max(18px, env(safe-area-inset-bottom)) - 72px - max(12px, env(safe-area-inset-top)));
   visibility: hidden; transition: visibility 0s .34s; }
 .action-stack.open { visibility: visible; transition: none; }
-.action-stack .capture-fab { position: relative; inset: auto; display: grid; place-items: center;
+.action-stack .capture-fab { position: relative; inset: auto; display: grid; place-items: center; flex: none; width: 60px; height: 60px;
   opacity: 0; transform: translateY(calc((var(--i, 0) + 1) * 72px)) scale(.4); pointer-events: none;
   transition: transform .3s cubic-bezier(.4, 0, 1, 1), opacity .26s ease; }
 .action-stack.open .capture-fab { opacity: 1; transform: none; pointer-events: auto;
@@ -754,6 +752,7 @@ body { letter-spacing: var(--app-ls); }
 dialog.editor header .head-switch { flex: none; min-height: 40px; font-weight: 700; }
 /* a new Block: its title on one line and the Active switch under it (Gianni) */
 dialog.editor.new-block header .head-box { flex-direction: column; align-items: flex-start; gap: 6px; }
+dialog.editor.new-block header .head-switch { align-self: flex-end; }   /* Active at the right (Gianni) */
 dialog.editor.new-block header .head-text { width: 100%; }
 dialog.editor.new-block header h2 { font-size: min(24px, 5.3vw); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .where-card { margin: 0 0 14px; cursor: default; }
