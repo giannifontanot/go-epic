@@ -5,7 +5,7 @@ import { AuthService } from './core/auth.service';
 import { CapturePanel } from './pages/capture/capture-panel';
 import { CaptureUi } from './pages/capture/capture-ui';
 import { Settings } from './pages/settings/settings';
-import { closeDialog, isBackdropClick, openDialog } from './core/dialog';
+import { closeDialog, isBackdropClick, openDialog, warmUpWindows } from './core/dialog';
 import { I18n } from './core/i18n';
 import { LibraryStore } from './core/library.store';
 import { Tilt } from './core/tilt';
@@ -98,6 +98,11 @@ export class App {
 
   constructor() {
     this.tilt.start();   // buttons lean when the phone leans (a visual detail)
+    // once the app is idle, what windows need the first time is made ready, so their first opening is smooth too
+    if (typeof window !== 'undefined') {
+      const idle = (window as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+      if (idle) idle.call(window, () => warmUpWindows(), { timeout: 3000 }); else setTimeout(() => warmUpWindows(), 1500);
+    }
     const updates = inject(SwUpdate, { optional: true });
     if (updates?.isEnabled) {
       updates.versionUpdates.subscribe((event) => {

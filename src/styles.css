@@ -820,14 +820,6 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .settings-head { display: flex; align-items: center; justify-content: space-between; }
 .settings-head h2 { margin: 0; font-size: 24px; }
 .settings-foot { display: flex; justify-content: flex-end; margin-top: 18px; }
-.settings-title { margin: 14px 4px 10px; font-size: 17px; }
-.theme-options { display: grid; gap: 10px; }
-.theme-option { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 72px; padding: 10px 14px 10px 10px; border: 2px solid transparent;
-  border-radius: 18px; background: rgba(255, 255, 255, .08); color: var(--ink); text-align: left; }
-.theme-option.on { border-color: var(--teal); }
-.theme-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
-.theme-text small { color: var(--ink-soft); }
-.theme-check { flex: none; width: 28px; font-size: 20px; font-weight: 900; color: var(--teal); text-align: center; }
 /* a tiny day of each theme: column, block and two cards, in that theme's own colours */
 .theme-preview { flex: none; width: 64px; height: 52px; padding: 5px; border-radius: 12px; background: #101b42; }
 .tp-day { display: block; height: 100%; padding: 4px; border-radius: 8px; background: linear-gradient(155deg, #8f2859, #621c4b); }
@@ -1047,6 +1039,16 @@ html:is([data-theme='office'], [data-theme='graphite']) .sparkle { color: var(--
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.chip.quiet.on, .finish-fab, .primary, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.primary, button.primary, .capture-fab:not(.finish-fab)):hover:not(:disabled) { background: color-mix(in srgb, var(--pink) 85%, #000) !important; }   /* hover darkens the theme's accent; the fixed pale-pink hover would wash out its ink */
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .capture-fab.finish-fab:hover { background: color-mix(in srgb, var(--teal) 85%, #000); }
+/* the light themes' round buttons (themes, day overview, +, ✎) are soft, not the dark accent (Gianni: too dark there):
+   a pale tone of the theme with its accent as ink, so the stack reads light like the page */
+html[data-theme='pinkpop'] { --fab: #f6c9dc; --fab-ink: #7a2a52; }
+html[data-theme='squeezeme'] { --fab: #fdd0b0; --fab-ink: #7a3414; }
+html[data-theme='sunburnt'] { --fab: #f8d4a8; --fab-ink: #743f14; }
+html[data-theme='office'] { --fab: #e1e3e6; --fab-ink: #3d4248; }
+html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) .capture-fab:not(.finish-fab):not(.open) {
+  background: var(--fab); color: var(--fab-ink); box-shadow: inset 0 0 0 1px rgba(40, 30, 30, .08), 0 3px 10px var(--g-shadow); }
+html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) .capture-fab:not(.finish-fab):not(.open):hover:not(:disabled) {
+  background: color-mix(in srgb, var(--fab) 90%, #000) !important; }
 /* surfaces and round buttons that were white or near-white */
 html:is([data-theme='office'], [data-theme='graphite']) .capture-list { background: var(--g-list); box-shadow: inset 0 1px 3px var(--g-shadow); }
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit) { background: var(--g-control); }

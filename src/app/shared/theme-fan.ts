@@ -20,8 +20,8 @@ const STEP_MS = 40;
             [attr.aria-label]="i18n.t('settings.theme')" [title]="i18n.t('settings.theme')" (click)="toggle()">
       <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="currentColor">
         <path d="M12 3a9 9 0 0 0 0 18c1.1 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.8-1.7 1.7-1.7H16a5 5 0 0 0 5-5C21 6.4 17 3 12 3Z"/>
-        <circle cx="7.5" cy="11" r="1.4" fill="var(--pink)"/><circle cx="10" cy="7.3" r="1.4" fill="var(--pink)"/>
-        <circle cx="14.5" cy="7.3" r="1.4" fill="var(--pink)"/><circle cx="17" cy="11" r="1.4" fill="var(--pink)"/>
+        <circle cx="7.5" cy="11" r="1.4" fill="var(--fab, var(--pink))"/><circle cx="10" cy="7.3" r="1.4" fill="var(--fab, var(--pink))"/>
+        <circle cx="14.5" cy="7.3" r="1.4" fill="var(--fab, var(--pink))"/><circle cx="17" cy="11" r="1.4" fill="var(--fab, var(--pink))"/>
       </svg>
     </button>
     @if (open()) {

@@ -1,4 +1,4 @@
-import { Block, DAYS, Day, DayPlan, Task, dateKey, dayOf, formatClock, freeMinutes, newId, parseClock, taskStarts, timeline, validMinutes } from './week.model';
+import { Block, DAYS, Day, DayPlan, Task, dateKey, dayOf, formatClock, freeMinutes, minutesOfDay, parseClock, taskStarts, timeline, validMinutes } from './week.model';
 
 /**
  * A task from Capture (Gianni): a one-off to-do, not an Activity of the library. It has a day (a date) and maybe an
@@ -107,27 +107,34 @@ export function pinTodos(plan: DayPlan, todos: Todo[]): { onTask: Map<string, To
 }
 
 /**
- * A Capture task turned Activity takes the task's place on the Week board (Gianni: swapped in place, never sent away to
- * be brought back): a timed task's card goes into the block of the activity its note was pinned to (as `pinTodos`),
- * right after that activity when the hour falls on or after its start, else right before it; a task with no hour, or a
- * day with no timed activity, goes at the end of the day's last block, where its note was (the strip at the day's
- * foot). The card takes the hour its place gives it. The block grows by what its free time lacks, so its end limit
- * still holds; a day with no blocks gets a new one at the task's hour. Null when the block cannot grow before midnight.
+ * Only a task that sits inside a block can become an Activity (Gianni): it has an hour, and on its day of this week its
+ * note is pinned on one of the day's activities. An all-day task (no hour), one rolled over from an earlier day or one
+ * of today whose hour has passed (all in the tray at the foot of the Week board), one on a day with no timed activity
+ * (the strip at the day's foot) and one of a later week never can. `time` is the editor's hour.
  */
-export function placeActivity(plan: DayPlan, time: string | null, card: Task, blockName: string): Block[] | null {
+export function canBecomeActivity(todo: Todo, time: string | null, day: Day | null, plan: DayPlan | null, now: Date): boolean {
+  const at = parseClock(time);
+  if (at === null || day === null || !plan || !timedOf(plan).length) return false;
+  const today = dateKey(now);
+  if (!repeats(todo) && todo.done === null && todo.date !== null && todo.date < today) return false;   // rolled over
+  if (day === dayOf(now) && doneOnDate(todo, today) === null && at < minutesOfDay(now)) return false;  // past due today
+  return true;
+}
+
+/**
+ * A Capture task turned Activity takes the task's place on the Week board (Gianni: swapped in place, never sent away to
+ * be brought back): its card goes into the block of the activity its note was pinned to (as `pinTodos`), right after
+ * that activity when the hour falls on or after its start, else right before it, and takes the hour its place gives it.
+ * The block grows by what its free time lacks, so its end limit still holds. Null when the task sits in no block (no
+ * hour, or no timed activity that day: see `canBecomeActivity`) or the block cannot grow before midnight.
+ */
+export function placeActivity(plan: DayPlan, time: string | null, card: Task): Block[] | null {
   const blocks = plan.blocks;
   const at = parseClock(time);
-  if (!blocks.length) {
-    const fresh: Block = { id: newId(), name: blockName, start: at === null ? null : formatClock(at), end: null, tasks: [card] };
-    return pastMidnight(fresh) ? null : [fresh];
-  }
   const host = at === null ? undefined : closestTimed(timedOf(plan), at);
-  let bi = blocks.length - 1;
-  let index = blocks[bi].tasks.length;
-  if (host) {
-    bi = blocks.indexOf(host.block);
-    index = host.index + ((at as number) >= (host.start as number) ? 1 : 0);
-  }
+  if (!host) return null;
+  const bi = blocks.indexOf(host.block);
+  const index = host.index + ((at as number) >= (host.start as number) ? 1 : 0);
   const block = blocks[bi];
   const free = freeMinutes(block);
   const short = free === null ? 0 : Math.max(0, validMinutes(card.minutes) - Math.max(0, free));

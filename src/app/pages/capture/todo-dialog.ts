@@ -1,10 +1,10 @@
-import { AfterViewInit, Component, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, computed, inject, input, output, signal, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { activityFromTodo, nodeById } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
 import { TodoStore } from '../../core/todo.store';
-import { Todo, convertDay, placeActivity } from '../../core/todo.model';
+import { Todo, canBecomeActivity, convertDay, placeActivity } from '../../core/todo.model';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { DAYS, Day, NEW_TASK_MINUTES, newId, parseClock, validMinutes } from '../../core/week.model';
 
@@ -41,9 +41,9 @@ export interface TodoSave { id: string; title: string; date: string | null; time
           <input type="time" step="60" [value]="time()" (input)="time.set($any($event.target).value)" /></label>
       </div>
       <p class="hint">{{ i18n.t('capture.anyHour') }}</p>
-      <!-- a task can become an Activity (Gianni): it takes the task's place on the Week board (and waits in the Canvas's Free Space to be filed); the task leaves Capture -->
-      <!-- with its minutes (Gianni): a new activity's hour by default, changed in the box beside the button -->
-      @if (!isNew()) {
+      <!-- a task inside a block can become an Activity (Gianni): it takes the task's place there (and waits in the Canvas's Free Space to be filed); the task leaves Capture -->
+      <!-- with its minutes (Gianni): a new activity's hour by default, changed in the box beside the button; an all-day task never converts -->
+      @if (!isNew() && canConvert()) {
         <div class="to-activity-row">
           <button type="button" class="chip quiet to-activity" (click)="toActivity()">⇢ {{ i18n.t('capture.toActivity') }}</button>
           <label class="to-activity-min"><input type="number" inputmode="numeric" min="0" max="1440" [value]="activityMinutes()"
@@ -113,30 +113,38 @@ export class TodoDialog implements AfterViewInit {
   /**
    * Convert to activity: asks first (the task leaves Capture). Its name and minutes go to the library (Free Space, to
    * be filed later in the Canvas) and, at once, onto the Week board in the task's place (Gianni: swapped in place, not
-   * removed and sent elsewhere): `placeActivity` in the day where its note was. The Activity, its week card and the
+   * removed and sent elsewhere): `placeActivity` in the block where its note was (only a task inside a block can). The Activity, its week card and the
    * task's deletion go in one batch.
    */
+  /** The day of this week where the task's note shows: the Week board's day whose ✎ opened it, else `convertDay`. */
+  private readonly convertTo = computed(() => (this.day() === undefined ? convertDay(this.todo(), this.week.now()) : this.day() ?? null));
+  /** The editor's hour: empty = all day. */
+  private readonly editorTime = computed(() => (parseClock(this.time()) !== null ? this.time() : null));
+  /** Only a task inside a block can become an Activity (Gianni): an all-day one never can, so it has no button. */
+  protected readonly canConvert = computed(() => {
+    const day = this.convertTo();
+    return this.week.loaded() && canBecomeActivity(this.todo(), this.editorTime(), day, day ? this.week.plan(day) : null, this.week.now());
+  });
+
   protected toActivity(): void {
     if (this.leaving) return;
     const todo = this.todo();
     const title = this.title().trim() || todo.title.trim();
     if (!title) { this.problem.set(this.i18n.t('task.nameRequired')); return; }
     if (!this.library.ready() || !this.week.loaded()) { this.problem.set(this.i18n.t('capture.toActivityWait')); return; }
-    const day = this.day() === undefined ? convertDay(todo, this.week.now()) : this.day() ?? null;
-    if (!confirm(this.i18n.t(day ? 'capture.toActivityAskWeek' : 'capture.toActivityAsk', { task: title }))) return;
+    const day = this.convertTo();
+    if (!day || !this.canConvert()) return;
+    if (!confirm(this.i18n.t('capture.toActivityAskWeek', { task: title }))) return;
     const made = activityFromTodo(structuredClone(this.library.library()), title, todo.created, this.activityMinutes());
     if (!made) { this.problem.set(this.i18n.t('capture.toActivityWait')); return; }
     const writes: WeekWrite[] = [];
-    if (day) {
-      const node = nodeById(made.lib, made.id);
-      const card = { id: newId(), title: node?.title ?? title, minutes: validMinutes(node?.minutes ?? this.activityMinutes()),
-        color: node?.color ?? null, active: true, ref: made.id };
-      const time = parseClock(this.time()) !== null ? this.time() : null;              // the editor's hour: empty = all day
-      const blocks = placeActivity(this.week.plan(day), time, card, this.i18n.t('week.newBlock'));
-      if (!blocks) { this.problem.set(this.i18n.t('capture.toActivityNoRoom')); return; }
-      const write = this.week.stage(day, blocks);
-      if (write) writes.push(write);
-    }
+    const node = nodeById(made.lib, made.id);
+    const card = { id: newId(), title: node?.title ?? title, minutes: validMinutes(node?.minutes ?? this.activityMinutes()),
+      color: node?.color ?? null, active: true, ref: made.id };
+    const blocks = placeActivity(this.week.plan(day), this.editorTime(), card);
+    if (!blocks) { this.problem.set(this.i18n.t('capture.toActivityNoRoom')); return; }
+    const write = this.week.stage(day, blocks);
+    if (write) writes.push(write);
     // All in one batch: everything happens, or nothing (a refused save keeps the task).
     if (!this.library.save(made.lib, writes, [`todos/${todo.id}`])) { this.problem.set(this.i18n.t('capture.toActivityWait')); return; }
     this.leaving = true;
