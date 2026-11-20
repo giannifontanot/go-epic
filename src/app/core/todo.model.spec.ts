@@ -125,8 +125,11 @@ describe('todo model', () => {
     expect(view.blocks[1].activities[0].todos.map((t) => t.id)).toEqual(['call']);
     expect(view.later.map((t) => t.id)).toEqual(['late']);   // it sat on the switched-off activity
     // another day's overview leaves the rolled-over tasks out
-    const other = dayOverview(plan, list, '2026-11-10', 'TUESDAY', false);
-    expect(other.allDay.map((t) => t.id)).toEqual(['free1', 'free2']);
+    const other = dayOverview(plan, list, '2026-11-11', 'WEDNESDAY', '2026-11-12');
+    expect(other.allDay.map((t) => t.id)).toEqual([]);
+    expect(other.later.map((t) => t.id)).toEqual([]);   // 'other' was for that day, now rolled over: it shows on today only
+    const before = dayOverview(plan, list, '2026-11-09', 'MONDAY', '2026-11-10');
+    expect(before.allDay.map((t) => t.id)).not.toContain('old');
   });
 
   it('swaps a converted task in place: its card goes where its note sat, the block growing by what its free time lacks', () => {

@@ -117,7 +117,7 @@ export class DayOverview {
   // always built (cheap), so the window has its full size when openDialog measures it to grow out of the button
   protected readonly overview = computed(() => {
     const day = this.day();
-    return dayOverview(this.store.week()[day], this.todos.todos(), this.date(), day, this.isToday());
+    return dayOverview(this.store.week()[day], this.todos.todos(), this.date(), day, this.store.todayKey());
   });
   protected readonly title = computed(() => {
     const [y, m, d] = this.date().split('-').map(Number);
