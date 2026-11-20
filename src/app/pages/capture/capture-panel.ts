@@ -12,8 +12,8 @@ import { TodoDialog, TodoSave } from './todo-dialog';
 /**
  * Capture = tasks (Gianni): one-off to-dos, not Activities. The floating ✎ (or the menu's Capture) opens the panel
  * without putting the cursor in the box (you may only want to look); tap the box, type and press Enter, as many as you like; each new task is for today, any hour. The panel
- * lists the open tasks soonest first, on aged paper tinted with their colour; ☐ checks one (it moves down to
- * "Finished", where ☑ opens it again), ✎ sets its name, day and hour, ✕ deletes it (asks first). In the Week a task
+ * lists the open tasks soonest first, on aged paper tinted with their colour, under the Current tab; ☐ checks one (it moves to
+ * the Finished tab, where ☑ opens it again), ✎ sets its name, day and hour, ✕ deletes it (asks first). In the Week a task
  * shows over the activity running at its hour (todo.model `pinTodos`).
  */
 @Component({
@@ -37,6 +37,17 @@ import { TodoDialog, TodoSave } from './todo-dialog';
       </form>
       <p class="hint">{{ i18n.t('capture.inboxHint') }}</p>
       @if (todos.error()) { <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ todos.error() }}</p> }
+      <!-- Two tabs (Gianni): the current tasks and the finished ones, one tap apart; Current by default -->
+      <div class="capture-tabs" role="tablist" [attr.aria-label]="i18n.t('capture.title')">
+        <button type="button" role="tab" id="c-tab-open" aria-controls="c-pane" [class.on]="tab() === 'open'" [attr.aria-selected]="tab() === 'open'"
+          [attr.tabindex]="tab() === 'open' ? 0 : -1" (click)="tab.set('open')" (keydown)="tabKey($event)">
+          {{ i18n.t('capture.current') }} <span class="c-count">{{ todos.open().length }}</span></button>
+        <button type="button" role="tab" id="c-tab-finished" aria-controls="c-pane" [class.on]="tab() === 'finished'" [attr.aria-selected]="tab() === 'finished'"
+          [attr.tabindex]="tab() === 'finished' ? 0 : -1" (click)="tab.set('finished')" (keydown)="tabKey($event)">
+          {{ i18n.t('capture.finished') }} <span class="c-count">{{ todos.finished().length }}</span></button>
+      </div>
+      <div id="c-pane" role="tabpanel" [attr.aria-labelledby]="tab() === 'open' ? 'c-tab-open' : 'c-tab-finished'">
+      @if (tab() === 'open') {
       <ul class="capture-list">
         @for (todo of todos.open(); track todo.id) {
           <li [attr.data-paper]="paper(todo)" [style.--tone]="tones().get(todo.id)">
@@ -62,8 +73,7 @@ import { TodoDialog, TodoSave } from './todo-dialog';
           <li class="c-empty">{{ i18n.t(todos.ready() ? 'capture.empty' : 'loading') }}</li>
         }
       </ul>
-      @if (todos.finished().length) {
-        <h3 class="c-finished-title">{{ i18n.t('capture.finished') }}</h3>
+      } @else {
         <ul class="capture-list finished">
           @for (todo of todos.finished(); track todo.id) {
             <li>
@@ -75,9 +85,12 @@ import { TodoDialog, TodoSave } from './todo-dialog';
               <button type="button" class="c-icon" [attr.aria-label]="i18n.t('capture.delete') + ': ' + todo.title" [title]="i18n.t('capture.delete')"
                 (click)="remove(todo)">✕</button>
             </li>
+          } @empty {
+            <li class="c-empty">{{ i18n.t('capture.noneFinished') }}</li>
           }
         </ul>
       }
+      </div>
     </dialog>
     @if (editingTodo(); as todo) {
       <app-todo-dialog [todo]="todo" (save)="saveTodo($event)" (closed)="editingTodo.set(null)" />
@@ -95,6 +108,17 @@ export class CapturePanel {
   /** Each task on its own pastel (TodoStore.tones, shared with the Week board), multiplied into its paper. */
   protected readonly tones = this.todos.tones;
   protected readonly editing = signal('');
+  /** The tab shown: the current tasks (the default) or the finished ones. */
+  protected readonly tab = signal<'open' | 'finished'>('open');
+
+  /** ← / → (and Home / End) move between the two tabs, as in any tab list. */
+  protected tabKey(event: KeyboardEvent): void {
+    const to = event.key === 'ArrowLeft' || event.key === 'Home' ? 'open' : event.key === 'ArrowRight' || event.key === 'End' ? 'finished' : null;
+    if (!to) return;
+    event.preventDefault();
+    this.tab.set(to);
+    (event.currentTarget as HTMLElement).parentElement?.querySelector<HTMLElement>(to === 'open' ? '#c-tab-open' : '#c-tab-finished')?.focus();
+  }
   /** The task whose day and hour are being set (✎). */
   protected readonly editingTodo = signal<Todo | null>(null);
 

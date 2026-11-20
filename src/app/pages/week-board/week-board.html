@@ -89,7 +89,7 @@
                 <label>{{ i18n.t('week.start') }}
                   <input #winStart type="time" step="60" [value]="block.start ?? ''" (change)="setWindow(day, block, winStart.value, winEnd.value)" /></label>
                 <label>{{ i18n.t('week.end') }}
-                  <input #winEnd type="time" step="60" [value]="stretching()?.blockId === block.id ? shownEnd(block) : (block.end ?? '')" (change)="setWindow(day, block, winStart.value, winEnd.value)" /></label>
+                  <input #winEnd type="time" step="60" [value]="block.end ?? ''" (change)="setWindow(day, block, winStart.value, winEnd.value)" /></label>
               </div>
               @if (windowErrors()[block.id]) { <p class="window-error">{{ windowErrors()[block.id] }}</p> }
               <div class="block-tools">
@@ -210,15 +210,7 @@
             @if (freeShown(block) > 0 || arranging()) {
               <div class="free-band" [style.--free]="freeShown(block)" aria-hidden="true"></div>
             }
-            <!-- Pull the handle to stretch or shrink the block: its end time follows (never before its tasks end) -->
-            @if (arranging() && block.start) {
-              <div class="end-handle" role="slider" tabindex="0" [attr.aria-label]="i18n.t('week.stretch') + ': ' + block.name"
-                   [attr.aria-valuetext]="shownEnd(block)" [title]="i18n.t('week.stretch')"
-                   (pointerdown)="startStretch($event, day, block)" (keydown)="stretchKey($event, day, block)">
-                <span class="grip-bar"></span>
-                @if (stretching()?.blockId === block.id) { <span class="end-badge">{{ shownEnd(block) }}</span> }
-              </div>
-            }
+            <!-- Blocks have no handle (Gianni): their times change only in the Start / End boxes above; activities keep theirs -->
             </div>
             </div>
 

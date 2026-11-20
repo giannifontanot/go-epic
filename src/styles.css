@@ -105,7 +105,7 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 .summary { margin: 0; text-align: center; font-size: 14px; font-weight: 700; opacity: .85; }
 .block-window { display: flex; gap: 8px; }
 .block-window label { flex: 1 1 0; min-width: 0; display: grid; gap: 2px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
-.block-window input { width: 100%; min-width: 0; min-height: 38px; padding: 4px 6px; border: 1px solid rgba(54, 38, 67, .3); border-radius: 10px; background: #fff8e8; color: var(--jelly-ink); font-size: 16px; color-scheme: light; }
+.block-window input { -webkit-appearance: none; appearance: none; width: 100%; min-width: 0; min-height: 38px; padding: 4px 12px; border: 1px solid rgba(54, 38, 67, .3); border-radius: 14px; text-align: center; background: #fff8e8; color: var(--jelly-ink); font-size: 16px; color-scheme: light; }
 @media (min-width: 821px) { .block-window input { font-size: 14px; } }
 .window-error { margin: 0; color: var(--red); font-size: 12px; font-weight: 700; }
 .block-tools { display: flex; gap: 6px; }
@@ -378,6 +378,17 @@ dialog.capture-panel header { display: flex; align-items: center; justify-conten
 dialog.capture-panel h2 { margin: 0; font-size: 22px; }
 .capture-add { display: flex; gap: 8px; margin-bottom: 10px; }
 .capture-add input, .c-edit { flex: 1; min-width: 0; min-height: 44px; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px; background: var(--page); color: var(--ink); font-size: 16px; }
+/* The box for a new task always shows its blue border, so it reads as a box at a glance; tapped, it turns stronger with a ring (Gianni) */
+.capture-add input { --c-blue: #7fb2ff; border: 1.5px solid color-mix(in srgb, var(--c-blue) 70%, transparent); border-radius: 14px; transition: border-color .15s, box-shadow .15s; }
+.capture-add input:focus, .capture-add input:focus-visible { outline: none; border-color: var(--c-blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-blue) 35%, transparent); }
+html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) .capture-add input { --c-blue: #3b78d8; }
+/* Current / Finished tabs: one tap apart, the chosen one filled with the theme's primary colour */
+.capture-tabs { display: flex; gap: 4px; margin: 0 0 10px; padding: 4px; border-radius: 999px; background: color-mix(in srgb, var(--ink) 10%, transparent); }
+.capture-tabs button { flex: 1 1 0; min-height: 40px; border: 0; border-radius: 999px; background: transparent; color: var(--ink); font-size: 15px; font-weight: 700; transition: background .2s, color .2s; }
+.capture-tabs button.on { background: var(--pink); color: var(--card-ink); box-shadow: 0 2px 6px rgba(0, 0, 0, .2); }
+.capture-tabs button:not(.on):hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.c-count { display: inline-block; min-width: 22px; margin-left: 4px; padding: 0 6px; border-radius: 999px; background: color-mix(in srgb, currentColor 15%, transparent); font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { .capture-tabs button, .capture-add input { transition: none; } }
 .capture-list { list-style: none; margin: 0; padding: 10px; display: grid; gap: 8px; border-radius: 18px; background: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, .25); }
 .capture-list li { display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 12px; border-radius: 14px; background: var(--peach, #ffd5bd); color: var(--card-ink); box-shadow: 0 3px 0 rgba(48, 39, 70, .14); }
 .c-text { flex: 1; min-width: 0; min-height: 40px; border: 0; background: transparent; color: var(--card-ink); font-size: 15px; font-weight: 600; text-align: left; overflow-wrap: anywhere; }
@@ -564,10 +575,6 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 /* The handle at the block's foot: pull it down or up to move the block's end; a badge shows the end while pulling */
 /* Only the grip itself pulls (Gianni: a scroll that started near it stretched the block): a 72×40px target centred
    on the bar, so the rest of the width scrolls as usual */
-.end-handle { position: relative; display: grid; place-items: center; width: 72px; height: 40px; margin: -10px auto -10px; cursor: ns-resize; touch-action: none; border-radius: 10px; }
-.end-handle:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
-.end-handle .grip-bar { width: 56px; height: 6px; border-radius: 999px; background: rgba(54, 38, 67, .45); }
-.end-handle:hover .grip-bar, .end-handle:active .grip-bar { background: #0d9488; }
 /* a card's own handle (edit mode): a short bar at its foot that stretches its minutes */
 .t-handle { position: relative; display: grid; place-items: center; width: 72px; height: 40px; margin: -8px auto -6px;   /* only the grip: 72×40px around the bar */
   cursor: ns-resize; touch-action: none; border-radius: 12px; }
@@ -736,7 +743,6 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .c-check { margin: 6px 4px 6px 0; }
 .c-check.on { background: #d9f5ef; border-color: #0d9488; }
 .c-when { display: block; margin-top: 2px; font-size: 12px; font-weight: 600; opacity: .7; }
-.c-finished-title { margin: 14px 0 8px; font-size: 14px; color: var(--ink-soft); }
 .capture-list.finished li { background: #eceaf0; }
 .capture-list.finished .c-text { text-decoration: line-through; opacity: .7; }
 .todo-strip { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
@@ -1020,7 +1026,6 @@ html[data-theme='petalpunk'] input.block-name { border-bottom-color: rgba(240, 1
 html[data-theme='petalpunk'] .task .round:not(.danger-x) { color: var(--card-ink); border-color: rgba(42, 16, 32, .45); }
 /* on the dark blocks (Petal Punk, Smoked Citrus) the free-time stripes, the end handle and the summary dash turn light */
 html:is([data-theme='petalpunk'], [data-theme='smokedcitrus']) .free-band { background: repeating-linear-gradient(135deg, rgba(255, 255, 255, .14) 0 10px, transparent 10px 20px); }
-html:is([data-theme='petalpunk'], [data-theme='smokedcitrus']) .end-handle .grip-bar { background: rgba(255, 255, 255, .4); }
 html:is([data-theme='petalpunk'], [data-theme='smokedcitrus']) .summary .dash { color: rgba(255, 255, 255, .45); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .day { box-shadow: 0 6px 16px var(--g-shadow); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.free, .end-badge, .round:hover:not(:disabled)) { color: var(--g-soft-ink); }
@@ -1041,7 +1046,7 @@ html:is([data-theme='office'], [data-theme='graphite']) .update-button { backgro
 }
 html:is([data-theme='office'], [data-theme='graphite']) .sparkle { color: var(--g-sparkle); text-shadow: none; }
 /* text on the accent greys (selected chips, primary buttons, the menu's current page, done dots) */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.chip.quiet.on, .finish-fab, .primary, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.chip.quiet.on, .finish-fab, .primary, .capture-tabs button.on, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.primary, button.primary, .capture-fab:not(.finish-fab)):hover:not(:disabled) { background: color-mix(in srgb, var(--pink) 85%, #000) !important; }   /* hover darkens the theme's accent; the fixed pale-pink hover would wash out its ink */
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .capture-fab.finish-fab:hover { background: color-mix(in srgb, var(--teal) 85%, #000); }
 /* the light themes' round buttons (themes, day overview, +, ✎) are soft, not the dark accent (Gianni: too dark there):
