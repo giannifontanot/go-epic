@@ -7,7 +7,7 @@
   ES dictionary in the script below (browser language es-*, the EN/ES switch, or ?lang=es).
   The emblem (emblem.webp) is Gianni's winged-sword logo, with the blade lengthened.
 
-  ▶ DOWNLOAD LINK: every "Get Go Epic" button takes its address from GET_GO_EPIC_URL in the script at the
+  ▶ DOWNLOAD LINK: every download button takes its address from GET_GO_EPIC_URL in the script at the
     bottom of this file. It is a placeholder for now: put the real link there (one place) when it exists.
 -->
 <html lang="en">
@@ -36,7 +36,7 @@
   <meta property="og:image" content="https://go-epic.web.app/get/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="The Go Epic emblem, a winged sword with a gold GO EPIC! ribbon, beside the words Get Go Epic" />
+  <meta property="og:image:alt" content="The Go Epic emblem, a winged sword with a gold GO EPIC! ribbon, beside the name Go Epic" />
   <meta property="og:locale" content="en_US" />
   <meta property="og:locale:alternate" content="es_ES" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -132,6 +132,9 @@
     @keyframes rise { from { opacity: 0; transform: translateY(16px); filter: blur(6px); } }
     .kicker { font-size: 15px; font-weight: 600; color: var(--k, var(--mute)); letter-spacing: -.01em; }
     h1, h2 { font-size: clamp(30px, 8.2vw, 68px); line-height: 1.06; font-weight: 700; letter-spacing: -.03em; text-wrap: balance; }
+    /* The name: "Go" in the app's deep navy, "Epic" in the gold of the emblem's ribbon. */
+    .go { color: #101b42; }
+    .brand .epic { color: #8a5a12; }
     .gold { background: linear-gradient(100deg, #b8860b, #8a5a12); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .lead { font-size: clamp(16px, 4.2vw, 21px); line-height: 1.4; color: var(--mute); max-width: 28em; text-wrap: pretty; transition: color .8s; }
     .fine { font-size: 13px; color: var(--mute); }
@@ -436,13 +439,13 @@
 </head>
 <body data-slide="0">
   <header class="top">
-    <span class="brand"><span class="tile"><img src="/get/emblem.webp" alt="" width="32" height="32" /></span>Go Epic</span>
+    <span class="brand" translate="no"><span class="tile"><img src="/get/emblem.webp" alt="" width="32" height="32" /></span><span><span class="go">Go</span> <span class="epic">Epic</span></span></span>
     <div class="lang" role="group" aria-label="Language / Idioma">
       <button type="button" data-lang="en" aria-pressed="true">EN</button>
       <button type="button" data-lang="es" aria-pressed="false">ES</button>
     </div>
     <!-- placeholder download link: set GET_GO_EPIC_URL in the script at the bottom -->
-    <a class="pill small js-get" href="#get-go-epic-link-coming-soon" data-i="get_short">Get Go Epic</a>
+    <a class="pill small js-get" href="#get-go-epic-link-coming-soon" data-i="get_short">Download</a>
   </header>
 
   <main class="stage" id="tour" aria-roledescription="carousel" aria-label="Go Epic tour">
@@ -450,10 +453,10 @@
       <div class="slides">
         <section class="slide on" aria-roledescription="slide" aria-label="1 / 8">
           <p class="kicker gold" data-i="k0">Plan. Focus. Grow.</p>
-          <h1>Get Go <span class="gold">Epic.</span></h1>
+          <h1 translate="no"><span class="go">Go</span> <span class="gold">Epic.</span></h1>
           <p class="lead" data-i="l0">Plan your week in blocks. Live each day one step at a time.</p>
           <!-- placeholder download link: set GET_GO_EPIC_URL in the script at the bottom -->
-          <a class="pill big js-get" href="#get-go-epic-link-coming-soon" data-i="get_long">Get Go Epic, it's free</a>
+          <a class="pill big js-get" href="#get-go-epic-link-coming-soon" data-i="get_long">Download Go Epic, it's free</a>
           <p class="fine" data-i="fine0">Free · Phone &amp; desktop · Works offline</p>
         </section>
         <section class="slide" aria-roledescription="slide" aria-label="2 / 8">
@@ -495,7 +498,7 @@
           <h2 data-i="h7">Your epic week starts now.</h2>
           <p class="lead" data-i="l7">Sign in with Google and add it to your home screen. Free, and it works offline.</p>
           <!-- placeholder download link: set GET_GO_EPIC_URL in the script at the bottom -->
-          <a class="pill big js-get" href="#get-go-epic-link-coming-soon" data-i="get_long2">Get Go Epic, it's free</a>
+          <a class="pill big js-get" href="#get-go-epic-link-coming-soon" data-i="get_long2">Download Go Epic, it's free</a>
           <p class="steps" data-i="steps"><b>iPhone:</b> Safari → Share → Add to Home Screen · <b>Android and computer:</b> Chrome → Install app</p>
         </section>
       </div>
@@ -662,7 +665,7 @@
   <script>
     /* ▶ THE DOWNLOAD LINK. A placeholder for now (it only shows a "coming soon" note).
        Put the real address here when it exists, e.g. 'https://go-epic.web.app/' or a store link:
-       every "Get Go Epic" button on the page (class js-get) takes it. */
+       every download button on the page (class js-get) takes it. */
     var GET_GO_EPIC_URL = '#get-go-epic-link-coming-soon';
 
     var ES = {
