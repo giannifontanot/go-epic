@@ -12,7 +12,6 @@ import { UnsavedWork } from '../../core/unsaved';
 import { CaptureUi } from '../capture/capture-ui';
 import { CanvasMotion } from './canvas-motion';
 import { CanvasNode } from './canvas-node';
-import { LookBar } from '../../shared/look-bar';
 import { CanvasLayout, CanvasState } from './canvas-state';
 
 interface Drag {
@@ -36,7 +35,7 @@ const LEAVE_SAVE_WAIT_MS = 6000;
 
 @Component({
   selector: 'app-canvas',
-  imports: [CanvasNode, LookBar],
+  imports: [CanvasNode],
   templateUrl: './canvas.html',
   styleUrl: './canvas.css',
 })
@@ -107,7 +106,13 @@ export class Canvas implements DoCheck {
     });
     // The action menu's Edit opens the edit bar here (Aa / AV, Themes); objects can always be moved on the Canvas.
     this.capture.menuEdit.set({ label: this.i18n.t('nav.edit'), run: () => this.lookOpen.update((v) => !v) });
-    inject(DestroyRef).onDestroy(() => { this.capture.menuEdit.set(null); this.cancelDrag(); this.motion.destroy(); this.unsaved.canvasDraft.set(false); });
+    // Edit (the action menu): Aa, AV and the Themes at the bottom right, above a round ✓ Finish that takes the menu's place
+    effect(() => {
+      const on = this.lookOpen();
+      this.capture.menuHidden.set(on);
+      this.capture.lookTools.set(on ? { px: false, finish: () => this.lookOpen.set(false) } : null);
+    });
+    inject(DestroyRef).onDestroy(() => { this.capture.menuHidden.set(false); this.capture.lookTools.set(null); this.capture.menuEdit.set(null); this.cancelDrag(); this.motion.destroy(); this.unsaved.canvasDraft.set(false); });
   }
 
   // --- What the page shows ---

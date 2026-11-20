@@ -1,6 +1,7 @@
 import { PageMenu } from '../../shared/title-fan';
 import { Ask } from '../../shared/ask';
 import { AutoColors } from '../../core/auto-colors';
+import { Undo } from '../../shared/undo';
 import { NgTemplateOutlet } from '@angular/common';
 import { ApplicationRef, Component, DestroyRef, ElementRef, Injector, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { flip, flipNow } from '../../core/flip';
@@ -13,7 +14,6 @@ import {
 import { Library, fileTask, followLibrary, nodeById, paperAge, pathOf, updateNode } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
 import { CaptureUi, MenuAction } from '../capture/capture-ui';
-import { LookBar } from '../../shared/look-bar';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { STATUSES, Status, isFinished } from '../../core/status.model';
@@ -91,7 +91,7 @@ function readFolded(): Set<string> {
 
 @Component({
   selector: 'app-week-board',
-  imports: [TaskDialog, TransferDialog, TodoDialog, NgTemplateOutlet, LookBar],
+  imports: [TaskDialog, TransferDialog, TodoDialog, NgTemplateOutlet],
   templateUrl: './week-board.html',
 })
 export class WeekBoard {
@@ -155,8 +155,9 @@ export class WeekBoard {
     effect(() => {
       this.capture.menuEdit.set(this.arrangeAction());
       this.capture.menuHidden.set(this.arranging());
+      this.capture.lookTools.set(this.arranging() ? { px: true, finish: () => this.toggleArrange() } : null);
     });
-    inject(DestroyRef).onDestroy(() => { this.capture.menuEdit.set(null); this.capture.menuHidden.set(false); this.cancelDrag?.(); });
+    inject(DestroyRef).onDestroy(() => { this.capture.menuEdit.set(null); this.capture.menuHidden.set(false); this.capture.lookTools.set(null); this.cancelDrag?.(); });
     // On entering the Week board, the view centres on now (the red line in today's column), as in Epic Manager: once
     // the week, the library (card titles) and Capture's notes (the strip at the top) are there, so nothing shifts after.
     // It waits for the page to have faded in, and a second more (Gianni: it moved the moment it came in).
@@ -441,7 +442,39 @@ export class WeekBoard {
     if (line && Math.abs(rect.top - view / 2) <= 4) { if (!this.autoScroll) this.light(); return; }   // already in the middle
     const smooth = typeof matchMedia === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.endAutoScroll(400);                                                  // no scroll at all (an edge): it still lights
-    target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: smooth ? 'smooth' : 'auto' });
+    if (!smooth) { target.scrollIntoView({ block: 'center', inline: 'nearest' }); return; }
+    // sideways on its own (wide boards whose days overflow): today's column comes into view in its row, and the page
+    // glides down to the line
+    const row = target.closest<HTMLElement>('.week');
+    const column = target.closest<HTMLElement>('article.day');
+    if (row && column && row.scrollWidth > row.clientWidth) {
+      const c = column.getBoundingClientRect(), r = row.getBoundingClientRect();
+      if (c.left < r.left || c.right > r.right) row.scrollTo({ left: row.scrollLeft + c.left - r.left - Math.max(0, (r.width - c.width) / 2), behavior: 'smooth' });
+    }
+    this.glideTo(window.scrollY + target.getBoundingClientRect().top + target.offsetHeight / 2 - view / 2);
+  }
+
+  /**
+   * A slow, soft glide of the page (Gianni: the browser's smooth scroll was far too fast): about 1.4 s, longer for a
+   * long way, easing in and out; a touch, the wheel or a click of his stops it where it is.
+   */
+  private glideTo(y: number): void {
+    const from = window.scrollY;
+    const max = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const to = Math.max(0, Math.min(max, Math.round(y)));
+    const distance = to - from;
+    if (Math.abs(distance) < 2) return;
+    const duration = Math.min(2200, 1200 + Math.abs(distance) * 0.4);
+    const started = performance.now();
+    const since = Date.now();
+    const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const frame = (now: number) => {
+      if (this.handledAt > since) return;                                     // he took over
+      const t = Math.min(1, (now - started) / duration);
+      window.scrollTo(0, from + distance * ease(t));
+      if (t < 1) requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
   }
 
   /**
@@ -466,6 +499,7 @@ export class WeekBoard {
   }
 
   private readonly autoColors = inject(AutoColors);
+  protected readonly undo = inject(Undo);
   /** Each card keeps the automatic colour it first got, wherever it moves (Gianni). */
   protected colors(block: Block): string[] {
     const colors = blockColors(block.tasks, this.autoColors.map);
@@ -821,7 +855,12 @@ export class WeekBoard {
 
   protected async deleteBlock(day: Day, block: Block): Promise<void> {
     if (!(await this.asks.ask({ message: this.i18n.t('week.confirmDeleteBlock', { block: block.name }), ok: this.i18n.t('task.delete'), danger: true }))) return;
-    this.store.update(day, (blocks) => blocks.filter((b) => b.id !== block.id));
+    // Gianni: a second chance; it goes after 5 s unless Cancel is pressed
+    // it goes from wherever it is when the time is up (it may have been moved meanwhile)
+    this.undo.later(this.i18n.t('undo.deleting', { name: block.name }), [block.id], () => {
+      const now = this.days.find((d) => this.blocks(d).some((b) => b.id === block.id));
+      if (now) this.store.update(now, (blocks) => blocks.filter((b) => b.id !== block.id));
+    });
   }
 
   protected openTransfer(day: Day, block: Block): void {
@@ -1052,7 +1091,12 @@ export class WeekBoard {
   protected async deleteTask(day: Day, block: Block, task: Task): Promise<void> {
     const message = this.i18n.t('week.confirmDeleteTask', { task: task.title || this.i18n.t('week.newTask') });
     if (!(await this.asks.ask({ message, ok: this.i18n.t('task.delete'), danger: true }))) return;
-    this.removeTask(day, block.id, task.id);
+    this.undo.later(this.i18n.t('undo.deleting', { name: task.title || this.i18n.t('week.newTask') }), [task.id], () => {
+      for (const d of this.days) {                                           // where it is now (its block may have moved)
+        const holder = this.blocks(d).find((b) => b.tasks.some((t) => t.id === task.id));
+        if (holder) { this.removeTask(d, holder.id, task.id); return; }
+      }
+    });
   }
 
   /** A block lives only through its tasks: removing its last task removes the block. */

@@ -184,15 +184,16 @@ dialog.day-overview[open] { display: flex; flex-direction: column; height: min(8
 dialog.day-overview .ov-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; align-content: start; }
 dialog.day-overview :is(.ov-days, .info-head, .info-foot, .hint) { flex: none; }
 .ov-list, .ov-list ul { list-style: none; margin: 0; padding: 0; }
-.ov-list { display: grid; gap: 14px; margin-top: 6px; font-size: calc(15px * var(--esc, 1)); }
+/* the agenda reads like the cards (Gianni): their sans-serif at the activities' size, bold, full ink */
+.ov-list { display: grid; gap: 14px; margin-top: 6px; font-size: var(--act-fs); letter-spacing: var(--act-ls); line-height: 1.35; color: var(--ink); }
 .ov-list ul { display: grid; gap: 6px; margin-top: 6px; padding-left: 14px; border-left: 2px solid color-mix(in srgb, var(--ink) 18%, transparent); }
 .ov-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
-.ov-head strong { font-family: Georgia, serif; font-size: calc(17px * var(--esc, 1)); overflow-wrap: anywhere; }
+.ov-head strong { font-size: calc(var(--act-fs) * 1.1); font-weight: 800; letter-spacing: var(--act-ls); overflow-wrap: anywhere; }
 .ov-block > .ov-head::before { content: ''; flex: none; align-self: center; width: 10px; height: 10px; border-radius: 3px; background: var(--jelly-b); }
 .ov-line, .ov-todo { display: flex; align-items: baseline; gap: 8px; }
 .ov-act > .ov-line::before { content: '•'; color: var(--ink-soft); }
 .ov-time { flex: none; color: var(--ink-soft); font-size: .88em; font-variant-numeric: tabular-nums; }
-.ov-title { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.ov-title { flex: 1 1 auto; min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
 .ov-act > .ov-line .ov-title { font-weight: 700; }
 .ov-check { flex: none; width: 1.1em; color: var(--ink-soft); }
 .ov-state { flex: none; color: var(--teal); }
@@ -258,6 +259,8 @@ dialog.editor .app-error { margin: 0 0 8px; }
 @media (max-width: 700px) {
   dialog.editor { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom)); }
   dialog.editor footer > button { flex: 1; }
+  /* the New task window fits its content (Gianni: not the whole screen) */
+  dialog.editor.todo-editor { width: calc(100vw - 24px); height: auto; max-height: calc(100dvh - 24px); border-radius: 22px; padding: 20px 18px; }
 }
 
 /* Task details: the Where (one line per level, label first) and the linked library task */
@@ -522,6 +525,8 @@ html.tilt .object { translate: calc(var(--ox, 0px) + (max(var(--tilt-k), 0) * va
 .task[data-paper]:not(.done):not(.off), .capture-list li[data-paper], .pc-activity[data-paper] { color: #2a2018; }
 .task[data-paper]:not(.done):not(.off) :is(.t-title, .t-time, .t-dur), .capture-list li[data-paper] :is(.c-text, .c-icon), .pc-activity[data-paper] strong {
   color: #2a2018; text-shadow: 0 1px 2px rgba(255, 255, 255, .65); }
+/* a week card on aged paper keeps its own colour (Gianni: the cards had lost it): the tone multiplied into the paper */
+.task[data-paper]:not(.done):not(.off), .pc-activity[data-paper] { background-color: var(--tone, #f7efe2) !important; background-blend-mode: multiply; }
 .task.done[data-paper] { background-image: linear-gradient(150deg, #fff6d2, #f6d77a) !important; background-color: #f6d77a !important; }
 .task.off[data-paper] { background-image: none !important; background-color: #d9d3e3 !important; }
 .capture-list li[data-paper] { box-shadow: 0 2px 6px rgba(0, 0, 0, .25); }
@@ -695,19 +700,11 @@ body { letter-spacing: var(--app-ls); }
 .chip { font-size: calc(14px * var(--esc)); }
 
 /* Aa / AV steppers on the Week board's top while arranging (as in Epic Manager) */
-/* the edit bar (Week board while arranging, Canvas after ✎ Edit): px, Aa, AV and Themes */
-app-look-bar { grid-column: 1 / -1; display: block; }
-.look-themes { display: inline-flex; align-items: center; gap: 6px; min-height: 42px; font-weight: 500; }
-.look-themes.on { background: var(--teal); color: #0b2f2a; }
-.canvas-look { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin: 4px 0 10px; }
-/* The edit bar floats (Gianni): it keeps its place at the top but stays in sight while the page scrolls; on the Week
-   board the whole top, always (Gianni: the title and the day chips stay, only the blocks scroll; while arranging ✓
-   Finish and the bar too), on the Canvas the bar with its Finish. Drawn on
-   the page's own colour, edge to edge, with a soft shadow under it. */
-.board-head, .canvas-look { position: sticky; z-index: 30; top: 0;
+/* The Week board's top floats (Gianni: the title and the day chips stay, only the blocks scroll), on the page's own
+   colour, edge to edge, with a soft shadow under it. */
+.board-head { position: sticky; z-index: 30; top: 0;
   margin-left: -16px; margin-right: -16px; padding: max(6px, env(safe-area-inset-top)) 16px 8px; background: var(--page);
   box-shadow: 0 8px 14px -10px rgba(0, 0, 0, .45); }
-.canvas-look { margin-top: 0; }
 .board-head { margin-bottom: 12px; }
 .board-head > .week-top { margin-bottom: 0; }
 .board-head > .day-tabs { margin: 8px 0 0; }
@@ -1194,3 +1191,42 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
 html.tilt .overdue-head { rotate: none; translate: none; }   /* the tab is part of its folder: it never leans off it */
 html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray { filter: grayscale(1) drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
 @media (min-width: 821px) { .overdue-tray { left: 50%; right: auto; width: min(560px, calc(100vw - 180px)); translate: -50% 0; } }
+
+/* Edit tools (LookStack, Gianni): while editing, round buttons stack at the bottom right above the ✓ Finish: Aa, AV,
+   Themes, px; each rises out of the Finish, the nearest first, and Aa / AV / px open a − value + pill to their left. */
+.look-stack { position: fixed; z-index: 21; right: max(16px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 64px);
+  display: flex; flex-direction: column-reverse; align-items: flex-end; gap: 12px; pointer-events: none; }
+.look-row { display: flex; align-items: center; gap: 10px; pointer-events: auto; animation: look-rise .34s cubic-bezier(0, 0, .2, 1) calc(var(--i, 0) * 40ms) backwards; }
+@keyframes look-rise { from { opacity: 0; transform: translateY(calc((var(--i, 0) + 1) * 64px)) scale(.4); } }
+.capture-fab.look-fab { position: relative; inset: auto; display: grid; place-items: center; width: 48px; height: 48px;
+  background: var(--navy-card); color: var(--ink); border: 1.5px solid color-mix(in srgb, var(--ink) 25%, transparent); font-size: 16px; }
+.capture-fab.look-fab:hover { background: color-mix(in srgb, var(--navy-card) 80%, var(--ink)); }
+.capture-fab.look-fab.open { background: var(--teal); color: #0b2f2a; border-color: var(--teal); }
+.look-icon { font-weight: 800; letter-spacing: -.02em; line-height: 1; }
+.look-icon.px { font-size: 15px; }
+.look-pill { display: flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; background: var(--navy-card); color: var(--ink);
+  box-shadow: 0 6px 18px rgba(1, 6, 29, .4); transform-origin: right center; animation: pill-in .24s cubic-bezier(0, 0, .2, 1); }
+.look-pill.closing { animation: pill-out .22s cubic-bezier(.4, 0, 1, 1) forwards; }
+@keyframes pill-in { from { opacity: 0; transform: translateX(24px) scaleX(.3); } }
+@keyframes pill-out { to { opacity: 0; transform: translateX(24px) scaleX(.3); } }
+.look-pill button { width: 42px; height: 42px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .1); color: var(--ink); font-size: 22px; font-weight: 700; }
+.look-pill button:disabled { opacity: .35; }
+.look-value { min-width: 64px; text-align: center; font-weight: 800; font-variant-numeric: tabular-nums; font-size: 15px; }
+html.tilt :is(.look-row, .look-fab, .look-pill, .look-pill button) { rotate: none; translate: none; }
+html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) .look-pill button { background: color-mix(in srgb, var(--ink) 10%, transparent); }
+@media (prefers-reduced-motion: reduce) { .look-row, .look-pill, .look-pill.closing { animation: none; } }
+
+/* A delete waits 5 s with a Cancel (Undo, Gianni): a note at the foot of the screen, what waits is dimmed */
+.undo-toast { position: fixed; z-index: 45; left: 50%; bottom: calc(max(18px, env(safe-area-inset-bottom)) + 70px); translate: -50% 0;
+  display: flex; align-items: center; gap: 12px; width: max-content; max-width: calc(100vw - 32px); padding: 8px 8px 8px 12px; border-radius: 18px;
+  background: var(--navy-card, #1b2757); color: var(--ink); box-shadow: 0 10px 30px #0008; animation: notice-in .25s ease-out; }
+.undo-ring { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--pink);
+  font-weight: 800; font-variant-numeric: tabular-nums; }
+.undo-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
+.undo-cancel { flex: none; min-height: 42px; padding: 0 18px; border: 0; border-radius: 999px; background: var(--pink); color: var(--card-ink); font-weight: 800; font-size: 15px; }
+.undo-toast.in-panel { position: sticky; left: auto; bottom: 8px; translate: none; margin: 10px auto 0; z-index: 2; }
+.deleting { opacity: .4; filter: grayscale(.6); transition: opacity .3s ease, filter .3s ease; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .undo-toast { animation: none; } }
+/* The Canvas title is a button (it opens the pages): the Canvas's small pill buttons' look must not reach it
+   (Gianni: it had made the title tiny) */
+.canvas-page h1 .title-btn, .canvas-page h1 .title-btn:hover { padding: 0; background: none; color: inherit; font-size: inherit; font-weight: inherit; }

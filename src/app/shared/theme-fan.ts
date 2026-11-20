@@ -1,6 +1,6 @@
 import { Component, ElementRef, Injectable, Injector, afterNextRender, effect, inject, signal, untracked, viewChild, viewChildren } from '@angular/core';
 import { I18n } from '../core/i18n';
-import { flyTiles, placeBelow } from './fan';
+import { flyTiles, placeBelow, placeLeft } from './fan';
 import { DARK_THEMES, LIGHT_THEMES, THEME_BAR, Theme, ThemeService } from '../core/theme';
 
 
@@ -78,7 +78,7 @@ export class ThemeFan {
   private show(anchor: HTMLElement): void {
     this.from = anchor;
     this.open.set(true);
-    afterNextRender(() => { placeBelow(anchor, this.fanBox()?.nativeElement); this.fly(true); }, { injector: this.injector });
+    afterNextRender(() => { (anchor.closest('.look-stack') ? placeLeft : placeBelow)(anchor, this.fanBox()?.nativeElement); this.fly(true); }, { injector: this.injector });
   }
 
   /** Draws the tiles back into the button, then removes them; focus returns to the button after Esc. */

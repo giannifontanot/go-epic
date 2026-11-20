@@ -195,6 +195,8 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'task.auto': { en: 'Automatic', es: 'Automático' },
   'task.active': { en: 'Active', es: 'Activo' },
   'task.cancel': { en: 'Cancel', es: 'Cancelar' },
+  'undo.deleting': { en: 'Deleting "{name}"…', es: 'Eliminando "{name}"…' },
+  'look.tools': { en: 'Edit tools', es: 'Herramientas de edición' },
   'ask.ok': { en: 'OK', es: 'Entendido' },
   'task.done': { en: 'Done', es: 'Listo' },
   'task.nameRequired': { en: 'Give it a name.', es: 'Ponle un nombre.' },

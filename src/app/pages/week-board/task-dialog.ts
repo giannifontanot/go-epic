@@ -161,12 +161,12 @@ export interface TaskSave {
               @if (option.story) {
                 <span class="pc-feature"><small>{{ i18n.t('canvas.feature') }}</small><strong>@for (part of hits(option.feature); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong>
                   <span class="pc-story"><small>{{ i18n.t('canvas.story') }}</small><strong>@for (part of hits(option.story); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong>
-                    <span class="pc-activity" [style.background]="option.paper === null ? option.tone : null" [attr.data-paper]="option.paper">
+                    <span class="pc-activity" [style.background]="option.paper === null ? option.tone : null" [style.--tone]="option.tone" [attr.data-paper]="option.paper">
                       <small>{{ i18n.t('canvas.task') }}</small><strong>@for (part of hits(option.node.title); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong></span>
                   </span>
                 </span>
               } @else {
-                <span class="pc-activity" [style.background]="option.paper === null ? option.tone : null" [attr.data-paper]="option.paper">
+                <span class="pc-activity" [style.background]="option.paper === null ? option.tone : null" [style.--tone]="option.tone" [attr.data-paper]="option.paper">
                   <small>{{ i18n.t('canvas.task') }}</small><strong>@for (part of hits(option.node.title); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong></span>
               }
             </span>

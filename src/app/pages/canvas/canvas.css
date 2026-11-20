@@ -2,7 +2,8 @@
 :host { display:block; }
 .canvas-page { color:var(--ink); padding:0 0 8px; }
 .page-header { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:14px; }
-h1 { margin:0; font-size:30px; letter-spacing:-.04em; line-height:1; }.title-dot { color:var(--jelly-b); margin-left:10px; font-size:22px; }
+h1 { margin:0; font-size:34px; letter-spacing:-.04em; line-height:1; }
+.title-dot { color:var(--jelly-b); margin-left:10px; font-size:22px; }
 .toolbar { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
 .status { padding:8px; color:#a9e5cf; font-size:12px; }.status::before { content:'●'; margin-right:6px; }.status.dirty { color:var(--jelly-b); }
 button { border:0; border-radius:999px; padding:9px 12px; min-height:40px; background:rgba(255,255,255,.08); color:var(--ink-soft); font-size:12px; font-weight:700; }
