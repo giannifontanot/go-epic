@@ -124,9 +124,9 @@
     /* Phones: room to breathe at the top (Gianni found it crowded). One quiet language chip instead of the two-part switch,
        the motto on three lines with space around it, the mission set apart under a short gold rule. */
     @media (max-width: 879px) {
-      .lang { padding: 0; background: transparent; }
-      .lang button[aria-pressed="true"] { display: none; }
-      .lang button { min-width: 44px; min-height: 40px; border: 1px solid rgba(0, 0, 0, .12); color: var(--ink); }
+      .lang { padding: 0 10px; background: transparent; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .12); }
+      .lang .lang-name { display: none; }
+      .lang .lang-code { display: inline; }
       .top { padding-bottom: 10px; }
       .mission { padding-top: 14px; position: relative; max-width: 20em; }
       .mission::before { content: ''; position: absolute; top: 0; left: 50%; width: 36px; height: 2px; margin-left: -18px; border-radius: 2px; background: #c9a227; }
@@ -140,10 +140,18 @@
       html.js body[data-slide="0"] .emblem { translate: 0 calc(-1 * var(--up, 0px)); }
     }
     .top .wm { flex: none; }
-    .lang { margin-left: auto; display: inline-flex; padding: 2px; border-radius: 999px; background: var(--soft); }
-    .lang button { border: 0; background: transparent; min-width: 40px; min-height: 36px; border-radius: 999px; cursor: pointer;
-      font-size: 13px; font-weight: 600; color: var(--mute); transition: background-color .3s, color .3s; }
-    .lang button[aria-pressed="true"] { background: var(--seg); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+    /* The language switch is a list, not a pair of buttons, so more languages can join it (Gianni): a pill with a globe,
+       the language in use and a chevron, over an invisible native <select> that opens the list. */
+    .lang { margin-left: auto; position: relative; display: inline-flex; align-items: center; gap: 6px; min-width: 40px; min-height: 40px;
+      padding: 0 12px; border-radius: 999px; background: var(--soft); color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer; }
+    .lang svg { flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .lang .globe { width: 17px; height: 17px; color: var(--mute); }
+    .lang .lang-chev { width: 10px; height: 10px; color: var(--mute); stroke-width: 2; }
+    .lang-code { display: none; }
+    .lang select { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; border: 0; border-radius: 999px; opacity: 0;
+      cursor: pointer; font-size: 16px; -webkit-appearance: none; appearance: none; }
+    .lang:hover { color: #101b42; }
+    .lang:has(select:focus-visible) { outline: 2px solid #c9a227; outline-offset: 2px; }
     .pill { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; text-decoration: none;
       background: var(--btn); color: var(--btn-ink); font-weight: 600; transition: background-color .8s, color .8s, transform .2s var(--spring); }
     .pill:hover { transform: scale(1.03); }
@@ -580,10 +588,15 @@
 <body data-slide="0">
   <header class="top">
     <p class="wm" translate="no"><span class="go">Go</span> <span class="gold">Epic!</span></p>
-    <div class="lang" role="group" aria-label="Language / Idioma">
-      <button type="button" data-lang="en" aria-pressed="true">EN</button>
-      <button type="button" data-lang="es" aria-pressed="false">ES</button>
-    </div>
+    <label class="lang">
+      <svg class="globe" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.2"/><path d="M1.8 9h14.4M9 1.8c2 2 3 4.4 3 7.2s-1 5.2-3 7.2c-2-2-3-4.4-3-7.2s1-5.2 3-7.2Z"/></svg>
+      <span class="lang-name" aria-hidden="true">English</span><span class="lang-code" aria-hidden="true">EN</span>
+      <svg class="lang-chev" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5"/></svg>
+      <select aria-label="Language / Idioma">
+        <option value="en" lang="en">English</option>
+        <option value="es" lang="es">Español</option>
+      </select>
+    </label>
     <!-- placeholder download link: set GET_GO_EPIC_URL in the script at the bottom -->
     <a class="pill small js-get" href="#get-go-epic-link-coming-soon" data-i="get_short">Download</a>
   </header>
@@ -1122,25 +1135,29 @@
     // Language
     var nodes = document.querySelectorAll('[data-i]'), EN = {};
     nodes.forEach(function (el) { EN[el.dataset.i] = el.innerHTML; });
+    // Every language is an <option> of the switch and a dictionary here; English is the page's own text.
+    var DICTS = { en: EN, es: ES }, langSelect = document.querySelector('.lang select');
     function setLang(next) {
-      lang = next === 'es' ? 'es' : 'en';
-      var dict = lang === 'es' ? ES : EN;
+      lang = DICTS[next] ? next : 'en';
+      var dict = DICTS[lang];
       nodes.forEach(function (el) { var v = dict[el.dataset.i]; if (v != null) el.innerHTML = v; });
       document.documentElement.lang = lang;
       document.title = META[lang].title;
       document.querySelector('meta[name="description"]').content = META[lang].desc;
-      document.querySelectorAll('.lang button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === lang)); });
+      langSelect.value = lang;
+      var opt = langSelect.options[langSelect.selectedIndex];
+      document.querySelector('.lang-name').textContent = opt.textContent;
+      document.querySelector('.lang-code').textContent = lang.toUpperCase();
       try { localStorage.setItem('go-epic-get-lang', lang); } catch (e) {}
       if (cur >= 0) labels();
       if (reduce && LOOPS) play(document.querySelector('.screen.on'));
     }
-    document.querySelectorAll('.lang button').forEach(function (b) {
-      b.addEventListener('click', function () { setLang(b.dataset.lang); });
-    });
+    langSelect.addEventListener('change', function () { setLang(langSelect.value); });
     var wanted = new URLSearchParams(location.search).get('lang');
     if (!wanted) { try { wanted = localStorage.getItem('go-epic-get-lang'); } catch (e) {} }
-    if (!wanted) wanted = (navigator.language || '').toLowerCase().indexOf('es') === 0 ? 'es' : 'en';
-    if (wanted === 'es') setLang('es');
+    if (!wanted) wanted = (navigator.language || '').toLowerCase().split('-')[0];
+    wanted = (wanted || '').toLowerCase();
+    setLang(DICTS[wanted] ? wanted : 'en');
     show(0);
 
     // Download buttons: the real link when GET_GO_EPIC_URL has one, else a friendly "coming soon" note.
