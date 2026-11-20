@@ -370,7 +370,7 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 html .action-stack .capture-fab.act-fab.edit-fab.edit-fab { box-shadow: 0 0 0 4.5px var(--edit-red, #e5484d), 0 3px 10px rgba(1, 6, 29, .3); }   /* a little thicker (Gianni) */
 html:is([data-theme='office'], [data-theme='graphite']) { --edit-red: #b4504b; }
 .page-fab { z-index: 22; }
-.page-fab.open { background: var(--teal); }
+.page-fab.open, .theme-act.open { background: var(--teal); }
 /* the pages (Gianni): pills that fan out to the left of their button, the page you are on marked */
 .page-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 72px); display: grid; gap: 8px; width: min(220px, calc(100vw - 104px)); }
 .page-tile { position: relative; display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 16px;
@@ -1149,7 +1149,7 @@ html:is([data-theme='office'], [data-theme='graphite']) .sparkle { color: var(--
 /* text on the accent greys (selected chips, primary buttons, the menu's current page, done dots) */
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.chip.quiet.on, .finish-fab, .primary, .page-tile.on, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary,
   .ask-actions .ask-ok:not(.danger), .ov-days button[aria-selected='true'], .status-options button.on, .day-tabs button[aria-selected='true'], .menu-fab.open,
-  .page-fab.open, .pick-choose, .t-state:is([data-status='done'], [data-status='progress'])) { color: var(--g-on-ink) !important; }
+  .page-fab.open, .theme-act.open, .pick-choose, .t-state:is([data-status='done'], [data-status='progress'])) { color: var(--g-on-ink) !important; }
 /* every button filled with the theme's strong accent carries the theme's light ink on it (Gianni: dark text on Pink Pop's
    strong pink could not be read); the dark themes' accents are pale, so there the same token is dark ink */
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.primary, button.primary, .capture-fab:not(.finish-fab)):hover:not(:disabled) { background: color-mix(in srgb, var(--pink) 85%, #000) !important; }   /* hover darkens the theme's accent; the fixed pale-pink hover would wash out its ink */
