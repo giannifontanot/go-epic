@@ -388,12 +388,12 @@
     .round:disabled { opacity: .3; cursor: default; }
     .round:not(:disabled):active { transform: scale(.92); }
     .round svg, .next svg { width: 18px; height: 18px; flex: none; }
-    .dotsnav { display: flex; align-items: center; }
-    .dotsnav button { display: grid; place-items: center; width: 18px; height: 40px; padding: 0; border: 0; background: transparent; cursor: pointer;
-      transition: width .4s var(--spring); }
+    /* Small dots, 40px tap targets: on phones they get their own row above Back / Next */
+    .nav { flex-wrap: wrap; row-gap: 2px; }
+    .dotsnav { display: flex; align-items: center; justify-content: center; order: -1; flex: 1 0 100%; }
+    .dotsnav button { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; background: transparent; cursor: pointer; }
     .dotsnav button::before { content: ''; width: 7px; height: 7px; border-radius: 999px; background: var(--dot); transition: width .4s var(--spring), background-color .4s; }
     .dotsnav button[aria-current="step"]::before { width: 18px; background: var(--ink); }
-    .dotsnav button[aria-current="step"] { width: 26px; }
     .next { min-height: 48px; min-width: 128px; white-space: nowrap; padding: 0 20px 0 24px; border: 0; cursor: pointer; font-size: 16px; }
     .toast { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom)); z-index: 40; max-width: min(92vw, 420px);
       padding: 13px 20px; border-radius: 16px; background: rgba(29, 29, 31, .92); color: #fff; font-size: 15px; text-align: center;
@@ -401,11 +401,14 @@
       -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-    @media (min-width: 600px) {
-      .dotsnav button { width: 22px; height: 44px; }
-      .dotsnav button[aria-current="step"] { width: 30px; }
-      .nav { gap: 18px; padding-top: 14px; }
+    @media (min-width: 720px) {
+      .nav { flex-wrap: nowrap; gap: 18px; padding-top: 14px; }
+      .dotsnav { order: 0; flex: none; }
+      .dotsnav button { width: 44px; height: 44px; }
     }
+    /* 320px phones: the eight 40px dots may use the side padding too */
+    @media (max-width: 359px) { .dotsnav { margin-inline: -18px; } }
+    @media (max-width: 719px) { .toast { bottom: calc(128px + env(safe-area-inset-bottom)); } }
     /* Side by side: the words left, the phone right */
     @media (min-width: 880px) {
       .stage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .9fr); align-items: center; gap: 48px; padding: 0 48px; }
