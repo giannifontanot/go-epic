@@ -91,7 +91,7 @@
             <ul class="tasks">
               @for (task of block.tasks; track task.id; let ti = $index, tfirst = $first, tlast = $last) {
                 <li class="task" [class.deleting]="undo.isPending(task.id)" [attr.data-flip]="task.id" [attr.data-task]="task.id" [style.--tone]="tones[ti]" [style.--mins]="shownMinutes(task)" [class.done]="isDone(day, task)" [attr.data-status]="day === store.today() ? store.status(task.id) : null" [class.off]="!task.active"
-                    (click)="cardTap(day, block, task)" (pointerdown)="pressStart($event, day, task)" (pointermove)="pressMove($event)"
+                    (click)="cardTap($event, day, block, ti, task, tones[ti])" (pointerdown)="pressStart($event, day, task)" (pointermove)="pressMove($event)"
                     (pointerup)="pressEnd()" (pointerleave)="pressEnd()" (pointercancel)="pressEnd()" (contextmenu)="cardMenu($event, day, task)">
                   <!-- Capture's tasks at an hour: on top of the activity running then, else the closest one in time, in the card's
                        flow (Gianni: not hovering over it), by hour -->
@@ -116,32 +116,32 @@
                       <button type="button" class="t-grip" [attr.aria-label]="i18n.t('week.dragTask') + ': ' + task.title" [title]="i18n.t('week.dragTask')"
                               (click)="$event.stopPropagation()" (pointerdown)="startTaskDrag($event, day, block, task)">⠿</button>
                     }
+                    <!-- Today's state in a circle at the activity's left (Gianni, as in Google Tasks): a tap on it marks Done (again: To do),
+                         a tap on the rest of the card opens where it lives, a long press anywhere opens the state menu. Only today's column
+                         (states are kept per date); while arranging it only shows a state, the card's tap opens its details. -->
+                    @if (cardStatus(day, task); as st) {
+                      @if (!arranging()) {
+                        <button type="button" class="t-state" [attr.data-status]="st" role="checkbox" [attr.aria-checked]="st === 'done' || st === 'late'"
+                                [attr.aria-label]="i18n.t('status.' + st) + ': ' + task.title" [title]="i18n.t(st === 'done' || st === 'late' ? 'week.markTodo' : 'focus.markDone')"
+                                (click)="circleTap($event, block, task)">
+                          <ng-container [ngTemplateOutlet]="stateIcon" [ngTemplateOutletContext]="{ $implicit: st }" />
+                        </button>
+                      } @else if (st !== 'todo') {
+                        <span class="t-state" [attr.data-status]="st" role="img" [attr.aria-label]="i18n.t('status.' + st)" [title]="i18n.t('status.' + st)">
+                          <ng-container [ngTemplateOutlet]="stateIcon" [ngTemplateOutletContext]="{ $implicit: st }" />
+                        </span>
+                      }
+                    }
                     <span class="t-time">{{ startLabel(block, ti) }}</span>
                     @if (arranging()) {
                       <span class="t-title" [title]="task.title">{{ task.title || i18n.t('week.newTask') }}</span>
                     } @else {
-                      <!-- A tap on the title shows where the activity lives (Gianni); the rest of the card keeps its Done tap -->
+                      <!-- A tap on the title (as on the rest of the card) shows where the activity lives; the circle at the left marks Done -->
                       <!-- the outer span is the ≥ 40px tap target; the inner one keeps the title's 3-line wrap -->
                       <span class="t-link" role="button" tabindex="0" [title]="i18n.t('week.openInfo')"
                             [attr.aria-label]="i18n.t('week.openInfo') + ': ' + task.title"
                             (click)="titleTap($event, block, ti, task, tones[ti])" (keydown.enter)="titleTap($event, block, ti, task, tones[ti])"
                             (keydown.space)="titleTap($event, block, ti, task, tones[ti])"><span class="t-title">{{ task.title || i18n.t('week.newTask') }}</span></span>
-                    }
-                    <!-- Today's state: a small figure at the activity's top right, in the theme's colours (Gianni: no pill in the
-                         middle); in the row, so it never covers a pinned note -->
-                    @if (cardStatus(day, task); as st) {
-                      @if (st !== 'todo') {
-                        <span class="t-state" [attr.data-status]="st" role="img" [attr.aria-label]="i18n.t('status.' + st)" [title]="i18n.t('status.' + st)">
-                          <svg viewBox="0 0 24 24" aria-hidden="true">
-                            @switch (st) {
-                              @case ('done') { <path class="t-check" d="M5 12.5l4.5 4.5L19 7" /> }
-                              @case ('late') { <circle cx="12" cy="12" r="7.5" /><path d="M12 8v4.5l3 2" /> }
-                              @case ('progress') { <circle cx="12" cy="12" r="7.5" /><path class="fill" d="M12 4.5a7.5 7.5 0 0 1 0 15z" /> }
-                              @case ('skipped') { <path d="M6 7l5 5-5 5M13 7l5 5-5 5" /> }
-                            }
-                          </svg>
-                        </span>
-                      }
                     }
                     @if (arranging()) {
                       <span class="t-tools">
@@ -289,7 +289,7 @@
   }
 </dialog>
 
-<!-- Where an activity lives: a tap on its title (locked board) opens this card, drawn as in the Canvas -->
+<!-- Where an activity lives: a tap on the card (locked board, not its circle) opens this card, drawn as in the Canvas -->
 <dialog #infoDialog class="info-card" [attr.aria-label]="i18n.t('week.infoTitle')" (click)="onInfoBackdrop($event)" (close)="info.set(null)">
   @if (info(); as open) {
     @let p = infoPath();
@@ -333,3 +333,15 @@
 @if (editingTodo(); as todo) {
   <app-todo-dialog [todo]="todo" [isNew]="!todo.id" [day]="editingDay()" (save)="saveTodo($event)" (closed)="editingTodo.set(null)" />
 }
+
+<!-- The figure of a state inside a card's circle: Done ✓, Late a clock, In progress a half-filled circle, Skipped ›› (To do: empty) -->
+<ng-template #stateIcon let-st>
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    @switch (st) {
+      @case ('done') { <path class="t-check" d="M5 12.5l4.5 4.5L19 7" /> }
+      @case ('late') { <circle cx="12" cy="12" r="7.5" /><path d="M12 8v4.5l3 2" /> }
+      @case ('progress') { <circle cx="12" cy="12" r="7.5" /><path class="fill" d="M12 4.5a7.5 7.5 0 0 1 0 15z" /> }
+      @case ('skipped') { <path d="M6 7l5 5-5 5M13 7l5 5-5 5" /> }
+    }
+  </svg>
+</ng-template>
