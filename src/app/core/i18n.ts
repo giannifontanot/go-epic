@@ -31,6 +31,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'capture.delete': { en: 'Delete', es: 'Eliminar' },
   'status.title': { en: 'State', es: 'Estado' },
   'week.openInfo': { en: 'See where this activity lives', es: 'Ver dónde vive esta actividad' },
+  'week.markTodo': { en: 'Mark as to do', es: 'Marcar como pendiente' },
   'week.infoTitle': { en: 'Where this activity lives', es: 'Dónde vive esta actividad' },
   'week.infoClose': { en: 'Close', es: 'Cerrar' },
   'status.todo': { en: 'To do', es: 'Pendiente' },

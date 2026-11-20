@@ -95,6 +95,7 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 .task { position: relative; display: flex; flex-direction: column; justify-content: space-between;
   min-height: calc(36px + var(--mins, 0) * var(--px-min, .5px)); padding: 6px 12px 4px; border-radius: 16px;   /* thin to start (Gianni), px grows them */
   background: var(--tone); color: var(--card-ink); box-shadow: 0 5px 0 rgba(48, 39, 70, .25); }
+.board.locked .task { cursor: pointer; }   /* a tap opens where it lives; its circle marks Done */
 .board:not(.locked) .task { cursor: pointer; transition: translate .18s ease, rotate .18s ease; }
 @media (hover: hover) { .board:not(.locked) .task:hover { translate: 0 -3px; rotate: -.35deg; } }
 .task-row { display: flex; align-items: flex-start; gap: 8px; }
@@ -890,12 +891,20 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 /* On top of the activity at their hour, in the card's flow (Gianni: not hovering over it) */
 .todo-pins { list-style: none; margin: -2px -4px 8px; padding: 0; display: grid; gap: 4px; cursor: default; }
 
-/* Today's state on a Week card (tap = Done, long press = menu): a small figure at the activity's top right, in the
-   theme's colours (Gianni: no pill in the middle). It sits in the activity's row, so it never covers a pinned note.
-   Done ✓ teal, Late a clock on the jelly gold, In progress a half-filled circle on pink, Skipped ›› on plum. */
-.t-state { flex: none; display: grid; place-items: center; width: 26px; height: 26px; margin: -2px -4px 0 0; border-radius: 50%;
-  background: var(--teal); color: var(--card-ink); box-shadow: 0 0 0 2px var(--light), 0 2px 6px rgba(0, 0, 0, .18); pointer-events: none; }
-.t-state svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+/* Today's state on a Week card: a circle at the activity's left (Gianni, as in Google Tasks). A tap on it marks Done
+   (again: To do), a tap on the rest of the card opens where it lives, a long press opens the state menu. To do is an
+   empty ring; Done ✓ on teal (gold in the Go Epic themes), Late a clock on the jelly gold, In progress a half-filled
+   circle on pink, Skipped ›› on plum. 30px to see, 44px to tap (its ::after), without making the card taller. */
+.t-state { flex: none; position: relative; display: grid; place-items: center; width: 30px; height: 30px; margin: -4px 0 -4px -4px; padding: 0;
+  border: 0; border-radius: 50%; font: inherit; line-height: 1;
+  background: var(--teal); color: var(--card-ink); box-shadow: 0 0 0 2px var(--light), 0 2px 6px rgba(0, 0, 0, .18); }
+span.t-state { pointer-events: none; }
+button.t-state { cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+button.t-state::after { content: ''; position: absolute; inset: -7px; border-radius: 50%; }
+button.t-state:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+.t-state[data-status='todo'] { background: rgba(255, 255, 255, .6); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--card-ink) 55%, transparent); }
+@media (hover: hover) { button.t-state[data-status='todo']:hover { background: rgba(255, 255, 255, .85); } }
+.t-state svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
 .t-state .t-check { stroke-width: 3.2; }
 .t-state .fill { fill: currentColor; stroke: none; }
 .t-state[data-status='late'] { background: var(--jelly-b); color: var(--jelly-ink); }
@@ -1206,6 +1215,11 @@ html:is([data-theme='office'], [data-theme='graphite']) .pick-card mark { backgr
 html:is([data-theme='office'], [data-theme='graphite']) .task.done, html:is([data-theme='office'], [data-theme='graphite']) .task.done[data-paper] { background: var(--g-done) !important; background-image: none !important; box-shadow: inset 0 3px 6px rgba(0, 0, 0, .18); }
 html:is([data-theme='office'], [data-theme='graphite']) .task.done > * { color: var(--g-done-ink); }
 html:is([data-theme='office'], [data-theme='graphite']) .t-state { background: var(--g-badge); color: var(--g-done-ink); box-shadow: 0 0 0 1.5px var(--g-badge-ring); }
+/* the light themes' day and block tones are pale: Late and Skipped circles there take the card's ink and a ring, so their
+   figure reads (their light ink vanished on Skipped's pale plum) */
+html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='goepiclight']) .t-state:is([data-status='late'], [data-status='skipped']) {
+  color: var(--card-ink); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--card-ink) 40%, transparent), 0 2px 6px rgba(0, 0, 0, .12); }
+html[data-theme='graphite'] .t-state[data-status='todo'] { background: transparent; }   /* an empty ring on the grey card */
 /* the check boxes: grey inside, never white (Gianni) */
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-check, .todo-check) { background: var(--g-check); border-color: var(--g-check-edge); color: var(--g-done-ink); }
 html:is([data-theme='office'], [data-theme='graphite']) .t-track input { background: var(--g-check); border-color: var(--g-check-edge); }   /* no white in the grey themes */
