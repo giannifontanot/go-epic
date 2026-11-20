@@ -119,6 +119,16 @@ export class WeekBoard {
   }
 
   constructor() {
+    // The tray opens as tall as its tasks need (Gianni: no scroll inside it), so the week leaves exactly that much
+    // room under its last block: its height, followed as it opens, folds and gains tasks, goes to --tray-h.
+    effect((onCleanup) => {
+      const tray = this.trayEl()?.nativeElement;
+      const board = this.boardEl()?.nativeElement;
+      if (!tray || !board || typeof ResizeObserver === 'undefined') return;
+      const watch = new ResizeObserver(() => board.style.setProperty('--tray-h', `${Math.ceil(tray.getBoundingClientRect().height)}px`));
+      watch.observe(tray);
+      onCleanup(() => { watch.disconnect(); board.style.removeProperty('--tray-h'); });
+    });
     // A refusal's note (no room in a block) fades by itself after a few seconds
     effect((onCleanup) => {
       if (!this.notice()) return;
@@ -481,6 +491,8 @@ export class WeekBoard {
   protected readonly statuses = STATUSES;
   protected readonly picking = signal<Task | null>(null);
   private readonly statusDialog = viewChild<ElementRef<HTMLDialogElement>>('statusDialog');
+  private readonly boardEl = viewChild<ElementRef<HTMLElement>>('board');
+  private readonly trayEl = viewChild<ElementRef<HTMLElement>>('tray');
   private pressTimer: ReturnType<typeof setTimeout> | null = null;
   private pressAt: { x: number; y: number } | null = null;
   private longPressed = false;
