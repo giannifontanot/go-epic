@@ -443,6 +443,14 @@ export class WeekBoard {
     const smooth = typeof matchMedia === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.endAutoScroll(400);                                                  // no scroll at all (an edge): it still lights
     if (!smooth) { target.scrollIntoView({ block: 'center', inline: 'nearest' }); return; }
+    // sideways on its own (wide boards whose days overflow): today's column comes into view in its row, and the page
+    // glides down to the line
+    const row = target.closest<HTMLElement>('.week');
+    const column = target.closest<HTMLElement>('article.day');
+    if (row && column && row.scrollWidth > row.clientWidth) {
+      const c = column.getBoundingClientRect(), r = row.getBoundingClientRect();
+      if (c.left < r.left || c.right > r.right) row.scrollTo({ left: row.scrollLeft + c.left - r.left - Math.max(0, (r.width - c.width) / 2), behavior: 'smooth' });
+    }
     this.glideTo(window.scrollY + target.getBoundingClientRect().top + target.offsetHeight / 2 - view / 2);
   }
 
