@@ -99,13 +99,13 @@
                   @if (notes.length) {
                     <ul class="todo-pins" (click)="$event.stopPropagation()" (pointerdown)="$event.stopPropagation()">
                       @for (todo of notes; track todo.id) {
-                        <li class="todo-note pinned" [class.checked]="todo.done !== null">
-                          <button type="button" class="todo-check" role="checkbox" [attr.aria-checked]="todo.done !== null"
+                        <li class="todo-note pinned" [class.checked]="todo.done !== null" (click)="editTodo(todo, day)">
+                          <button type="button" class="todo-check t-state" [attr.data-status]="todo.done !== null ? 'done' : 'todo'" role="checkbox" [attr.aria-checked]="todo.done !== null"
                                   [attr.aria-label]="i18n.t(todo.done !== null ? 'capture.uncheck' : 'capture.check') + ': ' + todo.title"
-                                  (click)="todos.setDone(todo.id, todo.done === null, dates()[day])">{{ todo.done !== null ? '✓' : '' }}</button>
+                                  (click)="$event.stopPropagation(); todos.setDone(todo.id, todo.done === null, dates()[day])"><ng-container [ngTemplateOutlet]="stateIcon" [ngTemplateOutletContext]="{ $implicit: todo.done !== null ? 'done' : 'todo' }" /></button>
                           <span class="todo-title">{{ todo.title }}</span><span class="todo-time">{{ todo.time }}</span>
                           <button type="button" class="todo-edit" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
-                                  (click)="editTodo(todo, day)">✎</button>
+                                  (click)="$event.stopPropagation(); editTodo(todo, day)">✎</button>
                         </li>
                       }
                     </ul>
@@ -217,10 +217,10 @@
               @let late = day === store.today() && todo.date !== null && todo.date < dates()[day] && !todo.repeat.length;
               <!-- In the strip a task keeps its own colour and paper, as in Capture (Gianni: not yellow) -->
               <li class="todo-note own" [class.checked]="todo.done !== null" [class.overdue]="late"
-                  [attr.data-paper]="todoPaper(todo)" [style.--tone]="todos.tones().get(todo.id)">
-                <button type="button" class="todo-check" role="checkbox" [attr.aria-checked]="todo.done !== null"
+                  [attr.data-paper]="todoPaper(todo)" [style.--tone]="todos.tones().get(todo.id)" (click)="editTodo(todo, day)">
+                <button type="button" class="todo-check t-state" [attr.data-status]="todo.done !== null ? 'done' : 'todo'" role="checkbox" [attr.aria-checked]="todo.done !== null"
                         [attr.aria-label]="i18n.t(todo.done !== null ? 'capture.uncheck' : 'capture.check') + ': ' + todo.title"
-                        (click)="$event.stopPropagation(); todos.setDone(todo.id, todo.done === null, dates()[day])">{{ todo.done !== null ? '✓' : '' }}</button>
+                        (click)="$event.stopPropagation(); todos.setDone(todo.id, todo.done === null, dates()[day])"><ng-container [ngTemplateOutlet]="stateIcon" [ngTemplateOutletContext]="{ $implicit: todo.done !== null ? 'done' : 'todo' }" /></button>
                 <span class="todo-title">{{ todo.title }}@if (late) { <small class="todo-from">{{ fromLabel(todo) }}</small> }</span>@if (todo.time) { <span class="todo-time">{{ todo.time }}</span> }
                 <button type="button" class="todo-edit" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
                         (click)="$event.stopPropagation(); editTodo(todo, day)">✎</button>
@@ -245,13 +245,14 @@
         @for (item of trayItems(); track item.todo.id) {
           @let todo = item.todo;
           <!-- a task checked here stays, ticked, until the tray is opened again (Gianni) -->
-          <li class="todo-note own overdue" [class.checked]="item.checked" [attr.data-paper]="todoPaper(todo)" [style.--tone]="todos.tones().get(todo.id)">
-            <button type="button" class="todo-check" role="checkbox" [attr.aria-checked]="item.checked"
+          <li class="todo-note own overdue" [class.checked]="item.checked" [attr.data-paper]="todoPaper(todo)" [style.--tone]="todos.tones().get(todo.id)"
+              (click)="editTodo(todo, store.today())">
+            <button type="button" class="todo-check t-state" [attr.data-status]="item.checked ? 'done' : 'todo'" role="checkbox" [attr.aria-checked]="item.checked"
                     [attr.aria-label]="i18n.t(item.checked ? 'capture.uncheck' : 'capture.check') + ': ' + todo.title"
-                    (click)="trayCheck(item)">{{ item.checked ? '✓' : '' }}</button>
+                    (click)="$event.stopPropagation(); trayCheck(item)"><ng-container [ngTemplateOutlet]="stateIcon" [ngTemplateOutletContext]="{ $implicit: item.checked ? 'done' : 'todo' }" /></button>
             <span class="todo-title">{{ todo.title }} <small class="todo-from">{{ item.label }}</small></span>@if (todo.time) { <span class="todo-time">{{ todo.time }}</span> }
             <button type="button" class="todo-edit" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
-                    (click)="editTodo(todo, store.today())">✎</button>
+                    (click)="$event.stopPropagation(); editTodo(todo, store.today())">✎</button>
           </li>
         }
       </ul>

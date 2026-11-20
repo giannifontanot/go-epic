@@ -874,10 +874,16 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 
 /* Capture's tasks (todo.model): a ☐ that checks them; in the Week a small yellow sticky note, pinned over the activity
    at its hour (top = that hour's share of the card) or, without one, in a strip at the foot of the day. */
-.c-check, .todo-check { flex: none; width: 40px; height: 40px; min-height: 40px; padding: 0; border: 2px solid rgba(48, 39, 70, .55); border-radius: 8px;
-  background: rgba(255, 255, 255, .7); color: #0d9488; font-size: 18px; font-weight: 900; line-height: 1; display: grid; place-items: center; }
-.c-check { margin: 6px 4px 6px 0; }
-.c-check.on { background: #d9f5ef; border-color: #0d9488; }
+/* Their check is the square sister of the activities' circle (`.t-state`, Gianni: tasks are square, events round, in
+   harmony): the same 30px size (44px to tap), ring, fill, ink and ✓ on teal (gold in the Go Epic themes), only with
+   modest corners */
+.t-state.c-check { margin: 0 4px 0 2px; }
+.t-state.todo-check { margin: -4px 0; }
+/* a pinned note's square sits right above the activity's circle, on the same centre (Gianni): the note starts 4px left of
+   the card's content (.todo-pins) and pads 6px, the circle starts 2px into it; both are 30px wide, so both start 2px in */
+.todo-note { cursor: pointer; }   /* a tap on a note opens its editor, as ✎ does */
+.t-state:is(.c-check, .todo-check) { border-radius: 8px; }
+.t-state:is(.c-check, .todo-check)::after { border-radius: 12px; }
 .c-when { display: block; margin-top: 2px; font-size: 12px; font-weight: 600; opacity: .7; }
 .capture-list.finished li { background: #eceaf0; }
 .capture-list.finished .c-text { text-decoration: line-through; opacity: .7; }
@@ -895,7 +901,7 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
    (again: To do), a tap on the rest of the card opens where it lives, a long press opens the state menu. To do is an
    empty ring; Done ✓ on teal (gold in the Go Epic themes), Late a clock on the jelly gold, In progress a half-filled
    circle on pink, Skipped ›› on plum. 30px to see, 44px to tap (its ::after), without making the card taller. */
-.t-state { flex: none; position: relative; display: grid; place-items: center; width: 30px; height: 30px; margin: -4px 0 -4px -4px; padding: 0;
+.t-state { flex: none; position: relative; display: grid; place-items: center; width: 30px; height: 30px; margin: -4px 0 -4px 2px; padding: 0;
   border: 0; border-radius: 50%; font: inherit; line-height: 1;
   background: var(--teal); color: var(--card-ink); box-shadow: 0 0 0 2px var(--light), 0 2px 6px rgba(0, 0, 0, .18); }
 span.t-state { pointer-events: none; }
@@ -1221,10 +1227,8 @@ html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'
   color: var(--card-ink); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--card-ink) 40%, transparent), 0 2px 6px rgba(0, 0, 0, .12); }
 html[data-theme='graphite'] .t-state[data-status='todo'] { background: transparent; }   /* an empty ring on the grey card */
 /* the check boxes: grey inside, never white (Gianni) */
-html:is([data-theme='office'], [data-theme='graphite']) :is(.c-check, .todo-check) { background: var(--g-check); border-color: var(--g-check-edge); color: var(--g-done-ink); }
 html:is([data-theme='office'], [data-theme='graphite']) .t-track input { background: var(--g-check); border-color: var(--g-check-edge); }   /* no white in the grey themes */
 html:is([data-theme='office'], [data-theme='graphite']) .t-track input:checked::after { border-color: var(--g-done-ink); }
-html:is([data-theme='office'], [data-theme='graphite']) .c-check.on { background: var(--g-check-on); border-color: var(--g-end); }
 /* the blocks keep their shape, without the yellow lip */
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .block { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 4px 0 var(--g-lip), 0 8px 14px var(--g-shadow); }
 /* text drawn in the block colour on the page (Canvas's unsaved dot and title dot, a template's old names) takes the
