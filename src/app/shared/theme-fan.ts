@@ -15,8 +15,8 @@ export class ThemePicker {
 }
 
 /**
- * The themes (Gianni): the edit bar's Themes button fans the eight themes out of it into two rows of four tiles (the
- * light themes on top, the dark ones below), each a little picture of the theme in its own colours, which never change
+ * The themes (Gianni): the edit bar's Themes button fans the eight themes out of it into two straight columns of
+ * four square tiles (the dark themes on the left, the light ones on the right, each row one family; they never lean), each a little picture of the theme in its own colours, which never change
  * with the theme that is on; a tap on a tile puts that theme on at once (the fan stays open, so themes can be
  * compared); a tap outside, Esc or the button again draws them back into it. Under reduced motion they simply appear
  * and go. Drawn by the App, outside the page (a grey theme's filter on the page would move and grey the tiles), under
@@ -49,8 +49,9 @@ export class ThemeFan {
   protected readonly i18n = inject(I18n);
   protected readonly look = inject(ThemeService);
   private readonly picker = inject(ThemePicker);
-  /** Light themes on the top row, dark ones below; each tile keeps its own theme's colours whatever look is on. */
-  protected readonly themes: readonly Theme[] = [...LIGHT_THEMES, ...DARK_THEMES];
+  /** Two columns, dark on the left and light on the right, row by row a family (Epic | Clear Sky, Petal Punk | Pink Pop…);
+   *  each tile keeps its own theme's colours whatever look is on. */
+  protected readonly themes: readonly Theme[] = DARK_THEMES.flatMap((dark, i) => [dark, LIGHT_THEMES[i]]);
   protected readonly dark = new Set<Theme>(DARK_THEMES);
   protected readonly bar = THEME_BAR;
   protected readonly open = signal(false);
