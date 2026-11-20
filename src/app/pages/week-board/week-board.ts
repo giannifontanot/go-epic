@@ -314,7 +314,12 @@ export class WeekBoard {
   });
   protected trayCheck(item: { todo: Todo; label: string; checked: boolean }): void {
     const at = this.trayItems().indexOf(item);
-    if (!item.checked) this.held.update((m) => new Map(m).set(item.todo.id, { at, label: item.label, date: this.store.todayKey() }));
+    // checked: kept in the tray; unchecked: let go, so it goes back wherever it now belongs (the tray, its card or another day)
+    this.held.update((m) => {
+      const next = new Map(m);
+      if (item.checked) next.delete(item.todo.id); else next.set(item.todo.id, { at, label: item.label, date: this.store.todayKey() });
+      return next;
+    });
     this.todos.setDone(item.todo.id, !item.checked, this.dates()[this.store.today()]);
   }
   /**
