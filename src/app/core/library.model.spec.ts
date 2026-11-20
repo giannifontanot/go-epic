@@ -1,5 +1,5 @@
 import {
-  LibNode, Library, STARTER_TEMPLATE, activityFromTodo, paperAge, canParent, planTemplateChanges, followDay, inboxTasks, planTemplate, storyOptions, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, tasksWithin, twinTask,
+  LibNode, Library, STARTER_TEMPLATE, activityFromTodo, paperAge, canParent, planTemplateChanges, followDay, inboxTasks, planTemplate, storyOptions, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, setTracked, trackedIds, tasksWithin, twinTask,
   emptyWhere, pickWhere, whereOf, whereOptions,
 } from './library.model';
 
@@ -208,5 +208,22 @@ describe('library model', () => {
     expect(lib.nodes[0].created).toBe(123);
     expect('created' in lib.nodes[1]).toBe(false);
     expect('created' in lib.nodes[2]).toBe(false);                       // only tasks age
+  });
+});
+
+describe('Track in Progress', () => {
+  it('ticks and unticks a library task, removing the field when off', () => {
+    const on = setTracked(lib(), 't', true);
+    expect(on.nodes.find((x) => x.id === 't')?.track).toBe(true);
+    expect([...trackedIds(on)]).toEqual(['t']);
+    const off = setTracked(on, 't', false);
+    expect('track' in off.nodes.find((x) => x.id === 't')!).toBe(false);
+    expect(trackedIds(off).size).toBe(0);
+  });
+
+  it('never marks a container, and keeps only a true flag on tasks when sanitizing', () => {
+    expect(setTracked(lib(), 's', true).nodes.find((x) => x.id === 's')?.track).toBeUndefined();
+    const clean = sanitizeLibrary({ nodes: [{ ...n('t', 'task', null), track: true }, { ...n('u', 'task', null), track: 'yes' as unknown as true }, { ...n('s', 'story', null), track: true }] });
+    expect(clean.nodes.map((x) => 'track' in x)).toEqual([true, false, false]);
   });
 });
