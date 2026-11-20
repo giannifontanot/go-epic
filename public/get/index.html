@@ -22,7 +22,7 @@
   <link rel="alternate" hreflang="es" href="https://go-epic.web.app/get/?lang=es" />
   <link rel="alternate" hreflang="x-default" href="https://go-epic.web.app/get/" />
   <meta name="robots" content="index, follow" />
-  <meta name="theme-color" content="#000000" />
+  <meta name="theme-color" content="#fbfbfd" />
   <link rel="icon" type="image/png" href="/get/emblem-48.png" />
   <link rel="apple-touch-icon" href="/get/emblem-180.png" />
   <link rel="preload" as="image" href="/get/emblem.webp" />
@@ -81,8 +81,6 @@
       --bounce: cubic-bezier(.34, 1.56, .64, 1);
       color-scheme: light;
     }
-    body.dark { --bg: #000; --ink: #f5f5f7; --mute: #a1a1a6; --soft: rgba(255, 255, 255, .1); --seg: #3a3a3c;
-      --btn: #f5f5f7; --btn-ink: #000; --dot: rgba(255, 255, 255, .28); color-scheme: dark; }
     * { box-sizing: border-box; }
     html { -webkit-text-size-adjust: 100%; }
     html, body { margin: 0; }
@@ -123,6 +121,9 @@
     html:not(.js) .slide { grid-area: auto; }
     html.js .slide { padding: 0; visibility: hidden; opacity: 0; transition: opacity .3s ease, visibility 0s linear .3s; }
     html.js .slide.on { visibility: visible; opacity: 1; transition: opacity .3s ease; }
+    /* Only the slide on screen takes room: a short slide leaves more for the phone */
+    html.js .slides { position: relative; }
+    html.js .slide:not(.on) { position: absolute; top: 0; left: 0; right: 0; }
     .slide.on > * { animation: rise .9s var(--spring) both; }
     .slide.on > :nth-child(2) { animation-delay: .07s; }
     .slide.on > :nth-child(3) { animation-delay: .14s; }
@@ -131,8 +132,7 @@
     @keyframes rise { from { opacity: 0; transform: translateY(16px); filter: blur(6px); } }
     .kicker { font-size: 15px; font-weight: 600; color: var(--k, var(--mute)); letter-spacing: -.01em; }
     h1, h2 { font-size: clamp(30px, 8.2vw, 68px); line-height: 1.06; font-weight: 700; letter-spacing: -.03em; text-wrap: balance; }
-    .gold { background: linear-gradient(100deg, #f7dc8a, #e0b33a 45%, #b9822a); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    body:not(.dark) .gold { background-image: linear-gradient(100deg, #b8860b, #8a5a12); }
+    .gold { background: linear-gradient(100deg, #b8860b, #8a5a12); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .lead { font-size: clamp(16px, 4.2vw, 21px); line-height: 1.4; color: var(--mute); max-width: 28em; text-wrap: pretty; transition: color .8s; }
     .fine { font-size: 13px; color: var(--mute); }
     .steps { font-size: 13px; color: var(--mute); line-height: 1.5; }
@@ -140,11 +140,13 @@
     .swatches { display: flex; gap: 8px; justify-content: center; }
     .swatches i { width: 18px; height: 18px; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .12); }
 
-    .device { position: relative; flex: 1 1 auto; min-height: 0; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; }
+    @property --s { syntax: '<number>'; inherits: true; initial-value: .7; }
+    .device { position: relative; flex: 1 1 auto; min-height: 0; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center;
+      transition: --s .7s var(--spring); }
     html:not(.js) .device { display: none; }
-    .device::before { content: ''; position: absolute; width: min(90%, 620px); aspect-ratio: 1; border-radius: 50%;
-      background: radial-gradient(closest-side, var(--g), transparent); filter: blur(24px); transition: --g 1s ease; pointer-events: none; }
-    body[data-slide="0"] { --g: rgba(224, 168, 58, .32); }
+    .device::before { content: ''; position: absolute; left: 50%; top: 50%; width: min(96%, 640px); aspect-ratio: 1; border-radius: 50%;
+      transform: translate(-50%, -50%); background: radial-gradient(closest-side, var(--g), transparent 92%); transition: --g 1s ease; pointer-events: none; }
+    body[data-slide="0"] { --g: rgba(224, 168, 58, .42); }
     body[data-slide="1"] { --g: rgba(245, 201, 69, .4); }
     body[data-slide="2"] { --g: rgba(225, 215, 255, .75); }
     body[data-slide="3"] { --g: rgba(167, 231, 227, .7); }
@@ -155,12 +157,14 @@
 
     /* The emblem (first slide) and the phone (the others) share the same spot */
     .emblem, .phone-box { grid-area: 1 / 1; transition: opacity .7s ease, transform .9s var(--spring), visibility 0s; }
-    .emblem { position: relative; width: min(100%, calc(605px * var(--s, .7))); aspect-ratio: 690 / 752; isolation: isolate; }
-    .emblem .float { position: absolute; inset: 0; }
-    .emblem img { width: 100%; height: 100%; object-fit: contain; }
+    .emblem { position: relative; width: min(100%, calc(560px * var(--s, .7))); aspect-ratio: 1; isolation: isolate; }
+    .emblem .float { position: absolute; inset: 0; overflow: hidden; border-radius: 23%;
+      background: #050403;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06), 0 40px 80px -28px rgba(60, 38, 8, .55), 0 18px 36px -18px rgba(0, 0, 0, .35); }
+    .emblem img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.04); }
     .emblem .sheen { position: absolute; inset: 0; mix-blend-mode: overlay; pointer-events: none;
       background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, .85) 50%, transparent 62%) no-repeat; background-size: 300% 100%; background-position: 120% 0; }
-    .emblem .spark { position: absolute; left: 50%; top: 88.5%; width: 30px; height: 30px; margin: -15px 0 0 -15px; opacity: 0; pointer-events: none;
+    .emblem .spark { position: absolute; left: 50%; top: 93%; width: 30px; height: 30px; margin: -15px 0 0 -15px; opacity: 0; pointer-events: none;
       background: radial-gradient(circle, #fff 0 8%, transparent 12%),
                   linear-gradient(90deg, transparent 47%, rgba(255, 255, 255, .95) 50%, transparent 53%),
                   linear-gradient(0deg, transparent 47%, rgba(255, 255, 255, .95) 50%, transparent 53%);
@@ -171,11 +175,11 @@
       transition: opacity .5s ease, transform .7s var(--spring), visibility 0s linear .7s; }
     body[data-slide="0"] .phone-box { transform: translateY(14%) scale(.92); }
     body:not([data-slide="0"]) .emblem { transform: scale(.85); }
-    body[data-slide="0"] .emblem img { animation: forge 1.4s var(--spring) both; }
+    body[data-slide="0"] .emblem { animation: forge 1.4s var(--spring) both; }
     body[data-slide="0"] .emblem .float { animation: floaty 5s ease-in-out 1.4s infinite alternate; }
     body[data-slide="0"] .emblem .sheen { animation: sheen 1.8s ease-in-out .9s both; }
     body[data-slide="0"] .emblem .spark { animation: spark 1.3s ease-out 1.9s both; }
-    @keyframes forge { from { opacity: 0; transform: translateY(28px) scale(.86); filter: blur(10px) brightness(.3); } }
+    @keyframes forge { from { opacity: 0; transform: translateY(28px) scale(.86); filter: blur(10px); } }
     @keyframes floaty { to { transform: translateY(-8px); } }
     @keyframes sheen { from { background-position: 120% 0; } to { background-position: -20% 0; } }
     @keyframes spark { 0% { opacity: 0; transform: scale(.2) rotate(0); } 40% { opacity: 1; transform: scale(1.3) rotate(45deg); } 100% { opacity: 0; transform: scale(.4) rotate(90deg); } }
@@ -430,7 +434,7 @@
     }
   </style>
 </head>
-<body class="dark" data-slide="0">
+<body data-slide="0">
   <header class="top">
     <span class="brand"><span class="tile"><img src="/get/emblem.webp" alt="" width="32" height="32" /></span>Go Epic</span>
     <div class="lang" role="group" aria-label="Language / Idioma">
@@ -704,7 +708,7 @@
     var screens = Array.prototype.slice.call(document.querySelectorAll('.screen'));
     var dots = Array.prototype.slice.call(document.querySelectorAll('.dotsnav button'));
     var backBtn = document.querySelector('.back'), nextBtn = document.querySelector('.next'), nextLabel = document.querySelector('.next-l');
-    var announce = document.getElementById('announce'), themeMeta = document.querySelector('meta[name="theme-color"]');
+    var announce = document.getElementById('announce');
     var N = slides.length, cur = -1, lang = 'en';
 
     // Stagger every row of progress dots
@@ -754,8 +758,6 @@
         if (on) s.querySelectorAll('.count').forEach(count);
       });
       body.dataset.slide = n;
-      body.classList.toggle('dark', n === 0);
-      themeMeta.content = n === 0 ? '#000000' : '#fbfbfd';
       dots.forEach(function (d, i) { if (i === n) d.setAttribute('aria-current', 'step'); else d.removeAttribute('aria-current'); });
       backBtn.disabled = n === 0;
       labels();
@@ -787,9 +789,10 @@
     // The phone and the emblem take the room the words leave
     var device = document.querySelector('.device');
     function fit() {
-      var r = device.getBoundingClientRect();
-      if (!r.width || !r.height) return;
-      var s = Math.max(.3, Math.min(r.width / 320, r.height / 660, 1.05));
+      var w = device.clientWidth, h = device.clientHeight, cs = getComputedStyle(device);
+      h -= parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+      if (!w || h <= 0) return;
+      var s = Math.max(.3, Math.min(w / 320, h / 660, 1.45));
       device.style.setProperty('--s', s.toFixed(3));
     }
     if ('ResizeObserver' in window) new ResizeObserver(fit).observe(device); else addEventListener('resize', fit);
