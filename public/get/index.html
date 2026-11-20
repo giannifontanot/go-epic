@@ -124,9 +124,9 @@
     /* Phones: room to breathe at the top (Gianni found it crowded). One quiet language chip instead of the two-part switch,
        the motto on three lines with space around it, the mission set apart under a short gold rule. */
     @media (max-width: 879px) {
-      .lang { padding: 0; background: transparent; }
-      .lang button[aria-pressed="true"] { display: none; }
-      .lang button { min-width: 44px; min-height: 40px; border: 1px solid rgba(0, 0, 0, .12); color: var(--ink); }
+      .lang { padding: 0 10px; background: transparent; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .12); }
+      .lang .lang-name { display: none; }
+      .lang .lang-code { display: inline; }
       .top { padding-bottom: 10px; }
       .mission { padding-top: 14px; position: relative; max-width: 20em; }
       .mission::before { content: ''; position: absolute; top: 0; left: 50%; width: 36px; height: 2px; margin-left: -18px; border-radius: 2px; background: #c9a227; }
@@ -140,21 +140,38 @@
       html.js body[data-slide="0"] .emblem { translate: 0 calc(-1 * var(--up, 0px)); }
     }
     .top .wm { flex: none; }
-    .lang { margin-left: auto; display: inline-flex; padding: 2px; border-radius: 999px; background: var(--soft); }
-    .lang button { border: 0; background: transparent; min-width: 40px; min-height: 36px; border-radius: 999px; cursor: pointer;
-      font-size: 13px; font-weight: 600; color: var(--mute); transition: background-color .3s, color .3s; }
-    .lang button[aria-pressed="true"] { background: var(--seg); color: var(--ink); box-shadow: 0 1px 3px rgba(0, 0, 0, .12); }
+    /* The language switch is a list, not a pair of buttons, so more languages can join it (Gianni): a pill with a globe,
+       the language in use and a chevron, over an invisible native <select> that opens the list. */
+    .lang { margin-left: auto; position: relative; display: inline-flex; align-items: center; gap: 6px; min-width: 40px; min-height: 40px;
+      padding: 0 12px; border-radius: 999px; background: var(--soft); color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer; }
+    .lang svg { flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .lang .globe { width: 17px; height: 17px; color: var(--mute); }
+    .lang .lang-chev { width: 10px; height: 10px; color: var(--mute); stroke-width: 2; }
+    .lang-code { display: none; }
+    .lang select { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; border: 0; border-radius: 999px; opacity: 0;
+      cursor: pointer; font-size: 16px; -webkit-appearance: none; appearance: none; }
+    .lang:hover { color: #101b42; }
+    .lang:has(select:focus-visible) { outline: 2px solid #c9a227; outline-offset: 2px; }
     .pill { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; text-decoration: none;
       background: var(--btn); color: var(--btn-ink); font-weight: 600; transition: background-color .8s, color .8s, transform .2s var(--spring); }
     .pill:hover { transform: scale(1.03); }
     .pill:active { transform: scale(.97); }
-    .pill.small { min-height: 36px; padding: 0 16px; font-size: 14px; }
     .pill.big { min-height: 52px; padding: 0 28px; font-size: 17px; }
     /* The last slide's Download: a yellow ring that flashes, so the offer can't be missed */
     .slide .pill.big { position: relative; margin-block: 6px; box-shadow: 0 0 0 6px #f5c945; }
     .slide .pill.big::after { content: ''; position: absolute; inset: -6px; border-radius: inherit; pointer-events: none;
       box-shadow: 0 0 0 6px #f5c945, 0 0 26px 8px rgba(245, 201, 69, .8); opacity: 0; }
     .slide.on .pill.big::after { animation: ring-flash 1.6s ease-out .9s infinite; }
+    /* Top right: a white download arrow on a black circle with the same flashing yellow ring as the last slide's
+       Download (Gianni), instead of the word */
+    .dl-top { position: relative; flex: none; display: grid; place-items: center; width: 40px; height: 40px; margin: 0 6px 0 4px;
+      border-radius: 50%; background: #111; color: #fff; box-shadow: 0 0 0 5px #f5c945; transition: transform .2s var(--spring); }
+    .dl-top svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    .dl-top::after { content: ''; position: absolute; inset: -5px; border-radius: 50%; pointer-events: none;
+      box-shadow: 0 0 0 5px #f5c945, 0 0 20px 6px rgba(245, 201, 69, .8); opacity: 0; animation: ring-flash 1.6s ease-out .9s infinite; }
+    .dl-top:hover { transform: scale(1.06); }
+    .dl-top:active { transform: scale(.94); }
+    .dl-top:focus-visible { outline: 2px solid #101b42; outline-offset: 8px; }
     @keyframes ring-flash {
       0% { opacity: 1; transform: scale(1); }
       70% { opacity: 0; transform: scale(1.14); }
@@ -245,12 +262,10 @@
     .q-dots button:hover { color: #101b42; }
     .q-dots button:focus-visible { outline: 2px solid #c9a227; outline-offset: -2px; }
     .q-dots svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-    .q-pips { display: flex; gap: 6px; padding: 0 4px; }
+    .q-pips { display: flex; gap: 5px; padding: 0 4px; }
     .q-pips i { width: 6px; height: 6px; border-radius: 50%; background: rgba(16, 27, 66, .22); transition: background-color .4s, transform .4s; }
     .q-pips i.on { background: #c9a227; transform: scale(1.4); }
     .q-dots:not(:has(button)) { display: none; }
-    .quote b { display: block; margin-bottom: .55em; font: 900 1.12em/1.15 'Cinzel Decorative', Georgia, serif; font-style: normal; letter-spacing: .01em; }
-    .quote em { font-style: italic; color: #9a6a12; }
     body:not([data-slide="6"]) .quote { transform: translateY(12px); }
     @media (min-width: 880px) { .quote { font-size: clamp(26px, 2.4vw, 36px); } }
     body:not([data-slide="0"]) .emblem { transform: scale(.85); }
@@ -567,8 +582,6 @@
       h2 { font-size: clamp(44px, 5.2vw, 72px); }
       .lead { font-size: clamp(19px, 1.7vw, 22px); }
     }
-    /* the big name needs the room on narrow phones: the last slide has its own Download button */
-    @media (max-width: 389px) { .top .pill.small { display: none; } }
     @media (max-height: 760px) and (max-width: 879px) {
       .slide .fine, .slide .steps, .slide .swatches { display: none; }
       .lead { font-size: 15px; }
@@ -582,12 +595,17 @@
 <body data-slide="0">
   <header class="top">
     <p class="wm" translate="no"><span class="go">Go</span> <span class="gold">Epic!</span></p>
-    <div class="lang" role="group" aria-label="Language / Idioma">
-      <button type="button" data-lang="en" aria-pressed="true">EN</button>
-      <button type="button" data-lang="es" aria-pressed="false">ES</button>
-    </div>
+    <label class="lang">
+      <svg class="globe" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.2"/><path d="M1.8 9h14.4M9 1.8c2 2 3 4.4 3 7.2s-1 5.2-3 7.2c-2-2-3-4.4-3-7.2s1-5.2 3-7.2Z"/></svg>
+      <span class="lang-name" aria-hidden="true">English</span><span class="lang-code" aria-hidden="true">EN</span>
+      <svg class="lang-chev" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5"/></svg>
+      <select aria-label="Language / Idioma">
+        <option value="en" lang="en">English</option>
+        <option value="es" lang="es">Español</option>
+      </select>
+    </label>
     <!-- placeholder download link: set GET_GO_EPIC_URL in the script at the bottom -->
-    <a class="pill small js-get" href="#get-go-epic-link-coming-soon" data-i="get_short">Download</a>
+    <a class="dl-top js-get" href="#get-go-epic-link-coming-soon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg><span class="sr" data-i="get_short">Download</span></a>
   </header>
 
   <main class="stage" id="tour" aria-roledescription="carousel" aria-label="Go Epic tour">
@@ -641,17 +659,22 @@
       <!-- the last slide: a small carousel of quotes, fading on its own (Gianni) -->
       <div class="quote" role="group" aria-roledescription="carousel" aria-label="Quotes">
        <div class="q-track">
-        <blockquote class="q on" data-q="0"><p data-i="q7"><b>Every hour is a gift.</b> Give it a purpose, and your small days become an <em>epic</em> story.</p></blockquote>
-        <blockquote class="q" data-q="1" aria-hidden="true"><p data-i="q8">“A wizard is never late, nor is he early. He arrives precisely when he means to.”</p><cite>Gandalf</cite></blockquote>
-        <blockquote class="q" data-q="2" aria-hidden="true"><p data-i="q9">“Isn't it nice to think that tomorrow is a new day with no mistakes in it yet?”</p><cite data-i="c9">Anne Shirley</cite></blockquote>
-        <blockquote class="q" data-q="3" aria-hidden="true"><p data-i="q10">“Dreams save us. Dreams lift us up and transform us.”</p><cite>Superman</cite></blockquote>
-        <blockquote class="q" data-q="4" aria-hidden="true"><p data-i="q11">“Hope is like the sun. If you only believe in it when you can see it, you'll never make it through the night.”</p><cite data-i="c11">Princess Leia</cite></blockquote>
-        <blockquote class="q" data-q="5" aria-hidden="true"><p data-i="q12">“It's not who I am underneath, but what I do that defines me.”</p><cite>Batman</cite></blockquote>
-        <blockquote class="q" data-q="6" aria-hidden="true"><p data-i="q13">“Even the smallest person can change the course of the future.”</p><cite>Galadriel</cite></blockquote>
-        <blockquote class="q" data-q="7" aria-hidden="true"><p data-i="q14">“With great power comes great responsibility.”</p><cite data-i="c14">Spider-Man</cite></blockquote>
-        <blockquote class="q" data-q="8" aria-hidden="true"><p data-i="q15">“It's not about what you deserve. It's about what you believe.”</p><cite data-i="c15">Wonder Woman</cite></blockquote>
+        <blockquote class="q on" data-q="0"><p data-i="q7">“It ain’t about how hard you hit. It’s about how hard you can get hit and keep moving forward.”</p><cite>Rocky Balboa · Sylvester Stallone</cite></blockquote>
+        <blockquote class="q" data-q="1" aria-hidden="true"><p data-i="q8">“It is not that we have a short time to live, but that we waste a lot of it.”</p><cite data-i="c8">Seneca</cite></blockquote>
+        <blockquote class="q" data-q="2" aria-hidden="true"><p data-i="q9">“How we spend our days is, of course, how we spend our lives.”</p><cite>Annie Dillard</cite></blockquote>
+        <blockquote class="q" data-q="3" aria-hidden="true"><p data-i="q10">“Tell me, what is it you plan to do with your one wild and precious life?”</p><cite>Mary Oliver</cite></blockquote>
+        <blockquote class="q" data-q="4" aria-hidden="true"><p data-i="q11">“The journey of a thousand miles begins with a single step.”</p><cite data-i="c11">Lao Tzu</cite></blockquote>
+        <blockquote class="q" data-q="5" aria-hidden="true"><p data-i="q12">“Plans are worthless, but planning is everything.”</p><cite>Dwight D. Eisenhower</cite></blockquote>
+        <blockquote class="q" data-q="6" aria-hidden="true"><p data-i="q13">“Lost time is never found again.”</p><cite>Benjamin Franklin</cite></blockquote>
+        <blockquote class="q" data-q="7" aria-hidden="true"><p data-i="q14">“Your time is limited, so don’t waste it living someone else’s life.”</p><cite>Steve Jobs</cite></blockquote>
+        <blockquote class="q" data-q="8" aria-hidden="true"><p data-i="q15">“You may encounter many defeats, but you must not be defeated.”</p><cite>Maya Angelou</cite></blockquote>
         <blockquote class="q" data-q="9" aria-hidden="true"><p data-i="q16">“Do. Or do not. There is no try.”</p><cite>Yoda</cite></blockquote>
-        <blockquote class="q" data-q="10" aria-hidden="true"><p data-i="q17">“Just keep swimming.”</p><cite>Dory</cite></blockquote>
+        <blockquote class="q" data-q="10" aria-hidden="true"><p data-i="q17">“Why do we fall, Bruce? So we can learn to pick ourselves up.”</p><cite>Thomas Wayne · Batman Begins</cite></blockquote>
+        <blockquote class="q" data-q="11" aria-hidden="true"><p data-i="q22">“It’s not who I am underneath, but what I do that defines me.”</p><cite>Batman · Christian Bale</cite></blockquote>
+        <blockquote class="q" data-q="12" aria-hidden="true"><p data-i="q18">“Waste no more time arguing what a good man should be. Be one.”</p><cite data-i="c18">Marcus Aurelius</cite></blockquote>
+        <blockquote class="q" data-q="13" aria-hidden="true"><p data-i="q19">“Even the smallest person can change the course of the future.”</p><cite>Galadriel</cite></blockquote>
+        <blockquote class="q" data-q="14" aria-hidden="true"><p data-i="q20">“Isn’t it nice to think that tomorrow is a new day with no mistakes in it yet?”</p><cite data-i="c20">Anne Shirley</cite></blockquote>
+        <blockquote class="q" data-q="15" aria-hidden="true"><p data-i="q21">“Just keep swimming.”</p><cite>Dory</cite></blockquote>
        </div>
        <div class="q-dots"></div>
       </div>
@@ -835,21 +858,26 @@
       k4: 'Progreso', h4: 'Rachas que te impulsan.', l4: 'Cada actividad se vuelve un hábito con su propia racha. Un día omitido la pausa en vez de romperla.',
       k5: 'Captura', h5: 'Atrápalo antes de que se escape.', l5: 'Escríbelo y presiona Enter. Cae en el día y la hora correctos de tu semana.',
       k6: 'Temas', h6: 'Ocho estilos. Un solo tú.', l6: 'Alegre para la casa, grises tranquilos para la oficina. Toda la app lo sigue.',
-      q7: '<b>Cada hora es un regalo.</b> Dale un propósito, y tus días pequeños se volverán una historia <em>épica</em>.',
-      q8: '«Un mago nunca llega tarde, ni pronto. Llega exactamente cuando se lo propone.»',
-      q9: '«¿No es bonito pensar que mañana es un nuevo día, todavía sin errores?»',
-      c9: 'Ana de las Tejas Verdes',
-      q10: '«Los sueños nos salvan. Los sueños nos elevan y nos transforman.»',
-      q11: '«La esperanza es como el sol: si solo crees en ella cuando la ves, nunca sobrevivirás a la noche.»',
-      c11: 'Princesa Leia',
-      q12: '«No es lo que soy por dentro, sino lo que hago lo que me define.»',
-      q13: '«Hasta la persona más pequeña puede cambiar el curso del futuro.»',
-      q14: '«Un gran poder conlleva una gran responsabilidad.»',
-      c14: 'Hombre Araña',
-      q15: '«No se trata de lo que mereces. Se trata de lo que crees.»',
-      c15: 'Mujer Maravilla',
+      q7: '«No importa lo fuerte que golpees, sino lo fuerte que puedan golpearte y seguir avanzando.»',
+      q8: '«No es que tengamos poco tiempo para vivir, sino que perdemos mucho.»',
+      c8: 'Séneca',
+      q9: '«Cómo pasamos nuestros días es, por supuesto, cómo pasamos nuestra vida.»',
+      q10: '«Dime, ¿qué piensas hacer con tu única, salvaje y preciosa vida?»',
+      q11: '«Un viaje de mil millas comienza con un solo paso.»',
+      c11: 'Lao Tse',
+      q12: '«Los planes no sirven de nada, pero planificar lo es todo.»',
+      q13: '«El tiempo perdido nunca se vuelve a encontrar.»',
+      q14: '«Tu tiempo es limitado, así que no lo malgastes viviendo la vida de otro.»',
+      q15: '«Puedes encontrarte con muchas derrotas, pero no debes dejarte derrotar.»',
       q16: '«Hazlo, o no lo hagas, pero no lo intentes.»',
-      q17: '«Tú sigue nadando.»',
+      q17: '«¿Por qué nos caemos, Bruce? Para aprender a levantarnos.»',
+      q18: '«No pierdas más tiempo discutiendo cómo debe ser un hombre bueno. Sé uno.»',
+      c18: 'Marco Aurelio',
+      q19: '«Hasta la persona más pequeña puede cambiar el curso del futuro.»',
+      q20: '«¿No es bonito pensar que mañana es un nuevo día, todavía sin errores?»',
+      c20: 'Ana de las Tejas Verdes',
+      q21: '«Tú sigue nadando.»',
+      q22: '«No es lo que soy por dentro, sino lo que hago lo que me define.»',
       k7: '¿Listo?', h7: 'Tu semana épica empieza hoy.', l7: 'Entra con Google y agrégala a tu pantalla de inicio. Gratis, y funciona sin internet.',
       steps: '<b>iPhone:</b> Safari → Compartir → Agregar a inicio · <b>Android y computadora:</b> Chrome → Instalar app',
       p_wb: 'Semana', p_d1: 'Lun', p_d2: 'Mar', p_d3: 'Mié', p_d4: 'Jue', p_d5: 'Vie', p_d6: 'Sáb', p_d7: 'Dom', p_fri: 'Viernes',
@@ -1017,22 +1045,27 @@
       announce.textContent = fmt(UI[lang].step, n);
     }
 
-    // The last slide's quotes fade one into the next every 7 s while that slide is shown (Gianni). ‹ › (40px taps) step
-    // them and stop the turning, the small pips between only show where you are; a mouse over them or the keyboard inside
-    // them pauses it; nothing turns under reduced motion.
+    // The last slide's quotes turn by themselves every 5 s while that slide is shown (Gianni: always moving, also under
+    // reduced motion, where they just switch without the fade). ‹ › (40px taps) step them and start the 5 s again, never
+    // stopping the turning; the small pips between only show where you are; only keyboard focus inside them pauses it.
     var qBox = document.querySelector('.quote'), qs = [].slice.call(qBox.querySelectorAll('.q')), qDots = [];
-    var qTrack = qBox.querySelector('.q-track'), qNav = qBox.querySelector('.q-dots'), qPips = document.createElement('span');
+    var qNav = qBox.querySelector('.q-dots'), qPips = document.createElement('span');
     function qButton(path, step) {
       var b = document.createElement('button');
       b.type = 'button';
       b.innerHTML = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="' + path + '"/></svg>';
-      b.addEventListener('click', function () { qStopped = true; qTrack.setAttribute('aria-live', 'polite'); quoteTo(qAt + step); quoteTick(); });
+      b.addEventListener('click', function () {
+        quoteTo(qAt + step); quoteTick();
+        // a chosen quote is read out (the turning by itself stays silent)
+        var q = qs[qAt], c = q.querySelector('cite');
+        announce.textContent = q.querySelector('p').textContent + (c ? ' ' + c.textContent : '');
+      });
       return b;
     }
     var qPrev = qButton('M9 2 4 7l5 5', -1), qNext = qButton('M5 2l5 5-5 5', 1);
     qPips.className = 'q-pips';
     qPips.setAttribute('aria-hidden', 'true');
-    var qAt = 0, qTimer = 0, qStopped = false, qHover = false, qFocus = false;
+    var qAt = 0, qTimer = 0, qFocus = false;
     function quoteTo(i) {
       qAt = (i + qs.length) % qs.length;
       qs.forEach(function (el, k) {
@@ -1044,14 +1077,17 @@
     }
     function quoteTick() {
       clearTimeout(qTimer); qTimer = 0;
-      if (reduce || qStopped || qHover || qFocus || cur !== N - 1 || document.hidden) return;
-      qTimer = setTimeout(function () { quoteTo(qAt + 1); quoteTick(); }, 7000);
+      if (qFocus || cur !== N - 1 || document.hidden) return;
+      qTimer = setTimeout(function () { quoteTo(qAt + 1); quoteTick(); }, 5000);
     }
     qs.forEach(function () { var d = document.createElement('i'); qPips.appendChild(d); qDots.push(d); });
     qNav.appendChild(qPrev); qNav.appendChild(qPips); qNav.appendChild(qNext);
-    qBox.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') { qHover = true; quoteTick(); } });
-    qBox.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') { qHover = false; quoteTick(); } });
-    qBox.addEventListener('focusin', function () { qFocus = true; quoteTick(); });
+    // A tap also focuses the button on phones, so only a keyboard focus (:focus-visible) holds the quote still
+    qBox.addEventListener('focusin', function (e) {
+      var kb = true;
+      try { kb = e.target.matches(':focus-visible'); } catch (err) { kb = false; }
+      qFocus = kb; quoteTick();
+    });
     qBox.addEventListener('focusout', function (e) { if (!qBox.contains(e.relatedTarget)) { qFocus = false; quoteTick(); } });
     document.addEventListener('visibilitychange', quoteTick);
     quoteTo(0);
@@ -1113,25 +1149,29 @@
     // Language
     var nodes = document.querySelectorAll('[data-i]'), EN = {};
     nodes.forEach(function (el) { EN[el.dataset.i] = el.innerHTML; });
+    // Every language is an <option> of the switch and a dictionary here; English is the page's own text.
+    var DICTS = { en: EN, es: ES }, langSelect = document.querySelector('.lang select');
     function setLang(next) {
-      lang = next === 'es' ? 'es' : 'en';
-      var dict = lang === 'es' ? ES : EN;
+      lang = DICTS[next] ? next : 'en';
+      var dict = DICTS[lang];
       nodes.forEach(function (el) { var v = dict[el.dataset.i]; if (v != null) el.innerHTML = v; });
       document.documentElement.lang = lang;
       document.title = META[lang].title;
       document.querySelector('meta[name="description"]').content = META[lang].desc;
-      document.querySelectorAll('.lang button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === lang)); });
+      langSelect.value = lang;
+      var opt = langSelect.options[langSelect.selectedIndex];
+      document.querySelector('.lang-name').textContent = opt.textContent;
+      document.querySelector('.lang-code').textContent = lang.toUpperCase();
       try { localStorage.setItem('go-epic-get-lang', lang); } catch (e) {}
       if (cur >= 0) labels();
       if (reduce && LOOPS) play(document.querySelector('.screen.on'));
     }
-    document.querySelectorAll('.lang button').forEach(function (b) {
-      b.addEventListener('click', function () { setLang(b.dataset.lang); });
-    });
+    langSelect.addEventListener('change', function () { setLang(langSelect.value); });
     var wanted = new URLSearchParams(location.search).get('lang');
     if (!wanted) { try { wanted = localStorage.getItem('go-epic-get-lang'); } catch (e) {} }
-    if (!wanted) wanted = (navigator.language || '').toLowerCase().indexOf('es') === 0 ? 'es' : 'en';
-    if (wanted === 'es') setLang('es');
+    if (!wanted) wanted = (navigator.language || '').toLowerCase().split('-')[0];
+    wanted = (wanted || '').toLowerCase();
+    setLang(DICTS[wanted] ? wanted : 'en');
     show(0);
 
     // Download buttons: the real link when GET_GO_EPIC_URL has one, else a friendly "coming soon" note.
