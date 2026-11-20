@@ -296,16 +296,17 @@ export class WeekBoard {
    * A task checked in the tray stays there, shown checked, until the tray is opened again (Gianni: to see what he
    * ticked): its place in the list and its label are kept from the moment it was checked; unchecking it works too.
    */
-  private readonly held = signal(new Map<string, { at: number; label: string }>());
+  private readonly held = signal(new Map<string, { at: number; label: string; date: string }>());
   protected readonly trayItems = computed(() => {
     const items: { todo: Todo; label: string; checked: boolean }[] =
       this.overdue().map((todo) => ({ todo, label: this.trayLabel(todo), checked: false }));
     const shown = new Set(items.map((i) => i.todo.id));
     const today = this.store.todayKey();
     const kept = [...this.held()].sort((a, b) => a[1].at - b[1].at);
-    for (const [id, { at, label }] of kept) {
+    for (const [id, { at, label, date }] of kept) {
       const todo = this.todos.todos().find((t) => t.id === id);
-      if (!todo || shown.has(id)) continue;                               // deleted, or open again (it is back on its own)
+      // deleted, open again (it is back on its own), or checked on another day (past midnight it has gone)
+      if (!todo || shown.has(id) || date !== today) continue;
       const checked = todo.repeat.length ? todo.doneOn[today] !== undefined : todo.done !== null;
       items.splice(Math.min(at, items.length), 0, { todo, label, checked });
     }
@@ -313,7 +314,7 @@ export class WeekBoard {
   });
   protected trayCheck(item: { todo: Todo; label: string; checked: boolean }): void {
     const at = this.trayItems().indexOf(item);
-    if (!item.checked) this.held.update((m) => new Map(m).set(item.todo.id, { at, label: item.label }));
+    if (!item.checked) this.held.update((m) => new Map(m).set(item.todo.id, { at, label: item.label, date: this.store.todayKey() }));
     this.todos.setDone(item.todo.id, !item.checked, this.dates()[this.store.today()]);
   }
   /**
