@@ -663,10 +663,11 @@
         <blockquote class="q" data-q="8" aria-hidden="true"><p data-i="q15">“You may encounter many defeats, but you must not be defeated.”</p><cite>Maya Angelou</cite></blockquote>
         <blockquote class="q" data-q="9" aria-hidden="true"><p data-i="q16">“Do. Or do not. There is no try.”</p><cite>Yoda</cite></blockquote>
         <blockquote class="q" data-q="10" aria-hidden="true"><p data-i="q17">“Why do we fall, Bruce? So we can learn to pick ourselves up.”</p><cite>Thomas Wayne · Batman Begins</cite></blockquote>
-        <blockquote class="q" data-q="11" aria-hidden="true"><p data-i="q18">“Waste no more time arguing what a good man should be. Be one.”</p><cite data-i="c18">Marcus Aurelius</cite></blockquote>
-        <blockquote class="q" data-q="12" aria-hidden="true"><p data-i="q19">“Even the smallest person can change the course of the future.”</p><cite>Galadriel</cite></blockquote>
-        <blockquote class="q" data-q="13" aria-hidden="true"><p data-i="q20">“Isn’t it nice to think that tomorrow is a new day with no mistakes in it yet?”</p><cite data-i="c20">Anne Shirley</cite></blockquote>
-        <blockquote class="q" data-q="14" aria-hidden="true"><p data-i="q21">“Just keep swimming.”</p><cite>Dory</cite></blockquote>
+        <blockquote class="q" data-q="11" aria-hidden="true"><p data-i="q22">“It’s not who I am underneath, but what I do that defines me.”</p><cite>Batman · Christian Bale</cite></blockquote>
+        <blockquote class="q" data-q="12" aria-hidden="true"><p data-i="q18">“Waste no more time arguing what a good man should be. Be one.”</p><cite data-i="c18">Marcus Aurelius</cite></blockquote>
+        <blockquote class="q" data-q="13" aria-hidden="true"><p data-i="q19">“Even the smallest person can change the course of the future.”</p><cite>Galadriel</cite></blockquote>
+        <blockquote class="q" data-q="14" aria-hidden="true"><p data-i="q20">“Isn’t it nice to think that tomorrow is a new day with no mistakes in it yet?”</p><cite data-i="c20">Anne Shirley</cite></blockquote>
+        <blockquote class="q" data-q="15" aria-hidden="true"><p data-i="q21">“Just keep swimming.”</p><cite>Dory</cite></blockquote>
        </div>
        <div class="q-dots"></div>
       </div>
@@ -869,6 +870,7 @@
       q20: '«¿No es bonito pensar que mañana es un nuevo día, todavía sin errores?»',
       c20: 'Ana de las Tejas Verdes',
       q21: '«Tú sigue nadando.»',
+      q22: '«No es lo que soy por dentro, sino lo que hago lo que me define.»',
       k7: '¿Listo?', h7: 'Tu semana épica empieza hoy.', l7: 'Entra con Google y agrégala a tu pantalla de inicio. Gratis, y funciona sin internet.',
       steps: '<b>iPhone:</b> Safari → Compartir → Agregar a inicio · <b>Android y computadora:</b> Chrome → Instalar app',
       p_wb: 'Semana', p_d1: 'Lun', p_d2: 'Mar', p_d3: 'Mié', p_d4: 'Jue', p_d5: 'Vie', p_d6: 'Sáb', p_d7: 'Dom', p_fri: 'Viernes',
@@ -1045,7 +1047,12 @@
       var b = document.createElement('button');
       b.type = 'button';
       b.innerHTML = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="' + path + '"/></svg>';
-      b.addEventListener('click', function () { quoteTo(qAt + step); quoteTick(); });
+      b.addEventListener('click', function () {
+        quoteTo(qAt + step); quoteTick();
+        // a chosen quote is read out (the turning by itself stays silent)
+        var q = qs[qAt], c = q.querySelector('cite');
+        announce.textContent = q.querySelector('p').textContent + (c ? ' ' + c.textContent : '');
+      });
       return b;
     }
     var qPrev = qButton('M9 2 4 7l5 5', -1), qNext = qButton('M5 2l5 5-5 5', 1);
