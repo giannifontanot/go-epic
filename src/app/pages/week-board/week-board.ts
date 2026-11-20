@@ -1113,7 +1113,7 @@ export class WeekBoard {
    * story (or Free Space), or a new one there. A colour picked here is the library task's colour, in every block.
    * Returns the filed task and the library to save (null when unchanged); `inBatch` saves both together.
    */
-  private fileInLibrary(task: Task, parentId: string | null, colorPicked: boolean, track?: boolean): { task: Task; lib: Library | null } {
+  private fileInLibrary(task: Task, parentId: string | null, colorPicked: boolean): { task: Task; lib: Library | null } {
     if (!this.library.ready() || !task.title.trim()) return { task, lib: null };
     const current = this.library.library();
     let lib = current;
@@ -1121,7 +1121,6 @@ export class WeekBoard {
     if (!id) ({ lib, id } = fileTask(lib, task.title, parentId, task.color));
     const node = nodeById(lib, id)!;
     if (colorPicked && node.color !== task.color) lib = updateNode(lib, id, { color: task.color });
-    if (track !== undefined && !!node.track !== track) lib = setTracked(lib, id, track);
     return { task: { ...task, title: node.title, color: colorPicked ? task.color : node.color, ref: id }, lib: lib === current ? null : lib };
   }
 
@@ -1164,8 +1163,21 @@ export class WeekBoard {
     }
   }
 
+  /** Track in Progress, ticked on the card while arranging (Gianni): saved on its library Activity at once. */
+  protected isTracked(task: Task): boolean {
+    const node = task.ref ? nodeById(this.library.library(), task.ref) : undefined;
+    return node?.kind === 'task' && node.track === true;
+  }
+  protected canTrack(task: Task): boolean {
+    return this.library.ready() && !!task.ref && nodeById(this.library.library(), task.ref)?.kind === 'task';
+  }
+  protected setTrack(task: Task, on: boolean): void {
+    if (!this.canTrack(task) || this.isTracked(task) === on) return;
+    this.library.save(setTracked(this.library.library(), task.ref!, on));
+  }
+
   protected saveTask(raw: TaskSave): void {
-    const filed = this.fileInLibrary(raw.task, raw.parentId, raw.colorPicked, raw.track);
+    const filed = this.fileInLibrary(raw.task, raw.parentId, raw.colorPicked);
     this.inBatch(filed.lib, () => this.applySave({ ...raw, task: filed.task }));
   }
 
