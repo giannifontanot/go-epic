@@ -156,13 +156,22 @@
       background: var(--btn); color: var(--btn-ink); font-weight: 600; transition: background-color .8s, color .8s, transform .2s var(--spring); }
     .pill:hover { transform: scale(1.03); }
     .pill:active { transform: scale(.97); }
-    .pill.small { min-height: 36px; padding: 0 16px; font-size: 14px; }
     .pill.big { min-height: 52px; padding: 0 28px; font-size: 17px; }
     /* The last slide's Download: a yellow ring that flashes, so the offer can't be missed */
     .slide .pill.big { position: relative; margin-block: 6px; box-shadow: 0 0 0 6px #f5c945; }
     .slide .pill.big::after { content: ''; position: absolute; inset: -6px; border-radius: inherit; pointer-events: none;
       box-shadow: 0 0 0 6px #f5c945, 0 0 26px 8px rgba(245, 201, 69, .8); opacity: 0; }
     .slide.on .pill.big::after { animation: ring-flash 1.6s ease-out .9s infinite; }
+    /* Top right: a white download arrow on a black circle with the same flashing yellow ring as the last slide's
+       Download (Gianni), instead of the word */
+    .dl-top { position: relative; flex: none; display: grid; place-items: center; width: 40px; height: 40px; margin: 0 6px 0 4px;
+      border-radius: 50%; background: #111; color: #fff; box-shadow: 0 0 0 5px #f5c945; transition: transform .2s var(--spring); }
+    .dl-top svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    .dl-top::after { content: ''; position: absolute; inset: -5px; border-radius: 50%; pointer-events: none;
+      box-shadow: 0 0 0 5px #f5c945, 0 0 20px 6px rgba(245, 201, 69, .8); opacity: 0; animation: ring-flash 1.6s ease-out .9s infinite; }
+    .dl-top:hover { transform: scale(1.06); }
+    .dl-top:active { transform: scale(.94); }
+    .dl-top:focus-visible { outline: 2px solid #101b42; outline-offset: 8px; }
     @keyframes ring-flash {
       0% { opacity: 1; transform: scale(1); }
       70% { opacity: 0; transform: scale(1.14); }
@@ -573,8 +582,6 @@
       h2 { font-size: clamp(44px, 5.2vw, 72px); }
       .lead { font-size: clamp(19px, 1.7vw, 22px); }
     }
-    /* the big name needs the room on narrow phones: the last slide has its own Download button */
-    @media (max-width: 389px) { .top .pill.small { display: none; } }
     @media (max-height: 760px) and (max-width: 879px) {
       .slide .fine, .slide .steps, .slide .swatches { display: none; }
       .lead { font-size: 15px; }
@@ -598,7 +605,7 @@
       </select>
     </label>
     <!-- placeholder download link: set GET_GO_EPIC_URL in the script at the bottom -->
-    <a class="pill small js-get" href="#get-go-epic-link-coming-soon" data-i="get_short">Download</a>
+    <a class="dl-top js-get" href="#get-go-epic-link-coming-soon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg><span class="sr" data-i="get_short">Download</span></a>
   </header>
 
   <main class="stage" id="tour" aria-roledescription="carousel" aria-label="Go Epic tour">
