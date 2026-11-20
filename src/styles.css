@@ -337,6 +337,21 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 /* Week board: the + (new task) is the floating ✎'s twin, standing 12px above it; only a symbol, no words (Gianni) */
 .new-fab { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 64px); font-size: 28px; line-height: 1; }
 .overview-fab { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 128px); display: grid; place-items: center; }   /* the day overview stands above + (Gianni) */
+/* the themes (Gianni): a round button on top of the stack; its tiles fan out to the left, two rows of four */
+.theme-fab { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 192px); display: grid; place-items: center; z-index: 22; }
+.theme-fab.open { background: var(--teal); }
+.theme-fan-veil { position: fixed; inset: 0; z-index: 21; background: rgba(4, 9, 30, .18); }
+.theme-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 64px);
+  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(360px, calc(100vw - max(16px, env(safe-area-inset-right)) - 76px));
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.theme-tile { position: relative; display: grid; justify-items: center; gap: 4px; min-height: 40px; padding: 6px 4px 7px; border: 0; border-radius: 16px;
+  background: var(--navy-card); color: var(--ink); box-shadow: 0 8px 22px rgba(1, 6, 29, .4); font: inherit; cursor: pointer; }
+.theme-tile .theme-preview { width: 100%; height: auto; aspect-ratio: 5 / 4; }
+.theme-tile-name { font-size: 12px; font-weight: 600; line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
+.theme-tile.on { box-shadow: 0 0 0 3px var(--teal), 0 8px 22px rgba(1, 6, 29, .4); }
+.theme-tile-check { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%;
+  background: var(--teal); color: #0b2f2a; font-size: 13px; font-weight: 700; }
+.theme-tile:focus-visible, .theme-fab:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
 /* while arranging, the ✎'s spot holds a third ✓ Finish (Gianni): the same size and place as the other round buttons,
    in the Finish chips' teal and weight, without their heavy shadow */
 .capture-fab.finish-fab { background: var(--teal); color: #0b2f2a; font-size: 20px; font-weight: 700; line-height: 1; box-shadow: none; }

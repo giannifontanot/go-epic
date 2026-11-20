@@ -426,6 +426,8 @@
     <div class="info-foot"><button type="button" class="primary" (click)="closeOverview()">{{ i18n.t('week.infoClose') }}</button></div>
   }
 </dialog>
+<!-- the themes, on top of the floating buttons (Gianni): they fan out of it to the left -->
+@if (!arranging()) { <app-theme-fan /> }
 @if (!arranging() && store.loaded() && todos.ready()) {
   <button type="button" class="capture-fab overview-fab" [attr.aria-label]="i18n.t('week.overview')" [title]="i18n.t('week.overview')" (click)="openOverview()">
     <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="currentColor">
