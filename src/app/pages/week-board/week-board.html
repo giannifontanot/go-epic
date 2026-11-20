@@ -149,7 +149,12 @@
                                 (click)="$event.stopPropagation(); moveTask(day, block, ti, -1)">▲</button>
                         <button type="button" class="round" [disabled]="!canStep(tfirst, tlast, bfirst, blast, 1)" [attr.aria-label]="i18n.t('week.taskDown')" [title]="i18n.t('week.taskDown')"
                                 (click)="$event.stopPropagation(); moveTask(day, block, ti, 1)">▼</button>
-                        <button type="button" class="round push" [attr.aria-label]="i18n.t('week.taskActions') + ': ' + task.title" [title]="i18n.t('week.taskActions')"
+                        <!-- Track in Progress (Gianni): on the card itself, centred between the arrows and the edit tools -->
+                        <label class="t-track" [class.on]="isTracked(task)" [class.off]="!canTrack(task)" (click)="$event.stopPropagation()" (pointerdown)="$event.stopPropagation()">
+                          <input type="checkbox" [checked]="isTracked(task)" [disabled]="!canTrack(task)" (change)="setTrack(task, $any($event.target).checked)" />
+                          <span>{{ i18n.t('task.track') }}</span>
+                        </label>
+                        <button type="button" class="round" [attr.aria-label]="i18n.t('week.taskActions') + ': ' + task.title" [title]="i18n.t('week.taskActions')"
                                 (click)="$event.stopPropagation(); openTask(day, block, task)">✎</button>
                         <button type="button" class="round danger-x" [attr.aria-label]="i18n.t('week.deleteTask') + ': ' + task.title" [title]="i18n.t('week.deleteTask')"
                                 (click)="$event.stopPropagation(); deleteTask(day, block, task)">✕</button>
