@@ -7,8 +7,9 @@
   ES dictionary in the script below (browser language es-*, the EN/ES switch, or ?lang=es).
   The emblem (emblem.webp) is Gianni's winged-sword logo, on a transparent background.
 
-  ▶ DOWNLOAD LINK: every download button takes its address from GET_GO_EPIC_URL in the script at the
-    bottom of this file. It is a placeholder for now: put the real link there (one place) when it exists.
+  ▶ DOWNLOAD: the page links the app's own manifest, so Chrome and Edge treat it as the Go Epic app (same scope,
+    start and id "/"): a download button opens the browser's real install window (beforeinstallprompt). Where a
+    browser has no such window (iPhone, Firefox, already installed) it shows how to add the app instead.
 -->
 <html lang="en">
 <head>
@@ -23,6 +24,8 @@
   <link rel="alternate" hreflang="x-default" href="https://go-epic.web.app/get/" />
   <meta name="robots" content="index, follow" />
   <meta name="theme-color" content="#fbfbfd" />
+  <!-- the app's own manifest: installing from here installs the Go Epic app itself (start "/") -->
+  <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="icon" type="image/png" href="/get/emblem-48.png" />
   <link rel="apple-touch-icon" href="/get/emblem-180.png" />
   <link rel="preload" as="image" href="/get/emblem.webp" />
@@ -564,6 +567,18 @@
       transform: translate(-50%, 16px); opacity: 0; pointer-events: none; transition: opacity .3s, transform .4s var(--spring);
       -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    /* How to add the app where the browser has no install window of its own (iPhone, Firefox, already installed) */
+    .install { width: min(92vw, 400px); margin: auto; padding: 24px 22px 20px; border: 0; border-radius: 24px; background: #fff; color: var(--ink);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, .22); }
+    .install::backdrop { background: rgba(16, 27, 66, .35); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+    .install h2 { margin: 0 0 6px; font-size: 22px; line-height: 1.2; letter-spacing: -.01em; }
+    .install p { margin: 0 0 12px; color: var(--mute); font-size: 15px; line-height: 1.45; }
+    .install ol { margin: 0 0 18px; padding-left: 1.3em; font-size: 16px; line-height: 1.5; }
+    .install li + li { margin-top: 6px; }
+    .install .row { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+    .install .row > * { min-height: 44px; padding: 0 20px; font-size: 16px; }
+    .install .quiet { border: 0; border-radius: 999px; background: var(--soft); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
+    .install .quiet:focus-visible, .install .pill:focus-visible { outline: 2px solid #c9a227; outline-offset: 2px; }
 
     @media (min-width: 720px) {
       .nav { padding-top: 10px; }
@@ -608,8 +623,7 @@
         <option value="es" lang="es">Español</option>
       </select>
     </label>
-    <!-- placeholder download link: set GET_GO_EPIC_URL in the script at the bottom -->
-    <a class="dl-top js-get" href="#get-go-epic-link-coming-soon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg><span class="sr" data-i="get_short">Download</span></a>
+    <a class="dl-top js-get" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg><span class="sr" data-i="get_short">Download</span></a>
   </header>
 
   <main class="stage" id="tour" aria-roledescription="carousel" aria-label="Go Epic tour">
@@ -652,8 +666,7 @@
           <p class="kicker gold" data-i="k7">Ready?</p>
           <h2 data-i="h7">Your epic week starts now.</h2>
           <p class="lead" data-i="l7">Sign in with Google and add it to your home screen. Free, and it works offline.</p>
-          <!-- placeholder download link: set GET_GO_EPIC_URL in the script at the bottom -->
-          <a class="pill big js-get" href="#get-go-epic-link-coming-soon" data-i="get_long2">Download Go Epic, it's free</a>
+          <a class="pill big js-get" href="/" data-i="get_long2">Download Go Epic, it's free</a>
           <p class="steps" data-i="steps"><b>iPhone:</b> Safari → Share → Add to Home Screen · <b>Android and computer:</b> Chrome → Install app</p>
         </section>
       </div>
@@ -846,13 +859,17 @@
 
   <p class="sr" aria-live="polite" id="announce"></p>
   <div class="toast" role="status" aria-live="polite"></div>
+  <dialog class="install" aria-labelledby="install-title">
+    <h2 id="install-title"></h2>
+    <p class="install-lead"></p>
+    <ol class="install-steps"></ol>
+    <div class="row">
+      <button type="button" class="quiet install-close"></button>
+      <a class="pill install-open" href="/"></a>
+    </div>
+  </dialog>
 
   <script>
-    /* ▶ THE DOWNLOAD LINK. A placeholder for now (it only shows a "coming soon" note).
-       Put the real address here when it exists, e.g. 'https://go-epic.web.app/' or a store link:
-       every download button on the page (class js-get) takes it. */
-    var GET_GO_EPIC_URL = '#get-go-epic-link-coming-soon';
-
     var ES = {
       get_short: 'Descargar', get_long2: 'Descarga Go Epic, es gratis',
       k0: '<span>Planea<b>.</b></span> <span>Enfócate<b>.</b></span> <span>Crece<b>.</b></span>', l0: '<span class="eyebrow">Nuestra misión</span><q>Todo lo que tenemos que decidir es qué hacer con el tiempo que se nos ha dado.</q> <cite>Gandalf · J.R.R. Tolkien</cite>',
@@ -901,9 +918,19 @@
     };
     var UI = {
       en: { back: 'Back', end: 'Go to the last slide', next: 'Next', again: 'Start over', step: 'Slide %n of %t', go: 'Go to slide %n', tour: 'Go Epic tour', nav: 'Tour',
-            soon: 'The download link is coming soon. Thanks for your interest!', left: '{n} min left', qs: 'Quotes', qp: 'Previous quote', qn: 'Next quote' },
+            installing: 'Installing Go Epic… it will appear with your apps.', open: 'Open Go Epic', close: 'Close',
+            iosT: 'Add Go Epic to your iPhone', iosL: 'Safari installs it from the app itself, in three taps:',
+            iosS: ['Tap <b>Open Go Epic</b> below.', 'Tap <b>Share</b> <span aria-hidden="true">⎙</span> at the bottom of Safari.', 'Choose <b>Add to Home Screen</b>, then <b>Add</b>.'],
+            anyT: 'Install Go Epic', anyL: 'Already installed? Open it from your home screen or apps. If not:',
+            anyS: ['Tap <b>Open Go Epic</b> below.', 'Open your browser’s menu (⋮ or ⋯).', 'Choose <b>Install app</b> or <b>Add to Home screen</b>.'],
+            left: '{n} min left', qs: 'Quotes', qp: 'Previous quote', qn: 'Next quote' },
       es: { back: 'Atrás', end: 'Ir a la última lámina', next: 'Siguiente', again: 'Volver al inicio', step: 'Paso %n de %t', go: 'Ir al paso %n', tour: 'Recorrido por Go Epic', nav: 'Recorrido',
-            soon: 'El enlace de descarga llega muy pronto. ¡Gracias por tu interés!', left: 'quedan {n} min', qs: 'Frases', qp: 'Frase anterior', qn: 'Frase siguiente' }
+            installing: 'Instalando Go Epic… aparecerá con tus apps.', open: 'Abrir Go Epic', close: 'Cerrar',
+            iosT: 'Agrega Go Epic a tu iPhone', iosL: 'Safari la instala desde la propia app, en tres toques:',
+            iosS: ['Toca <b>Abrir Go Epic</b> abajo.', 'Toca <b>Compartir</b> <span aria-hidden="true">⎙</span> abajo en Safari.', 'Elige <b>Agregar a pantalla de inicio</b> y luego <b>Agregar</b>.'],
+            anyT: 'Instala Go Epic', anyL: '¿Ya la tienes? Ábrela desde tu pantalla de inicio o tus apps. Si no:',
+            anyS: ['Toca <b>Abrir Go Epic</b> abajo.', 'Abre el menú del navegador (⋮ o ⋯).', 'Elige <b>Instalar app</b> o <b>Agregar a pantalla principal</b>.'],
+            left: 'quedan {n} min', qs: 'Frases', qp: 'Frase anterior', qn: 'Frase siguiente' }
     };
     var META = {
       en: { title: document.title, desc: document.querySelector('meta[name="description"]').content },
@@ -1106,6 +1133,7 @@
       if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
       var tag = (e.target.tagName || '').toLowerCase();
       if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
+      if (sheet.open) return;
       if (e.key === 'ArrowRight') { e.preventDefault(); forward(); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); backward(); }
     });
@@ -1178,18 +1206,56 @@
     setLang(DICTS[wanted] ? wanted : 'en');
     show(0);
 
-    // Download buttons: the real link when GET_GO_EPIC_URL has one, else a friendly "coming soon" note.
-    var placeholder = GET_GO_EPIC_URL.charAt(0) === '#';
-    var toast = document.querySelector('.toast'), toastTimer;
+    // Download buttons install the real app. The page links the app's manifest, so Chrome and Edge offer it as the
+    // Go Epic app: we keep their install event and open the browser's own install window on a tap (Gianni: a real
+    // download). Without one (iPhone and iPad, Firefox, Safari on a Mac, or the app is already installed) a small
+    // window shows how to add it, with a button that opens the app. Opened inside the installed app, they just open it.
+    var toast = document.querySelector('.toast'), toastTimer, installEvent = null;
+    var sheet = document.querySelector('.install');
+    function say(text) {
+      toast.textContent = text; toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 4200);
+    }
+    window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); installEvent = e; });
+    // Browsers that can install (Chrome, Edge) also get the app's own service worker, once the page has settled, so
+    // the installed app opens at once and offline the very first time. It never answers this page (ngsw-config
+    // keeps /get out of its navigations).
+    if ('onbeforeinstallprompt' in window && 'serviceWorker' in navigator && !standalone()) {
+      window.addEventListener('load', function () {
+        setTimeout(function () { navigator.serviceWorker.register('/ngsw-worker.js', { scope: '/' }).catch(function () {}); }, 2500);
+      });
+    }
+    window.addEventListener('appinstalled', function () { installEvent = null; say(UI[lang].installing); });
+    function standalone() {
+      return navigator.standalone === true || ['standalone', 'fullscreen', 'minimal-ui'].some(function (m) {
+        return window.matchMedia && matchMedia('(display-mode: ' + m + ')').matches;
+      });
+    }
+    function iOS() { return /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+    function showSheet() {
+      var t = UI[lang], ios = iOS();
+      sheet.querySelector('h2').textContent = ios ? t.iosT : t.anyT;
+      sheet.querySelector('.install-lead').textContent = ios ? t.iosL : t.anyL;
+      sheet.querySelector('.install-steps').innerHTML = (ios ? t.iosS : t.anyS).map(function (x) { return '<li>' + x + '</li>'; }).join('');
+      sheet.querySelector('.install-open').textContent = t.open;
+      sheet.querySelector('.install-close').textContent = t.close;
+      if (sheet.showModal) sheet.showModal(); else location.href = '/';
+    }
+    sheet.querySelector('.install-close').addEventListener('click', function () { sheet.close(); });
+    sheet.addEventListener('click', function (e) {
+      if (e.target !== sheet) return;
+      var r = sheet.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) sheet.close();
+    });
     document.querySelectorAll('.js-get').forEach(function (a) {
-      a.setAttribute('href', GET_GO_EPIC_URL);
       a.addEventListener('click', function (e) {
-        if (!placeholder) return;
+        if (standalone()) return;               // inside the installed app: the link simply opens it
         e.preventDefault();
-        toast.textContent = UI[lang].soon;
-        toast.classList.add('show');
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 3200);
+        if (!installEvent) { showSheet(); return; }
+        var ev = installEvent; installEvent = null; // the browser lets each install event be used once
+        ev.prompt();
+        ev.userChoice.then(function (c) { if (c && c.outcome === 'accepted') say(UI[lang].installing); }).catch(function () {});
       });
     });
   </script>
