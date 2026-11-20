@@ -44,7 +44,7 @@ export type { MenuAction };
         </button>
       }
       @if (edit(); as action) {
-        <button type="button" class="capture-fab act-fab" [style.--i]="index().edit" [attr.aria-label]="action.label" [title]="action.label"
+        <button type="button" class="capture-fab act-fab edit-fab" [style.--i]="index().edit" [attr.aria-label]="action.label" [title]="action.label"
                 (click)="run(action.run)">✎</button>
       }
       <app-page-fan [style.--i]="index().pages" (went)="close()" />

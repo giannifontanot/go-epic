@@ -364,6 +364,9 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
   transition: transform .3s cubic-bezier(.4, 0, 1, 1), opacity .26s ease; }
 .action-stack.open .capture-fab { opacity: 1; transform: none; pointer-events: auto;
   transition: transform .34s cubic-bezier(0, 0, .2, 1) calc(var(--i, 0) * 40ms), opacity .26s ease calc(var(--i, 0) * 40ms); }
+/* the menu's ✎ Edit opens another menu (the edit tools), so it wears a red ring (Gianni) */
+html .action-stack .capture-fab.act-fab.edit-fab.edit-fab { box-shadow: 0 0 0 3px var(--edit-red, #e5484d), 0 3px 10px rgba(1, 6, 29, .3); }
+html:is([data-theme='office'], [data-theme='graphite']) { --edit-red: #b4504b; }
 .page-fab { z-index: 22; }
 .page-fab.open { background: var(--teal); }
 /* the pages (Gianni): pills that fan out to the left of their button, the page you are on marked */
