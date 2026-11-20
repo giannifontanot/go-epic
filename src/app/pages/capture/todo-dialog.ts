@@ -131,7 +131,7 @@ export class TodoDialog implements AfterViewInit {
       const node = nodeById(made.lib, made.id);
       const card = { id: newId(), title: node?.title ?? title, minutes: validMinutes(node?.minutes ?? this.activityMinutes()),
         color: node?.color ?? null, active: true, ref: made.id };
-      const time = parseClock(this.time()) !== null ? this.time() : todo.time;
+      const time = parseClock(this.time()) !== null ? this.time() : null;              // the editor's hour: empty = all day
       const blocks = placeActivity(this.week.plan(day), time, card, this.i18n.t('week.newBlock'));
       if (!blocks) { this.problem.set(this.i18n.t('capture.toActivityNoRoom')); return; }
       const write = this.week.stage(day, blocks);
