@@ -18,10 +18,11 @@ const STEP_MS = 40;
   template: `
     <button #fab type="button" class="capture-fab theme-fab" [class.open]="open()" [attr.aria-expanded]="open()" aria-controls="theme-fan"
             [attr.aria-label]="i18n.t('settings.theme')" [title]="i18n.t('settings.theme')" (click)="toggle()">
-      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="currentColor">
-        <path d="M12 3a9 9 0 0 0 0 18c1.1 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.8-1.7 1.7-1.7H16a5 5 0 0 0 5-5C21 6.4 17 3 12 3Z"/>
-        <circle cx="7.5" cy="11" r="1.4" fill="var(--fab, var(--pink))"/><circle cx="10" cy="7.3" r="1.4" fill="var(--fab, var(--pink))"/>
-        <circle cx="14.5" cy="7.3" r="1.4" fill="var(--fab, var(--pink))"/><circle cx="17" cy="11" r="1.4" fill="var(--fab, var(--pink))"/>
+      <!-- an outlined palette in the button's ink, as light as the other round buttons' icons (Gianni: the filled one was too dark) -->
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+        <path d="M12 3.5a8.5 8.5 0 0 0 0 17c1 0 1.6-.7 1.6-1.5 0-.5-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.1 0-.9.7-1.6 1.6-1.6H16a4.6 4.6 0 0 0 4.5-4.6C20.5 6.7 16.7 3.5 12 3.5Z"/>
+        <g fill="currentColor" stroke="none"><circle cx="7.6" cy="11" r="1.3"/><circle cx="10" cy="7.5" r="1.3"/>
+        <circle cx="14.4" cy="7.5" r="1.3"/><circle cx="16.8" cy="11" r="1.3"/></g>
       </svg>
     </button>
     @if (open()) {

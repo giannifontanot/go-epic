@@ -1,4 +1,4 @@
-<section class="board" [class.locked]="!arranging()" [class.has-tray]="overdue().length > 0" [class.tray-folded]="trayFolded()">
+<section class="board" [class.locked]="!arranging()" [class.spot]="spotlight()" [class.has-tray]="overdue().length > 0" [class.tray-folded]="trayFolded()">
   <!-- why a move or a drop was refused (no room in that block): a short note that fades by itself -->
   @if (notice()) { <p class="board-notice" role="status">{{ notice() }}</p> }
   <!-- Title and 💡 Capture at the right; while arranging ✓ Finish takes the 💡's place (Capture's tasks are hidden then

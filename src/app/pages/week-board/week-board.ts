@@ -139,6 +139,7 @@ export class WeekBoard {
       untracked(() => afterNextRender({ read: () => this.centreOnNow(true) }, { injector: this.injector }));
     });
     this.followNow();
+    effect(() => { if (this.arranging()) untracked(() => this.spotlight.set(false)); });
   }
 
   /**
@@ -155,6 +156,13 @@ export class WeekBoard {
       stop();
       timer = setTimeout(() => { timer = null; if (!touching) this.centreOnNow(false); }, NOW_IDLE_MS);
     };
+    // The spotlight (Gianni): a scroll of our own (centring the line) keeps it coming; any other scroll fades it away.
+    const scrolled = () => {
+      if (this.autoScroll) this.endAutoScroll(160);
+      else this.spotlight.set(false);
+      arm();
+    };
+    const takeOver = () => { if (this.autoScroll) { clearTimeout(this.autoScroll); this.autoScroll = null; } this.spotlight.set(false); };
     const down = () => { touching = true; stop(); };
     const up = () => { touching = false; arm(); };
     // A finger is followed by touch events: a native scroll cancels the pointer (pointercancel) while the finger is
@@ -163,14 +171,32 @@ export class WeekBoard {
     const pointerUp = (e: PointerEvent) => { if (e.pointerType !== 'touch') up(); };
     const opts = { capture: true, passive: true } as const;
     const listeners: [string, EventListener][] = [
-      ['scroll', arm], ['touchstart', down], ['touchend', up], ['touchcancel', up],
+      ['scroll', scrolled], ['wheel', takeOver], ['touchmove', takeOver], ['touchstart', down], ['touchend', up], ['touchcancel', up],
       ['pointerdown', pointerDown as EventListener], ['pointerup', pointerUp as EventListener],
     ];
     for (const [type, fn] of listeners) window.addEventListener(type, fn, opts);
     inject(DestroyRef).onDestroy(() => {
       stop();
+      if (this.autoScroll) clearTimeout(this.autoScroll);
       for (const [type, fn] of listeners) window.removeEventListener(type, fn, opts);
     });
+  }
+
+  /**
+   * While the board rests on now after centring the red line, every other block dims a very little, so the current
+   * one stands out (Gianni); a scroll of his own (or arranging) fades it away. Only when the line sits in a block.
+   */
+  protected readonly spotlight = signal(false);
+  /** A centring scroll is under way: its scroll events keep the spotlight coming instead of turning it off. */
+  private autoScroll: ReturnType<typeof setTimeout> | null = null;
+  /** The centring scroll ends once its scroll events stop for `quiet` ms; then the spotlight comes on. */
+  private endAutoScroll(quiet: number): void {
+    if (this.autoScroll) clearTimeout(this.autoScroll);
+    this.autoScroll = setTimeout(() => { this.autoScroll = null; this.light(); }, quiet);
+  }
+  private light(): void {
+    const line = document.querySelector<HTMLElement>('article.day.today .now-line');
+    this.spotlight.set(!this.arranging() && !!line?.closest('.block') && line.getClientRects().length > 0);
   }
   protected readonly mobileDay = signal<Day>(this.store.today());
   /**
@@ -309,8 +335,9 @@ export class WeekBoard {
     if (!target || !target.getClientRects().length) return;                 // hidden (another day's tab)
     const rect = target.getBoundingClientRect();
     const view = window.visualViewport?.height ?? window.innerHeight;
-    if (line && Math.abs(rect.top - view / 2) <= 4) return;                  // already in the middle
+    if (line && Math.abs(rect.top - view / 2) <= 4) { if (!this.autoScroll) this.light(); return; }   // already in the middle
     const smooth = typeof matchMedia === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.endAutoScroll(400);                                                  // no scroll at all (an edge): it still lights
     target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: smooth ? 'smooth' : 'auto' });
   }
 

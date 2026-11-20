@@ -695,6 +695,11 @@ dialog.editor.color-window { width: min(340px, calc(100vw - 32px)); height: fit-
 /* Week: one switch opens / closes every block (beside the day's +); the body folds smoothly (grid rows 1fr ↔ 0fr) */
 .day-actions { display: inline-flex; align-items: center; gap: 8px; }
 .fold-all { font-size: 20px; line-height: 1; }
+/* the spotlight (Gianni): while the board rests centred on now, the other blocks dim a very little, so the current one
+   stands out; it fades in and out (instant under reduced motion) */
+.board.locked .block { transition: filter .6s ease; }
+.board.locked.spot .block:not(:has(.now-line)) { filter: brightness(.9) saturate(.9); }
+@media (prefers-reduced-motion: reduce) { .board.locked .block { transition: none; } }
 .block-body { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr; transition: grid-template-rows .4s cubic-bezier(.22, 1, .36, 1), opacity .3s ease; }
 .block-body.closed { grid-template-rows: 0fr; opacity: 0; }
 .block-inner { min-width: 0; min-height: 0; overflow: hidden; }   /* min-width 0: a long one-line title shrinks to the block (ellipsis) instead of stretching the card past it */
@@ -1082,24 +1087,35 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
 .setting-text small { color: var(--ink-soft); }
 .red-sample { display: inline-block; width: 22px; height: 0; margin: 0 8px 4px 0; border-top: 3px solid var(--now); vertical-align: middle; }
 
-/* Week: the tasks left open on earlier days float at the foot of the screen (Gianni: always in sight), beside the
-   floating ✎; the list scrolls inside when long, and the week leaves room under its last block */
-.overdue-tray { position: fixed; z-index: 15; left: max(12px, env(safe-area-inset-left)); right: calc(max(16px, env(safe-area-inset-right)) + 64px);
-  bottom: max(14px, env(safe-area-inset-bottom)); max-width: 560px; max-height: 34vh; display: flex; flex-direction: column; padding: 8px 8px 8px;
-  border-radius: 18px; background: var(--navy-card); box-shadow: 0 -2px 0 rgba(220, 38, 38, .55), 0 10px 30px rgba(0, 0, 0, .45); }
-/* The top border is a button (Gianni): it folds the list down out of sight, leaving only this bar, and back */
-.overdue-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 40px;
-  margin: -8px 0 0; padding: 8px 12px 6px; border: 0; border-radius: 18px 18px 8px 8px; background: transparent; cursor: pointer;
+/* Week: the tasks left open on earlier days wait at the foot of the screen (Gianni: always in sight), beside the
+   floating ✎, in a file folder (Gianni: not a floating box): its raised tab holds the heading, the folder's body sits
+   on the screen's bottom edge, the list scrolls inside it when long, and the week leaves room under its last block */
+.overdue-tray { --folder: var(--navy-card); position: fixed; z-index: 15; left: max(12px, env(safe-area-inset-left));
+  right: calc(max(16px, env(safe-area-inset-right)) + 64px); bottom: 0; max-width: 560px; max-height: 36vh; display: flex; flex-direction: column;
+  filter: drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
+/* The tab is a button (Gianni): it folds the folder down to its lip, leaving only the tab, and back */
+.overdue-head { position: relative; flex: none; align-self: flex-start; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 22px);
+  min-height: 40px; margin: 0; padding: 9px 16px 5px; border: 0; border-radius: 14px 14px 0 0; background: var(--folder);
+  box-shadow: inset 0 3px 0 rgba(220, 38, 38, .55); cursor: pointer;
   font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft); text-align: left; }
+.overdue-head span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* the tab's foot flares into the folder's edge, as on a real folder */
+.overdue-head::after { content: ''; position: absolute; right: -14px; bottom: 0; width: 14px; height: 14px; pointer-events: none;
+  background: radial-gradient(circle at 100% 0, transparent 13.5px, var(--folder) 14px); }
 .overdue-head:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
 .overdue-chev { font-size: 18px; line-height: 1; transition: rotate .35s cubic-bezier(.22, 1, .36, 1); }
 .overdue-tray.folded .overdue-chev { rotate: 180deg; }
-.overdue-body { flex: 0 1 auto; min-height: 0; display: grid; grid-template-rows: 1fr; transition: grid-template-rows .4s cubic-bezier(.22, 1, .36, 1), opacity .3s ease; }
-.overdue-tray.folded .overdue-body { grid-template-rows: 0fr; opacity: 0; }
-.overdue-tray.folded { padding-bottom: 0; }
-.overdue-tray { transition: padding-bottom .4s cubic-bezier(.22, 1, .36, 1); }
+.overdue-body { flex: 0 1 auto; min-height: 0; display: grid; grid-template-rows: 1fr; padding: 8px 8px max(10px, env(safe-area-inset-bottom));
+  border-radius: 0 16px 0 0; background: var(--folder);
+  transition: grid-template-rows .4s cubic-bezier(.22, 1, .36, 1), padding .4s cubic-bezier(.22, 1, .36, 1); }
+.overdue-body > ul { transition: opacity .3s ease; }
+/* folded: only the tab and the folder's lip stay on the screen's edge */
+.overdue-tray.folded .overdue-body { grid-template-rows: 0fr; padding-top: 0; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
+.overdue-tray.folded .overdue-body > ul { opacity: 0; }
 .overdue-tray ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
-.board.has-tray { padding-bottom: min(36vh, 220px); }
+.board.has-tray { padding-bottom: min(38vh, 230px); }
 .board.has-tray.tray-folded { padding-bottom: 72px; }
-@media (prefers-reduced-motion: reduce) { .overdue-body, .overdue-chev, .overdue-tray { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .overdue-body, .overdue-body > ul, .overdue-chev { transition: none; } }
+html.tilt .overdue-head { rotate: none; translate: none; }   /* the tab is part of its folder: it never leans off it */
+html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray { filter: grayscale(1) drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
 @media (min-width: 821px) { .overdue-tray { left: 50%; right: auto; width: min(560px, calc(100vw - 180px)); translate: -50% 0; } }
