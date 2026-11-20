@@ -1247,8 +1247,9 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
 .board.has-tray.tray-folded { padding-bottom: calc(var(--tray-h, 56px) + 16px); }
 @media (prefers-reduced-motion: reduce) { .overdue-body, .overdue-body > ul, .overdue-chev { transition: none; } }
 html.tilt .overdue-head { rotate: none; translate: none; }   /* the tab is part of its folder: it never leans off it */
-html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray { filter: grayscale(1) drop-shadow(3px 0 0 var(--tray-edge))
-  drop-shadow(-3px 0 0 var(--tray-edge)) drop-shadow(0 -3px 0 var(--tray-edge)) drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }   /* the red line after the grey, so it stays red */
+/* Office and Graphite: the line takes the theme's grey edge instead of red, so it stays quiet there (Gianni) */
+html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray { --tray-edge: var(--g-edge); filter: grayscale(1) drop-shadow(3px 0 0 var(--tray-edge))
+  drop-shadow(-3px 0 0 var(--tray-edge)) drop-shadow(0 -3px 0 var(--tray-edge)) drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
 @media (min-width: 821px) { .overdue-tray { left: 50%; right: auto; width: min(560px, calc(100vw - 180px)); translate: -50% 0; } }
 
 /* Edit tools (LookStack, Gianni): while editing, round buttons stack at the bottom right above the ✓ Finish: Aa, AV,
