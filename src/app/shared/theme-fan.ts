@@ -39,7 +39,7 @@ const STEP_MS = 40;
       </div>
     }
   `,
-  host: { '(document:keydown.escape)': 'open() && close(true)' },
+  host: { '(document:keydown.escape)': 'onEscape()' },
 })
 export class ThemeFan {
   protected readonly i18n = inject(I18n);
@@ -50,6 +50,11 @@ export class ThemeFan {
   private readonly fab = viewChild.required<ElementRef<HTMLButtonElement>>('fab');
   private readonly tiles = viewChildren<ElementRef<HTMLButtonElement>>('tile');
   private closing = false;
+
+  /** Esc draws the fan back; when it is closed nothing happens, and Esc still reaches the open windows. */
+  protected onEscape(): void {
+    if (this.open()) this.close(true);
+  }
 
   protected toggle(): void {
     if (this.open()) { this.close(); return; }
