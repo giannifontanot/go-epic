@@ -1,3 +1,4 @@
+import { TitleFan } from './shared/title-fan';
 import { Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
@@ -19,7 +20,7 @@ import { WeekStore } from './core/week.store';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, CapturePanel, Settings, ActionMenu, ThemeFan, AskWindow],
+  imports: [RouterOutlet, RouterLink, CapturePanel, Settings, ActionMenu, ThemeFan, TitleFan, AskWindow],
   template: `
     @if (auth.user()) {
       <app-capture-panel />
@@ -28,6 +29,7 @@ import { WeekStore } from './core/week.store';
       @if (!ui.menuHidden()) { <app-action-menu /> }
       <!-- the themes fan out of the edit bar's Themes button; drawn here, outside the page (a grey theme's filter would move and grey them) -->
       <app-theme-fan />
+      <app-title-fan />
       <!-- Ajustes: a window over the current page (the theme changes behind it), never a page of its own -->
       @if (ui.settings()) { <app-settings (closed)="ui.settings.set(false)" /> }
       <!-- the app's own question windows (delete?, discard?…), in place of the browser's confirm/alert boxes -->

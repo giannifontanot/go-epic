@@ -1,3 +1,4 @@
+import { PageMenu } from '../../shared/title-fan';
 import { Ask } from '../../shared/ask';
 import { AutoColors } from '../../core/auto-colors';
 import { NgTemplateOutlet } from '@angular/common';
@@ -24,6 +25,17 @@ import { Transfer, TransferDialog } from './transfer-dialog';
 import { readTrayFolded, writeTrayFolded } from '../../core/tray-fold';
 import { SwipeTracker, stepDay } from '../../core/swipe';
 
+/** On entering, the centring on now waits for the page's fade-in (0.9 s) and a second more (Gianni). */
+const ENTER_SETTLE_MS = 1900;
+
+/**
+ * Whether an element is really on the board: laid out and not in a hidden day (on a phone the other days stay in
+ * the layout, invisible, so every day takes the tallest day's height).
+ */
+function shownOnScreen(el: HTMLElement): boolean {
+  return el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
+}
+
 /**
  * The week in seven columns of blocks and task cards. Locked by default (a calm view of the week);
  * "Arrange the week" unlocks editing: block windows, ▲▼, ⇄ copy/move, + and quick-add, and each card's ••• details.
@@ -40,7 +52,7 @@ function viewAnchor(): (() => void) | null {
     let best: { el: HTMLElement; gap: number } | null = null;
     for (const el of document.querySelectorAll<HTMLElement>(selector)) {
       const r = el.getBoundingClientRect();
-      if (!r.height || r.bottom < 0 || r.top > mid * 2 || r.right < 0 || r.left > window.innerWidth) continue;
+      if (!r.height || !shownOnScreen(el) || r.bottom < 0 || r.top > mid * 2 || r.right < 0 || r.left > window.innerWidth) continue;
       const gap = r.top <= mid && r.bottom >= mid ? 0 : Math.min(Math.abs(r.top - mid), Math.abs(r.bottom - mid));
       if (!best || gap < best.gap) best = { el, gap };
     }
@@ -85,6 +97,7 @@ function readFolded(): Set<string> {
 export class WeekBoard {
   protected readonly store = inject(WeekStore);
   protected readonly i18n = inject(I18n);
+  protected readonly pageMenu = inject(PageMenu);
   /** The app's own question windows (never the browser's confirm/alert). */
   private readonly asks = inject(Ask);
   protected readonly library = inject(LibraryStore);
@@ -146,11 +159,18 @@ export class WeekBoard {
     inject(DestroyRef).onDestroy(() => { this.capture.menuEdit.set(null); this.capture.menuHidden.set(false); this.cancelDrag?.(); });
     // On entering the Week board, the view centres on now (the red line in today's column), as in Epic Manager: once
     // the week, the library (card titles) and Capture's notes (the strip at the top) are there, so nothing shifts after.
+    // It waits for the page to have faded in, and a second more (Gianni: it moved the moment it came in).
     let centred = false;
+    const entered = Date.now();
+    let settle: ReturnType<typeof setTimeout> | null = null;
+    inject(DestroyRef).onDestroy(() => { if (settle) clearTimeout(settle); });
     effect(() => {
       if (centred || !this.store.loaded() || !this.library.ready() || !this.todos.ready()) return;
       centred = true;
-      untracked(() => afterNextRender({ read: () => this.centreOnNow(true) }, { injector: this.injector }));
+      const wait = Math.max(0, entered + ENTER_SETTLE_MS - Date.now());
+      untracked(() => afterNextRender({ read: () => {
+        settle = setTimeout(() => { settle = null; if (this.handledAt < entered) this.centreOnNow(true); }, wait);
+      } }, { injector: this.injector }));
     });
     this.followNow();
     effect(() => { if (this.arranging()) untracked(() => this.spotlight.set(false)); });
@@ -179,8 +199,8 @@ export class WeekBoard {
       else if (Date.now() - this.litAt > 700) this.spotlight.set(false);
       arm();
     };
-    const takeOver = () => { if (this.autoScroll) { clearTimeout(this.autoScroll); this.autoScroll = null; } this.spotlight.set(false); };
-    const down = () => { touching = true; stop(); };
+    const takeOver = () => { this.handledAt = Date.now(); if (this.autoScroll) { clearTimeout(this.autoScroll); this.autoScroll = null; } this.spotlight.set(false); };
+    const down = () => { this.handledAt = Date.now(); touching = true; stop(); };
     const up = () => { touching = false; arm(); };
     // A finger is followed by touch events: a native scroll cancels the pointer (pointercancel) while the finger is
     // still on the glass, so pointer events only count for a mouse or a pen.
@@ -204,6 +224,8 @@ export class WeekBoard {
    * one stands out (Gianni); a scroll of his own (or arranging) fades it away. Only when the line sits in a block.
    */
   protected readonly spotlight = signal(false);
+  /** When his finger, mouse or wheel last touched the page: one while the entering centring waits cancels it. */
+  private handledAt = 0;
   /** A centring scroll is under way: its scroll events keep the spotlight coming instead of turning it off. */
   private autoScroll: ReturnType<typeof setTimeout> | null = null;
   /** The centring scroll ends once its scroll events stop for `quiet` ms; then the spotlight comes on. */
@@ -213,7 +235,7 @@ export class WeekBoard {
   }
   private light(): void {
     const line = document.querySelector<HTMLElement>('article.day.today .now-line');
-    const on = !this.arranging() && !!line?.closest('.block') && line.getClientRects().length > 0;
+    const on = !this.arranging() && !!line?.closest('.block') && !!line && shownOnScreen(line);
     if (on) this.litAt = Date.now();
     this.spotlight.set(on);
   }
@@ -413,7 +435,7 @@ export class WeekBoard {
     const line = today?.querySelector<HTMLElement>('.now-line');
     if (!entering && (!line || this.arranging() || document.querySelector('dialog[open]'))) return;
     const target = line ?? today;
-    if (!target || !target.getClientRects().length) return;                 // hidden (another day's tab)
+    if (!target || !shownOnScreen(target)) return;                          // hidden (another day's tab)
     const rect = target.getBoundingClientRect();
     const view = window.visualViewport?.height ?? window.innerHeight;
     if (line && Math.abs(rect.top - view / 2) <= 4) { if (!this.autoScroll) this.light(); return; }   // already in the middle

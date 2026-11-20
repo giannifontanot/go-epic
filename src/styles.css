@@ -179,6 +179,10 @@ dialog.info-card::backdrop { background: rgba(4, 9, 30, .55); }
 .ov-days button[aria-selected='true'] { background: var(--pink); border-color: var(--pink); color: var(--card-ink); }
 .ov-days button.today:not([aria-selected='true']) { border-color: var(--pink); }
 dialog.day-overview { touch-action: pan-y; }
+/* every day of the overview the same size (Gianni): a fixed height, the list scrolling inside it */
+dialog.day-overview[open] { display: flex; flex-direction: column; height: min(86dvh, 720px); overflow: hidden; }
+dialog.day-overview .ov-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; align-content: start; }
+dialog.day-overview :is(.ov-days, .info-head, .info-foot, .hint) { flex: none; }
 .ov-list, .ov-list ul { list-style: none; margin: 0; padding: 0; }
 .ov-list { display: grid; gap: 14px; margin-top: 6px; font-size: calc(15px * var(--esc, 1)); }
 .ov-list ul { display: grid; gap: 6px; margin-top: 6px; padding-left: 14px; border-left: 2px solid color-mix(in srgb, var(--ink) 18%, transparent); }
@@ -219,8 +223,11 @@ dialog.status-menu h2 { margin: 0 0 12px; font-size: 20px; overflow-wrap: anywhe
   .day-tabs button[aria-selected='true'] { background: var(--pink); border-color: var(--pink); color: var(--card-ink); }
   .day-tabs button.today:not([aria-selected='true']) { border-color: var(--pink); }
   .week { grid-auto-flow: row; grid-auto-columns: auto; grid-template-columns: minmax(0, 1fr); overflow: visible; }
-  .day { display: none; }
-  .day.mobile-on { display: flex; }
+  /* one day at a time, every day the same size (Gianni: swiping between days of different heights looked bad): all
+     seven share one grid cell, so the column is as tall as the tallest day; the others stay there hidden */
+  .week { grid-template-areas: 'day'; }
+  .day { grid-area: day; visibility: hidden; }
+  .day.mobile-on { visibility: visible; }
 }
 
 /* Task details: the Floating Canvas editor look */
@@ -359,6 +366,17 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 .page-tile.on { background: var(--pink); color: var(--card-ink); box-shadow: 0 0 0 3px var(--teal), 0 6px 18px rgba(1, 6, 29, .35); }
 .page-tile:focus-visible, .page-fab:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
 .theme-fan-veil { position: fixed; inset: 0; z-index: 21; background: rgba(4, 9, 30, .18); }
+/* A page's title opens the same pages menu (Gianni): the title is a quiet button with a small ⌄, the tiles come out
+   under it, above the floating edit bar */
+.title-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin: 0; padding: 0; border: 0; background: none;
+  color: inherit; font: inherit; letter-spacing: inherit; line-height: inherit; text-align: left; cursor: pointer; }
+.title-chev { font-size: .55em; opacity: .6; transition: rotate .3s ease; }
+.title-btn[aria-expanded='true'] .title-chev { rotate: 180deg; }
+.title-btn:focus-visible { outline: 3px solid var(--teal); outline-offset: 4px; border-radius: 8px; }
+html.tilt .title-btn { translate: none; }   /* it leans with its title, never slides off it */
+.title-veil { z-index: 31; }
+.page-fan.title-fan { z-index: 32; right: auto; }
+@media (prefers-reduced-motion: reduce) { .title-chev { transition: none; } }
 .theme-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 64px);
   bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(360px, calc(100vw - max(16px, env(safe-area-inset-right)) - 76px));
   display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
@@ -381,7 +399,7 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
   width: max-content; max-width: calc(100vw - 32px); margin: 0; padding: 10px 16px; border-radius: 14px; background: var(--navy-card, #1b2757);
   color: var(--ink); font-size: 15px; text-align: center; box-shadow: 0 8px 28px #0007; pointer-events: none; animation: notice-in .25s ease-out; }
 /* every page fades in when it opens (Gianni: never all at once); opacity only, so its fixed parts stay in place */
-main > :not(router-outlet) { animation: page-in .3s ease-out; }
+main > :not(router-outlet) { animation: page-in .9s ease-out; }   /* slow and soft (Gianni: .3 s was too fast) */
 @keyframes page-in { from { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { main > :not(router-outlet) { animation: none; } }
 @keyframes notice-in { from { opacity: 0; translate: -50% 8px; } }
@@ -511,6 +529,7 @@ html.tilt .object { translate: calc(var(--ox, 0px) + (max(var(--tilt-k), 0) * va
 /* Week board top: title · 💡 Capture at the right; while arranging ✓ Finish takes the 💡's place, on the same row */
 .week-top { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; row-gap: 8px; }
 .week-top > span { display: none; }
+.progress-top .idea { width: 44px; height: 44px; font-size: 22px; background: rgba(255, 255, 255, .1); border: 1.5px solid rgba(255, 244, 233, .25); }
 .week-top .idea { justify-self: end; width: 44px; height: 44px; font-size: 22px; background: rgba(255, 255, 255, .1); border: 1.5px solid rgba(255, 244, 233, .25); }
 .week-top .finish { justify-self: end; grid-column: 3; white-space: nowrap; }
 .week-top > h1 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -682,12 +701,16 @@ app-look-bar { grid-column: 1 / -1; display: block; }
 .look-themes.on { background: var(--teal); color: #0b2f2a; }
 .canvas-look { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin: 4px 0 10px; }
 /* The edit bar floats (Gianni): it keeps its place at the top but stays in sight while the page scrolls; on the Week
-   board the whole top while arranging (title, ✓ Finish and the bar), on the Canvas the bar with its Finish. Drawn on
+   board the whole top, always (Gianni: the title and the day chips stay, only the blocks scroll; while arranging ✓
+   Finish and the bar too), on the Canvas the bar with its Finish. Drawn on
    the page's own colour, edge to edge, with a soft shadow under it. */
-.board:not(.locked) > .week-top, .canvas-look { position: sticky; z-index: 30; top: 0;
+.board-head, .canvas-look { position: sticky; z-index: 30; top: 0;
   margin-left: -16px; margin-right: -16px; padding: max(6px, env(safe-area-inset-top)) 16px 8px; background: var(--page);
   box-shadow: 0 8px 14px -10px rgba(0, 0, 0, .45); }
 .canvas-look { margin-top: 0; }
+.board-head { margin-bottom: 12px; }
+.board-head > .week-top { margin-bottom: 0; }
+.board-head > .day-tabs { margin: 8px 0 0; }
 .text-steppers { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 2px; }
 /* Compact, so px / Aa / AV share one row on a phone (Gianni: the top took too much room); the buttons stay 40px */
 .text-steppers .stepper { gap: 0; padding: 0; }
@@ -1159,8 +1182,8 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
 .overdue-tray.folded .overdue-chev { rotate: 180deg; }
 .overdue-body { flex: 0 1 auto; min-height: 0; display: grid; grid-template-rows: 1fr; padding: 8px 8px max(10px, env(safe-area-inset-bottom));
   border-radius: 0 16px 0 0; background: var(--folder);
-  transition: grid-template-rows .4s cubic-bezier(.22, 1, .36, 1), padding .4s cubic-bezier(.22, 1, .36, 1); }
-.overdue-body > ul { transition: opacity .3s ease; }
+  transition: grid-template-rows 1s cubic-bezier(.22, 1, .36, 1), padding 1s cubic-bezier(.22, 1, .36, 1); }   /* slow (Gianni) */
+.overdue-body > ul { transition: opacity .8s ease; }
 /* folded: only the tab and the folder's lip stay on the screen's edge */
 .overdue-tray.folded .overdue-body { grid-template-rows: 0fr; padding-top: 0; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
 .overdue-tray.folded .overdue-body > ul { opacity: 0; }

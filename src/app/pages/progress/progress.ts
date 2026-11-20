@@ -1,3 +1,5 @@
+import { CaptureUi } from '../capture/capture-ui';
+import { PageMenu } from '../../shared/title-fan';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { AuthService } from '../../core/auth.service';
@@ -22,7 +24,10 @@ const HISTORY_DAYS = 90;
   imports: [NgTemplateOutlet],
   template: `
     <section class="progress-page">
-      <header class="board-top"><h1>{{ i18n.t('progress.title') }}</h1></header>
+      <header class="board-top progress-top"><h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')" (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('progress.title') }}<span class="title-chev" aria-hidden="true">⌄</span></button></h1>
+        <!-- 💡 Capture's lists, at the top right as on the other pages (Gianni) -->
+        <button type="button" class="round idea" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')" (click)="captureUi.open.set(true)">💡</button>
+      </header>
       @if (!store.loaded()) {
         <p class="muted">{{ i18n.t('loading') }}</p>
       } @else if (!list().length && !taskList().length) {
@@ -68,6 +73,8 @@ const HISTORY_DAYS = 90;
 })
 export class Progress {
   protected readonly i18n = inject(I18n);
+  protected readonly pageMenu = inject(PageMenu);
+  protected readonly captureUi = inject(CaptureUi);
   protected readonly store = inject(WeekStore);
   private readonly auth = inject(AuthService);
   private readonly history = signal<Record<string, DayMarks>>({});
