@@ -24,7 +24,8 @@ const STEP_MS = 40;
       </svg>
     </button>
     @if (open()) {
-      <button type="button" class="theme-fan-veil" tabindex="-1" aria-hidden="true" (click)="close()"></button>
+      <!-- a div, not a button: buttons lean with the phone, and a leaning veil would leave the board tappable at its edges -->
+      <div class="theme-fan-veil" aria-hidden="true" (click)="close()"></div>
       <div id="theme-fan" class="theme-fan" role="radiogroup" [attr.aria-label]="i18n.t('settings.theme')">
         @for (theme of themes; track theme) {
           <button #tile type="button" class="theme-tile" role="radio" [attr.data-preview]="theme" [attr.aria-checked]="look.theme() === theme"

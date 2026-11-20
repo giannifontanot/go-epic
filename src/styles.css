@@ -340,7 +340,7 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 /* the themes (Gianni): a round button on top of the stack; its tiles fan out to the left, two rows of four */
 .theme-fab { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 192px); display: grid; place-items: center; z-index: 22; }
 .theme-fab.open { background: var(--teal); }
-.theme-fan-veil { position: fixed; inset: 0; z-index: 21; border: 0; padding: 0; background: rgba(4, 9, 30, .18); cursor: default; }
+.theme-fan-veil { position: fixed; inset: 0; z-index: 21; background: rgba(4, 9, 30, .18); }
 .theme-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 64px);
   bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(360px, calc(100vw - max(16px, env(safe-area-inset-right)) - 76px));
   display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
