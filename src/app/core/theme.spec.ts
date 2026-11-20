@@ -18,9 +18,9 @@ describe('themes', () => {
     expect(new Set(THEMES.map(manifestFor)).size).toBe(THEMES.length);
   });
 
-  it('splits the themes into four light and four dark, each once', () => {
-    expect(LIGHT_THEMES.length).toBe(4);
-    expect(DARK_THEMES.length).toBe(4);
+  it('splits the themes into five light and five dark, each once', () => {
+    expect(LIGHT_THEMES.length).toBe(5);
+    expect(DARK_THEMES.length).toBe(5);
     expect([...LIGHT_THEMES, ...DARK_THEMES].sort()).toEqual([...THEMES].sort());
   });
 });

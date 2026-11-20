@@ -71,6 +71,8 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'theme.sunburnt': { en: 'Sunburnt Toast', es: 'Sunburnt Toast' },
   'theme.smokedcitrus': { en: 'Smoked Citrus', es: 'Smoked Citrus' },
   'theme.graphite': { en: 'Graphite', es: 'Grafito' },
+  'theme.goepiclight': { en: 'Go Epic Light', es: 'Go Epic Claro' },
+  'theme.goepicdark': { en: 'Go Epic Dark', es: 'Go Epic Oscuro' },
   'nav.pages': { en: 'Pages', es: 'Páginas' },
   'nav.edit': { en: 'Edit', es: 'Editar' },
   'settings.language': { en: 'Language', es: 'Idioma' },

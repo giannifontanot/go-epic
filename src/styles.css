@@ -21,6 +21,8 @@
 }
 @media (pointer: coarse), (max-width: 820px) { :root { --tap: 42px; } }
 
+/* the Get Go Epic wordmark's face, used by the Go Epic Light/Dark themes (latin subset, cached by the service worker) */
+@font-face { font-family: 'Cinzel Decorative'; font-style: normal; font-weight: 900; font-display: swap; src: url('/get/cinzel-decorative-900.woff2') format('woff2'); }
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; background: var(--page); color: var(--ink); }
 body { font: 15px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
@@ -148,8 +150,8 @@ dialog.leave-ask p { margin: 0 0 16px; color: var(--ink-soft); }
 dialog.leave-ask .leave-actions button { min-height: 46px; border-radius: 999px; font-size: 16px; font-weight: 700; }
 dialog.leave-ask .leave-discard { border: 1.5px solid rgba(248, 113, 113, .6); background: transparent; color: #fca5a5; }
 dialog.leave-ask .leave-stay { border: 0; background: rgba(255, 255, 255, .08); color: var(--ink-soft); }
-html:is([data-theme='office'], [data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt']) dialog.leave-ask .leave-discard { color: #b91c1c; border-color: rgba(185, 28, 28, .5); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.leave-ask .leave-stay { background: rgba(var(--g-tint), .1); }
+html:is([data-theme='office'], [data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='goepiclight']) dialog.leave-ask .leave-discard { color: #b91c1c; border-color: rgba(185, 28, 28, .5); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) dialog.leave-ask .leave-stay { background: rgba(var(--g-tint), .1); }
 /* The app's own question windows (Gianni: no more browser boxes): the leave window's look, Cancel then the answer,
    the answer red when it deletes or discards */
 dialog.ask-window { width: min(380px, calc(100vw - 32px)); padding: 22px 20px 18px; border: 0; border-radius: 22px;
@@ -162,7 +164,7 @@ dialog.ask-window p { margin: 0 0 18px; font-size: calc(17px * var(--esc)); line
 .ask-actions .ask-ok { border: 0; background: var(--pink); color: var(--card-ink); }
 .ask-actions .ask-ok.danger { background: #c0392b; color: #fff; }
 .ask-actions button:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .ask-actions .ask-cancel { background: rgba(var(--g-tint), .1); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .ask-actions .ask-cancel { background: rgba(var(--g-tint), .1); }
 html:is([data-theme='office'], [data-theme='graphite']) dialog.ask-window { filter: none; }   /* a destructive answer keeps a (quiet) red */
 html:is([data-theme='office'], [data-theme='graphite']) .ask-actions .ask-ok.danger { background: #9b3b3b; }
 /* Where an activity lives (a tap on its title, locked board): its Area, Epic, Feature and Story drawn as in the Canvas */
@@ -246,7 +248,7 @@ dialog { padding: 0; border: 0; }
 /* Every navy window gets a very thin light-blue edge (Gianni: a blue window on the blue page did not stand out); the
    blue of Capture's new-task box. The white Copy/Move card and the update screen keep theirs. */
 :root { --win-edge: color-mix(in srgb, #7fb2ff 70%, transparent); }
-html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) { --win-edge: color-mix(in srgb, #3b78d8 45%, transparent); }
+html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office'], [data-theme='goepiclight']) { --win-edge: color-mix(in srgb, #3b78d8 45%, transparent); }
 dialog:not(.transfer):not(.update-overlay) { border: 1px solid var(--win-edge); }
 dialog::backdrop { background: rgba(16, 27, 66, .72); }
 dialog.editor { width: min(470px, calc(100vw - 24px)); max-height: min(90dvh, 760px); padding: 22px 24px; border-radius: 22px; background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; overflow-y: auto; }
@@ -399,12 +401,12 @@ html.tilt .title-btn { translate: none; }   /* it leans with its title, never sl
 .page-fan.title-fan { z-index: 32; right: auto; }
 @media (prefers-reduced-motion: reduce) { .title-chev { transition: none; } }
 .theme-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 72px);
-  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(248px, calc(100vw - max(16px, env(safe-area-inset-right)) - 80px), calc(50dvh - 9px - env(safe-area-inset-top) / 2 - env(safe-area-inset-bottom) / 2));
+  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(248px, calc(100vw - max(16px, env(safe-area-inset-right)) - 80px), calc(40dvh - 6px - env(safe-area-inset-top) * .4 - env(safe-area-inset-bottom) * .4));
   max-height: calc(100dvh - max(12px, env(safe-area-inset-top)) - max(12px, env(safe-area-inset-bottom))); overflow-y: auto; overscroll-behavior: contain;
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 8px; }   /* four square rows always fit the screen's height (a landscape phone too); the 8px
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 8px; }   /* five square rows always fit the screen's height (a landscape phone too); the 8px
   padding keeps the chosen tile's teal ring and its ✓ inside the scrolling box, which would clip them (Gianni) */
 /* two straight columns of square tiles (Gianni: a vertical menu, the dark themes on the left, the light ones on the
-   right, each row a family: Epic | Clear Sky, Petal Punk | Pink Pop, Smoked Citrus | Sunburnt, Graphite | Office); they
+   right, each row a family: Epic | Clear Sky, Petal Punk | Pink Pop, Smoked Citrus | Sunburnt, Graphite | Office, Go Epic Dark | Go Epic Light); they
    never lean with the phone, so they stay square and never overlap. Each wears its own theme's page colour and ink. */
 .theme-tile { position: relative; display: grid; align-content: center; justify-items: center; gap: 5px;
   aspect-ratio: 1; min-width: 0; padding: 8px 6px 7px; border: 0; border-radius: 16px;
@@ -450,7 +452,7 @@ dialog.capture-panel h2 { margin: 0; font-size: 22px; }
 /* The box for a new task always shows its blue border, so it reads as a box at a glance; tapped, it turns stronger with a ring (Gianni) */
 .capture-add input { --c-blue: #7fb2ff; border: 1.5px solid color-mix(in srgb, var(--c-blue) 70%, transparent); border-radius: 14px; transition: border-color .15s, box-shadow .15s; }
 .capture-add input:focus, .capture-add input:focus-visible { outline: none; border-color: var(--c-blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-blue) 35%, transparent); }
-html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) .capture-add input { --c-blue: #3b78d8; }
+html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office'], [data-theme='goepiclight']) .capture-add input { --c-blue: #3b78d8; }
 /* Current / Finished tabs: one tap apart, the chosen one filled with the theme's primary colour */
 .capture-tabs { --tab-face: #fff; --tab-ink: var(--card-ink); display: flex; align-items: flex-end; gap: 6px; margin: 0; padding: 0 10px 0 0; }
 /* Real folder tabs (Gianni, like the overdue folder's): rounded on top, each with a fine line of its own; the chosen
@@ -581,14 +583,14 @@ dialog.editor.new-activity header .head-box { border-radius: 14px 18px 13px 18px
 dialog.editor:is(.new-block, .new-activity) header .danger { flex: none; background: rgba(54, 38, 67, .12); color: #9f1239; }
 /* the New block / New activity / New task title boxes wear the theme (Gianni: Epic's yellow jelly and peach did not
    belong in the others): the block box is that theme's block, with its edge; the activity box a soft tint of its accent */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.editor.new-block { box-shadow: 0 0 0 3px var(--block-edge, var(--g-edge)), 0 25px 90px #0008; }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.editor.new-block header .head-box { color: var(--jelly-ink); background: linear-gradient(150deg, var(--jelly-a), var(--jelly-b));
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) dialog.editor.new-block { box-shadow: 0 0 0 3px var(--block-edge, var(--g-edge)), 0 25px 90px #0008; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) dialog.editor.new-block header .head-box { color: var(--jelly-ink); background: linear-gradient(150deg, var(--jelly-a), var(--jelly-b));
   box-shadow: 0 0 0 1.5px var(--block-edge, var(--g-edge)), 0 4px 0 var(--g-shadow); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.editor.new-activity header .head-box { color: var(--ink); background: color-mix(in srgb, var(--pink) 24%, var(--navy-card));
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) dialog.editor.new-activity header .head-box { color: var(--ink); background: color-mix(in srgb, var(--pink) 24%, var(--navy-card));
   box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--pink) 45%, transparent), 0 4px 0 var(--g-shadow); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.editor:is(.new-block, .new-activity) header .danger { background: rgba(var(--g-tint, 0, 0, 0), .12); color: var(--red); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .field input.new-block-name { border-color: var(--block-edge, var(--g-edge)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--block-edge, var(--g-edge)) 45%, transparent); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .field input.new-block-name:focus { box-shadow: 0 0 0 4px color-mix(in srgb, var(--block-edge, var(--g-edge)) 65%, transparent); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) dialog.editor:is(.new-block, .new-activity) header .danger { background: rgba(var(--g-tint, 0, 0, 0), .12); color: var(--red); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .field input.new-block-name { border-color: var(--block-edge, var(--g-edge)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--block-edge, var(--g-edge)) 45%, transparent); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .field input.new-block-name:focus { box-shadow: 0 0 0 4px color-mix(in srgb, var(--block-edge, var(--g-edge)) 65%, transparent); }
 
 /* "Choose from my activities" opens the picker. It must read as a button, not a field (Gianni; a panel chose): a pill
    like the Color button, a list icon, the action in words, the count as a badge and an arrow; "or name a new one"
@@ -969,6 +971,12 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 [data-preview='sunburnt'] .theme-preview { background: #fff1e5; }
 [data-preview='sunburnt'] .tp-day { background: linear-gradient(155deg, #f7e8d8, #f0dcc6); }
 [data-preview='sunburnt'] .tp-block { background: linear-gradient(150deg, #fdf8ef, #f4ead8); box-shadow: 0 0 0 1px #dcae63; }
+[data-preview='goepiclight'] .theme-preview { background: #fbfbfd; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .06); }
+[data-preview='goepiclight'] .tp-day { background: #f0f0f4; }
+[data-preview='goepiclight'] .tp-block { background: #fff; box-shadow: 0 0 0 1px #d9b54a; }
+[data-preview='goepicdark'] .theme-preview { background: #0a1130; }
+[data-preview='goepicdark'] .tp-day { background: linear-gradient(155deg, #16214f, #111a42); }
+[data-preview='goepicdark'] .tp-block { background: linear-gradient(150deg, #1d2a5e, #17224f); box-shadow: 0 0 0 1px #c9a227; }
 
 /* ── Grey themes: Office (light greys) and Graphite (dark greys). Nothing that draws attention: no white, no black,
    no bright colour. Each theme sets the colour tokens and the --g-* surfaces below; the rules after them are shared:
@@ -1084,7 +1092,49 @@ html[data-theme='sunburnt'] {
   color-scheme: light;
 }
 html[data-theme='sunburnt'] body { min-height: 100dvh; background: linear-gradient(135deg, #ffffff 0%, #fff1e5 30%, #ffe0c7 65%, #fff8f1 100%) fixed; }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'])[data-red-line] { --now: #e0463b; --now-ink: #fff; }     /* Ajustes › red line */
+/* Go Epic Light and Go Epic Dark (Gianni): the Get Go Epic page made into a pair of themes. Light is the page itself: an
+   Apple-like off-white, near-black ink, soft grey days, white porcelain blocks with a thin gold edge, black pill
+   buttons and the wordmark's Cinzel Decorative in navy for the page titles. Dark is the same page at night: deep navy
+   (the wordmark's "Go"), navy days and blocks with a gold edge, gold buttons and the titles in the wordmark's gold. */
+html[data-theme='goepiclight'] {
+  --countdown: #a87b14;
+  --page: #fbfbfd; --ink: #1d1d1f; --ink-soft: #6e6e73;
+  --plum-a: #f2f2f6; --plum-b: #ebebf0; --jelly-a: #ffffff; --jelly-b: #f8f8fa; --jelly-ink: #1d1d1f; --card-ink: #1d1d1f;   /* white blocks, soft grey days */
+  --block-edge: #d9b54a;                                           /* the wordmark's gold, only on the block's border */
+  --pink: #1d1d1f; --teal: #b8860b; --red: #b91c1c; --navy-card: #ffffff; --light: #ffffff;   /* black pill buttons, gold focus */
+  --now: #c9a227; --now-ink: #1d1d1f;                              /* the gold rule of the page; red with Ajustes' box */
+  --g-lip: #e4e4ea; --g-shadow: rgba(16, 27, 66, .09); --g-soft-ink: #101b42; --g-end: #101b42; --g-end-ink: #fbfbfd;
+  --g-chip: #ededf2; --g-badge-ring: #d9b54a; --g-veil: rgba(16, 27, 66, .32); --g-veil-strong: rgba(16, 27, 66, .6);
+  --g-on-ink: #fbfbfd; --g-tint: 16, 27, 66; --g-edge: #d2d2d7; --g-placeholder: #8e8e93;
+  --title-ink: #101b42;
+  color-scheme: light;
+}
+html[data-theme='goepiclight'] body { min-height: 100dvh; background: #fbfbfd; }
+html[data-theme='goepicdark'] {
+  --countdown: #c9a227;
+  --page: #0a1130; --ink: #f5f5f7; --ink-soft: #a9afc6;
+  --plum-a: #16214f; --plum-b: #111a42; --jelly-a: #1d2a5e; --jelly-b: #17224f; --jelly-ink: #f5f5f7; --card-ink: #22203a;   /* navy blocks with a gold edge */
+  --block-edge: #c9a227;
+  --pink: #e2b84a; --teal: #f5c945; --red: #f87171; --navy-card: #131c47; --light: #f5f5f7;   /* gold buttons, the ring's yellow for focus */
+  --now: #f5c945; --now-ink: #101b42;
+  --g-lip: #060b22; --g-shadow: rgba(0, 0, 0, .42); --g-soft-ink: #f0cf6e; --g-end: #e2b84a; --g-end-ink: #101b42;
+  --g-chip: #1c2858; --g-badge-ring: #c9a227; --g-veil: rgba(3, 6, 20, .58); --g-veil-strong: rgba(3, 6, 20, .78);
+  --g-on-ink: #101b42; --g-tint: 245, 201, 69; --g-edge: #3a4777; --g-placeholder: #8c93ad;
+  --title-ink: #e2b84a;
+  color-scheme: dark;
+}
+html[data-theme='goepicdark'] body { min-height: 100dvh; background: radial-gradient(120% 70% at 50% 0%, #17245a 0%, #0a1130 62%) fixed; }
+/* the navy blocks: dark fields, a gold name line, and the light cards keep their dark ink */
+html[data-theme='goepicdark'] .block-window input { background: #111a42; border-color: #3a4777; color: var(--jelly-ink); color-scheme: dark; }
+html[data-theme='goepicdark'] input.block-name { border-bottom-color: rgba(226, 184, 74, .55); }
+html[data-theme='goepicdark'] .task .round:not(.danger-x) { color: var(--card-ink); border-color: rgba(34, 32, 58, .45); }
+/* the page's type: the wordmark's Cinzel Decorative for the page titles and day names, the clean system sans elsewhere */
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Inter, 'Segoe UI', Roboto, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(h2, h3, .block-name, .pc-epic strong, .pc-feature strong, .pc-act-open strong, .update-card p) {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Inter, 'Segoe UI', Roboto, Arial, sans-serif; letter-spacing: -.01em; }
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(h1, .day-head h2) { font-family: 'Cinzel Decorative', Georgia, serif; font-weight: 900; letter-spacing: .01em; color: var(--title-ink); }
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(.board-top h1, .focus-top h1) { font-size: 28px; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepiclight'], [data-theme='goepicdark'])[data-red-line] { --now: #e0463b; --now-ink: #fff; }     /* Ajustes › red line */
 html[data-theme='graphite'][data-red-line] { --now: #d0564c; }
 
 html:is([data-theme='office'], [data-theme='graphite']) :is(main:not(:has(.board)), dialog) { filter: grayscale(1); }
@@ -1125,34 +1175,34 @@ html:is([data-theme='office'], [data-theme='graphite']) .t-track input { backgro
 html:is([data-theme='office'], [data-theme='graphite']) .t-track input:checked::after { border-color: var(--g-done-ink); }
 html:is([data-theme='office'], [data-theme='graphite']) .c-check.on { background: var(--g-check-on); border-color: var(--g-end); }
 /* the blocks keep their shape, without the yellow lip */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .block { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 4px 0 var(--g-lip), 0 8px 14px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .block { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 4px 0 var(--g-lip), 0 8px 14px var(--g-shadow); }
 /* text drawn in the block colour on the page (Canvas's unsaved dot and title dot, a template's old names) takes the
    theme's readable accent instead, since the block surfaces are quiet now (pale on light pages, dark on dark ones) */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) { --accent-text: var(--g-soft-ink); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .canvas-page :is(.status.dirty, .title-dot) { color: var(--accent-text); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) { --accent-text: var(--g-soft-ink); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .canvas-page :is(.status.dirty, .title-dot) { color: var(--accent-text); }
 /* Pink Pop, Petal Punk, Squeeze Me, Sunburnt Toast: quiet blocks (porcelain, plum velvet, linen, oat) whose only colour is a
    thin border in the theme's tone (Gianni: pretty, not loud; a panel chose a calm surface plus a coloured edge) */
-html:is([data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='sunburnt']) .block {
+html:is([data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .block {
   box-shadow: 0 0 0 1.5px var(--block-edge), inset 0 1px 0 rgba(255, 255, 255, .12), 0 4px 0 var(--g-lip), 0 8px 14px var(--g-shadow); }
 /* Petal Punk's blocks are dark now: dark fields, a rose dashed name line, and the light cards keep their dark ink */
 html[data-theme='petalpunk'] .block-window input { background: #2a2130; border-color: #5a4660; color: var(--jelly-ink); color-scheme: dark; }
 html[data-theme='petalpunk'] input.block-name { border-bottom-color: rgba(240, 184, 211, .5); }
 html[data-theme='petalpunk'] .task .round:not(.danger-x) { color: var(--card-ink); border-color: rgba(42, 16, 32, .45); }
 /* on the dark blocks (Petal Punk, Smoked Citrus) the free-time stripes, the end handle and the summary dash turn light */
-html:is([data-theme='petalpunk'], [data-theme='smokedcitrus']) .free-band { background: repeating-linear-gradient(135deg, rgba(255, 255, 255, .14) 0 10px, transparent 10px 20px); }
-html:is([data-theme='petalpunk'], [data-theme='smokedcitrus']) .summary .dash { color: rgba(255, 255, 255, .45); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .day { box-shadow: 0 6px 16px var(--g-shadow); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.free, .end-badge, .round:hover:not(:disabled)) { color: var(--g-soft-ink); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .end-badge { background: var(--g-end); color: var(--g-end-ink); }
+html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepicdark']) .free-band { background: repeating-linear-gradient(135deg, rgba(255, 255, 255, .14) 0 10px, transparent 10px 20px); }
+html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepicdark']) .summary .dash { color: rgba(255, 255, 255, .45); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .day { box-shadow: 0 6px 16px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) :is(.free, .end-badge, .round:hover:not(:disabled)) { color: var(--g-soft-ink); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .end-badge { background: var(--g-end); color: var(--g-end-ink); }
 /* windows: no white card, a grey veil instead of navy */
 html:is([data-theme='office'], [data-theme='graphite']) dialog.transfer, html:is([data-theme='office'], [data-theme='graphite']) dialog.transfer footer button { background: var(--g-window); color: var(--ink); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .day-chip:not([aria-pressed='true']) { background: var(--g-chip); border-color: var(--g-badge-ring); color: var(--ink); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .day-chip[aria-pressed='true'] { color: var(--g-on-ink); }   /* a picked day keeps the accent fill, with readable ink */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(dialog, dialog.capture-panel, dialog.app-drawer, dialog.editor, dialog.transfer)::backdrop { background: var(--g-veil); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .day-chip:not([aria-pressed='true']) { background: var(--g-chip); border-color: var(--g-badge-ring); color: var(--ink); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .day-chip[aria-pressed='true'] { color: var(--g-on-ink); }   /* a picked day keeps the accent fill, with readable ink */
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) :is(dialog, dialog.capture-panel, dialog.app-drawer, dialog.editor, dialog.transfer)::backdrop { background: var(--g-veil); }
 html:is([data-theme='office'], [data-theme='graphite']) .switch-row input::before { background: var(--g-knob); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.capture-fab:not(.finish-fab), .nav-toggle) { box-shadow: 0 3px 10px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) :is(.capture-fab:not(.finish-fab), .nav-toggle) { box-shadow: 0 3px 10px var(--g-shadow); }
 html:is([data-theme='office'], [data-theme='graphite']) .capture-fab:not(.finish-fab):hover { background: var(--g-control-hover); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.update-overlay::backdrop { background: var(--g-veil-strong); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) dialog.update-overlay::backdrop { background: var(--g-veil-strong); }
 html:is([data-theme='office'], [data-theme='graphite']) .update-button { background: var(--g-button); color: var(--g-button-ink); animation-name: update-glow-grey; }
 @keyframes update-glow-grey {
   0%, 100% { scale: 1; box-shadow: 0 0 0 3px rgba(var(--g-glow), .7), 0 0 20px 6px rgba(var(--g-glow), .35); }
@@ -1160,22 +1210,22 @@ html:is([data-theme='office'], [data-theme='graphite']) .update-button { backgro
 }
 html:is([data-theme='office'], [data-theme='graphite']) .sparkle { color: var(--g-sparkle); text-shadow: none; }
 /* text on the accent greys (selected chips, primary buttons, the menu's current page, done dots) */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.chip.quiet.on, .finish-fab, .primary, .page-tile.on, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary,
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) :is(.chip.quiet.on, .finish-fab, .primary, .page-tile.on, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary,
   .ask-actions .ask-ok:not(.danger), .ov-days button[aria-selected='true'], .status-options button.on, .day-tabs button[aria-selected='true'], .menu-fab.open,
   .page-fab.open, .theme-act.open, .pick-choose, .t-state:is([data-status='done'], [data-status='progress'])) { color: var(--g-on-ink) !important; }
 /* every button filled with the theme's strong accent carries the theme's light ink on it (Gianni: dark text on Pink Pop's
    strong pink could not be read); the dark themes' accents are pale, so there the same token is dark ink */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.primary, button.primary, .capture-fab:not(.finish-fab)):hover:not(:disabled) { background: color-mix(in srgb, var(--pink) 85%, #000) !important; }   /* hover darkens the theme's accent; the fixed pale-pink hover would wash out its ink */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .capture-fab.finish-fab:hover { background: color-mix(in srgb, var(--teal) 85%, #000); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) :is(.primary, button.primary, .capture-fab:not(.finish-fab)):hover:not(:disabled) { background: color-mix(in srgb, var(--pink) 85%, #000) !important; }   /* hover darkens the theme's accent; the fixed pale-pink hover would wash out its ink */
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .capture-fab.finish-fab:hover { background: color-mix(in srgb, var(--teal) 85%, #000); }
 /* the light themes' round buttons (themes, day overview, +, ✎) are soft, not the dark accent (Gianni: too dark there):
    a pale tone of the theme with its accent as ink, so the stack reads light like the page */
 html[data-theme='pinkpop'] { --fab: #f6c9dc; --fab-ink: #7a2a52; }
 html[data-theme='squeezeme'] { --fab: #d3e2f8; --fab-ink: #1e3f7a; }
 html[data-theme='sunburnt'] { --fab: #f8d4a8; --fab-ink: #743f14; }
 html[data-theme='office'] { --fab: #e1e3e6; --fab-ink: #3d4248; }
-html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) .capture-fab:not(.finish-fab):not(.open) {
+html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office'], [data-theme='goepiclight']) .capture-fab:not(.finish-fab):not(.open) {
   background: var(--fab); color: var(--fab-ink); box-shadow: inset 0 0 0 1px rgba(40, 30, 30, .08), 0 3px 10px var(--g-shadow); }
-html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) .capture-fab:not(.finish-fab):not(.open):hover:not(:disabled) {
+html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office'], [data-theme='goepiclight']) .capture-fab:not(.finish-fab):not(.open):hover:not(:disabled) {
   background: color-mix(in srgb, var(--fab) 90%, #000) !important; }
 /* surfaces and round buttons that were white or near-white */
 html:is([data-theme='office'], [data-theme='graphite']) .capture-list { background: var(--g-list); box-shadow: inset 0 1px 3px var(--g-shadow); }
@@ -1183,14 +1233,14 @@ html:is([data-theme='office'], [data-theme='graphite']) .capture-tabs { --tab-fa
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit) { background: var(--g-control); }
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit):hover:not(:disabled) { background: var(--g-control-hover); }
 html:is([data-theme='office'], [data-theme='graphite']) .block-window input { background: var(--g-input); border-color: var(--g-edge); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .field :is(input, select) { border-color: var(--g-edge); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.round, .nav-toggle, .idea, .chip.quiet:not(.on)) { background-color: rgba(var(--g-tint), .08); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .stepper { border-color: rgba(var(--g-tint), .25); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .field :is(input, select) { border-color: var(--g-edge); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) :is(.round, .nav-toggle, .idea, .chip.quiet:not(.on)) { background-color: rgba(var(--g-tint), .08); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .stepper { border-color: rgba(var(--g-tint), .25); }
 /* Canvas: its pale-pink captions and hints in the quiet ink */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .canvas-page :is(.workspace-context, .free-title p, .empty, .epic-tabs button:not(.active) small) { color: var(--ink-soft) !important; }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .canvas-page .epic-tabs .active small { color: var(--jelly-ink) !important; opacity: .75; }   /* the selected tab is a jelly (block-coloured) surface: its caption takes the block ink */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .canvas-page .search { background: rgba(var(--g-tint), .14); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .canvas-page .search input::placeholder { color: var(--g-placeholder); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .canvas-page :is(.workspace-context, .free-title p, .empty, .epic-tabs button:not(.active) small) { color: var(--ink-soft) !important; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .canvas-page .epic-tabs .active small { color: var(--jelly-ink) !important; opacity: .75; }   /* the selected tab is a jelly (block-coloured) surface: its caption takes the block ink */
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .canvas-page .search { background: rgba(var(--g-tint), .14); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .canvas-page .search input::placeholder { color: var(--g-placeholder); }
 /* Graphite: everything written on a card, note or object reads in the soft light ink (their own inks are dark,
    made for the light pastels) */
 html[data-theme='graphite'] :is(.task, .todo-note, .capture-list li, .habit, .now-card, .today-task, .linked-chip, .pick-card,
@@ -1275,7 +1325,7 @@ html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray {
 .look-pill button:disabled { opacity: .35; }
 .look-value { min-width: 70px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; font-size: 18px; }
 html.tilt :is(.look-row, .look-fab, .look-pill, .look-pill button, .theme-tile) { rotate: none; translate: none; }
-html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) .look-pill button { background: color-mix(in srgb, var(--ink) 10%, transparent); }
+html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office'], [data-theme='goepiclight']) .look-pill button { background: color-mix(in srgb, var(--ink) 10%, transparent); }
 @media (prefers-reduced-motion: reduce) { .look-row, .look-pill, .look-pill.closing { animation: none; } }
 /* The edit tools have their own colour, never the main menu's (Gianni: in Pink Pop both were the same pink, so you
    could not tell which menu you were in): a dark button with white ink, in every theme. On the dark themes it is the
@@ -1283,7 +1333,7 @@ html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'
    ring in the theme's accent (Epic keeps its teal ✓, which already differs from its pink menu). */
 :root { --edit-fab: color-mix(in srgb, var(--navy-card) 82%, var(--ink)); --edit-ink: var(--ink); --edit-ring: color-mix(in srgb, var(--ink) 45%, transparent);
   --edit-open: var(--teal); --edit-open-ink: var(--g-on-ink, #0b2f2a); }
-html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) {
+html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office'], [data-theme='goepiclight']) {
   --edit-fab: color-mix(in srgb, var(--fab-ink) 55%, #16121c); --edit-ink: #fff; --edit-ring: rgba(255, 255, 255, .35);
   --edit-open: #fff; --edit-open-ink: color-mix(in srgb, var(--fab-ink) 55%, #16121c); }
 html .capture-fab.look-fab.look-fab.look-fab:not(.open), html .capture-fab.finish-fab.finish-fab {
@@ -1307,9 +1357,16 @@ dialog.ask-window:has(.ask-count) #ask-text { text-align: center; }
 .ask-timer i { display: block; height: 100%; background: #e5484d; transform-origin: right center; animation: ask-drain var(--secs, 8s) linear forwards; }   /* it runs out towards the right */
 @keyframes ask-drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 @media (prefers-reduced-motion: reduce) { .ask-timer i { transform: scaleX(var(--frac, 1)); } }   /* no glide: it steps each second */
-html:is([data-theme='office'], [data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt']) .ask-timer { background: rgba(0, 0, 0, .08); }
+html:is([data-theme='office'], [data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='goepiclight']) .ask-timer { background: rgba(0, 0, 0, .08); }
 html:is([data-theme='office'], [data-theme='graphite']) .ask-timer i { background: #b04848; }
 .deleting { opacity: .4; filter: grayscale(.6); transition: opacity .3s ease, filter .3s ease; pointer-events: none; }
 /* The Canvas title is a button (it opens the pages): the Canvas's small pill buttons' look must not reach it
    (Gianni: it had made the title tiny) */
 .canvas-page h1 .title-btn, .canvas-page h1 .title-btn:hover { padding: 0; background: none; color: inherit; font-size: inherit; font-weight: inherit; }
+/* Go Epic Light: the round menu is the page's black circle, the edit tools are the wordmark's navy with a gold ring
+   (so the two menus never look alike); Go Epic Dark keeps gold round buttons. Windows of both get a thin gold edge. */
+html[data-theme='goepiclight'] { --fab: #1d1d1f; --fab-ink: #fbfbfd;
+  --edit-fab: #101b42; --edit-ink: #fff; --edit-ring: rgba(201, 162, 39, .8); --edit-open: #c9a227; --edit-open-ink: #1d1d1f;
+  --win-edge: rgba(201, 162, 39, .55); }
+html[data-theme='goepicdark'] { --win-edge: rgba(226, 184, 74, .45); }
+html[data-theme='goepiclight'] .capture-fab:not(.finish-fab):not(.open) { box-shadow: 0 0 0 2px rgba(245, 201, 69, .9), 0 4px 14px rgba(0, 0, 0, .18); }
