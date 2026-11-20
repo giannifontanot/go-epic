@@ -24,7 +24,7 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; background: var(--page); color: var(--ink); }
 body { font: 15px/1.4 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-main { padding: max(8px, env(safe-area-inset-top)) 16px max(88px, calc(env(safe-area-inset-bottom) + 80px)); }   /* top: level with the ☰ */
+main { padding: max(8px, env(safe-area-inset-top)) 16px max(96px, calc(env(safe-area-inset-bottom) + 88px)); }   /* top: level with the ☰ */
 main:has(.canvas-page) { padding-bottom: max(16px, env(safe-area-inset-bottom)); }   /* the Canvas has no floating ✎ to clear: no empty band under Free Space */
 h1, h2, h3 { font-family: Georgia, 'Times New Roman', serif; letter-spacing: -.02em; }
 button, input, select { font: inherit; color: inherit; }
@@ -264,8 +264,8 @@ dialog.editor .app-error { margin: 0 0 8px; }
 @media (max-width: 700px) {
   dialog.editor { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom)); }
   dialog.editor footer > button { flex: 1; }
-  /* the New task window fits its content (Gianni: not the whole screen) */
-  dialog.editor.todo-editor { width: calc(100vw - 24px); height: auto; max-height: calc(100dvh - 24px); border-radius: 22px; padding: 20px 18px; }
+  /* the New task window fits its content (Gianni: not the whole screen, no empty space under it; height auto would stretch a modal dialog to the screen) */
+  dialog.editor.todo-editor { width: calc(100vw - 24px); height: fit-content; max-height: calc(100dvh - 24px); border-radius: 22px; padding: 20px 18px; }
 }
 
 /* Task details: the Where (one line per level, label first) and the linked library task */
@@ -346,7 +346,7 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 
 /* Capture: a floating ✎ (bottom right) and the notes panel; both open from the point pressed (core/dialog) */
 .capture-fab { position: fixed; z-index: 20; right: max(16px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom));
-  width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--pink); color: var(--card-ink); font-size: 22px;
+  width: 60px; height: 60px; border: 0; border-radius: 50%; background: var(--pink); color: var(--card-ink); font-size: 24px;   /* 60px, the edit tools' size (Gianni) */
   box-shadow: 0 6px 18px rgba(1, 6, 29, .45); }
 .capture-fab:hover { background: #f8bfca; }
 /* One round button at the bottom right (ActionMenu, Gianni): a tap stacks the actions above it, each sliding up out of
@@ -354,13 +354,13 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 .menu-fab { display: grid; place-items: center; z-index: 21; }
 .menu-fab.open { background: var(--teal); color: #0b2f2a; }
 .action-veil { position: fixed; inset: 0; z-index: 19; background: rgba(4, 9, 30, .14); }
-.action-stack { position: fixed; z-index: 20; right: max(16px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 64px);
+.action-stack { position: fixed; z-index: 20; right: max(16px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 72px);
   display: flex; flex-flow: column-reverse wrap-reverse; align-content: flex-end; align-items: center; gap: 12px;
-  max-height: calc(100dvh - max(18px, env(safe-area-inset-bottom)) - 64px - max(12px, env(safe-area-inset-top)));
+  max-height: calc(100dvh - max(18px, env(safe-area-inset-bottom)) - 72px - max(12px, env(safe-area-inset-top)));
   visibility: hidden; transition: visibility 0s .34s; }
 .action-stack.open { visibility: visible; transition: none; }
 .action-stack .capture-fab { position: relative; inset: auto; display: grid; place-items: center;
-  opacity: 0; transform: translateY(calc((var(--i, 0) + 1) * 64px)) scale(.4); pointer-events: none;
+  opacity: 0; transform: translateY(calc((var(--i, 0) + 1) * 72px)) scale(.4); pointer-events: none;
   transition: transform .3s cubic-bezier(.4, 0, 1, 1), opacity .26s ease; }
 .action-stack.open .capture-fab { opacity: 1; transform: none; pointer-events: auto;
   transition: transform .34s cubic-bezier(0, 0, .2, 1) calc(var(--i, 0) * 40ms), opacity .26s ease calc(var(--i, 0) * 40ms); }
@@ -370,7 +370,7 @@ html:is([data-theme='office'], [data-theme='graphite']) { --edit-red: #b4504b; }
 .page-fab { z-index: 22; }
 .page-fab.open { background: var(--teal); }
 /* the pages (Gianni): pills that fan out to the left of their button, the page you are on marked */
-.page-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 64px); display: grid; gap: 8px; width: min(220px, calc(100vw - 96px)); }
+.page-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 72px); display: grid; gap: 8px; width: min(220px, calc(100vw - 104px)); }
 .page-tile { position: relative; display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 16px;
   background: var(--navy-card); color: var(--ink); font-size: calc(17px * var(--esc)); font-weight: 700; text-decoration: none;
   box-shadow: 0 6px 18px rgba(1, 6, 29, .35); }
@@ -388,8 +388,8 @@ html.tilt .title-btn { translate: none; }   /* it leans with its title, never sl
 .title-veil { z-index: 31; }
 .page-fan.title-fan { z-index: 32; right: auto; }
 @media (prefers-reduced-motion: reduce) { .title-chev { transition: none; } }
-.theme-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 64px);
-  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(232px, calc(100vw - max(16px, env(safe-area-inset-right)) - 88px), calc(50dvh - 17px - env(safe-area-inset-top) / 2 - env(safe-area-inset-bottom) / 2));
+.theme-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 72px);
+  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(232px, calc(100vw - max(16px, env(safe-area-inset-right)) - 96px), calc(50dvh - 17px - env(safe-area-inset-top) / 2 - env(safe-area-inset-bottom) / 2));
   max-height: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain;
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }   /* four square rows always fit the screen's height (a landscape phone too) */
 /* two straight columns of square tiles (Gianni: a vertical menu, the dark themes on the left, the light ones on the
@@ -408,7 +408,7 @@ html.tilt .title-btn { translate: none; }   /* it leans with its title, never sl
 .theme-tile:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
 /* while arranging, the ✎'s spot holds a third ✓ Finish (Gianni): the same size and place as the other round buttons,
    in the Finish chips' teal and weight, without their heavy shadow */
-.capture-fab.finish-fab { background: var(--teal); color: #0b2f2a; font-size: 20px; font-weight: 700; line-height: 1; box-shadow: none; }
+.capture-fab.finish-fab { background: var(--teal); color: #0b2f2a; font-size: 24px; font-weight: 700; line-height: 1; box-shadow: none; }
 /* why a move was refused (no room): a short note over the foot of the screen that fades by itself */
 .board-notice { position: fixed; z-index: 40; left: 50%; bottom: calc(max(18px, env(safe-area-inset-bottom)) + 70px); translate: -50% 0;
   width: max-content; max-width: calc(100vw - 32px); margin: 0; padding: 10px 16px; border-radius: 14px; background: var(--navy-card, #1b2757);
@@ -416,6 +416,12 @@ html.tilt .title-btn { translate: none; }   /* it leans with its title, never sl
 /* every page fades in when it opens (Gianni: never all at once); opacity only, so its fixed parts stay in place */
 main > :not(router-outlet) { animation: page-in .9s ease-out; }   /* slow and soft (Gianni: .3 s was too fast) */
 @keyframes page-in { from { opacity: 0; } }
+/* a page change (the router's view transition, app.config): the old page fades out, then the new one fades in (Gianni:
+   not a cut to nothing); once the transition does it, the page's own fade-in stops (vt-ok, never removed) */
+html.vt-ok main > :not(router-outlet) { animation: none; }
+html.vt-page::view-transition-old(root) { animation: page-out .35s cubic-bezier(.4, 0, 1, 1) both; }
+html.vt-page::view-transition-new(root) { animation: page-in .65s cubic-bezier(0, 0, .2, 1) .35s both; }
+@keyframes page-out { to { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { main > :not(router-outlet) { animation: none; } }
 @keyframes notice-in { from { opacity: 0; translate: -50% 8px; } }
 @media (prefers-reduced-motion: reduce) { .board-notice { animation: none; } }
@@ -562,6 +568,16 @@ dialog.editor.new-block header .head-box { border-radius: 18px 22px 15px 24px; c
   box-shadow: inset 0 4px 0 rgba(255, 255, 255, .36), inset 0 -6px 0 rgba(211, 157, 37, .23), 0 5px 0 rgba(41, 10, 40, .23); }
 dialog.editor.new-activity header .head-box { border-radius: 14px 18px 13px 18px; color: #302746; background: #ffd5bd; box-shadow: 0 4px 0 rgba(78, 57, 88, .25); }
 dialog.editor:is(.new-block, .new-activity) header .danger { flex: none; background: rgba(54, 38, 67, .12); color: #9f1239; }
+/* the New block / New activity / New task title boxes wear the theme (Gianni: Epic's yellow jelly and peach did not
+   belong in the others): the block box is that theme's block, with its edge; the activity box a soft tint of its accent */
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.editor.new-block { box-shadow: 0 0 0 3px var(--block-edge, var(--g-edge)), 0 25px 90px #0008; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.editor.new-block header .head-box { color: var(--jelly-ink); background: linear-gradient(150deg, var(--jelly-a), var(--jelly-b));
+  box-shadow: 0 0 0 1.5px var(--block-edge, var(--g-edge)), 0 4px 0 var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.editor.new-activity header .head-box { color: var(--ink); background: color-mix(in srgb, var(--pink) 24%, var(--navy-card));
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--pink) 45%, transparent), 0 4px 0 var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.editor:is(.new-block, .new-activity) header .danger { background: rgba(var(--g-tint, 0, 0, 0), .12); color: var(--red); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .field input.new-block-name { border-color: var(--block-edge, var(--g-edge)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--block-edge, var(--g-edge)) 45%, transparent); }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .field input.new-block-name:focus { box-shadow: 0 0 0 4px color-mix(in srgb, var(--block-edge, var(--g-edge)) 65%, transparent); }
 
 /* "Choose from my activities" opens the picker. It must read as a button, not a field (Gianni; a panel chose): a pill
    like the Color button, a list icon, the action in words, the count as a badge and an arrow; "or name a new one"
@@ -1181,7 +1197,7 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
    on the screen's bottom edge, it opens as tall as its tasks need (Gianni: no scroll; only past the whole screen does
    the list scroll), and the week leaves that much room under its last block (--tray-h, measured) */
 .overdue-tray { --folder: var(--navy-card); position: fixed; z-index: 15; left: max(12px, env(safe-area-inset-left));
-  right: calc(max(16px, env(safe-area-inset-right)) + 64px); bottom: 0; max-width: 560px; max-height: calc(100dvh - 12px); display: flex; flex-direction: column;
+  right: calc(max(16px, env(safe-area-inset-right)) + 72px); bottom: 0; max-width: 560px; max-height: calc(100dvh - 12px); display: flex; flex-direction: column;
   filter: drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
 /* The tab is a button (Gianni): it folds the folder down to its lip, leaving only the tab, and back */
 .overdue-head { position: relative; flex: none; align-self: flex-start; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 22px);
@@ -1212,10 +1228,10 @@ html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray {
 
 /* Edit tools (LookStack, Gianni): while editing, round buttons stack at the bottom right above the ✓ Finish: Aa, AV,
    Themes, px; each rises out of the Finish, the nearest first, and Aa / AV / px open a − value + pill to their left. */
-.look-stack { position: fixed; z-index: 21; right: max(16px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 64px);
+.look-stack { position: fixed; z-index: 21; right: max(16px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 72px);
   display: flex; flex-direction: column-reverse; align-items: flex-end; gap: 12px; pointer-events: none; }
 .look-row { display: flex; align-items: center; gap: 10px; pointer-events: auto; animation: look-rise .34s cubic-bezier(0, 0, .2, 1) calc(var(--i, 0) * 40ms) backwards; }
-@keyframes look-rise { from { opacity: 0; transform: translateY(calc((var(--i, 0) + 1) * 64px)) scale(.4); } }
+@keyframes look-rise { from { opacity: 0; transform: translateY(calc((var(--i, 0) + 1) * 72px)) scale(.4); } }
 /* Bigger than the pink round buttons (Gianni: at the same 52px the dark ones still looked smaller; a panel: a dark
    fill on the dark page reads about a sixth smaller, so 60px, a lighter fill and a clearer thin ring), light strokes, no bold */
 .capture-fab.look-fab { position: relative; inset: auto; display: grid; place-items: center; width: 60px; height: 60px;

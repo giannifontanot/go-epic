@@ -9,8 +9,8 @@ type Tool = 'size' | 'spacing' | 'theme' | 'px';
 /**
  * The edit tools (Gianni: not a bar fixed at the top): while a page is being edited (the Week board arranged, the
  * Canvas after ✎ Edit) round buttons stack at the bottom right, above the ✓ Finish that takes the round menu's place.
- * From the bottom: Aa (the text size), AV (the space between letters), the Themes (they fan out to its left) and px
- * (the minutes' length, the Week board only). Aa, AV and px each open a small − value + pill to their left; one at a time.
+ * From the bottom: Aa (the text size), AV (the space between letters), px (the minutes' length, the Week board only)
+ * and the Themes on top (Gianni; they fan out to its left). Aa, AV and px each open a small − value + pill to their left; one at a time.
  * Drawn by the App, outside the page, so a grey theme's filter never moves it.
  */
 @Component({
@@ -62,7 +62,7 @@ export class LookStack {
   private timer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly tools = computed<Tool[]>(() =>
-    this.ui.lookTools()?.px ? ['size', 'spacing', 'theme', 'px'] : ['size', 'spacing', 'theme']);
+    this.ui.lookTools()?.px ? ['size', 'spacing', 'px', 'theme'] : ['size', 'spacing', 'theme']);   // Themes on top (Gianni)
 
   constructor() {
     // leaving edit mode puts everything away
