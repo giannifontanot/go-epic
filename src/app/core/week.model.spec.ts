@@ -115,9 +115,11 @@ describe('week model', () => {
     expect(stepTask(day(), 'c', 0, 1)).toBeNull();                                          // the day's last
     const full = day().map((b) => (b.id === 'b' ? { ...b, tasks: [task('b1', 25)] } : b));
     const times = (r: ReturnType<typeof stepTask>) => (r && 'blocks' in r ? r.blocks.map((b) => `${b.id} ${b.start}-${b.end}`) : r);
-    // a full block still takes it: its start moves 15 min earlier (it had 5 free), the block above gives up 20 at its end
-    expect(times(stepTask(full, 'a', 1, 1))).toEqual(['a 06:00-06:40', 'b 06:45-07:30', 'c 08:00-null']);
-    // ▲ from a block's top: the block above grows only by what its free time lacks, this one starts later by the card's minutes
+    // the boundary moves by exactly the card's minutes: the block below starts 20 earlier, the one above ends 20 earlier
+    expect(times(stepTask(full, 'a', 1, 1))).toEqual(['a 06:00-06:40', 'b 06:40-07:30', 'c 08:00-null']);
+    // even into free time (Gianni: the two blocks keep the same total): b had 5 free and still grows by the 20
+    expect(times(stepTask(day(), 'a', 1, 1))).toEqual(['a 06:00-06:40', 'b 06:40-07:30', 'c 08:00-null']);
+    // ▲ from a block's top: the block above grows by the card's minutes, this one starts later by the same
     const tight = [block('a', '06:00', '07:00', [task('a1', 60)]), block('b', '07:00', '08:00', [task('b1', 30), task('b2', 30)])];
     expect(times(stepTask(tight, 'b', 0, -1))).toEqual(['a 06:00-07:30', 'b 07:30-08:00']);
     const up = stepTask(tight, 'b', 0, -1) as { blocks: Block[] };

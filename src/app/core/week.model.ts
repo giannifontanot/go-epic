@@ -187,13 +187,12 @@ export function stepTask(blocks: Block[], blockId: string, index: number, offset
   }
   const next = blocks[bi + offset];
   if (!next) return null;
-  // Crossing moves the boundary between the two blocks (Gianni: a full block must still take it): the block it leaves
-  // gives up its minutes on that side (its other activities keep their hours), and the block it joins grows by what its
-  // free time lacks. ▲ lands at the end of the block above (its end moves later), ▼ at the start of the block below
-  // (its start moves earlier). Refused only past midnight.
+  // Crossing moves the boundary between the two blocks by exactly the activity's minutes (Gianni: the block it joins
+  // grows by them and the block it leaves loses them, so the two together keep the same time): the block it leaves
+  // gives them up on that side (its other activities keep their hours). ▲ lands at the end of the block above (its end
+  // moves later), ▼ at the start of the block below (its start moves earlier). Refused only past midnight.
   const m = validMinutes(task.minutes);
-  const free = freeMinutes(next);
-  const short = free === null ? 0 : Math.max(0, m - free);
+  const short = windowLength(next) === null ? 0 : m;
   const rest = block.tasks.filter((_, k) => k !== index);
   const restTotal = rest.reduce((sum, t) => sum + validMinutes(t.minutes), 0);
   let joined: Block;

@@ -1,11 +1,12 @@
 import { AfterViewInit, Component, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
-import { activityFromTodo } from '../../core/library.model';
+import { activityFromTodo, nodeById } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
 import { TodoStore } from '../../core/todo.store';
-import { Todo } from '../../core/todo.model';
-import { DAYS, Day, NEW_TASK_MINUTES, parseClock, validMinutes } from '../../core/week.model';
+import { Todo, convertDay, placeActivity } from '../../core/todo.model';
+import { WeekStore, WeekWrite } from '../../core/week.store';
+import { DAYS, Day, NEW_TASK_MINUTES, newId, parseClock, validMinutes } from '../../core/week.model';
 
 export interface TodoSave { id: string; title: string; date: string | null; time: string | null; repeat: Day[]; }
 
@@ -40,7 +41,7 @@ export interface TodoSave { id: string; title: string; date: string | null; time
           <input type="time" step="60" [value]="time()" (input)="time.set($any($event.target).value)" /></label>
       </div>
       <p class="hint">{{ i18n.t('capture.anyHour') }}</p>
-      <!-- a task can become an Activity (Gianni): its name goes to the Canvas's Free Space and the task leaves Capture -->
+      <!-- a task can become an Activity (Gianni): it takes the task's place on the Week board (and waits in the Canvas's Free Space to be filed); the task leaves Capture -->
       <!-- with its minutes (Gianni): a new activity's hour by default, changed in the box beside the button -->
       @if (!isNew()) {
         <div class="to-activity-row">
@@ -63,6 +64,11 @@ export class TodoDialog implements AfterViewInit {
   readonly todo = input.required<Todo>();
   /** A new task (the Week board's + New): titled "New task"; the cursor stays out of the name box until it is tapped. */
   readonly isNew = input(false);
+  /**
+   * The Week board's day whose ✎ opened it: a conversion puts the new Activity there, in the task's place. Left out
+   * (Capture's own list), the day where the task's note shows this week (`convertDay`).
+   */
+  readonly day = input<Day | null | undefined>(undefined);
   readonly save = output<TodoSave>();
   readonly closed = output<void>();
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
@@ -103,17 +109,36 @@ export class TodoDialog implements AfterViewInit {
   protected readonly activityMinutes = signal(NEW_TASK_MINUTES);
   protected readonly validMinutes = validMinutes;
   private readonly todos = inject(TodoStore);
-  /** Convert to activity: asks first (the task leaves Capture), files the name and minutes in Free Space, then removes the task. */
+  private readonly week = inject(WeekStore);
+  /**
+   * Convert to activity: asks first (the task leaves Capture). Its name and minutes go to the library (Free Space, to
+   * be filed later in the Canvas) and, at once, onto the Week board in the task's place (Gianni: swapped in place, not
+   * removed and sent elsewhere): `placeActivity` in the day where its note was. The Activity, its week card and the
+   * task's deletion go in one batch.
+   */
   protected toActivity(): void {
     if (this.leaving) return;
     const todo = this.todo();
     const title = this.title().trim() || todo.title.trim();
     if (!title) { this.problem.set(this.i18n.t('task.nameRequired')); return; }
-    if (!this.library.ready()) { this.problem.set(this.i18n.t('capture.toActivityWait')); return; }
-    if (!confirm(this.i18n.t('capture.toActivityAsk', { task: title }))) return;
+    if (!this.library.ready() || !this.week.loaded()) { this.problem.set(this.i18n.t('capture.toActivityWait')); return; }
+    const day = this.day() === undefined ? convertDay(todo, this.week.now()) : this.day() ?? null;
+    if (!confirm(this.i18n.t(day ? 'capture.toActivityAskWeek' : 'capture.toActivityAsk', { task: title }))) return;
     const made = activityFromTodo(structuredClone(this.library.library()), title, todo.created, this.activityMinutes());
-    // The Activity and the task's deletion go in one batch: both happen, or neither (a refused save keeps the task).
-    if (!made || !this.library.save(made.lib, [], [`todos/${todo.id}`])) { this.problem.set(this.i18n.t('capture.toActivityWait')); return; }
+    if (!made) { this.problem.set(this.i18n.t('capture.toActivityWait')); return; }
+    const writes: WeekWrite[] = [];
+    if (day) {
+      const node = nodeById(made.lib, made.id);
+      const card = { id: newId(), title: node?.title ?? title, minutes: validMinutes(node?.minutes ?? this.activityMinutes()),
+        color: node?.color ?? null, active: true, ref: made.id };
+      const time = parseClock(this.time()) !== null ? this.time() : null;              // the editor's hour: empty = all day
+      const blocks = placeActivity(this.week.plan(day), time, card, this.i18n.t('week.newBlock'));
+      if (!blocks) { this.problem.set(this.i18n.t('capture.toActivityNoRoom')); return; }
+      const write = this.week.stage(day, blocks);
+      if (write) writes.push(write);
+    }
+    // All in one batch: everything happens, or nothing (a refused save keeps the task).
+    if (!this.library.save(made.lib, writes, [`todos/${todo.id}`])) { this.problem.set(this.i18n.t('capture.toActivityWait')); return; }
     this.leaving = true;
     this.todos.forget(todo.id);
     void closeDialog(this.dialog().nativeElement);
