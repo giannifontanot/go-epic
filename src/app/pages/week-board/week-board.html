@@ -155,7 +155,7 @@
                         <button type="button" class="round danger-x" [attr.aria-label]="i18n.t('week.deleteTask') + ': ' + task.title" [title]="i18n.t('week.deleteTask')"
                                 (click)="$event.stopPropagation(); deleteTask(day, block, task)">✕</button>
                       </span>
-                      <!-- Track in Progress (Gianni): on the card itself, on its own centred line under the header, never inside it -->
+                      <!-- Track in Progress (Gianni): on the card itself, on its own centred line under the activity's title, never inside the header -->
                       <label class="t-track" [class.on]="isTracked(task)" [class.off]="!canTrack(task)" (click)="$event.stopPropagation()" (pointerdown)="$event.stopPropagation()">
                         <input type="checkbox" [checked]="isTracked(task)" [disabled]="!canTrack(task)" (change)="setTrack(task, $any($event.target).checked)" />
                         <span>{{ i18n.t('task.track') }}</span>
