@@ -1,6 +1,8 @@
 import { CaptureUi } from '../capture/capture-ui';
 import { PageMenu } from '../../shared/title-fan';
 import { NgTemplateOutlet } from '@angular/common';
+import { BalanceView } from './balance-view';
+import { balanceFromKey } from '../../core/balance.model';
 import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { AuthService } from '../../core/auth.service';
 import { I18n } from '../../core/i18n';
@@ -14,6 +16,11 @@ import { WeekStore } from '../../core/week.store';
 const DAYS_SHOWN = 14;
 /** Days read to find each habit's first mark and its real streak (only the last 14 are drawn). */
 const HISTORY_DAYS = 90;
+const TAB_KEY = 'go-epic-progress-tab';
+
+function readTab(): 'streaks' | 'balance' {
+  try { return localStorage.getItem(TAB_KEY) === 'balance' ? 'balance' : 'streaks'; } catch { return 'streaks'; }
+}
 
 /**
  * Progress: every task of the week as a habit, with its streak (🔥 days in a row it was done; skipped days pause it,
@@ -22,15 +29,22 @@ const HISTORY_DAYS = 90;
  */
 @Component({
   selector: 'app-progress',
-  imports: [NgTemplateOutlet],
+  imports: [NgTemplateOutlet, BalanceView],
   template: `
     <section class="progress-page">
       <header class="board-top progress-top"><h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')" (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('progress.title') }}<span class="title-chev" aria-hidden="true">⌄</span></button></h1>
         <!-- 💡 Capture's lists, at the top right as on the other pages (Gianni) -->
         <button type="button" class="round idea" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')" (click)="captureUi.open.set(true)">💡</button>
       </header>
+      <!-- two views (Gianni): Consistency (the streaks) and Areas of life (the radar) -->
+      <div class="seg progress-tabs" role="tablist" [attr.aria-label]="i18n.t('progress.tabs')">
+        <button type="button" role="tab" id="tab-streaks" [attr.aria-selected]="tab() === 'streaks'" [class.on]="tab() === 'streaks'" (click)="setTab('streaks')">{{ i18n.t('progress.tabStreaks') }}</button>
+        <button type="button" role="tab" id="tab-balance" [attr.aria-selected]="tab() === 'balance'" [class.on]="tab() === 'balance'" (click)="setTab('balance')">{{ i18n.t('progress.tabBalance') }}</button>
+      </div>
       @if (!store.loaded() || !library.ready()) {
         <p class="muted">{{ i18n.t('loading') }}</p>
+      } @else if (tab() === 'balance') {
+        <div role="tabpanel" aria-labelledby="tab-balance"><app-balance-view [history]="history()" /></div>
       } @else if (!list().length && !taskList().length) {
         <p class="muted center">{{ i18n.t(noneTracked() ? 'progress.pickHint' : 'progress.empty') }}</p>
       } @else {
@@ -79,12 +93,19 @@ export class Progress {
   protected readonly captureUi = inject(CaptureUi);
   protected readonly store = inject(WeekStore);
   private readonly auth = inject(AuthService);
-  private readonly history = signal<Record<string, DayMarks>>({});
+  protected readonly history = signal<Record<string, DayMarks>>({});
+  protected readonly tab = signal<'streaks' | 'balance'>(readTab());
+  protected setTab(tab: 'streaks' | 'balance'): void {
+    this.tab.set(tab);
+    try { localStorage.setItem(TAB_KEY, tab); } catch { /* a view preference only */ }
+  }
 
   /** The first day shown (YYYY-MM-DD): changes only at midnight, not with every clock tick. */
   private readonly fromKey = computed(() => {
     const now = this.store.now();
-    return dateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - (HISTORY_DAYS - 1)));
+    const streaks = dateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - (HISTORY_DAYS - 1)));
+    const radar = balanceFromKey(now);                                     // the radar also needs the previous quarter
+    return radar < streaks ? radar : streaks;
   });
   protected readonly library = inject(LibraryStore);
   /** Every Activity of the week as a habit; only those ticked "Track in Progress" show (Gianni: too many to follow all). */

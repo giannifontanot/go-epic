@@ -1456,3 +1456,64 @@ html[data-theme='goepiclight'] { --fab: #1d1d1f; --fab-ink: #fbfbfd;
   --win-edge: rgba(201, 162, 39, .55); }
 html[data-theme='goepicdark'] { --win-edge: rgba(226, 184, 74, .45); }
 html[data-theme='goepiclight'] .capture-fab:not(.finish-fab):not(.open) { box-shadow: 0 0 0 2px rgba(245, 201, 69, .9), 0 4px 14px rgba(0, 0, 0, .18); }
+
+/* Progress tabs and the period switch: one segmented pill (the chosen one in the theme's primary) */
+.seg { display: flex; gap: 4px; width: fit-content; max-width: 100%; margin: 0 auto 12px; padding: 4px; border-radius: 999px; background: color-mix(in srgb, var(--ink) 9%, transparent); }
+.seg button { min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: transparent; color: var(--ink-soft); font-weight: 700; font-size: calc(14px * var(--esc, 1)); }
+.seg button:hover:not(.on) { color: var(--ink); }
+.seg button.on { background: var(--pink); color: var(--g-on-ink, #1b2757); }
+.progress-tabs { margin-bottom: 16px; }
+
+/* Areas of life: the radar (balance-view). Area colours in a fixed order, stepped for dark and light surfaces
+   (validated categorical palette); text always wears the ink, the colours only mark identity. */
+.balance { --area-0: #3987e5; --area-1: #d95926; --area-2: #199e70; --area-3: #c98500; --area-4: #d55181; --area-5: #0ca30c; --area-6: #9085e9; --area-7: #e66767; }
+html:is([data-theme='squeezeme'], [data-theme='pinkpop'], [data-theme='sunburnt'], [data-theme='office'], [data-theme='goepiclight']) .balance {
+  --area-0: #2a78d6; --area-1: #eb6834; --area-2: #1baf7a; --area-3: #eda100; --area-4: #e87ba4; --area-5: #008300; --area-6: #6250d6; --area-7: #e34948; }
+.balance .seg { margin-bottom: 4px; }
+.b-range { margin: 0 0 12px; text-align: center; font-size: 13px; }
+.b-head { display: flex; align-items: baseline; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.b-total { font-size: 34px; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; }
+.b-hint { margin: 4px 0 0; font-size: 13px; }
+.radar { display: block; width: 100%; max-width: 440px; margin: 4px auto 0; padding: 6px; border-radius: 24px; background: var(--navy-card); box-shadow: 0 1px 0 color-mix(in srgb, var(--ink) 10%, transparent) inset; overflow: visible; }
+.r-ring { fill: none; stroke: color-mix(in srgb, var(--ink) 14%, transparent); stroke-width: 1; }
+.r-axis { stroke: color-mix(in srgb, var(--ink) 18%, transparent); stroke-width: 1; }
+.r-axis.sel { stroke: var(--ink); stroke-width: 1.5; }
+.r-arc { fill: none; stroke: var(--c); stroke-width: 5; stroke-linecap: round; }
+.r-prev { fill: color-mix(in srgb, var(--ink-soft) 10%, transparent); stroke: var(--ink-soft); stroke-width: 1.5; stroke-dasharray: 4 4; stroke-linejoin: round; opacity: .75; }
+.r-now { fill: color-mix(in srgb, var(--teal) 24%, transparent); stroke: var(--teal); stroke-width: 2; stroke-linejoin: round; }
+.r-dot { fill: var(--c); stroke: var(--navy-card); stroke-width: 2; }
+.r-noplan { fill: var(--navy-card); stroke: var(--ink-soft); stroke-width: 1.5; stroke-dasharray: 2 2; }
+.r-tip { cursor: pointer; outline: none; }
+.r-hit { fill: transparent; stroke: transparent; stroke-width: 26; }
+.r-num { fill: var(--navy-card); stroke: var(--c); stroke-width: 3; transition: stroke-width .15s; }
+.r-tip text { fill: var(--ink); font-size: 13px; font-weight: 800; pointer-events: none; }
+.r-tip.empty .r-num { stroke: var(--ink-soft); stroke-dasharray: 3 3; }
+.r-tip.empty text { fill: var(--ink-soft); }
+.r-tip.sel .r-num { stroke-width: 6; }
+.r-tip:focus-visible .r-num { stroke: var(--teal); stroke-width: 5; }
+.b-key { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 6px; margin: 8px 0 14px; font-size: 12px; }
+.b-key span { display: inline-block; width: 16px; height: 10px; border-radius: 3px; }
+.b-key .k-now { background: color-mix(in srgb, var(--teal) 30%, transparent); border: 2px solid var(--teal); margin-left: 4px; }
+.b-key .k-prev { border: 1.5px dashed var(--ink-soft); margin-left: 8px; }
+.b-key .k-none { width: 10px; border-radius: 50%; border: 1.5px dashed var(--ink-soft); margin-left: 8px; }
+.b-num { flex: none; display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--c); color: var(--ink); font-size: 13px; font-weight: 800; }
+.b-detail { margin: 0 0 16px; padding: 12px 14px; border-radius: 18px; background: var(--navy-card); border-left: 5px solid var(--c); }
+.b-detail header { display: flex; align-items: center; gap: 10px; }
+.b-detail header div { flex: 1; min-width: 0; display: grid; }
+.b-detail header strong { overflow-wrap: anywhere; }
+.b-detail header small { font-size: 12px; }
+.b-detail p { margin: 8px 0; }
+.b-acts { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.b-acts li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border-radius: 12px; background: color-mix(in srgb, var(--ink) 6%, transparent); }
+.b-acts .a-title { min-width: 0; overflow-wrap: anywhere; }
+.b-acts .a-count { flex: none; display: flex; gap: 10px; font-weight: 700; font-size: 13px; font-variant-numeric: tabular-nums; }
+.b-acts .a-pend { color: var(--ink-soft); }
+.b-area { display: flex; align-items: center; gap: 8px; margin: 14px 4px 6px; font-size: 16px; }
+.b-swatch { width: 12px; height: 12px; border-radius: 4px; background: var(--c); }
+.b-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.b-row { width: 100%; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 12px; border: 1.5px solid transparent; border-radius: 14px; background: var(--navy-card); color: var(--ink); text-align: left; }
+.b-row.sel { border-color: var(--c); }
+.b-row .b-name { flex: 1; min-width: 0; overflow-wrap: anywhere; font-weight: 600; }
+.b-row .b-val { flex: none; font-weight: 800; font-variant-numeric: tabular-nums; }
+.b-row .b-val.none { color: var(--ink-soft); font-weight: 600; font-style: italic; }
+.b-row .b-prev { flex: none; font-size: 12px; min-width: 64px; text-align: right; }
