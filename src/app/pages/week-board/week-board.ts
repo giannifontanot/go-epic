@@ -622,8 +622,8 @@ export class WeekBoard {
   private longPressed = false;
 
   // --- Where an activity lives (Gianni): on the locked board a tap on its title opens a card with its Area, Epic,
-  //     Feature and Story, so their names (the Story's "As a…, I want…, so that…") can be read. The rest of the card
-  //     keeps its own tap (Done) and long press (the state menu). ---
+  //     Feature and Story, so their names (the Story's "As a…, I want…, so that…") can be read. A tap anywhere on the
+  //     card opens it too, but for its circle (Done) and a long press (the state menu). ---
   protected readonly info = signal<{ task: Task; block: Block; index: number; tone: string } | null>(null);
   private readonly infoDialog = viewChild<ElementRef<HTMLDialogElement>>('infoDialog');
   /** The titles of the levels the open card's activity lives under, '' where it has none (Free Space). */
@@ -638,6 +638,9 @@ export class WeekBoard {
     if (event instanceof KeyboardEvent) event.preventDefault();
     this.pressEnd();
     if (this.longPressed) { this.longPressed = false; return; }          // the long press already opened the state menu
+    this.openInfo(block, index, task, tone);
+  }
+  private openInfo(block: Block, index: number, task: Task, tone: string): void {
     this.info.set({ task, block, index, tone });
     const d = this.infoDialog()?.nativeElement;
     if (d) openDialog(d);
@@ -680,11 +683,20 @@ export class WeekBoard {
     this.pressAt = null;
   }
 
-  /** A card tapped: while arranging it opens its details; on the board, today's card toggles Done. */
-  protected cardTap(day: Day, block: Block, task: Task): void {
+  /**
+   * A card tapped: while arranging it opens its details; on the board it shows where the activity lives (any day). Done
+   * is the circle at its left (`circleTap`, Gianni: he needs both with one tap each); a long press opens the state menu.
+   */
+  protected cardTap(event: Event, day: Day, block: Block, index: number, task: Task, tone: string): void {
     if (this.arranging()) { this.openTask(day, block, task); return; }
+    this.titleTap(event, block, index, task, tone);
+  }
+
+  /** Today's circle tapped: Done, or To do again when it was finished (done or late). Never the card's own tap. */
+  protected circleTap(event: Event, block: Block, task: Task): void {
+    event.stopPropagation();
+    this.pressEnd();
     if (this.longPressed) { this.longPressed = false; return; }          // the long press already opened the menu
-    if (day !== this.store.today()) return;
     const done = !this.store.isDone(task.id);
     this.store.setDone(task.id, done);
     if (done) this.celebrate(block, task);
