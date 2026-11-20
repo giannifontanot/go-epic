@@ -1,4 +1,4 @@
-<section class="board" [class.locked]="!arranging()" [class.spot]="spotlight()" [class.has-tray]="overdue().length > 0" [class.tray-folded]="trayFolded()">
+<section #board class="board" [class.locked]="!arranging()" [class.spot]="spotlight()" [class.has-tray]="overdue().length > 0" [class.tray-folded]="trayFolded()">
   <!-- why a move or a drop was refused (no room in that block): a short note that fades by itself -->
   @if (notice()) { <p class="board-notice" role="status">{{ notice() }}</p> }
   <!-- Title and 💡 Capture at the right; while arranging ✓ Finish takes the 💡's place (Capture's tasks are hidden then
@@ -230,7 +230,7 @@
 
   <!-- Tasks left open on earlier days, today's whose hour has passed and today's all-day ones (Gianni): they float at the foot of the screen, always in sight, until checked -->
   @if (overdue().length) {
-    <section class="overdue-tray" [class.folded]="trayFolded()" [attr.aria-label]="i18n.t('week.overdue')">
+    <section #tray class="overdue-tray" [class.folded]="trayFolded()" [attr.aria-label]="i18n.t('week.overdue')">
       <!-- Its top border folds the list down out of sight and back (Gianni); only this bar stays when folded -->
       <button type="button" class="overdue-head" [attr.aria-expanded]="!trayFolded()" aria-controls="overdue-list"
               [title]="i18n.t(trayFolded() ? 'week.trayOpen' : 'week.trayFold')" (click)="toggleTray()">

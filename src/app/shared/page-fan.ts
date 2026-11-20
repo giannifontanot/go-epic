@@ -7,7 +7,7 @@ import { flyTiles, placeBeside } from './fan';
  * The pages, one tap away (Gianni: the ☰ menu left, and scrolling up to navigate was not wanted): an action of the
  * floating buttons' menu (ActionMenu). A tap slides the pages out of it to the left, exactly as the themes do, the page
  * you are on marked; a tap on one goes there (and the menu closes); a tap outside, Esc or the button again draw them
- * back; the list ends with ⚙ Ajustes. Under reduced motion they simply appear and go.
+ * back. Under reduced motion they simply appear and go.
  */
 @Component({
   selector: 'app-page-fan',
@@ -28,8 +28,6 @@ import { flyTiles, placeBeside } from './fan';
              [routerLinkActiveOptions]="{ exact: page.link === '/' }" [attr.aria-current]="rla.isActive ? 'page' : null"
              (click)="went.emit()">{{ i18n.t(page.label) }}@if (rla.isActive) { <span class="theme-tile-check" aria-hidden="true">✓</span> }</a>
         }
-        <!-- Ajustes last (Gianni): the language, the weighted buttons and the red time line, touched almost never -->
-        <button #tile type="button" class="page-tile settings-tile" (click)="settings.emit()">⚙ {{ i18n.t('settings.title') }}</button>
       </nav>
     }
   `,
@@ -44,8 +42,6 @@ export class PageFan {
   ];
   /** A page was tapped: the menu closes. */
   readonly went = output<void>();
-  /** Ajustes was tapped: the menu closes and the settings window opens. */
-  readonly settings = output<void>();
   protected readonly open = signal(false);
   private readonly injector = inject(Injector);
   private readonly fab = viewChild.required<ElementRef<HTMLButtonElement>>('fab');

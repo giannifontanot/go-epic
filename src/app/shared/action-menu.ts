@@ -1,10 +1,8 @@
 import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { I18n } from '../core/i18n';
-import { Todo } from '../core/todo.model';
 import { TodoStore } from '../core/todo.store';
 import { WeekStore } from '../core/week.store';
 import { CaptureUi, MenuAction } from '../pages/capture/capture-ui';
-import { TodoDialog, TodoSave } from '../pages/capture/todo-dialog';
 import { DayOverview } from './day-overview';
 import { PageFan } from './page-fan';
 
@@ -13,27 +11,24 @@ export type { MenuAction };
 /**
  * One round button at the bottom right of every page (Gianni: so the screen is not full of buttons; it also replaced
  * the ☰ menu; a panel ordered the actions by how often each is used). A tap stacks the actions above it, each sliding
- * up out of it, the nearest first, as the themes fan out: + a new task, 💡 Capture, the day overview, ✎ Edit (the
- * page's own: the Week board arranges the week, the Canvas opens its edit bar) and the pages on top, whose list ends
- * with Ajustes; on a short screen they go on in a second column. A tap on an action closes the menu and runs it (the
+ * up out of it, the nearest first, as the themes fan out: Capture (a square with a plus, the one way to add a task),
+ * the day overview, ✎ Edit (the page's own: the Week board arranges the week, the Canvas opens its edit bar), the
+ * pages and ⚙ Ajustes on top; on a short screen they go on in a second column. A tap on an action closes the menu and runs it (the
  * pages keep it open while their list is out); the button again, a tap outside or Esc draw them back in. Under reduced
  * motion they simply appear and go.
  */
 @Component({
   selector: 'app-action-menu',
-  imports: [PageFan, DayOverview, TodoDialog],
+  imports: [PageFan, DayOverview],
   template: `
     @if (open()) { <div class="action-veil" aria-hidden="true" (click)="close()"></div> }
     <div id="action-stack" class="action-stack" [class.open]="open()" role="group" [attr.aria-label]="i18n.t('nav.actions')">
-      @if (ready()) {
-        <button type="button" class="capture-fab act-fab new-act" [style.--i]="index().add" [attr.aria-label]="i18n.t('capture.new')" [title]="i18n.t('capture.new')"
-                (click)="run(newTask)">+</button>
-      }
-      <!-- Capture (Gianni): a light bulb, drawn as an outline -->
+      <!-- Capture, the one way to add a task (Gianni: New task was the same window minus day, hour and repeat, which each
+           task's ✎ sets): a square with a plus -->
       <button type="button" class="capture-fab act-fab" [style.--i]="index().capture" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')"
               (click)="run(openCapture)">
         <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 17.5h6M10 20.5h4M12 3.5a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2v1.2h5.2v-1.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3.5Z"/>
+          <rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8.5v7M8.5 12h7"/>
         </svg>
       </button>
       @if (ready()) {
@@ -50,7 +45,16 @@ export type { MenuAction };
         <button type="button" class="capture-fab act-fab" [style.--i]="index().edit" [attr.aria-label]="action.label" [title]="action.label"
                 (click)="run(action.run)">✎</button>
       }
-      <app-page-fan [style.--i]="index().pages" (went)="close()" (settings)="close(); openSettings()" />
+      <app-page-fan [style.--i]="index().pages" (went)="close()" />
+      <!-- Ajustes, its own button on top (Gianni): language, weighted buttons, red time line -->
+      <button type="button" class="capture-fab act-fab" [style.--i]="index().settings" [attr.aria-label]="i18n.t('settings.title')" [title]="i18n.t('settings.title')"
+              (click)="run(openSettings)">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M12 3.5v2.2M12 18.3v2.2M3.5 12h2.2M18.3 12h2.2M6 6l1.6 1.6M16.4 16.4 18 18M6 18l1.6-1.6M16.4 7.6 18 6"/>
+          <circle cx="12" cy="12" r="6.3"/>
+        </svg>
+      </button>
     </div>
     <button type="button" class="capture-fab menu-fab" [class.open]="open()" [attr.aria-expanded]="open()" aria-controls="action-stack"
             [attr.aria-label]="i18n.t('nav.actions')" [title]="i18n.t('nav.actions')" (click)="toggle()">
@@ -67,9 +71,6 @@ export type { MenuAction };
       }
     </button>
     <app-day-overview />
-    @if (adding(); as todo) {
-      <app-todo-dialog [todo]="todo" [isNew]="true" (save)="save($event)" (closed)="adding.set(null)" />
-    }
   `,
   host: { '(document:keydown.escape)': 'onEscape()' },
 })
@@ -81,19 +82,18 @@ export class ActionMenu {
   /** The page's own action, at the bottom of the stack (the Week board's ✎ arrange; set by the page, CaptureUi.menuEdit). */
   protected readonly edit = this.capture.menuEdit;
   protected readonly open = signal(false);
-  protected readonly adding = signal<Todo | null>(null);
   private readonly pagesFan = viewChild(PageFan);
   private readonly overviewWindow = viewChild.required(DayOverview);
-  /** + and the overview need today's plan and Capture's tasks. */
+  /** The overview needs today's plan and Capture's tasks. */
   protected readonly ready = computed(() => this.week.loaded() && this.todos.ready());
   /** Each action's place from the bottom (0 = just above the round button), for its slide and its delay. */
   protected readonly index = computed(() => {
     let i = 0;
-    const add = this.ready() ? i++ : -1;
     const capture = i++;
     const overview = this.ready() ? i++ : -1;
     const edit = this.edit() ? i++ : -1;
-    return { add, capture, overview, edit, pages: i };
+    const pages = i++;
+    return { capture, overview, edit, pages, settings: i };
   });
 
   protected toggle(): void {
@@ -111,14 +111,7 @@ export class ActionMenu {
     this.close();
     action();
   }
-  protected readonly newTask = () =>
-    this.adding.set({ id: '', title: '', date: this.week.todayKey(), time: null, done: null, created: Date.now(), repeat: [], doneOn: {} });
   protected readonly showOverview = () => this.overviewWindow().open();
   protected readonly openCapture = () => this.capture.open.set(true);
-  protected openSettings(): void {
-    this.capture.settings.set(true);
-  }
-  protected save(change: TodoSave): void {
-    this.todos.add(change.title, change.repeat.length ? null : change.date, change.time, change.repeat);
-  }
+  protected readonly openSettings = () => this.capture.settings.set(true);
 }

@@ -342,7 +342,6 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
   transition: transform .3s cubic-bezier(.4, 0, 1, 1), opacity .26s ease; }
 .action-stack.open .capture-fab { opacity: 1; transform: none; pointer-events: auto;
   transition: transform .34s cubic-bezier(0, 0, .2, 1) calc(var(--i, 0) * 40ms), opacity .26s ease calc(var(--i, 0) * 40ms); }
-.action-stack .new-act { font-size: 28px; line-height: 1; }
 .page-fab { z-index: 22; }
 .page-fab.open { background: var(--teal); }
 /* the pages (Gianni): pills that fan out to the left of their button, the page you are on marked */
@@ -1111,9 +1110,10 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
 
 /* Week: the tasks left open on earlier days wait at the foot of the screen (Gianni: always in sight), beside the
    floating ✎, in a file folder (Gianni: not a floating box): its raised tab holds the heading, the folder's body sits
-   on the screen's bottom edge, the list scrolls inside it when long, and the week leaves room under its last block */
+   on the screen's bottom edge, it opens as tall as its tasks need (Gianni: no scroll; only past the whole screen does
+   the list scroll), and the week leaves that much room under its last block (--tray-h, measured) */
 .overdue-tray { --folder: var(--navy-card); position: fixed; z-index: 15; left: max(12px, env(safe-area-inset-left));
-  right: calc(max(16px, env(safe-area-inset-right)) + 64px); bottom: 0; max-width: 560px; max-height: 36vh; display: flex; flex-direction: column;
+  right: calc(max(16px, env(safe-area-inset-right)) + 64px); bottom: 0; max-width: 560px; max-height: calc(100dvh - 12px); display: flex; flex-direction: column;
   filter: drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
 /* The tab is a button (Gianni): it folds the folder down to its lip, leaving only the tab, and back */
 .overdue-head { position: relative; flex: none; align-self: flex-start; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 22px);
@@ -1135,8 +1135,8 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
 .overdue-tray.folded .overdue-body { grid-template-rows: 0fr; padding-top: 0; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
 .overdue-tray.folded .overdue-body > ul { opacity: 0; }
 .overdue-tray ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
-.board.has-tray { padding-bottom: min(38vh, 230px); }
-.board.has-tray.tray-folded { padding-bottom: 72px; }
+.board.has-tray { padding-bottom: calc(var(--tray-h, 230px) + 16px); }
+.board.has-tray.tray-folded { padding-bottom: calc(var(--tray-h, 56px) + 16px); }
 @media (prefers-reduced-motion: reduce) { .overdue-body, .overdue-body > ul, .overdue-chev { transition: none; } }
 html.tilt .overdue-head { rotate: none; translate: none; }   /* the tab is part of its folder: it never leans off it */
 html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray { filter: grayscale(1) drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
