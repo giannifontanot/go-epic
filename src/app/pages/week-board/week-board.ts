@@ -6,7 +6,7 @@ import { TextSettings } from '../../core/text-settings';
 import { I18n } from '../../core/i18n';
 import {
   addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, countdown, Task, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, stepTask, newId, resizedMinutes, stretchedEnd,
-  moveToHour, nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
+  moveToHour, snapDelta, nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
 } from '../../core/week.model';
 import { Library, fileTask, followLibrary, nodeById, paperAge, pathOf, updateNode } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
@@ -25,6 +25,12 @@ import { readTrayFolded, writeTrayFolded } from '../../core/tray-fold';
  * The week in seven columns of blocks and task cards. Locked by default (a calm view of the week);
  * "Arrange the week" unlocks editing: block windows, ▲▼, ⇄ copy/move, + and quick-add, and each card's ••• details.
  */
+/** An arrow key on a handle: to the next 5-minute step in its direction (23 → 25 or 20). */
+function keyStep(value: number, direction: number): number {
+  return direction > 0 ? Math.ceil((value + 1) / 5) * 5 - value : Math.floor((value - 1) / 5) * 5 - value;
+}
+/** How long a FLIP glide lasts (core/flip). */
+const FLIP_MS = 380;
 const FOLD_KEY = 'go-epic-week-folded';
 /** How long the page stays still before it glides back to the red line (Gianni: about 4 s). */
 const NOW_IDLE_MS = 4000;
@@ -79,6 +85,12 @@ export class WeekBoard {
   }
 
   constructor() {
+    // A refusal's note (no room in a block) fades by itself after a few seconds
+    effect((onCleanup) => {
+      if (!this.notice()) return;
+      const timer = setTimeout(() => this.notice.set(''), 4500);
+      onCleanup(() => clearTimeout(timer));
+    });
     // Arranging files tasks in the library: it stops while the library is not loaded (sign-out, another account).
     effect(() => { if (!this.library.ready()) this.arranging.set(false); });
     // On the Week board the floating ✎ arranges the week (Capture is the 💡 at the top); hidden while arranging.
@@ -360,7 +372,9 @@ export class WeekBoard {
     handle.setPointerCapture(event.pointerId);
     const y0 = event.clientY;
     this.sizing.set({ taskId: task.id, minutes: validMinutes(task.minutes) });
-    const move = (e: PointerEvent) => this.sizing.set({ taskId: task.id, minutes: resizedMinutes(block, task.id, (e.clientY - y0) / this.text.pxPerMin()) });
+    const from = validMinutes(task.minutes);
+    // in 5-minute steps (Gianni)
+    const move = (e: PointerEvent) => this.sizing.set({ taskId: task.id, minutes: resizedMinutes(block, task.id, snapDelta(from, (e.clientY - y0) / this.text.pxPerMin())) });
     const done = (commit: boolean) => () => {
       handle.removeEventListener('pointermove', move);
       handle.removeEventListener('pointerup', up);
@@ -376,13 +390,13 @@ export class WeekBoard {
     handle.addEventListener('pointercancel', cancel);
   }
 
-  /** Keys on a card's handle: ↓/→ one minute longer, ↑/← shorter, Shift five, PageUp/PageDown fifteen. */
+  /** Keys on a card's handle: ↓/→ five minutes longer, ↑/← shorter (to the 5-minute steps), Shift one, PageUp/PageDown fifteen. */
   protected resizeKey(event: KeyboardEvent, day: Day, block: Block, task: Task): void {
-    const step = event.shiftKey ? 5 : 1;
-    const delta = ({ ArrowDown: step, ArrowRight: step, ArrowUp: -step, ArrowLeft: -step, PageDown: 15, PageUp: -15 } as Record<string, number>)[event.key];
-    if (!delta) return;
+    const raw = ({ ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1, PageDown: 15, PageUp: -15 } as Record<string, number>)[event.key];
+    if (!raw) return;
     event.preventDefault();
     event.stopPropagation();
+    const delta = event.shiftKey || Math.abs(raw) > 1 ? raw : keyStep(validMinutes(task.minutes), raw);
     this.setMinutes(day, block, task, resizedMinutes(block, task.id, delta));
   }
   /** Free minutes drawn as the striped band (live while stretching). */
@@ -404,8 +418,9 @@ export class WeekBoard {
     const first = stretchedEnd(block, 0);
     if (!first) return;
     this.stretching.set({ blockId: block.id, end: first });
+    const from = parseClock(first) ?? 0;
     const move = (e: PointerEvent) => {
-      const end = stretchedEnd(block, (e.clientY - y0) / this.text.pxPerMin());
+      const end = stretchedEnd(block, snapDelta(from, (e.clientY - y0) / this.text.pxPerMin()));   // in 5-minute steps (Gianni)
       if (end) this.stretching.set({ blockId: block.id, end });
     };
     const done = (commit: boolean) => () => {
@@ -423,12 +438,12 @@ export class WeekBoard {
     handle.addEventListener('pointercancel', cancel);
   }
 
-  /** Keys on the handle: ↓/→ one minute longer, ↑/← shorter, Shift five, PageUp/PageDown fifteen. */
+  /** Keys on the handle: ↓/→ five minutes later, ↑/← earlier (to the 5-minute steps), Shift one, PageUp/PageDown fifteen. */
   protected stretchKey(event: KeyboardEvent, day: Day, block: Block): void {
-    const step = event.shiftKey ? 5 : 1;
-    const delta = ({ ArrowDown: step, ArrowRight: step, ArrowUp: -step, ArrowLeft: -step, PageDown: 15, PageUp: -15 } as Record<string, number>)[event.key];
-    if (!delta) return;
+    const raw = ({ ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1, PageDown: 15, PageUp: -15 } as Record<string, number>)[event.key];
+    if (!raw) return;
     event.preventDefault();
+    const delta = event.shiftKey || Math.abs(raw) > 1 ? raw : keyStep(parseClock(stretchedEnd(block, 0)) ?? 0, raw);
     const end = stretchedEnd(block, delta);
     if (end && end !== block.end) this.setWindow(day, block, block.start ?? '', end);
   }
@@ -680,8 +695,21 @@ export class WeekBoard {
     if (problem) return;
     const set = (blocks: Block[]) => blocks.map((b) => (b.id === block.id ? { ...b, start: start || null, end: end || null } : b));
     if ((start || null) === block.start) { this.store.update(day, set); return; }
-    // A new start: the block glides to its hour among the day's blocks (Gianni)
+    // A new start: the block glides to its hour among the day's blocks (Gianni), and the page follows it there
+    const before = this.blocks(day).findIndex((b) => b.id === block.id);
     flip(document, this.injector, () => this.store.update(day, (blocks) => moveToHour(set(blocks), block.id)));
+    if (this.blocks(day).findIndex((b) => b.id === block.id) !== before) this.scrollToBlock(block.id);
+  }
+  /** Brings a block that has just moved into the middle of the screen (Gianni: the focus goes where it went). */
+  private scrollToBlock(id: string): void {
+    const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    afterNextRender({
+      // after its glide (flip, 380 ms): while it runs the block is drawn at its old place, and the scroll would aim there
+      read: () => setTimeout(() => {
+        const el = document.querySelector<HTMLElement>(`[data-block="${CSS.escape(id)}"]`);
+        el?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center', inline: 'nearest' });
+      }, reduced ? 0 : FLIP_MS + 20),
+    }, { injector: this.injector });
   }
 
   protected moveBlock(day: Day, index: number, offset: number): void {

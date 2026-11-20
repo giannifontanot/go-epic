@@ -337,11 +337,15 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 /* Week board: the + (new task) is the floating ✎'s twin, standing 12px above it; only a symbol, no words (Gianni) */
 .new-fab { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 64px); font-size: 28px; line-height: 1; }
 .overview-fab { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 128px); display: grid; place-items: center; }   /* the day overview stands above + (Gianni) */
-/* while arranging, the ✎'s spot holds a third ✓ Finish (Gianni): drawn like the other two Finish chips (teal, 700
-   weight, 16px ✓, no heavy shadow; the bold 26px one was too much), as tall as the foot's, centred where the ✎ is */
-.capture-fab.finish-fab { width: 44px; height: 44px; right: calc(max(16px, env(safe-area-inset-right)) + 4px);
-  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 4px); background: var(--teal); color: #0b2f2a;
-  font-size: 16px; font-weight: 700; line-height: 1; box-shadow: none; }
+/* while arranging, the ✎'s spot holds a third ✓ Finish (Gianni): the same size and place as the other round buttons,
+   in the Finish chips' teal and weight, without their heavy shadow */
+.capture-fab.finish-fab { background: var(--teal); color: #0b2f2a; font-size: 20px; font-weight: 700; line-height: 1; box-shadow: none; }
+/* why a move was refused (no room): a short note over the foot of the screen that fades by itself */
+.board-notice { position: fixed; z-index: 40; left: 50%; bottom: calc(max(18px, env(safe-area-inset-bottom)) + 70px); translate: -50% 0;
+  width: max-content; max-width: calc(100vw - 32px); margin: 0; padding: 10px 16px; border-radius: 14px; background: var(--navy-card, #1b2757);
+  color: var(--ink); font-size: 15px; text-align: center; box-shadow: 0 8px 28px #0007; pointer-events: none; animation: notice-in .25s ease-out; }
+@keyframes notice-in { from { opacity: 0; translate: -50% 8px; } }
+@media (prefers-reduced-motion: reduce) { .board-notice { animation: none; } }
 .capture-fab.finish-fab:hover { background: color-mix(in srgb, var(--teal) 85%, #fff); }
 .drawer-capture { display: flex; align-items: center; min-height: 48px; padding: 0 16px; border: 0; border-radius: 14px; background: transparent;
   color: var(--ink); font-size: 17px; font-weight: 700; text-align: left; }

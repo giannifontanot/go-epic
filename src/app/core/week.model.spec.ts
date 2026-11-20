@@ -1,6 +1,6 @@
 import {
   Block, PASTELS, Task, blockColors, cloneBlock, dateKey, dayOf, fits, formatClock, freeMinutes, moveItem, stepTask, nowPosition, countdown,
-  parseClock, placeBlock, stretchedEnd, resizedMinutes, taskStarts, taskTotal, timeline, uniqueName, validMinutes, windowError, moveToHour, addDayBlocks,
+  parseClock, placeBlock, stretchedEnd, resizedMinutes, taskStarts, taskTotal, timeline, uniqueName, validMinutes, windowError, moveToHour, addDayBlocks, snapDelta,
 } from './week.model';
 
 const task = (id: string, minutes: number, extra: Partial<Task> = {}): Task => ({ id, title: id, minutes, color: null, active: true, ref: null, ...extra });
@@ -114,7 +114,30 @@ describe('week model', () => {
     expect(stepTask(day(), 'a', 0, -1)).toBeNull();                                         // the day's first
     expect(stepTask(day(), 'c', 0, 1)).toBeNull();                                          // the day's last
     const full = day().map((b) => (b.id === 'b' ? { ...b, tasks: [task('b1', 25)] } : b));
-    expect(stepTask(full, 'a', 1, 1)).toEqual({ noRoom: full[1] });                         // 20 min do not fit in 5 free
+    const times = (r: ReturnType<typeof stepTask>) => (r && 'blocks' in r ? r.blocks.map((b) => `${b.id} ${b.start}-${b.end}`) : r);
+    // a full block still takes it: its start moves 15 min earlier (it had 5 free), the block above gives up 20 at its end
+    expect(times(stepTask(full, 'a', 1, 1))).toEqual(['a 06:00-06:40', 'b 06:45-07:30', 'c 08:00-null']);
+    // ▲ from a block's top: the block above grows only by what its free time lacks, this one starts later by the card's minutes
+    const tight = [block('a', '06:00', '07:00', [task('a1', 60)]), block('b', '07:00', '08:00', [task('b1', 30), task('b2', 30)])];
+    expect(times(stepTask(tight, 'b', 0, -1))).toEqual(['a 06:00-07:30', 'b 07:30-08:00']);
+    const up = stepTask(tight, 'b', 0, -1) as { blocks: Block[] };
+    expect(taskStarts(up.blocks[0])).toEqual([360, 420]);                                  // b1 keeps 07:00, now in a
+    expect(taskStarts(up.blocks[1])).toEqual([450]);                                       // b2 keeps 07:30
+    const late = [block('a', '23:00', '23:50', [task('a1', 50)]), block('b', '23:50', '23:59', [task('b1', 20)])];
+    expect(stepTask(late, 'b', 0, -1)).toEqual({ noRoom: late[0] });                       // never past midnight
+    // zero-minute cards left behind keep a real window (at least a minute), never an empty one that reads as unbounded
+    const zero = [block('a', '07:00', '08:00', [task('z', 0), task('a1', 60)]), block('b', '08:00', '09:00', [task('b1', 60)])];
+    expect(times(stepTask(zero, 'a', 1, 1))).toEqual(['a 07:00-07:01', 'b 07:00-09:00']);
+    const zeroUp = [block('a', '06:00', '07:00', [task('a1', 60)]), block('b', '07:00', '08:00', [task('b1', 60), task('z', 0)])];
+    expect(times(stepTask(zeroUp, 'b', 0, -1))).toEqual(['a 06:00-08:00', 'b 07:59-08:00']);
+  });
+
+  it('snaps a handle to 5-minute steps', () => {
+    expect(snapDelta(20, 1.4)).toBe(0);        // a small pull stays put
+    expect(snapDelta(20, 3)).toBe(5);
+    expect(snapDelta(23, 0)).toBe(2);          // an odd value lands on the nearest step: 25
+    expect(snapDelta(23, -4)).toBe(-3);        // 20
+    expect(snapDelta(420, 12)).toBe(10);       // 07:00 → 07:10
   });
 
   it('puts the now-line inside the running task, at the share already gone', () => {
