@@ -105,12 +105,18 @@
     /* The name, "Go Epic!", in the same size at the top left and on the first slide */
     .wm { margin: 0; font: 900 var(--wm)/1.08 'Cinzel Decorative', Georgia, serif; letter-spacing: .01em; white-space: nowrap; }
     .wm .gold { padding-right: .05em; }
-    /* First slide: the three words as big as the name, in its carved letters; the mission under them */
-    /* the three words always on one line (Gianni), as big as the name where the column allows */
+    /* First slide: the three words in the name's carved letters, one per line (Gianni), a little bigger than the name;
+       the mission under them is Gandalf's line about time */
     .copy { container-type: inline-size; }
-    .motto { margin: 0; font: 900 var(--wm)/1.12 'Cinzel Decorative', Georgia, serif; letter-spacing: .01em; color: #101b42; white-space: nowrap;
-      font-size: min(var(--wm), 5.2vw); font-size: min(var(--wm), 100cqw / 11.8); }
-    html[lang="es"] .motto { font-size: min(var(--wm), 4vw); font-size: min(var(--wm), 100cqw / 16); }
+    .motto { margin: 0; font: 900 var(--wm)/1.04 'Cinzel Decorative', Georgia, serif; letter-spacing: .01em; color: #101b42; white-space: nowrap;
+      font-size: min(calc(var(--wm) * 1.2), 13vw); font-size: min(calc(var(--wm) * 1.2), 100cqw / 6.4); }
+    .motto span { display: block; }
+    .mission .eyebrow { display: block; margin-bottom: 6px; font: 700 12px/1.2 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      letter-spacing: .14em; text-transform: uppercase; color: #9a6a12; }
+    .mission q { font-style: italic; quotes: '\201C' '\201D'; }
+    html[lang="es"] .mission q { quotes: '\00AB' '\00BB'; }
+    @media (min-width: 880px) { .slide .mission { margin-top: 30px; } }
+    .mission cite { display: block; margin-top: 6px; font-style: normal; font-weight: 600; font-size: .78em; color: var(--mute); }
     /* the mission has two copies: in the first slide's words (side by side) and under the emblem (phones) */
     .stage > .mission { display: none; text-align: center; margin: 0 auto; }
     .motto b { color: #b8860b; }
@@ -125,7 +131,7 @@
       .mission { padding-top: 14px; position: relative; max-width: 20em; }
       .mission::before { content: ''; position: absolute; top: 0; left: 50%; width: 36px; height: 2px; margin-left: -18px; border-radius: 2px; background: #c9a227; }
       .lead.mission { font-size: clamp(17px, 4.6vw, 21px); }
-      /* The first slide reads top to bottom as one group (Gianni): the motto on one line, the emblem, then the mission.
+      /* The first slide reads top to bottom as one group (Gianni): the motto on three lines, the emblem, then the mission.
          The emblem is centred in its room; the motto comes down and the mission up by --lift (set by fit()), so they hug it. */
       html.js .slide .mission { display: none; }
       html.js body[data-slide="0"] .stage > .mission { display: block; flex: none; padding-bottom: 6px; translate: 0 calc(-1 * var(--lift, 0px) - var(--up, 0px));
@@ -572,7 +578,7 @@
       <div class="slides">
         <section class="slide on" aria-roledescription="slide" aria-label="1 / 7">
           <h1 class="motto" data-i="k0"><span>Plan<b>.</b></span> <span>Focus<b>.</b></span> <span>Grow<b>.</b></span></h1>
-          <p class="lead mission" data-i="l0">Our mission: to make good use of the time we have.</p>
+          <p class="lead mission" data-i="l0"><span class="eyebrow">Our mission</span><q>All we have to decide is what to do with the time that is given us.</q> <cite>Gandalf · J.R.R. Tolkien</cite></p>
         </section>
         <section class="slide" aria-roledescription="slide" aria-label="2 / 7">
           <p class="kicker" style="--k:#c4302b" data-i="k1">Week board</p>
@@ -760,7 +766,7 @@
         </div></div>
       </div>
     </div>
-    <p class="lead mission" data-i="l0">Our mission: to make good use of the time we have.</p>
+    <p class="lead mission" data-i="l0"><span class="eyebrow">Our mission</span><q>All we have to decide is what to do with the time that is given us.</q> <cite>Gandalf · J.R.R. Tolkien</cite></p>
   </main>
 
   <button type="button" class="edge prev" aria-label="Back">
@@ -789,7 +795,7 @@
 
     var ES = {
       get_short: 'Descargar', get_long2: 'Descarga Go Epic, es gratis',
-      k0: '<span>Planea<b>.</b></span> <span>Enfócate<b>.</b></span> <span>Crece<b>.</b></span>', l0: 'Nuestra misión: usar bien el tiempo que tenemos.',
+      k0: '<span>Planea<b>.</b></span> <span>Enfócate<b>.</b></span> <span>Crece<b>.</b></span>', l0: '<span class="eyebrow">Nuestra misión</span><q>Todo lo que tenemos que decidir es qué hacer con el tiempo que se nos ha dado.</q> <cite>Gandalf · J.R.R. Tolkien</cite>',
       k1: 'Tablero semanal', h1: 'Cada hora tiene su lugar.',
       l1: 'Dale a cada parte de tu día su bloque. Una línea roja te dice dónde estás, y un toque lo marca hecho, en oro.',
       k3: 'Canvas', h3: 'Empieza por quién quieres ser.', l3: 'Área, Epic, Feature, Story, Actividad: de quién eres al pequeño paso de hoy.',
