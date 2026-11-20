@@ -129,6 +129,12 @@ export function resizedMinutes(block: Block, taskId: string, delta: number): num
   return Math.min(max, Math.max(0, Math.round(current + delta)));
 }
 
+/** Handles move in 5-minute steps (Gianni): the change that takes `value` + `delta` to the nearest multiple of `step`. */
+export const HANDLE_STEP = 5;
+export function snapDelta(value: number, delta: number, step = HANDLE_STEP): number {
+  return Math.round((value + delta) / step) * step - value;
+}
+
 /** Start time of each task: the block's start plus the minutes of the tasks before it. */
 export function taskStarts(block: Block): (number | null)[] {
   const start = parseClock(block.start);
@@ -181,13 +187,31 @@ export function stepTask(blocks: Block[], blockId: string, index: number, offset
   }
   const next = blocks[bi + offset];
   if (!next) return null;
-  if (!fits(next, validMinutes(task.minutes))) return { noRoom: next };
+  // Crossing moves the boundary between the two blocks (Gianni: a full block must still take it): the block it leaves
+  // gives up its minutes on that side (its other activities keep their hours), and the block it joins grows by what its
+  // free time lacks. ▲ lands at the end of the block above (its end moves later), ▼ at the start of the block below
+  // (its start moves earlier). Refused only past midnight.
+  const m = validMinutes(task.minutes);
+  const free = freeMinutes(next);
+  const short = free === null ? 0 : Math.max(0, m - free);
+  const rest = block.tasks.filter((_, k) => k !== index);
+  let joined: Block;
+  let left: Block;
+  if (offset < 0) {
+    const end = parseClock(next.end);
+    if (short && end !== null && end + short > 1439) return { noRoom: next };
+    joined = { ...next, end: short && end !== null ? formatClock(end + short) : next.end, tasks: [...next.tasks, task] };
+    const start = parseClock(block.start);
+    left = { ...block, start: start === null ? block.start : formatClock(Math.min(1439, start + m)), tasks: rest };
+  } else {
+    const start = parseClock(next.start);
+    if (short && start !== null && start - short < 0) return { noRoom: next };
+    joined = { ...next, start: short && start !== null ? formatClock(start - short) : next.start, tasks: [task, ...next.tasks] };
+    const end = parseClock(block.end);
+    left = { ...block, end: end === null || parseClock(block.start) === null ? block.end : formatClock(end - m), tasks: rest };
+  }
   return {
-    blocks: blocks.map((b, i) => {
-      if (i === bi) return { ...b, tasks: b.tasks.filter((_, k) => k !== index) };
-      if (i === bi + offset) return { ...b, tasks: offset < 0 ? [...b.tasks, task] : [task, ...b.tasks] };
-      return b;
-    }).filter((b) => b.tasks.length > 0),
+    blocks: blocks.map((b, i) => (i === bi ? left : i === bi + offset ? joined : b)).filter((b) => b.tasks.length > 0),
   };
 }
 

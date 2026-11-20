@@ -1,4 +1,6 @@
-<section class="board" [class.locked]="!arranging()" [class.has-tray]="!arranging() && overdue().length > 0" [class.tray-folded]="trayFolded()">
+<section class="board" [class.locked]="!arranging()" [class.has-tray]="overdue().length > 0" [class.tray-folded]="trayFolded()">
+  <!-- why a move or a drop was refused (no room in that block): a short note that fades by itself -->
+  @if (notice()) { <p class="board-notice" role="status">{{ notice() }}</p> }
   <!-- Title and 💡 Capture at the right; while arranging ✓ Finish takes the 💡's place (Capture's tasks are hidden then
        anyway, and the menu still opens Capture), so edit mode costs no extra row (Gianni: the top took too much room).
        The floating ✎ arranges the week. -->
@@ -111,7 +113,7 @@
                     (pointerup)="pressEnd()" (pointerleave)="pressEnd()" (pointercancel)="pressEnd()" (contextmenu)="cardMenu($event, day, task)">
                   <!-- Capture's tasks at an hour: on top of the activity running then, else the closest one in time, in the card's
                        flow (Gianni: not hovering over it), by hour -->
-                  @let notes = arranging() ? [] : cardNotes(day, task);
+                  @let notes = cardNotes(day, task);
                   @if (notes.length) {
                     <ul class="todo-pins" (click)="$event.stopPropagation()" (pointerdown)="$event.stopPropagation()">
                       @for (todo of notes; track todo.id) {
@@ -228,8 +230,8 @@
         <!-- Capture's tasks for this day that no activity holds (no hour, or a day with no timed activity), at the foot of
              the day (Gianni: not at the top). Today's open all-day ones and those left open on earlier days float at the
              foot of the screen instead (.overdue-tray, below) -->
-        <!-- Edit mode hides Capture's tasks everywhere (Gianni: they distract while arranging) -->
-        @let strip = arranging() ? [] : pins()[day].loose;
+        <!-- Edit mode shows them too, each with its ✎ (Gianni: to edit them or turn them into activities) -->
+        @let strip = pins()[day].loose;
         @if (strip.length) {
           <ul class="todo-strip" [attr.aria-label]="i18n.t('week.todos')">
             @for (todo of strip; track todo.id) {
@@ -252,7 +254,7 @@
   </div>
 
   <!-- Tasks left open on earlier days, today's whose hour has passed and today's all-day ones (Gianni): they float at the foot of the screen, always in sight, until checked -->
-  @if (!arranging() && overdue().length) {
+  @if (overdue().length) {
     <section class="overdue-tray" [class.folded]="trayFolded()" [attr.aria-label]="i18n.t('week.overdue')">
       <!-- Its top border folds the list down out of sight and back (Gianni); only this bar stays when folded -->
       <button type="button" class="overdue-head" [attr.aria-expanded]="!trayFolded()" aria-controls="overdue-list"

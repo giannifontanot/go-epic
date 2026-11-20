@@ -87,8 +87,16 @@ export function openDialog(dialog: HTMLDialogElement, options: { escape?: boolea
     dialog.addEventListener('cancel', (event) => { event.preventDefault(); void closeDialog(dialog); });
   }
   if (reducedMotion() || typeof dialog.animate !== 'function') return;
-  dialog.animate(mirrored(closeFrames(dialog, from)), { duration: MS, easing: EASE_OUT });
+  // Grow from the press only once the window has its real size and place (Gianni: every window from where the finger
+  // pressed): its contents are often drawn by Angular just after showModal(), and an origin measured on the still
+  // empty box sits somewhere else. The window waits hidden for that frame; the backdrop starts fading in at once.
+  const hold = dialog.animate([{ opacity: 0 }, { opacity: 0 }], { duration: 1000, fill: 'forwards' });
   animateBackdrop(dialog, true, MS);
+  requestAnimationFrame(() => {
+    hold.cancel();
+    if (!dialog.open || closing.has(dialog)) return;
+    dialog.animate(mirrored(closeFrames(dialog, from)), { duration: MS, easing: EASE_OUT });
+  });
 }
 
 /** True for a control that brings up the phone's keyboard when focused. */
