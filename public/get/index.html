@@ -106,8 +106,13 @@
     .wm { margin: 0; font: 900 var(--wm)/1.08 'Cinzel Decorative', Georgia, serif; letter-spacing: .01em; white-space: nowrap; }
     .wm .gold { padding-right: .05em; }
     /* First slide: the three words as big as the name, in its carved letters; the mission under them */
-    .motto { margin: 0; font: 900 var(--wm)/1.12 'Cinzel Decorative', Georgia, serif; letter-spacing: .01em; color: #101b42; text-wrap: balance; }
-    .motto span { display: inline-block; white-space: nowrap; }
+    /* the three words always on one line (Gianni), as big as the name where the column allows */
+    .copy { container-type: inline-size; }
+    .motto { margin: 0; font: 900 var(--wm)/1.12 'Cinzel Decorative', Georgia, serif; letter-spacing: .01em; color: #101b42; white-space: nowrap;
+      font-size: min(var(--wm), 5.2vw); font-size: min(var(--wm), 100cqw / 11.8); }
+    html[lang="es"] .motto { font-size: min(var(--wm), 4vw); font-size: min(var(--wm), 100cqw / 16); }
+    /* the mission has two copies: in the first slide's words (side by side) and under the emblem (phones) */
+    .stage > .mission { display: none; text-align: center; margin: 0 auto; }
     .motto b { color: #b8860b; }
     .lead.mission { color: var(--ink); font-weight: 600; }
     /* Phones: room to breathe at the top (Gianni found it crowded). One quiet language chip instead of the two-part switch,
@@ -117,16 +122,16 @@
       .lang button[aria-pressed="true"] { display: none; }
       .lang button { min-width: 44px; min-height: 40px; border: 1px solid rgba(0, 0, 0, .12); color: var(--ink); }
       .top { padding-bottom: 10px; }
-      .slide:first-child, html.js .slide:first-child { gap: 0; padding-top: clamp(10px, 4vh, 40px); }
-      .motto span { display: block; }
-      .mission { margin-top: 14px; padding-top: 14px; position: relative; max-width: 20em; }
+      .mission { padding-top: 14px; position: relative; max-width: 20em; }
       .mission::before { content: ''; position: absolute; top: 0; left: 50%; width: 36px; height: 2px; margin-left: -18px; border-radius: 2px; background: #c9a227; }
       .lead.mission { font-size: clamp(17px, 4.6vw, 21px); }
-      /* The first slide reads top to bottom as one group: the emblem, the motto, then the mission, the last word
-         (Gianni: the emblem sat too low; the mission matters most). The words come up under the emblem by --lift (set by fit()). */
-      html.js body[data-slide="0"] .stage { flex-direction: column-reverse; }
-      html.js body[data-slide="0"] .copy { transform: translateY(calc(-1 * var(--lift, 0px))); }
-      html.js body[data-slide="0"] .slide:first-child { padding-top: 0; }
+      /* The first slide reads top to bottom as one group (Gianni): the motto on one line, the emblem, then the mission.
+         The emblem is centred in its room; the motto comes down and the mission up by --lift (set by fit()), so they hug it. */
+      html.js .slide .mission { display: none; }
+      html.js body[data-slide="0"] .stage > .mission { display: block; flex: none; padding-bottom: 6px; translate: 0 calc(-1 * var(--lift, 0px) - var(--up, 0px));
+        animation: rise .9s var(--spring) .14s both; }
+      html.js body[data-slide="0"] .copy { translate: 0 calc(var(--lift, 0px) - var(--up, 0px)); }
+      html.js body[data-slide="0"] .emblem { translate: 0 calc(-1 * var(--up, 0px)); }
     }
     .top .wm { flex: none; }
     .lang { margin-left: auto; display: inline-flex; padding: 2px; border-radius: 999px; background: var(--soft); }
@@ -192,7 +197,7 @@
     body[data-slide="3"] { --g: rgba(255, 196, 120, .55); }
     body[data-slide="4"] { --g: rgba(244, 168, 183, .55); }
     body[data-slide="5"] { --g: rgba(225, 243, 208, .85); }
-    body[data-slide="6"] { --g: rgba(255, 213, 189, .75); }
+    body[data-slide="6"] { --g: rgba(224, 168, 58, .3); }
 
     /* The emblem (first slide) and the phone (the others) share the same spot */
     .emblem, .phone-box { grid-area: 1 / 1; transition: opacity .7s ease, transform .9s var(--spring), visibility 0s; }
@@ -210,10 +215,21 @@
                   linear-gradient(0deg, transparent 47%, rgba(255, 255, 255, .95) 50%, transparent 53%);
       -webkit-mask: radial-gradient(circle, #000 20%, transparent 70%); mask: radial-gradient(circle, #000 20%, transparent 70%); }
     .phone-box { position: relative; width: calc(320px * var(--s, .7)); height: calc(660px * var(--s, .7)); }
-    body[data-slide="0"] .phone-box,
+    body[data-slide="0"] .phone-box, body[data-slide="6"] .phone-box,
+    body:not([data-slide="6"]) .quote,
     body:not([data-slide="0"]) .emblem { opacity: 0; visibility: hidden; pointer-events: none;
       transition: opacity .5s ease, transform .7s var(--spring), visibility 0s linear .7s; }
     body[data-slide="0"] .phone-box { transform: translateY(14%) scale(.92); }
+    body[data-slide="6"] .phone-box { transform: scale(.92); }
+    /* The last slide: no picture, a line that inspires, so the eye rests and goes to Download (Gianni) */
+    .quote { grid-area: 1 / 1; position: relative; z-index: 1; max-width: 17em; margin: 0; padding: 0 4px; text-align: center;
+      font: italic 400 clamp(22px, 6.2vw, 30px)/1.32 var(--serif); color: #101b42; text-wrap: balance;
+      transition: opacity .7s ease, transform .9s var(--spring), visibility 0s; }
+    .quote::before { content: ''; display: block; width: 44px; height: 2px; margin: 0 auto 22px; border-radius: 2px; background: #c9a227; }
+    .quote b { display: block; margin-bottom: .55em; font: 900 1.12em/1.15 'Cinzel Decorative', Georgia, serif; font-style: normal; letter-spacing: .01em; }
+    .quote em { font-style: italic; color: #9a6a12; }
+    body:not([data-slide="6"]) .quote { transform: translateY(12px); }
+    @media (min-width: 880px) { .quote { font-size: clamp(26px, 2.4vw, 36px); } }
     body:not([data-slide="0"]) .emblem { transform: scale(.85); }
     body[data-slide="0"] .emblem { animation: forge 1.4s var(--spring) both; }
     body[data-slide="0"] .emblem .float { animation: floaty 3.2s ease-in-out 1.4s infinite alternate; }
@@ -482,33 +498,6 @@
       87.5%, 98% { --tb: #2b2e33; --td: #34373c; --tk: #3a3e44; --te: #59616b; --tt: #d4d7db; --tbi: #d4d7db; --tc1: #4a4f56; --tc2: #454a50; --tci: #d4d7db; --tn: #8a939e; }
     }
 
-    /* Get it: a home screen where the app lands, a tap, and the app opens */
-    .s-home { padding: 64px 22px 18px; color: #3b2a3a; background: linear-gradient(165deg, #ffd5bd, #f4a8b7 48%, #e1d7ff); }
-    .apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 14px; }
-    .app { position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .app i { width: 54px; height: 54px; border-radius: 14px; background: rgba(255, 255, 255, .5); box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .7); }
-    .app u { width: 30px; height: 5px; border-radius: 3px; background: rgba(59, 42, 58, .2); }
-    .tile { display: block; width: 54px; height: 54px; padding: 4px; border-radius: 14px; background: #101b42; overflow: hidden; flex: none; box-shadow: 0 8px 18px rgba(59, 42, 58, .35); }
-    .tile img { width: 100%; height: 100%; object-fit: contain; }
-    .app.ge > span:nth-child(2) { font-size: 10.5px; font-weight: 600; }
-    .app.ge::after { content: ''; position: absolute; top: 0; left: 50%; width: 54px; height: 54px; margin-left: -27px; border-radius: 16px;
-      box-shadow: 0 0 0 3px rgba(255, 255, 255, .95); opacity: 0; }
-    .app.ge .tap { left: 50%; top: 27px; }
-    .dock { position: absolute; left: 14px; right: 14px; bottom: 16px; display: flex; justify-content: space-around; padding: 12px; border-radius: 28px; background: rgba(255, 255, 255, .35); }
-    .dock i { width: 50px; height: 50px; border-radius: 14px; background: rgba(255, 255, 255, .55); }
-    .openapp { position: absolute; inset: 0; z-index: 7; padding: 58px 14px 16px; color: #fff4e9; background: #101b42; border-radius: 43px;
-      transform-origin: 39% 41%; opacity: 0; transform: scale(.12); }
-    .openapp .clock { color: #fff4e9; }
-    .s-home.run .app i, .s-home.run .app u { animation: fade .5s ease both; }
-    .s-home.run .app.ge { animation: land 1.25s var(--bounce) .3s both; }
-    .s-home.run .app.ge::after { animation: halo 1.1s ease-out 1.5s both; }
-    .s-home.run .app.ge .tap { animation: tapfx .9s ease 2.45s both; }
-    .s-home.run .openapp { animation: openApp .8s var(--spring) 2.95s both; }
-    @keyframes fade { from { opacity: 0; transform: scale(.85); } }
-    @keyframes land { 0% { opacity: 0; transform: translateY(-300px) scale(.5) rotate(-16deg); } 40% { opacity: 1; } }
-    @keyframes halo { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.9); } }
-    @keyframes openApp { 0% { opacity: 0; transform: scale(.12); border-radius: 80px; } 25% { opacity: 1; } 100% { opacity: 1; transform: none; border-radius: 43px; } }
-
     /* ── Bottom: the dots; left and right: thin arrows (Apple-style) ── */
     .nav { display: flex; align-items: center; justify-content: center; width: 100%; max-width: 1200px; margin: 0 auto;
       padding: 6px max(18px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left)); }
@@ -625,8 +614,9 @@
       </div>
     </div>
 
-    <div class="device" aria-hidden="true">
-      <div class="emblem">
+    <div class="device">
+      <p class="quote" data-i="q7"><b>Every hour is a gift.</b> Give it a purpose, and your small days become an <em>epic</em> story.</p>
+      <div class="emblem" aria-hidden="true">
         <div class="float">
           <img src="/get/emblem.webp" alt="" width="760" height="825" />
           <div class="sheen"></div>
@@ -634,7 +624,7 @@
         </div>
       </div>
 
-      <div class="phone-box">
+      <div class="phone-box" aria-hidden="true">
         <div class="phone"><div class="glass">
 
           <!-- 2 · Week board: the blocks rise, a tap turns a card gold, the red line runs down while the countdown empties -->
@@ -766,37 +756,11 @@
             </div>
           </div>
 
-          <!-- 7 · Home screen: the app lands, a tap, and it opens -->
-          <div class="screen s-home" data-n="6">
-            <span class="clock">9:41</span><span class="batt"></span>
-            <div class="live">
-              <div class="apps">
-                <div class="app"><i></i><u></u></div><div class="app"><i></i><u></u></div><div class="app"><i></i><u></u></div><div class="app"><i></i><u></u></div>
-                <div class="app"><i></i><u></u></div><div class="app"><i></i><u></u></div><div class="app"><i></i><u></u></div><div class="app"><i></i><u></u></div>
-                <div class="app"><i></i><u></u></div><div class="app ge"><span class="tile"><img src="/get/emblem.webp" alt="" width="54" height="54" /></span><span>Go Epic</span><i class="tap"></i></div>
-              </div>
-            </div>
-            <div class="dock"><i></i><i></i><i></i><i></i></div>
-            <div class="openapp">
-              <span class="clock">9:41</span><span class="batt"></span>
-              <div class="hdr"><h3><span data-i="p_wb">Week board</span><i class="chev"></i></h3><span class="bulb">💡</span></div>
-              <div class="chips"><span data-i="p_d1">Mon</span><span data-i="p_d2">Tue</span><span data-i="p_d3">Wed</span><span data-i="p_d4">Thu</span><span class="on" data-i="p_d5">Fri</span><span data-i="p_d6">Sat</span><span data-i="p_d7">Sun</span></div>
-              <div class="dayc">
-                <div class="dh"><span data-i="p_fri">Friday</span><i>⊟</i></div>
-                <div class="blk">
-                  <div class="bh"><span data-i="p_dawn">Dawn</span><b data-i="p_full">✓ Full</b></div>
-                  <div class="rng">06:00 <i>–</i> 06:45</div>
-                  <div class="card paper" style="--tone:#fff1c9"><div class="t"><i>06:00</i><span data-i="p_pray">Read 1 verse and pray</span></div><small>10 MIN</small></div>
-                  <div class="card paper" style="--tone:#d9efc4"><div class="t"><i>06:10</i><span data-i="p_walk">Walk 10 min</span></div><small>10 MIN</small></div>
-                  <div class="card paper" style="--tone:#e6dcff;--h:58px"><div class="t"><i>06:20</i><span data-i="p_breakfast">Breakfast with family</span></div><small>25 MIN</small></div>
-                </div>
-              </div>
-            </div>
-          </div>
 
         </div></div>
       </div>
     </div>
+    <p class="lead mission" data-i="l0">Our mission: to make good use of the time we have.</p>
   </main>
 
   <button type="button" class="edge prev" aria-label="Back">
@@ -832,6 +796,7 @@
       k4: 'Progreso', h4: 'Rachas que te impulsan.', l4: 'Cada actividad se vuelve un hábito con su propia racha. Un día omitido la pausa en vez de romperla.',
       k5: 'Captura', h5: 'Atrápalo antes de que se escape.', l5: 'Escríbelo y presiona Enter. Cae en el día y la hora correctos de tu semana.',
       k6: 'Temas', h6: 'Ocho estilos. Un solo tú.', l6: 'Alegre para la casa, grises tranquilos para la oficina. Toda la app lo sigue.',
+      q7: '<b>Cada hora es un regalo.</b> Dale un propósito, y tus días pequeños se volverán una historia <em>épica</em>.',
       k7: '¿Listo?', h7: 'Tu semana épica empieza hoy.', l7: 'Entra con Google y agrégala a tu pantalla de inicio. Gratis, y funciona sin internet.',
       steps: '<b>iPhone:</b> Safari → Compartir → Agregar a inicio · <b>Android y computadora:</b> Chrome → Instalar app',
       p_wb: 'Semana', p_d1: 'Lun', p_d2: 'Mar', p_d3: 'Mié', p_d4: 'Jue', p_d5: 'Vie', p_d6: 'Sáb', p_d7: 'Dom', p_fri: 'Viernes',
@@ -1029,9 +994,11 @@
       if (!w || h <= 0) return;
       var s = Math.max(.3, Math.min(w / 320, h / 660, 1.45));
       device.style.setProperty('--s', s.toFixed(3));
-      // phones, first slide: the emblem is centred in its room; the words come up to sit 18px under it, so the three read as one group
+      // phones, first slide: the emblem is centred in its room; the motto and the mission each come 18px from it, so the three read as one group
       var eh = Math.min(w, 600 * s) * 825 / 760;
-      stage.style.setProperty('--lift', Math.max(0, Math.round((h - eh) / 2 - 18)) + 'px');
+      var lift = Math.max(0, Math.round((h - eh) / 2 - 18));
+      stage.style.setProperty('--lift', lift + 'px');
+      stage.style.setProperty('--up', Math.round(Math.min(48, lift * .4)) + 'px');   // and the group sits a little above the middle
       place();
     }
     // The arrows: 3/4 down the image on touch screens and narrow windows (the thumb's reach), its middle with a mouse
