@@ -99,6 +99,13 @@ export class App {
       });
       updates.unrecoverable.subscribe(() => location.reload());   // the cached version is broken: load a fresh one
       setInterval(() => updates.checkForUpdate().catch(() => undefined), 30 * 60_000);   // a long-open app still hears of new versions
+      // and whenever it comes back to the screen (Gianni: a new version did not show until the app was reopened), at most once a minute
+      let lastCheck = Date.now();
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState !== 'visible' || Date.now() - lastCheck < 60_000) return;
+        lastCheck = Date.now();
+        updates.checkForUpdate().catch(() => undefined);
+      });
     }
 
     effect((onCleanup) => {
