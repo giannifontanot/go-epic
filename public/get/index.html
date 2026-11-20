@@ -921,6 +921,8 @@
             installing: 'Installing Go Epic… it will appear with your apps.', open: 'Open Go Epic', close: 'Close',
             iosT: 'Add Go Epic to your iPhone', iosL: 'Safari installs it from the app itself, in three taps:',
             iosS: ['Tap <b>Open Go Epic</b> below.', 'Tap <b>Share</b> <span aria-hidden="true">⎙</span> at the bottom of Safari.', 'Choose <b>Add to Home Screen</b>, then <b>Add</b>.'],
+            macT: 'Add Go Epic to your Dock', macL: 'Safari on a Mac installs it from the app itself:',
+            macS: ['Click <b>Open Go Epic</b> below.', 'In Safari’s menu bar, choose <b>File › Add to Dock</b>.', 'Click <b>Add</b>.'],
             anyT: 'Install Go Epic', anyL: 'Already installed? Open it from your home screen or apps. If not:',
             anyS: ['Tap <b>Open Go Epic</b> below.', 'Open your browser’s menu (⋮ or ⋯).', 'Choose <b>Install app</b> or <b>Add to Home screen</b>.'],
             left: '{n} min left', qs: 'Quotes', qp: 'Previous quote', qn: 'Next quote' },
@@ -928,6 +930,8 @@
             installing: 'Instalando Go Epic… aparecerá con tus apps.', open: 'Abrir Go Epic', close: 'Cerrar',
             iosT: 'Agrega Go Epic a tu iPhone', iosL: 'Safari la instala desde la propia app, en tres toques:',
             iosS: ['Toca <b>Abrir Go Epic</b> abajo.', 'Toca <b>Compartir</b> <span aria-hidden="true">⎙</span> abajo en Safari.', 'Elige <b>Agregar a pantalla de inicio</b> y luego <b>Agregar</b>.'],
+            macT: 'Agrega Go Epic a tu Dock', macL: 'Safari en una Mac la instala desde la propia app:',
+            macS: ['Haz clic en <b>Abrir Go Epic</b> abajo.', 'En la barra de menús de Safari, elige <b>Archivo › Agregar al Dock</b>.', 'Haz clic en <b>Agregar</b>.'],
             anyT: 'Instala Go Epic', anyL: '¿Ya la tienes? Ábrela desde tu pantalla de inicio o tus apps. Si no:',
             anyS: ['Toca <b>Abrir Go Epic</b> abajo.', 'Abre el menú del navegador (⋮ o ⋯).', 'Elige <b>Instalar app</b> o <b>Agregar a pantalla principal</b>.'],
             left: 'quedan {n} min', qs: 'Frases', qp: 'Frase anterior', qn: 'Frase siguiente' }
@@ -1233,26 +1237,62 @@
       });
     }
     function iOS() { return /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
-    function showSheet() {
-      var t = UI[lang], ios = iOS();
-      sheet.querySelector('h2').textContent = ios ? t.iosT : t.anyT;
-      sheet.querySelector('.install-lead').textContent = ios ? t.iosL : t.anyL;
-      sheet.querySelector('.install-steps').innerHTML = (ios ? t.iosS : t.anyS).map(function (x) { return '<li>' + x + '</li>'; }).join('');
+    function macSafari() {
+      var ua = navigator.userAgent;
+      return /Macintosh/.test(ua) && /Safari\//.test(ua) && !/Chrome|Chromium|CriOS|Edg|Firefox|FxiOS|OPR/.test(ua) && !iOS();
+    }
+    // Like every window of the app, the sheet grows out of the point that was pressed and shrinks back into it
+    // (300 ms, ease-out in and its mirror ease-in out, the backdrop fading); nothing moves under reduced motion.
+    var still = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)'), from = null, closing = false;
+    function originOf(r) {
+      var x = from ? from.x : r.left + r.width / 2, y = from ? from.y : r.top + r.height / 2;
+      return (x - r.left) + 'px ' + (y - r.top) + 'px';
+    }
+    function play(el, frames, ease, pseudo) {
+      try { return el.animate(frames, { duration: 300, easing: ease, fill: 'forwards', pseudoElement: pseudo }); } catch (e) { return null; }
+    }
+    function showSheet(point) {
+      var t = UI[lang], kind = iOS() ? 'ios' : macSafari() ? 'mac' : 'any';
+      sheet.querySelector('h2').textContent = t[kind + 'T'];
+      sheet.querySelector('.install-lead').textContent = t[kind + 'L'];
+      sheet.querySelector('.install-steps').innerHTML = t[kind + 'S'].map(function (x) { return '<li>' + x + '</li>'; }).join('');
       sheet.querySelector('.install-open').textContent = t.open;
       sheet.querySelector('.install-close').textContent = t.close;
-      if (sheet.showModal) sheet.showModal(); else location.href = '/';
+      if (!sheet.showModal) { location.href = '/'; return; }
+      from = point; closing = false;
+      sheet.getAnimations({ subtree: true }).forEach(function (a) { a.cancel(); });
+      sheet.showModal();
+      if (still && still.matches) return;
+      sheet.style.transformOrigin = originOf(sheet.getBoundingClientRect());
+      play(sheet, [{ transform: 'scale(.04)', opacity: 0 }, { transform: 'scale(.04)', opacity: 1, offset: .2 }, { transform: 'scale(1)', opacity: 1 }], 'cubic-bezier(0, 0, .6, 1)');
+      play(sheet, [{ opacity: 0 }, { opacity: 1 }], 'linear', '::backdrop');
     }
-    sheet.querySelector('.install-close').addEventListener('click', function () { sheet.close(); });
+    function hideSheet() {
+      if (!sheet.open || closing) return;
+      if (still && still.matches) { sheet.close(); return; }
+      closing = true;
+      sheet.style.transformOrigin = originOf(sheet.getBoundingClientRect());
+      var a = play(sheet, [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(.04)', opacity: 1, offset: .8 }, { transform: 'scale(.04)', opacity: 0 }], 'cubic-bezier(.4, 0, 1, 1)');
+      play(sheet, [{ opacity: 1 }, { opacity: 0 }], 'linear', '::backdrop');
+      function done() { if (!closing) return; closing = false; sheet.close(); sheet.getAnimations({ subtree: true }).forEach(function (x) { x.cancel(); }); }
+      if (a) a.finished.then(done, done); else done();
+    }
+    sheet.querySelector('.install-close').addEventListener('click', hideSheet);
+    sheet.addEventListener('cancel', function (e) { e.preventDefault(); hideSheet(); }); // Esc shrinks it home too
     sheet.addEventListener('click', function (e) {
       if (e.target !== sheet) return;
       var r = sheet.getBoundingClientRect();
-      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) sheet.close();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) hideSheet();
     });
     document.querySelectorAll('.js-get').forEach(function (a) {
       a.addEventListener('click', function (e) {
         if (standalone()) return;               // inside the installed app: the link simply opens it
         e.preventDefault();
-        if (!installEvent) { showSheet(); return; }
+        if (!installEvent) {
+          var r = a.getBoundingClientRect(), tap = e.detail > 0 && (e.clientX || e.clientY);
+          showSheet(tap ? { x: e.clientX, y: e.clientY } : { x: r.left + r.width / 2, y: r.top + r.height / 2 });
+          return;
+        }
         var ev = installEvent; installEvent = null; // the browser lets each install event be used once
         ev.prompt();
         ev.userChoice.then(function (c) { if (c && c.outcome === 'accepted') say(UI[lang].installing); }).catch(function () {});
