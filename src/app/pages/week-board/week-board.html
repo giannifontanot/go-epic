@@ -14,10 +14,6 @@
     } @else {
       <button type="button" class="round idea" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')" (click)="capture.open.set(true)">💡</button>
     }
-      @if (arranging()) {
-      <!-- the edit bar (Gianni): px / Aa / AV, as in Epic Manager, seen at once on the cards, and the Themes -->
-      <app-look-bar [px]="true" />
-    }
   </header>
 
   <nav class="day-tabs" role="tablist">
@@ -53,7 +49,7 @@
 
         @for (block of blocks(day); track block.id; let bi = $index, bfirst = $first, blast = $last) {
           @let tones = colors(block);
-          <section class="block" [class.over]="isOver(block)" [attr.data-flip]="block.id" [attr.data-block]="block.id">
+          <section class="block" [class.deleting]="undo.isPending(block.id)" [class.over]="isOver(block)" [attr.data-flip]="block.id" [attr.data-block]="block.id">
             <div class="block-head">
               @if (arranging()) {
                 <input class="block-name" type="text" [value]="block.name" [attr.aria-label]="i18n.t('week.blockName')"
@@ -94,7 +90,7 @@
             <div class="block-inner">
             <ul class="tasks">
               @for (task of block.tasks; track task.id; let ti = $index, tfirst = $first, tlast = $last) {
-                <li class="task" [attr.data-flip]="task.id" [attr.data-task]="task.id" [style.--tone]="tones[ti]" [style.--mins]="shownMinutes(task)" [attr.data-paper]="paper(task)" [class.done]="isDone(day, task)" [attr.data-status]="day === store.today() ? store.status(task.id) : null" [class.off]="!task.active"
+                <li class="task" [class.deleting]="undo.isPending(task.id)" [attr.data-flip]="task.id" [attr.data-task]="task.id" [style.--tone]="tones[ti]" [style.--mins]="shownMinutes(task)" [attr.data-paper]="paper(task)" [class.done]="isDone(day, task)" [attr.data-status]="day === store.today() ? store.status(task.id) : null" [class.off]="!task.active"
                     (click)="cardTap(day, block, task)" (pointerdown)="pressStart($event, day, task)" (pointermove)="pressMove($event)"
                     (pointerup)="pressEnd()" (pointerleave)="pressEnd()" (pointercancel)="pressEnd()" (contextmenu)="cardMenu($event, day, task)">
                   <!-- Capture's tasks at an hour: on top of the activity running then, else the closest one in time, in the card's
@@ -329,10 +325,6 @@
   }
 </dialog>
 
-<!-- a third Finish (Gianni): while arranging, a round teal ✓ takes the floating ✎'s spot, so Finish shrinks back into it -->
-@if (arranging()) {
-  <button type="button" class="capture-fab finish-fab" [attr.aria-label]="i18n.t('week.finish')" [title]="i18n.t('week.finish')" (click)="toggleArrange()">✓</button>
-}
 @if (editingTodo(); as todo) {
   <app-todo-dialog [todo]="todo" [isNew]="!todo.id" [day]="editingDay()" (save)="saveTodo($event)" (closed)="editingTodo.set(null)" />
 }

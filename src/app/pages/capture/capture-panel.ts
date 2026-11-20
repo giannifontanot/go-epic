@@ -1,4 +1,5 @@
 import { Ask } from '../../shared/ask';
+import { Undo } from '../../shared/undo';
 import { Component, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
@@ -45,7 +46,7 @@ import { TodoDialog, TodoSave } from './todo-dialog';
       @if (tab() === 'open') {
       <ul class="capture-list">
         @for (todo of todos.open(); track todo.id) {
-          <li [attr.data-paper]="paper(todo)" [style.--tone]="tones().get(todo.id)">
+          <li [attr.data-paper]="paper(todo)" [style.--tone]="tones().get(todo.id)" [class.deleting]="undo.isPending(todo.id)">
             <!-- A repeating task is checked for today only (when today is one of its days); a single one leaves the list -->
             @let checked = checkedToday(todo);
             <button type="button" class="c-check" [class.on]="checked" role="checkbox" [attr.aria-checked]="checked"
@@ -97,6 +98,7 @@ export class CapturePanel {
   protected readonly i18n = inject(I18n);
   /** The app's own question windows (never the browser's confirm/alert). */
   private readonly asks = inject(Ask);
+  protected readonly undo = inject(Undo);
   protected readonly ui = inject(CaptureUi);
   protected readonly todos = inject(TodoStore);
   private readonly week = inject(WeekStore);
@@ -231,6 +233,7 @@ export class CapturePanel {
 
   protected async remove(todo: Todo): Promise<void> {
     const message = this.i18n.t('week.confirmDeleteTask', { task: todo.title });
-    if (await this.asks.ask({ message, ok: this.i18n.t('task.delete'), danger: true })) this.todos.remove(todo.id);
+    if (!(await this.asks.ask({ message, ok: this.i18n.t('task.delete'), danger: true }))) return;
+    this.undo.later(this.i18n.t('undo.deleting', { name: todo.title }), [todo.id], () => this.todos.remove(todo.id));
   }
 }

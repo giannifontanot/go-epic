@@ -30,6 +30,16 @@ export function placeBelow(button: HTMLElement, fan: HTMLElement | undefined): v
   fan.style.right = Math.max(12, Math.min(innerWidth - r.right, innerWidth - w - 12)) + 'px';
 }
 
+/** Places a fan to the left of a button at the bottom right (the edit tools): its foot level with the button's, kept on screen. */
+export function placeLeft(button: HTMLElement, fan: HTMLElement | undefined): void {
+  if (!fan || typeof innerHeight !== 'number') return;
+  const r = button.getBoundingClientRect();
+  const h = fan.offsetHeight;
+  fan.style.top = Math.max(12, Math.min(r.bottom - h, innerHeight - 12 - h)) + 'px';
+  fan.style.bottom = 'auto';
+  fan.style.right = Math.max(12, innerWidth - r.left + 12) + 'px';
+}
+
 /** Slides the tiles out of the button (out) or back into it; the returned animations end together with the motion. */
 export function flyTiles(button: HTMLElement, tiles: HTMLElement[], out: boolean): Animation[] {
   if (reducedMotion() || !tiles.length || typeof tiles[0].animate !== 'function') return [];
