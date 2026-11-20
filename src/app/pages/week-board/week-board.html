@@ -57,6 +57,10 @@
                 <button type="button" class="round" [disabled]="blast" [attr.aria-label]="i18n.t('week.blockDown')" [title]="i18n.t('week.blockDown')" (click)="moveBlock(day, bi, 1)">▼</button>
                 <button type="button" class="round push" [attr.aria-label]="i18n.t('week.transfer')" [title]="i18n.t('week.transfer')" (click)="openTransfer(day, block)">⇄</button>
                 <button type="button" class="round" [disabled]="!canAddTo(block)" [attr.aria-label]="i18n.t('week.addTask')" [title]="i18n.t('week.addTask')" (click)="addTask(day, block)">+</button>
+                <!-- This block's own open / close (Gianni), beside ✕: a dash to shrink it, a square to open it again -->
+                <button type="button" class="round block-fold" [attr.aria-expanded]="!isFolded(block)"
+                        [attr.aria-label]="i18n.t(isFolded(block) ? 'week.unfoldBlock' : 'week.foldBlock') + ': ' + block.name"
+                        [title]="i18n.t(isFolded(block) ? 'week.unfoldBlock' : 'week.foldBlock')" (click)="toggleBlockFold(block)">{{ isFolded(block) ? '□' : '—' }}</button>
                 <button type="button" class="round danger-x" [attr.aria-label]="i18n.t('week.deleteBlock')" [title]="i18n.t('week.deleteBlock')" (click)="deleteBlock(day, block)">✕</button>
               </div>
             }
@@ -68,12 +72,6 @@
                 <h3 class="block-name">{{ block.name }}</h3>
               }
               <span class="free">{{ freeLabel(block) }}</span>
-              <!-- This block's own open / close (Gianni), the same smooth fold as the day's ⊟/⊞; only while arranging -->
-              @if (arranging()) {
-              <button type="button" class="round block-fold" [class.closed]="isFolded(block)" [attr.aria-expanded]="!isFolded(block)"
-                      [attr.aria-label]="i18n.t(isFolded(block) ? 'week.unfoldBlock' : 'week.foldBlock') + ': ' + block.name"
-                      [title]="i18n.t(isFolded(block) ? 'week.unfoldBlock' : 'week.foldBlock')" (click)="toggleBlockFold(block)">⌄</button>
-              }
             </div>
 
             @if (arranging()) {
@@ -152,16 +150,16 @@
                                 (click)="$event.stopPropagation(); moveTask(day, block, ti, -1)">▲</button>
                         <button type="button" class="round" [disabled]="!canStep(tfirst, tlast, bfirst, blast, 1)" [attr.aria-label]="i18n.t('week.taskDown')" [title]="i18n.t('week.taskDown')"
                                 (click)="$event.stopPropagation(); moveTask(day, block, ti, 1)">▼</button>
-                        <!-- Track in Progress (Gianni): on the card itself, centred between the arrows and the edit tools -->
-                        <label class="t-track" [class.on]="isTracked(task)" [class.off]="!canTrack(task)" (click)="$event.stopPropagation()" (pointerdown)="$event.stopPropagation()">
-                          <input type="checkbox" [checked]="isTracked(task)" [disabled]="!canTrack(task)" (change)="setTrack(task, $any($event.target).checked)" />
-                          <span>{{ i18n.t('task.track') }}</span>
-                        </label>
-                        <button type="button" class="round" [attr.aria-label]="i18n.t('week.taskActions') + ': ' + task.title" [title]="i18n.t('week.taskActions')"
+                        <button type="button" class="round push" [attr.aria-label]="i18n.t('week.taskActions') + ': ' + task.title" [title]="i18n.t('week.taskActions')"
                                 (click)="$event.stopPropagation(); openTask(day, block, task)">✎</button>
                         <button type="button" class="round danger-x" [attr.aria-label]="i18n.t('week.deleteTask') + ': ' + task.title" [title]="i18n.t('week.deleteTask')"
                                 (click)="$event.stopPropagation(); deleteTask(day, block, task)">✕</button>
                       </span>
+                      <!-- Track in Progress (Gianni): on the card itself, on its own centred line under the header, never inside it -->
+                      <label class="t-track" [class.on]="isTracked(task)" [class.off]="!canTrack(task)" (click)="$event.stopPropagation()" (pointerdown)="$event.stopPropagation()">
+                        <input type="checkbox" [checked]="isTracked(task)" [disabled]="!canTrack(task)" (change)="setTrack(task, $any($event.target).checked)" />
+                        <span>{{ i18n.t('task.track') }}</span>
+                      </label>
                     }
                   </div>
                   <!-- Edit mode: the card is its content plus its minutes (px per minute, the px stepper), so a minute it loses is exactly a minute
