@@ -109,7 +109,7 @@
     .motto { margin: 0; font: 900 var(--wm)/1.12 'Cinzel Decorative', Georgia, serif; letter-spacing: .01em; color: #101b42; text-wrap: balance; }
     .motto span { display: inline-block; white-space: nowrap; }
     .motto b { color: #b8860b; }
-    .mission { color: var(--ink); font-weight: 500; }
+    .lead.mission { color: var(--ink); font-weight: 600; }
     /* Phones: room to breathe at the top (Gianni found it crowded). One quiet language chip instead of the two-part switch,
        the motto on three lines with space around it, the mission set apart under a short gold rule. */
     @media (max-width: 879px) {
@@ -121,6 +121,12 @@
       .motto span { display: block; }
       .mission { margin-top: 14px; padding-top: 14px; position: relative; max-width: 20em; }
       .mission::before { content: ''; position: absolute; top: 0; left: 50%; width: 36px; height: 2px; margin-left: -18px; border-radius: 2px; background: #c9a227; }
+      .lead.mission { font-size: clamp(17px, 4.6vw, 21px); }
+      /* The first slide reads top to bottom as one group: the emblem, the motto, then the mission, the last word
+         (Gianni: the emblem sat too low; the mission matters most). The words come up under the emblem by --lift (set by fit()). */
+      html.js body[data-slide="0"] .stage { flex-direction: column-reverse; }
+      html.js body[data-slide="0"] .copy { transform: translateY(calc(-1 * var(--lift, 0px))); }
+      html.js body[data-slide="0"] .slide:first-child { padding-top: 0; }
     }
     .top .wm { flex: none; }
     .lang { margin-left: auto; display: inline-flex; padding: 2px; border-radius: 999px; background: var(--soft); }
@@ -134,14 +140,14 @@
     .pill.small { min-height: 36px; padding: 0 16px; font-size: 14px; }
     .pill.big { min-height: 52px; padding: 0 28px; font-size: 17px; }
     /* The last slide's Download: a yellow ring that flashes, so the offer can't be missed */
-    .slide .pill.big { position: relative; box-shadow: 0 0 0 3px #f5c945; }
-    .slide .pill.big::after { content: ''; position: absolute; inset: -3px; border-radius: inherit; pointer-events: none;
-      box-shadow: 0 0 0 3px #f5c945, 0 0 18px 4px rgba(245, 201, 69, .75); opacity: 0; }
+    .slide .pill.big { position: relative; margin-block: 6px; box-shadow: 0 0 0 6px #f5c945; }
+    .slide .pill.big::after { content: ''; position: absolute; inset: -6px; border-radius: inherit; pointer-events: none;
+      box-shadow: 0 0 0 6px #f5c945, 0 0 26px 8px rgba(245, 201, 69, .8); opacity: 0; }
     .slide.on .pill.big::after { animation: ring-flash 1.6s ease-out .9s infinite; }
     @keyframes ring-flash {
       0% { opacity: 1; transform: scale(1); }
-      70% { opacity: 0; transform: scale(1.18); }
-      100% { opacity: 0; transform: scale(1.18); }
+      70% { opacity: 0; transform: scale(1.14); }
+      100% { opacity: 0; transform: scale(1.14); }
     }
 
     /* ── Stage: the words and the phone ──────────────────────── */
@@ -793,7 +799,7 @@
     </div>
   </main>
 
-  <button type="button" class="edge prev" aria-label="Back" hidden>
+  <button type="button" class="edge prev" aria-label="Back">
     <svg viewBox="0 0 16 40" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L3 20l10 18" /></svg>
   </button>
   <button type="button" class="edge next" aria-label="Next">
@@ -844,9 +850,9 @@
       p_today: 'Hoy', p_gym0: 'Gimnasio', p_tuth: 'Ma Ju · 07:00', p_bill: 'Pagar la luz', p_mon16: 'lun, 16 nov', p_today0640: 'Hoy · 06:40'
     };
     var UI = {
-      en: { back: 'Back', next: 'Next', again: 'Start over', step: 'Slide %n of %t', go: 'Go to slide %n', tour: 'Go Epic tour', nav: 'Tour',
+      en: { back: 'Back', end: 'Go to the last slide', next: 'Next', again: 'Start over', step: 'Slide %n of %t', go: 'Go to slide %n', tour: 'Go Epic tour', nav: 'Tour',
             soon: 'The download link is coming soon. Thanks for your interest!', left: '{n} min left' },
-      es: { back: 'Atrás', next: 'Siguiente', again: 'Volver al inicio', step: 'Paso %n de %t', go: 'Ir al paso %n', tour: 'Recorrido por Go Epic', nav: 'Recorrido',
+      es: { back: 'Atrás', end: 'Ir a la última lámina', next: 'Siguiente', again: 'Volver al inicio', step: 'Paso %n de %t', go: 'Ir al paso %n', tour: 'Recorrido por Go Epic', nav: 'Recorrido',
             soon: 'El enlace de descarga llega muy pronto. ¡Gracias por tu interés!', left: 'quedan {n} min' }
     };
     var META = {
@@ -873,7 +879,7 @@
     function fmt(s, n) { return s.replace('%n', n + 1).replace('%t', N); }
     function labels() {
       var t = UI[lang];
-      backBtn.setAttribute('aria-label', t.back);
+      backBtn.setAttribute('aria-label', cur === 0 ? t.end : t.back);
       nextBtn.setAttribute('aria-label', cur === N - 1 ? t.again : t.next);
       dots.forEach(function (d, i) { d.setAttribute('aria-label', fmt(t.go, i)); });
       slides.forEach(function (s, i) { s.setAttribute('aria-label', fmt(t.step, i)); });
@@ -931,8 +937,8 @@
       4: { period: 8000, tick: function (s, t) {   // Capture: 3 → 4 current when added, then 1 finished
         q(s, '.ncur').textContent = t < 2350 ? 3 : t < 5350 ? 4 : 3;
         q(s, '.nfin').textContent = t < 5350 ? 0 : 1;
-      } },
-      6: { period: 6500 }
+      } }
+      // the last slide's home screen stands still (Gianni: only the Download ring may move there)
     };
     var loopS = null, loopT0 = 0, loopRaf = 0, anims = [];
     function stopAnims() { anims.forEach(function (a) { a.cancel(); }); anims = []; }
@@ -986,23 +992,22 @@
       play(shown);
       body.dataset.slide = n;
       dots.forEach(function (d, i) { if (i === n) d.setAttribute('aria-current', 'step'); else d.removeAttribute('aria-current'); });
-      backBtn.hidden = n === 0;
-      // an arrow that hides must not take the keyboard focus with it
-      if (backBtn.hidden && document.activeElement === backBtn) nextBtn.focus();
       labels();
       announce.textContent = fmt(UI[lang].step, n);
     }
 
-    function forward() { show(cur === N - 1 ? 0 : cur + 1); }   // the last slide starts over
+    // Both arrows go round: the last slide starts over, and Back on the first goes to the last
+    function forward() { show(cur === N - 1 ? 0 : cur + 1); }
+    function backward() { show(cur === 0 ? N - 1 : cur - 1); }
     nextBtn.addEventListener('click', forward);
-    backBtn.addEventListener('click', function () { show(cur - 1); });
+    backBtn.addEventListener('click', backward);
     dots.forEach(function (d) { d.addEventListener('click', function () { show(+d.dataset.go); }); });
     document.addEventListener('keydown', function (e) {
       if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
       var tag = (e.target.tagName || '').toLowerCase();
       if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
       if (e.key === 'ArrowRight') { e.preventDefault(); forward(); }
-      else if (e.key === 'ArrowLeft') { e.preventDefault(); show(cur - 1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); backward(); }
     });
 
     // Swipe left / right on the stage
@@ -1013,7 +1018,7 @@
       if (sx === null || !e.isPrimary) return;
       var dx = e.clientX - sx, dy = e.clientY - sy;
       sx = null;
-      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.3) { if (dx < 0) forward(); else show(cur - 1); }
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.3) { if (dx < 0) forward(); else backward(); }
     });
 
     // The phone and the emblem take the room the words leave
@@ -1024,6 +1029,9 @@
       if (!w || h <= 0) return;
       var s = Math.max(.3, Math.min(w / 320, h / 660, 1.45));
       device.style.setProperty('--s', s.toFixed(3));
+      // phones, first slide: the emblem is centred in its room; the words come up to sit 18px under it, so the three read as one group
+      var eh = Math.min(w, 600 * s) * 825 / 760;
+      stage.style.setProperty('--lift', Math.max(0, Math.round((h - eh) / 2 - 18)) + 'px');
       place();
     }
     // The arrows: 3/4 down the image on touch screens and narrow windows (the thumb's reach), its middle with a mouse
