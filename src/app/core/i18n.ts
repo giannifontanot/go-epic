@@ -12,7 +12,9 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'capture.placeholder': { en: 'A task… (Enter)', es: 'Una tarea… (Enter)' },
   'capture.inboxHint': { en: 'Each task has a day and, if you like, an hour: in the Week it shows over the activity at that hour.', es: 'Cada tarea tiene un día y, si quieres, una hora: en la Semana se muestra sobre la actividad de esa hora.' },
   'capture.empty': { en: 'No tasks pending. Write one above.', es: 'No hay tareas pendientes. Escribe una arriba.' },
-  'capture.finished': { en: 'Finished', es: 'Terminadas' },
+  'capture.current': { en: 'Current', es: 'Actuales' },
+  'capture.finished': { en: 'Finished', es: 'Finalizadas' },
+  'capture.noneFinished': { en: 'No finished tasks yet.', es: 'Todavía no hay tareas finalizadas.' },
   'capture.check': { en: 'Mark as done', es: 'Marcar como terminada' },
   'capture.uncheck': { en: 'Open again', es: 'Volver a abrir' },
   'capture.noDay': { en: 'No day', es: 'Sin día' },
@@ -61,23 +63,18 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'week.centreNow': { en: 'It is {time}: centre the line', es: 'Son las {time}: centrar la línea' },
   'settings.theme': { en: 'Theme', es: 'Tema' },
   'theme.epic': { en: 'Epic', es: 'Épico' },
-  'theme.epicHint': { en: 'Navy, plum days, yellow blocks and pastel cards.', es: 'Azul marino, días morados, bloques amarillos y tarjetas pastel.' },
   'theme.office': { en: 'Office', es: 'Oficina' },
   'theme.pinkpop': { en: 'Pink Pop', es: 'Pink Pop' },
-  'theme.pinkpopHint': { en: 'Light and pink, from Epic Manager: soft pink pages, blush days and pastel cards.', es: 'Claro y rosa, de Epic Manager: páginas rosa suave, días rubor y tarjetas pastel.' },
   'theme.petalpunk': { en: 'Petal Punk', es: 'Petal Punk' },
-  'theme.petalpunkHint': { en: 'Dark and pink, from Epic Manager: deep plum nights with pink petal blocks.', es: 'Oscuro y rosa, de Epic Manager: noches ciruela con bloques de pétalo rosa.' },
   'theme.squeezeme': { en: 'Squeeze Me', es: 'Squeeze Me' },
-  'theme.squeezemeHint': { en: 'Light and orange, from Epic Manager: peach pages, apricot days and orange buttons.', es: 'Claro y naranja, de Epic Manager: páginas durazno, días chabacano y botones naranja.' },
   'theme.sunburnt': { en: 'Sunburnt Toast', es: 'Sunburnt Toast' },
-  'theme.sunburntHint': { en: 'Light and golden orange, from Epic Manager: warm toast pages and golden blocks.', es: 'Claro y naranja dorado, de Epic Manager: páginas tostadas y bloques dorados.' },
   'theme.smokedcitrus': { en: 'Smoked Citrus', es: 'Smoked Citrus' },
-  'theme.smokedcitrusHint': { en: 'Dark and orange, from Epic Manager: smoky charcoal, warm stone blocks with an ember edge.', es: 'Oscuro y naranja, de Epic Manager: carbón ahumado, bloques de piedra cálida con borde de brasa.' },
   'theme.graphite': { en: 'Graphite', es: 'Grafito' },
-  'theme.graphiteHint': { en: 'Dark, but easy on the eyes: deep greys, never black.', es: 'Oscuro pero agradable a la vista: grises profundos, nunca negro.' },
-  'theme.officeHint': { en: 'Quiet greys that draw no attention on a work screen.', es: 'Grises discretos que no llaman la atención en la oficina.' },
-  'nav.menu': { en: 'Menu', es: 'Menú' },
-  'nav.close': { en: 'Close menu', es: 'Cerrar menú' },
+  'nav.pages': { en: 'Pages', es: 'Páginas' },
+  'nav.edit': { en: 'Edit', es: 'Editar' },
+  'settings.language': { en: 'Language', es: 'Idioma' },
+  'nav.actions': { en: 'Actions', es: 'Acciones' },
+  'nav.close': { en: 'Close', es: 'Cerrar' },
   'nav.signOut': { en: 'Sign out', es: 'Salir' },
   'settings.size': { en: 'Text size', es: 'Tamaño de letra' },
   'settings.pxPerMin': { en: 'Pixels per minute', es: 'Píxeles por minuto' },
@@ -148,7 +145,6 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'week.full': { en: '✓ Full', es: '✓ Lleno' },
   'week.dragTask': { en: 'Drag to move', es: 'Arrastra para mover' },
   'week.resize': { en: 'Pull to change the minutes', es: 'Jala para cambiar los minutos' },
-  'week.stretch': { en: 'Pull to change the block\'s end', es: 'Jala para cambiar el fin del bloque' },
   'week.over': { en: '⚠ {n} min over', es: '⚠ {n} min de más' },
   'week.blockUp': { en: 'Move block up', es: 'Subir bloque' },
   'week.blockDown': { en: 'Move block down', es: 'Bajar bloque' },
@@ -162,7 +158,6 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'week.taskUp': { en: 'Move up', es: 'Subir' },
   'week.taskDown': { en: 'Move down', es: 'Bajar' },
   'capture.toActivity': { en: 'Convert to activity', es: 'Convertir en actividad' },
-  'capture.toActivityAsk': { en: 'Convert "{task}" to an activity? It goes to the Canvas\'s Free Space and leaves your tasks.', es: '¿Convertir "{task}" en actividad? Pasa al Espacio libre del Canvas y sale de tus tareas.' },
   'capture.activityMinutes': { en: 'Minutes of the activity', es: 'Minutos de la actividad' },
   'capture.toActivityAskWeek': { en: 'Convert "{task}" to an activity? It takes the task\'s place on the Week board and leaves your tasks.', es: '¿Convertir "{task}" en actividad? Toma el lugar de la tarea en la semana y sale de tus tareas.' },
   'capture.toActivityNoRoom': { en: 'Its block cannot grow past midnight. Shorten it and try again.', es: 'Su bloque no puede pasar de medianoche. Acórtala e inténtalo de nuevo.' },
@@ -199,6 +194,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'task.auto': { en: 'Automatic', es: 'Automático' },
   'task.active': { en: 'Active', es: 'Activo' },
   'task.cancel': { en: 'Cancel', es: 'Cancelar' },
+  'ask.ok': { en: 'OK', es: 'Entendido' },
   'task.done': { en: 'Done', es: 'Listo' },
   'task.nameRequired': { en: 'Give it a name.', es: 'Ponle un nombre.' },
   'task.where': { en: 'Where', es: 'Dónde' },
@@ -314,7 +310,10 @@ export class I18n {
   }
 
   toggle(): void {
-    const next: Lang = this.lang() === 'en' ? 'es' : 'en';
+    this.setLang(this.lang() === 'en' ? 'es' : 'en');
+  }
+
+  setLang(next: Lang): void {
     this.lang.set(next);
     try { localStorage.setItem(STORAGE_KEY, next); } catch { /* a view preference only */ }
   }

@@ -1,11 +1,14 @@
 import { Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/auth.service';
 import { CapturePanel } from './pages/capture/capture-panel';
 import { CaptureUi } from './pages/capture/capture-ui';
+import { ActionMenu } from './shared/action-menu';
+import { ThemeFan } from './shared/theme-fan';
+import { AskWindow } from './shared/ask';
 import { Settings } from './pages/settings/settings';
-import { closeDialog, isBackdropClick, openDialog } from './core/dialog';
+import { openDialog, warmUpWindows } from './core/dialog';
 import { I18n } from './core/i18n';
 import { LibraryStore } from './core/library.store';
 import { Tilt } from './core/tilt';
@@ -16,37 +19,19 @@ import { WeekStore } from './core/week.store';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CapturePanel, Settings],
+  imports: [RouterOutlet, RouterLink, CapturePanel, Settings, ActionMenu, ThemeFan, AskWindow],
   template: `
     @if (auth.user()) {
-      <button type="button" class="nav-toggle" [attr.aria-label]="i18n.t('nav.menu')" [attr.aria-expanded]="menuOpen()"
-        aria-controls="app-drawer" (click)="openMenu()">☰</button>
-      <dialog #drawer id="app-drawer" class="app-drawer" [attr.aria-label]="i18n.t('nav.menu')"
-        (click)="onDrawerClick($event)" (close)="menuOpen.set(false)">
-        <div class="drawer-head">
-          <span class="brand">Go Epic</span>
-          <button type="button" class="drawer-close" [attr.aria-label]="i18n.t('nav.close')" (click)="closeMenu()">×</button>
-        </div>
-        @if (auth.user(); as user) { <p class="drawer-user">{{ user.displayName || user.email }}</p> }
-        <nav class="drawer-links">
-          <a routerLink="/" routerLinkActive="on" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">{{ i18n.t('nav.week') }}</a>
-          <a routerLink="/focus" routerLinkActive="on" (click)="closeMenu()">{{ i18n.t('nav.focus') }}</a>
-          <a routerLink="/canvas" routerLinkActive="on" (click)="closeMenu()">{{ i18n.t('nav.canvas') }}</a>
-          <a routerLink="/progress" routerLinkActive="on" (click)="closeMenu()">{{ i18n.t('nav.progress') }}</a>
-          <button type="button" class="drawer-capture" (click)="openCapture()">✎ {{ i18n.t('capture.title') }}</button>
-          <button type="button" class="drawer-capture" (click)="openSettings()">⚙ {{ i18n.t('settings.title') }}</button>
-        </nav>
-        <div class="drawer-foot">
-          <button type="button" class="chip quiet" (click)="i18n.toggle()" [attr.aria-label]="i18n.lang() === 'en' ? 'Español' : 'English'">
-            {{ i18n.lang() === 'en' ? 'Español' : 'English' }}</button>
-          <button type="button" class="chip quiet" role="switch" [class.on]="tilt.on()" [attr.aria-checked]="tilt.on()"
-            [title]="i18n.t('nav.tiltHint')" (click)="tilt.toggle()">⚖ {{ i18n.t('nav.tilt') }}</button>
-          <button type="button" class="chip quiet" (click)="closeMenu(); auth.signOut()">{{ i18n.t('nav.signOut') }}</button>
-        </div>
-      </dialog>
       <app-capture-panel />
+      <!-- one round button at the bottom right of every page (Gianni): + new task, Capture, the day overview, Edit and the
+           pages with Ajustes last (no ☰ menu any more); hidden while the Week board is arranged (its ✓ Finish takes the spot) -->
+      @if (!ui.menuHidden()) { <app-action-menu /> }
+      <!-- the themes fan out of the edit bar's Themes button; drawn here, outside the page (a grey theme's filter would move and grey them) -->
+      <app-theme-fan />
       <!-- Ajustes: a window over the current page (the theme changes behind it), never a page of its own -->
-      @if (settingsOpen()) { <app-settings (closed)="settingsOpen.set(false)" /> }
+      @if (ui.settings()) { <app-settings (closed)="ui.settings.set(false)" /> }
+      <!-- the app's own question windows (delete?, discard?…), in place of the browser's confirm/alert boxes -->
+      <app-ask-window />
       @if (store.error()) {
         <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ store.error() }}
           <button type="button" class="chip quiet" (click)="store.error.set('')">×</button></p>
@@ -75,18 +60,16 @@ export class App {
   protected readonly i18n = inject(I18n);
   protected readonly store = inject(WeekStore);
   protected readonly library = inject(LibraryStore);
-  protected readonly tilt = inject(Tilt);
+  private readonly tilt = inject(Tilt);
   /** The text size and letter spacing chosen on the Week board (Aa / AV) apply everywhere from the start. */
   protected readonly text = inject(TextSettings);
   /** The chosen theme (Ajustes) stays applied on every page. */
   protected readonly theme = inject(ThemeService);
-  private readonly capture = inject(CaptureUi);
   private readonly router = inject(Router);
   /** The installed app (service worker) has downloaded a newer version: offer to switch to it. */
   protected readonly updateReady = signal(false);
-  /** The menu (☰): a drawer from the left, as in Epic Manager, so every page has the whole screen. */
-  protected readonly menuOpen = signal(false);
-  private readonly drawer = viewChild<ElementRef<HTMLDialogElement>>('drawer');
+  /** Capture's and Ajustes' open flags, the page's menu action and whether the action menu is hidden. */
+  protected readonly ui = inject(CaptureUi);
   private readonly updateDialog = viewChild<ElementRef<HTMLDialogElement>>('updateDialog');
   private readonly unsaved = inject(UnsavedWork);
   /**
@@ -98,6 +81,11 @@ export class App {
 
   constructor() {
     this.tilt.start();   // buttons lean when the phone leans (a visual detail)
+    // once the app is idle, what windows need the first time is made ready, so their first opening is smooth too
+    if (typeof window !== 'undefined') {
+      const idle = (window as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+      if (idle) idle.call(window, () => warmUpWindows(), { timeout: 3000 }); else setTimeout(() => warmUpWindows(), 1500);
+    }
     const updates = inject(SwUpdate, { optional: true });
     if (updates?.isEnabled) {
       updates.versionUpdates.subscribe((event) => {
@@ -125,29 +113,6 @@ export class App {
     effect(() => {
       if (this.auth.user() === null && !this.router.url.startsWith('/login')) this.router.navigateByUrl('/login').catch(() => undefined);
     });
-  }
-
-  protected openMenu(): void {
-    const d = this.drawer()?.nativeElement;
-    if (d && !d.open) { openDialog(d); this.menuOpen.set(true); }
-  }
-  protected closeMenu(): void {
-    void closeDialog(this.drawer()?.nativeElement);
-  }
-  /** Ajustes from the menu: the menu closes and the settings window opens over the current page. */
-  protected readonly settingsOpen = signal(false);
-  protected openSettings(): void {
-    this.closeMenu();
-    this.settingsOpen.set(true);
-  }
-  /** Capture from the menu: the menu closes and the panel opens from the pressed row. */
-  protected openCapture(): void {
-    this.closeMenu();
-    this.capture.open.set(true);
-  }
-  protected onDrawerClick(event: MouseEvent): void {
-    const d = this.drawer()?.nativeElement;
-    if (d && isBackdropClick(event, d)) this.closeMenu();
   }
 
   protected onCanvas(): boolean { return this.router.url.startsWith('/canvas'); }

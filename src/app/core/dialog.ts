@@ -89,14 +89,43 @@ export function openDialog(dialog: HTMLDialogElement, options: { escape?: boolea
   if (reducedMotion() || typeof dialog.animate !== 'function') return;
   // Grow from the press only once the window has its real size and place (Gianni: every window from where the finger
   // pressed): its contents are often drawn by Angular just after showModal(), and an origin measured on the still
-  // empty box sits somewhere else. The window waits hidden for that frame; the backdrop starts fading in at once.
-  const hold = dialog.animate([{ opacity: 0 }, { opacity: 0 }], { duration: 1000, fill: 'forwards' });
+  // empty box sits somewhere else. The backdrop starts fading in at once.
+  // The first time a window opens (Gianni: it played like slow photographs; the second time it was smooth), its first
+  // frames are the expensive ones: the browser lays it out, decodes its pictures (the paper textures) and paints it
+  // into a layer for the first time. If the growing starts then, those long frames eat its 300 ms. So the window
+  // first waits, full size and all but invisible (opacity .002, so it is still painted, unlike opacity 0), on its own
+  // layer, for its pictures (at most 150 ms) and two frames; then it grows, every frame cheap.
+  dialog.style.willChange = 'transform, opacity';
+  const hold = dialog.animate([{ opacity: 0.002 }, { opacity: 0.002 }], { duration: 1000, fill: 'forwards' });
   animateBackdrop(dialog, true, MS);
-  requestAnimationFrame(() => {
+  void ready(dialog).then(() => {
     hold.cancel();
-    if (!dialog.open || closing.has(dialog)) return;
-    dialog.animate(mirrored(closeFrames(dialog, from)), { duration: MS, easing: EASE_OUT });
+    if (!dialog.open || closing.has(dialog)) { dialog.style.willChange = ''; return; }
+    const grow = dialog.animate(mirrored(closeFrames(dialog, from)), { duration: MS, easing: EASE_OUT });
+    const settle = () => { if (!closing.has(dialog)) dialog.style.willChange = ''; };
+    grow.finished.then(settle, settle);
   });
+}
+
+/** The window painted once, hidden: its pictures decoded (at most 150 ms) and two frames gone by. */
+function ready(dialog: HTMLDialogElement): Promise<void> {
+  const frame = () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+  const pictures = Array.from(dialog.querySelectorAll('img')).map((img) => (typeof img.decode === 'function' ? img.decode().catch(() => undefined) : undefined));
+  const decoded = Promise.race([Promise.all(pictures), new Promise((resolve) => setTimeout(resolve, 150))]);
+  return Promise.all([decoded, frame().then(frame)]).then(() => undefined);
+}
+
+/**
+ * Warms up what every window may need the first time (called once the app is idle): the paper textures of tasks and
+ * activities are fetched and decoded ahead, so no window waits on them as it opens.
+ */
+export function warmUpWindows(): void {
+  if (typeof Image === 'undefined') return;
+  for (const name of ['fresh-paper', 'parchment-paper', 'old-paper']) {
+    const img = new Image();
+    img.src = `/paper/${name}.webp`;
+    if (typeof img.decode === 'function') img.decode().catch(() => undefined);
+  }
 }
 
 /** True for a control that brings up the phone's keyboard when focused. */
@@ -134,6 +163,7 @@ export function closeDialog(dialog: HTMLDialogElement | undefined | null): Promi
     const finish = () => {
       closing.delete(dialog);
       if (dialog.open) dialog.close();
+      dialog.style.willChange = '';
       animation.cancel();
       backdrop?.cancel();
       resolve();

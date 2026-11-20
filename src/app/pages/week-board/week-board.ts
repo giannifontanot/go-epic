@@ -1,3 +1,4 @@
+import { Ask } from '../../shared/ask';
 import { AutoColors } from '../../core/auto-colors';
 import { NgTemplateOutlet } from '@angular/common';
 import { ApplicationRef, Component, DestroyRef, ElementRef, Injector, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
@@ -5,18 +6,18 @@ import { flip, flipNow } from '../../core/flip';
 import { TextSettings } from '../../core/text-settings';
 import { I18n } from '../../core/i18n';
 import {
-  addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, countdown, Task, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, stepTask, newId, resizedMinutes, stretchedEnd,
+  addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, countdown, Task, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, stepTask, newId, resizedMinutes,
   moveToHour, snapDelta, nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
 } from '../../core/week.model';
 import { Library, fileTask, followLibrary, nodeById, paperAge, pathOf, updateNode } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
-import { CaptureUi } from '../capture/capture-ui';
+import { CaptureUi, MenuAction } from '../capture/capture-ui';
+import { LookBar } from '../../shared/look-bar';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { STATUSES, Status, isFinished } from '../../core/status.model';
-import { Todo, allDayTodos, dayOverview, overdueTodos, pastDueTodos, pinTodos, todosForDate, weekDate } from '../../core/todo.model';
+import { Todo, allDayTodos, overdueTodos, pastDueTodos, pinTodos, todosForDate, weekDate } from '../../core/todo.model';
 import { TodoDialog, TodoSave } from '../capture/todo-dialog';
-import { ThemeFan } from '../../shared/theme-fan';
 import { TodoStore } from '../../core/todo.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
 import { Transfer, TransferDialog } from './transfer-dialog';
@@ -77,12 +78,14 @@ function readFolded(): Set<string> {
 
 @Component({
   selector: 'app-week-board',
-  imports: [TaskDialog, TransferDialog, TodoDialog, NgTemplateOutlet, ThemeFan],
+  imports: [TaskDialog, TransferDialog, TodoDialog, NgTemplateOutlet, LookBar],
   templateUrl: './week-board.html',
 })
 export class WeekBoard {
   protected readonly store = inject(WeekStore);
   protected readonly i18n = inject(I18n);
+  /** The app's own question windows (never the browser's confirm/alert). */
+  private readonly asks = inject(Ask);
   protected readonly library = inject(LibraryStore);
   protected readonly capture = inject(CaptureUi);
   private readonly injector = inject(Injector);
@@ -124,12 +127,12 @@ export class WeekBoard {
     });
     // Arranging files tasks in the library: it stops while the library is not loaded (sign-out, another account).
     effect(() => { if (!this.library.ready()) this.arranging.set(false); });
-    // On the Week board the floating ✎ arranges the week (Capture is the 💡 at the top); hidden while arranging.
+    // The action menu (one round button, App) gets ✎ arrange here; while arranging it hides and the round ✓ Finish takes its spot.
     effect(() => {
-      const hidden = this.arranging() || !this.store.loaded() || !this.library.ready();
-      this.capture.fab.set({ label: this.i18n.t('week.arrange'), run: () => this.toggleArrange(), hidden });
+      this.capture.menuEdit.set(this.arrangeAction());
+      this.capture.menuHidden.set(this.arranging());
     });
-    inject(DestroyRef).onDestroy(() => { this.capture.fab.set(null); this.cancelDrag?.(); });
+    inject(DestroyRef).onDestroy(() => { this.capture.menuEdit.set(null); this.capture.menuHidden.set(false); this.cancelDrag?.(); });
     // On entering the Week board, the view centres on now (the red line in today's column), as in Epic Manager: once
     // the week, the library (card titles) and Capture's notes (the strip at the top) are there, so nothing shifts after.
     let centred = false;
@@ -139,6 +142,7 @@ export class WeekBoard {
       untracked(() => afterNextRender({ read: () => this.centreOnNow(true) }, { injector: this.injector }));
     });
     this.followNow();
+    effect(() => { if (this.arranging()) untracked(() => this.spotlight.set(false)); });
   }
 
   /**
@@ -155,6 +159,13 @@ export class WeekBoard {
       stop();
       timer = setTimeout(() => { timer = null; if (!touching) this.centreOnNow(false); }, NOW_IDLE_MS);
     };
+    // The spotlight (Gianni): a scroll of our own (centring the line) keeps it coming; any other scroll fades it away.
+    const scrolled = () => {
+      if (this.autoScroll) this.endAutoScroll(160);
+      else this.spotlight.set(false);
+      arm();
+    };
+    const takeOver = () => { if (this.autoScroll) { clearTimeout(this.autoScroll); this.autoScroll = null; } this.spotlight.set(false); };
     const down = () => { touching = true; stop(); };
     const up = () => { touching = false; arm(); };
     // A finger is followed by touch events: a native scroll cancels the pointer (pointercancel) while the finger is
@@ -163,14 +174,32 @@ export class WeekBoard {
     const pointerUp = (e: PointerEvent) => { if (e.pointerType !== 'touch') up(); };
     const opts = { capture: true, passive: true } as const;
     const listeners: [string, EventListener][] = [
-      ['scroll', arm], ['touchstart', down], ['touchend', up], ['touchcancel', up],
+      ['scroll', scrolled], ['wheel', takeOver], ['touchmove', takeOver], ['touchstart', down], ['touchend', up], ['touchcancel', up],
       ['pointerdown', pointerDown as EventListener], ['pointerup', pointerUp as EventListener],
     ];
     for (const [type, fn] of listeners) window.addEventListener(type, fn, opts);
     inject(DestroyRef).onDestroy(() => {
       stop();
+      if (this.autoScroll) clearTimeout(this.autoScroll);
       for (const [type, fn] of listeners) window.removeEventListener(type, fn, opts);
     });
+  }
+
+  /**
+   * While the board rests on now after centring the red line, every other block dims a very little, so the current
+   * one stands out (Gianni); a scroll of his own (or arranging) fades it away. Only when the line sits in a block.
+   */
+  protected readonly spotlight = signal(false);
+  /** A centring scroll is under way: its scroll events keep the spotlight coming instead of turning it off. */
+  private autoScroll: ReturnType<typeof setTimeout> | null = null;
+  /** The centring scroll ends once its scroll events stop for `quiet` ms; then the spotlight comes on. */
+  private endAutoScroll(quiet: number): void {
+    if (this.autoScroll) clearTimeout(this.autoScroll);
+    this.autoScroll = setTimeout(() => { this.autoScroll = null; this.light(); }, quiet);
+  }
+  private light(): void {
+    const line = document.querySelector<HTMLElement>('article.day.today .now-line');
+    this.spotlight.set(!this.arranging() && !!line?.closest('.block') && line.getClientRects().length > 0);
   }
   protected readonly mobileDay = signal<Day>(this.store.today());
   /**
@@ -245,10 +274,6 @@ export class WeekBoard {
     this.editingDay.set(day);
     this.editingTodo.set(this.todos.todos().find((t) => t.id === todo.id) ?? null);   // the stored task, not a date's view
   }
-  /** + New above the floating ✎ (Gianni): a new task with its name, hour and repeat days; for today until changed. */
-  protected newTodo(): void {
-    this.editingTodo.set({ id: '', title: '', date: this.store.todayKey(), time: null, done: null, created: Date.now(), repeat: [], doneOn: {} });
-  }
   protected saveTodo(change: TodoSave): void {
     if (!change.id) { this.todos.add(change.title, change.repeat.length ? null : change.date, change.time, change.repeat); return; }
     this.todos.update(change.id, { title: change.title, date: change.date, time: change.time, repeat: change.repeat });
@@ -309,8 +334,9 @@ export class WeekBoard {
     if (!target || !target.getClientRects().length) return;                 // hidden (another day's tab)
     const rect = target.getBoundingClientRect();
     const view = window.visualViewport?.height ?? window.innerHeight;
-    if (line && Math.abs(rect.top - view / 2) <= 4) return;                  // already in the middle
+    if (line && Math.abs(rect.top - view / 2) <= 4) { if (!this.autoScroll) this.light(); return; }   // already in the middle
     const smooth = typeof matchMedia === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.endAutoScroll(400);                                                  // no scroll at all (an edge): it still lights
     target.scrollIntoView({ block: 'center', inline: 'nearest', behavior: smooth ? 'smooth' : 'auto' });
   }
 
@@ -363,14 +389,10 @@ export class WeekBoard {
     return free > 0 ? this.i18n.t('week.free', { n: free }) : this.i18n.t('week.over', { n: -free });
   }
 
-  /** The block being stretched by its handle, and the end it would have now (shown live, saved on release). */
-  protected readonly stretching = signal<{ blockId: string; end: string } | null>(null);
-
-  /** The block as it looks now: while its handle (or a card's) is pulled, with the end or minutes it would get. */
+  /** The block as it looks now: while a card's handle is pulled, with the minutes it would get. */
   private live(block: Block): Block {
-    const s = this.stretching();
     const z = this.sizing();
-    let b = s && s.blockId === block.id ? { ...block, end: s.end } : block;
+    let b = block;
     if (z && b.tasks.some((t) => t.id === z.taskId)) b = { ...b, tasks: b.tasks.map((t) => (t.id === z.taskId ? { ...t, minutes: z.minutes } : t)) };
     return b;
   }
@@ -433,55 +455,10 @@ export class WeekBoard {
     const delta = event.shiftKey || Math.abs(raw) > 1 ? raw : keyStep(validMinutes(task.minutes), raw);
     this.setMinutes(day, block, task, resizedMinutes(block, task.id, delta));
   }
-  /** Free minutes drawn as the striped band (live while stretching). */
+  /** Free minutes drawn as the striped band (live while a card's handle is pulled). */
   protected freeShown(block: Block): number {
     return Math.max(0, freeMinutes(this.live(block)) ?? 0);
   }
-  protected shownEnd(block: Block): string {
-    const b = this.live(block);
-    return b.end ?? formatClock((parseClock(b.start) ?? 0) + taskTotal(b));
-  }
-
-  /** The handle at a block's foot: dragging it by n px moves the end by n / (px per minute) minutes, live; release saves it. */
-  protected startStretch(event: PointerEvent, day: Day, block: Block): void {
-    if (event.button !== 0) return;
-    event.preventDefault();
-    const handle = event.currentTarget as HTMLElement;
-    handle.setPointerCapture(event.pointerId);
-    const y0 = event.clientY;
-    const first = stretchedEnd(block, 0);
-    if (!first) return;
-    this.stretching.set({ blockId: block.id, end: first });
-    const from = parseClock(first) ?? 0;
-    const move = (e: PointerEvent) => {
-      const end = stretchedEnd(block, snapDelta(from, (e.clientY - y0) / this.text.pxPerMin()));   // in 5-minute steps (Gianni)
-      if (end) this.stretching.set({ blockId: block.id, end });
-    };
-    const done = (commit: boolean) => () => {
-      handle.removeEventListener('pointermove', move);
-      handle.removeEventListener('pointerup', up);
-      handle.removeEventListener('pointercancel', cancel);
-      const end = this.stretching()?.end;
-      this.stretching.set(null);
-      if (commit && end && end !== block.end) this.setWindow(day, block, block.start ?? '', end);
-    };
-    const up = done(true);
-    const cancel = done(false);
-    handle.addEventListener('pointermove', move);
-    handle.addEventListener('pointerup', up);
-    handle.addEventListener('pointercancel', cancel);
-  }
-
-  /** Keys on the handle: ↓/→ five minutes later, ↑/← earlier (to the 5-minute steps), Shift one, PageUp/PageDown fifteen. */
-  protected stretchKey(event: KeyboardEvent, day: Day, block: Block): void {
-    const raw = ({ ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1, PageDown: 15, PageUp: -15 } as Record<string, number>)[event.key];
-    if (!raw) return;
-    event.preventDefault();
-    const delta = event.shiftKey || Math.abs(raw) > 1 ? raw : keyStep(parseClock(stretchedEnd(block, 0)) ?? 0, raw);
-    const end = stretchedEnd(block, delta);
-    if (end && end !== block.end) this.setWindow(day, block, block.start ?? '', end);
-  }
-
   protected isOver(block: Block): boolean {
     return (freeMinutes(block) ?? 0) < 0;
   }
@@ -537,32 +514,6 @@ export class WeekBoard {
     if (d && isBackdropClick(event, d)) void closeDialog(d);
   }
 
-  /**
-   * The day overview (Gianni): a round button above + opens today as a nested bullet list, all-day tasks first, then
-   * each block with its activities and, under each, its timed tasks (todo.model `dayOverview`).
-   */
-  private readonly overviewDialog = viewChild<ElementRef<HTMLDialogElement>>('overviewDialog');
-  // always built (cheap), so the window has its full size when openDialog measures it to grow out of the button
-  protected readonly overview = computed(() => {
-    const day = this.store.today();
-    return dayOverview(this.store.week()[day], this.todos.todos(), this.store.todayKey(), day);
-  });
-  protected readonly overviewTitle = computed(() =>
-    this.store.now().toLocaleDateString(this.i18n.lang(), { weekday: 'long', day: 'numeric', month: 'long' }));
-  protected openOverview(): void {
-    const d = this.overviewDialog()?.nativeElement;
-    if (d) openDialog(d);
-  }
-  protected closeOverview(): void {
-    void closeDialog(this.overviewDialog()?.nativeElement);
-  }
-  protected onOverviewBackdrop(event: MouseEvent): void {
-    const d = this.overviewDialog()?.nativeElement;
-    if (d && isBackdropClick(event, d)) void closeDialog(d);
-  }
-  protected clock(minutes: number | null): string {
-    return minutes === null ? '' : formatClock(minutes);
-  }
 
   protected statusIcon(status: Status): string {
     return { todo: '', done: '✓', late: '⏰', progress: '▶', skipped: '⤼' }[status];
@@ -710,6 +661,9 @@ export class WeekBoard {
     doc.startViewTransition(change).finished.then(done, done);
   }
   private arrangeFrom: { x: number; y: number } | null = null;
+  /** The action menu's ✎: arrange the week, once the week and the library are loaded. */
+  protected readonly arrangeAction = computed<MenuAction | null>(() =>
+    this.store.loaded() && this.library.ready() ? { label: this.i18n.t('week.arrange'), run: () => this.toggleArrange() } : null);
   private readonly appRef = inject(ApplicationRef);
 
   // --- Blocks ---
@@ -759,8 +713,8 @@ export class WeekBoard {
     flip(document, this.injector, () => this.store.update(day, (blocks) => moveItem(blocks, index, index + offset)));
   }
 
-  protected deleteBlock(day: Day, block: Block): void {
-    if (!confirm(this.i18n.t('week.confirmDeleteBlock', { block: block.name }))) return;
+  protected async deleteBlock(day: Day, block: Block): Promise<void> {
+    if (!(await this.asks.ask({ message: this.i18n.t('week.confirmDeleteBlock', { block: block.name }), ok: this.i18n.t('task.delete'), danger: true }))) return;
     this.store.update(day, (blocks) => blocks.filter((b) => b.id !== block.id));
   }
 
@@ -989,8 +943,9 @@ export class WeekBoard {
     });
   }
 
-  protected deleteTask(day: Day, block: Block, task: Task): void {
-    if (!confirm(this.i18n.t('week.confirmDeleteTask', { task: task.title || this.i18n.t('week.newTask') }))) return;
+  protected async deleteTask(day: Day, block: Block, task: Task): Promise<void> {
+    const message = this.i18n.t('week.confirmDeleteTask', { task: task.title || this.i18n.t('week.newTask') });
+    if (!(await this.asks.ask({ message, ok: this.i18n.t('task.delete'), danger: true }))) return;
     this.removeTask(day, block.id, task.id);
   }
 

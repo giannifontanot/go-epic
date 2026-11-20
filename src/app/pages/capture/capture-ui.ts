@@ -1,12 +1,16 @@
 import { Injectable, signal } from '@angular/core';
 
-/** What the floating ✎ does on a page that takes it over (the Week board: arrange the week); `hidden` hides it. */
-export interface FabAction { label: string; run: () => void; hidden: boolean; }
+/** A page's own action in the floating buttons' menu (the Week board: ✎ arrange the week). */
+export interface MenuAction { label: string; run: () => void; }
 
-/** Whether the Capture panel is open (the floating ✎ and the menu's Capture both open it). */
+/**
+ * The shell's shared flags: whether the Capture panel and the Ajustes window are open (the action menu opens them), the
+ * page's own action for the menu, and whether the menu is hidden (the Week board while arranging: its ✓ Finish takes the spot).
+ */
 @Injectable({ providedIn: 'root' })
 export class CaptureUi {
   readonly open = signal(false);
-  /** Set by a page that gives the floating ✎ its own job; null = the ✎ opens Capture. */
-  readonly fab = signal<FabAction | null>(null);
+  readonly settings = signal(false);
+  readonly menuEdit = signal<MenuAction | null>(null);
+  readonly menuHidden = signal(false);
 }

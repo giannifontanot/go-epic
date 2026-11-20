@@ -14,6 +14,13 @@
         <span class="switch" aria-hidden="true"></span><span class="free-label">{{ i18n.t('canvas.freeSpace') }}</span></button>
     </div>
   </header>
+  <!-- Edit (the action menu): the edit bar with Aa / AV and the Themes, as on the Week board (moving objects is always on here) -->
+  @if (lookOpen()) {
+    <div class="canvas-look">
+      <app-look-bar />
+      <button type="button" class="chip quiet on finish" (click)="lookOpen.set(false)">✓ {{ i18n.t('week.finish') }}</button>
+    </div>
+  }
   @if (error) { <div class="error" role="alert">{{ error }}</div> }
   @if (libraryStore.rejected()) {
     <div class="error" role="alert">{{ i18n.t('canvas.rejected') }} {{ libraryStore.error() }}

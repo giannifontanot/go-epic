@@ -1,13 +1,15 @@
 import { AfterViewInit, Component, ElementRef, inject, output, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
+import { AuthService } from '../../core/auth.service';
 import { I18n } from '../../core/i18n';
-import { THEMES, Theme, ThemeService } from '../../core/theme';
+import { Tilt } from '../../core/tilt';
+import { ThemeService } from '../../core/theme';
 
 /**
  * Ajustes (⚙ in the ☰ menu): a window over the page you are on, not a page of its own (Gianni: going to another page
- * and then looking for the Week again felt wrong). A theme picked here shows at once behind the window; closing it
- * (×, Done, Esc or the backdrop) leaves you where you were. Epic is the colourful look; Office and Graphite are quiet
- * greys. The choices are kept on this device.
+ * and then looking for the Week again felt wrong); closing it (×, Done, Esc or the backdrop) leaves you where you were.
+ * Opened by the action menu's ⚙ (the ☰ menu is gone). It holds who is signed in, English / Español, the weighted
+ * buttons, the red time line and Sign out; the themes are the action menu's palette (Gianni). Kept on this device.
  */
 @Component({
   selector: 'app-settings',
@@ -17,22 +19,23 @@ import { THEMES, Theme, ThemeService } from '../../core/theme';
         <h2 id="settings-title" tabindex="-1">{{ i18n.t('settings.title') }}</h2>
         <button type="button" class="drawer-close" [attr.aria-label]="i18n.t('nav.close')" (click)="close()">×</button>
       </header>
-      <h3 class="settings-title" id="theme-title">{{ i18n.t('settings.theme') }}</h3>
-      <div class="theme-options" role="radiogroup" aria-labelledby="theme-title">
-        @for (theme of themes; track theme) {
-          <button type="button" class="theme-option" role="radio" [attr.data-preview]="theme"
-                  [attr.aria-checked]="look.theme() === theme" [class.on]="look.theme() === theme" (click)="pick(theme)">
-            <span class="theme-preview" aria-hidden="true">
-              <span class="tp-day"><span class="tp-block"><span class="tp-card"></span><span class="tp-card"></span></span></span>
-            </span>
-            <span class="theme-text">
-              <strong>{{ i18n.t('theme.' + theme) }}</strong>
-              <small>{{ i18n.t('theme.' + theme + 'Hint') }}</small>
-            </span>
-            <span class="theme-check" aria-hidden="true">{{ look.theme() === theme ? '✓' : '' }}</span>
-          </button>
-        }
+      @if (auth.user(); as user) { <p class="settings-user">{{ user.displayName || user.email }}</p> }
+      <!-- English / Español (Gianni: the ☰ menu that held the switch is gone) -->
+      <div class="setting-row lang-row" role="group" [attr.aria-label]="i18n.t('settings.language')">
+        <strong class="setting-text">{{ i18n.t('settings.language') }}</strong>
+        <div class="capture-tabs lang-choice">
+          <button type="button" [class.on]="i18n.lang() === 'en'" [attr.aria-pressed]="i18n.lang() === 'en'" (click)="i18n.setLang('en')">English</button>
+          <button type="button" [class.on]="i18n.lang() === 'es'" [attr.aria-pressed]="i18n.lang() === 'es'" (click)="i18n.setLang('es')">Español</button>
+        </div>
       </div>
+      <!-- Weighted buttons: everything leans when the phone leans (core/tilt) -->
+      <label class="setting-row">
+        <input type="checkbox" class="setting-check" [checked]="tilt.on()" (change)="tilt.toggle()" />
+        <span class="setting-text">
+          <strong>⚖ {{ i18n.t('nav.tilt') }}</strong>
+          <small>{{ i18n.t('nav.tiltHint') }}</small>
+        </span>
+      </label>
       <!-- The time line on the Week board: red, or with the theme (the grey themes keep it a quiet grey) -->
       <label class="setting-row">
         <input type="checkbox" class="setting-check" [checked]="look.redLine()" (change)="look.redLine.set($any($event.target).checked)" />
@@ -42,6 +45,7 @@ import { THEMES, Theme, ThemeService } from '../../core/theme';
         </span>
       </label>
       <footer class="settings-foot">
+        <button type="button" class="chip quiet sign-out" (click)="signOut()">{{ i18n.t('nav.signOut') }}</button>
         <button type="button" class="primary" (click)="close()">{{ i18n.t('task.done') }}</button>
       </footer>
     </dialog>
@@ -50,7 +54,8 @@ import { THEMES, Theme, ThemeService } from '../../core/theme';
 export class Settings implements AfterViewInit {
   protected readonly i18n = inject(I18n);
   protected readonly look = inject(ThemeService);
-  protected readonly themes = THEMES;
+  protected readonly tilt = inject(Tilt);
+  protected readonly auth = inject(AuthService);
   /** Emitted once the window has shrunk away (the App then removes it). */
   readonly closed = output<void>();
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
@@ -61,12 +66,13 @@ export class Settings implements AfterViewInit {
     queueMicrotask(() => d.querySelector<HTMLElement>('#settings-title')?.focus({ preventScroll: true }));
   }
 
-  protected pick(theme: Theme): void {
-    this.look.set(theme);
-  }
-
   protected close(): void {
     void closeDialog(this.dialog().nativeElement);
+  }
+
+  protected signOut(): void {
+    this.close();
+    void this.auth.signOut();
   }
 
   protected onBackdrop(event: MouseEvent): void {

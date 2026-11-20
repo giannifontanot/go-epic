@@ -49,31 +49,9 @@ button:disabled { opacity: .4; cursor: default; }
 .round:hover:not(:disabled) { border-color: #0d9488; color: #0d9488; }
 .day-head .round { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .3); color: var(--ink); }
 
-/* App navigation: a floating ☰ (top-left, beside each page's title) opens a drawer from the left, as in Epic Manager */
-.nav-toggle { position: fixed; z-index: 20; top: max(8px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left));
-  width: 44px; height: 44px; border: 0; border-radius: 14px; background: rgba(255, 255, 255, .1); color: var(--ink);
-  font-size: 22px; line-height: 1; backdrop-filter: blur(6px); }
-.nav-toggle:hover { background: rgba(255, 255, 255, .18); }
-.board-top > :first-child, .focus-top > :first-child, .page-header > :first-child { margin-left: 52px; }   /* room for the ☰ */
+/* App navigation: no ☰ any more (Gianni); the pages are in the action menu (shared/page-fan) */
 .board-top, .focus-top, .page-header { min-height: 44px; }
-dialog.app-drawer { margin: 0; width: min(300px, 84vw); max-width: none; height: 100dvh; max-height: none; padding: 0;
-  border: 0; border-radius: 0 22px 22px 0; background: var(--navy-card); color: var(--ink); box-shadow: 12px 0 40px #0008;
-  display: flex; flex-direction: column; gap: 6px;
-  padding: max(14px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-}   /* opens growing out of the ☰ and closes back into it (core/dialog openDialog/closeDialog) */
-dialog.app-drawer:not([open]) { display: none; }
-dialog.app-drawer::backdrop { background: rgba(4, 9, 30, .55); }
-.drawer-head { display: flex; align-items: center; justify-content: space-between; }
-.drawer-head .brand { font-family: Georgia, serif; font-size: 26px; font-weight: 700; }
 .drawer-close { width: 44px; height: 44px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .08); color: var(--ink); font-size: 24px; }
-.drawer-user { margin: 0 0 10px; color: var(--ink-soft); font-size: 13px; overflow-wrap: anywhere; }
-.drawer-links { display: grid; gap: 6px; }
-.drawer-links a { display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 14px; color: var(--ink);
-  font-size: 17px; font-weight: 700; text-decoration: none; }
-.drawer-links a:hover { background: rgba(255, 255, 255, .08); }
-.drawer-links a.on { background: var(--pink); color: var(--card-ink); }
-.drawer-foot { margin-top: auto; display: flex; gap: 8px; flex-wrap: wrap; }
-.drawer-foot .chip { min-height: 44px; }
 .app-error { margin: 8px 16px; padding: 8px 12px; border-radius: 12px; background: #7a2440; color: #fff4e9; font-weight: 600; }   /* its own light ink: the theme ink can be dark */
 
 /* Sign-in */
@@ -105,7 +83,7 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 .summary { margin: 0; text-align: center; font-size: 14px; font-weight: 700; opacity: .85; }
 .block-window { display: flex; gap: 8px; }
 .block-window label { flex: 1 1 0; min-width: 0; display: grid; gap: 2px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
-.block-window input { width: 100%; min-width: 0; min-height: 38px; padding: 4px 6px; border: 1px solid rgba(54, 38, 67, .3); border-radius: 10px; background: #fff8e8; color: var(--jelly-ink); font-size: 16px; color-scheme: light; }
+.block-window input { -webkit-appearance: none; appearance: none; width: 100%; min-width: 0; min-height: 38px; padding: 4px 12px; border: 1px solid rgba(54, 38, 67, .3); border-radius: 14px; text-align: center; background: #fff8e8; color: var(--jelly-ink); font-size: 16px; color-scheme: light; }
 @media (min-width: 821px) { .block-window input { font-size: 14px; } }
 .window-error { margin: 0; color: var(--red); font-size: 12px; font-weight: 700; }
 .block-tools { display: flex; gap: 6px; }
@@ -162,6 +140,21 @@ dialog.leave-ask .leave-discard { border: 1.5px solid rgba(248, 113, 113, .6); b
 dialog.leave-ask .leave-stay { border: 0; background: rgba(255, 255, 255, .08); color: var(--ink-soft); }
 html:is([data-theme='office'], [data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt']) dialog.leave-ask .leave-discard { color: #b91c1c; border-color: rgba(185, 28, 28, .5); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.leave-ask .leave-stay { background: rgba(var(--g-tint), .1); }
+/* The app's own question windows (Gianni: no more browser boxes): the leave window's look, Cancel then the answer,
+   the answer red when it deletes or discards */
+dialog.ask-window { width: min(380px, calc(100vw - 32px)); padding: 22px 20px 18px; border: 0; border-radius: 22px;
+  background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; }
+dialog.ask-window::backdrop { background: rgba(4, 9, 30, .5); }
+dialog.ask-window p { margin: 0 0 18px; font-size: calc(17px * var(--esc)); line-height: 1.4; overflow-wrap: anywhere; }
+.ask-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.ask-actions button { flex: 1 1 120px; min-height: 46px; padding: 0 18px; border-radius: 999px; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; }
+.ask-actions .ask-cancel { border: 0; background: rgba(255, 255, 255, .08); color: var(--ink-soft); }
+.ask-actions .ask-ok { border: 0; background: var(--pink); color: var(--card-ink); }
+.ask-actions .ask-ok.danger { background: #c0392b; color: #fff; }
+.ask-actions button:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .ask-actions .ask-cancel { background: rgba(var(--g-tint), .1); }
+html:is([data-theme='office'], [data-theme='graphite']) dialog.ask-window { filter: none; }   /* a destructive answer keeps a (quiet) red */
+html:is([data-theme='office'], [data-theme='graphite']) .ask-actions .ask-ok.danger { background: #9b3b3b; }
 /* Where an activity lives (a tap on its title, locked board): its Area, Epic, Feature and Story drawn as in the Canvas */
 /* The title's tap target reaches past its text (≥ 40px tall even on one line) without moving anything: padding the
    negative margin gives back, a little above (the notes' gap) and more below */
@@ -334,12 +327,31 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
   width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--pink); color: var(--card-ink); font-size: 22px;
   box-shadow: 0 6px 18px rgba(1, 6, 29, .45); }
 .capture-fab:hover { background: #f8bfca; }
-/* Week board: the + (new task) is the floating ✎'s twin, standing 12px above it; only a symbol, no words (Gianni) */
-.new-fab { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 64px); font-size: 28px; line-height: 1; }
-.overview-fab { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 128px); display: grid; place-items: center; }   /* the day overview stands above + (Gianni) */
-/* the themes (Gianni): a round button on top of the stack; its tiles fan out to the left, two rows of four */
-.theme-fab { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 192px); display: grid; place-items: center; z-index: 22; }
-.theme-fab.open { background: var(--teal); }
+/* One round button at the bottom right (ActionMenu, Gianni): a tap stacks the actions above it, each sliding up out of
+   it, the nearest first; ✎ arrange (the Week), + a new task, the day overview, 💡 Capture and the themes on top */
+.menu-fab { display: grid; place-items: center; z-index: 21; }
+.menu-fab.open { background: var(--teal); color: #0b2f2a; }
+.action-veil { position: fixed; inset: 0; z-index: 19; background: rgba(4, 9, 30, .14); }
+.action-stack { position: fixed; z-index: 20; right: max(16px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 64px);
+  display: flex; flex-flow: column-reverse wrap-reverse; align-content: flex-end; align-items: center; gap: 12px;
+  max-height: calc(100dvh - max(18px, env(safe-area-inset-bottom)) - 64px - max(12px, env(safe-area-inset-top)));
+  visibility: hidden; transition: visibility 0s .34s; }
+.action-stack.open { visibility: visible; transition: none; }
+.action-stack .capture-fab { position: relative; inset: auto; display: grid; place-items: center;
+  opacity: 0; transform: translateY(calc((var(--i, 0) + 1) * 64px)) scale(.4); pointer-events: none;
+  transition: transform .3s cubic-bezier(.4, 0, 1, 1), opacity .26s ease; }
+.action-stack.open .capture-fab { opacity: 1; transform: none; pointer-events: auto;
+  transition: transform .34s cubic-bezier(0, 0, .2, 1) calc(var(--i, 0) * 40ms), opacity .26s ease calc(var(--i, 0) * 40ms); }
+.action-stack .new-act { font-size: 28px; line-height: 1; }
+.page-fab { z-index: 22; }
+.page-fab.open { background: var(--teal); }
+/* the pages (Gianni): pills that fan out to the left of their button, the page you are on marked */
+.page-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 64px); display: grid; gap: 8px; width: min(220px, calc(100vw - 96px)); }
+.page-tile { position: relative; display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 16px;
+  background: var(--navy-card); color: var(--ink); font-size: calc(17px * var(--esc)); font-weight: 700; text-decoration: none;
+  box-shadow: 0 6px 18px rgba(1, 6, 29, .35); }
+.page-tile.on { background: var(--pink); color: var(--card-ink); box-shadow: 0 0 0 3px var(--teal), 0 6px 18px rgba(1, 6, 29, .35); }
+.page-tile:focus-visible, .page-fab:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
 .theme-fan-veil { position: fixed; inset: 0; z-index: 21; background: rgba(4, 9, 30, .18); }
 .theme-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 64px);
   bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(360px, calc(100vw - max(16px, env(safe-area-inset-right)) - 76px));
@@ -354,7 +366,7 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 .theme-tile.on { box-shadow: 0 0 0 3px #0d9488, 0 8px 22px rgba(1, 6, 29, .4); }   /* fixed teal: the same on every tile and look */
 .theme-tile-check { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%;
   background: #0d9488; color: #fff; font-size: 13px; font-weight: 700; }
-.theme-tile:focus-visible, .theme-fab:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+.theme-tile:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
 /* while arranging, the ✎'s spot holds a third ✓ Finish (Gianni): the same size and place as the other round buttons,
    in the Finish chips' teal and weight, without their heavy shadow */
 .capture-fab.finish-fab { background: var(--teal); color: #0b2f2a; font-size: 20px; font-weight: 700; line-height: 1; box-shadow: none; }
@@ -365,19 +377,27 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 @keyframes notice-in { from { opacity: 0; translate: -50% 8px; } }
 @media (prefers-reduced-motion: reduce) { .board-notice { animation: none; } }
 .capture-fab.finish-fab:hover { background: color-mix(in srgb, var(--teal) 85%, #fff); }
-.drawer-capture { display: flex; align-items: center; min-height: 48px; padding: 0 16px; border: 0; border-radius: 14px; background: transparent;
-  color: var(--ink); font-size: 17px; font-weight: 700; text-align: left; }
-.drawer-capture:hover { background: rgba(255, 255, 255, .08); }
 /* Capture opens near the TOP, so the keyboard that comes up for the box never covers it; it fits the visible part of the
    screen above the keyboard (--vv-top / --vv-h follow window.visualViewport while it is open, capture-panel.ts). */
 dialog.capture-panel { margin: calc(var(--vv-top, 0px) + max(12px, env(safe-area-inset-top))) auto auto;
   width: min(460px, calc(100vw - 24px)); max-height: min(680px, calc(var(--vv-h, 100dvh) - 24px - env(safe-area-inset-top))); padding: 18px; border: 0; border-radius: 22px;
   background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; overflow-y: auto; }
-dialog.capture-panel::backdrop, dialog.app-drawer::backdrop, dialog.editor::backdrop, dialog.transfer::backdrop { background: rgba(4, 9, 30, .55); }
+dialog.capture-panel::backdrop, dialog.editor::backdrop, dialog.transfer::backdrop { background: rgba(4, 9, 30, .55); }
 dialog.capture-panel header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 dialog.capture-panel h2 { margin: 0; font-size: 22px; }
 .capture-add { display: flex; gap: 8px; margin-bottom: 10px; }
 .capture-add input, .c-edit { flex: 1; min-width: 0; min-height: 44px; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px; background: var(--page); color: var(--ink); font-size: 16px; }
+/* The box for a new task always shows its blue border, so it reads as a box at a glance; tapped, it turns stronger with a ring (Gianni) */
+.capture-add input { --c-blue: #7fb2ff; border: 1.5px solid color-mix(in srgb, var(--c-blue) 70%, transparent); border-radius: 14px; transition: border-color .15s, box-shadow .15s; }
+.capture-add input:focus, .capture-add input:focus-visible { outline: none; border-color: var(--c-blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-blue) 35%, transparent); }
+html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) .capture-add input { --c-blue: #3b78d8; }
+/* Current / Finished tabs: one tap apart, the chosen one filled with the theme's primary colour */
+.capture-tabs { display: flex; gap: 4px; margin: 0 0 10px; padding: 4px; border-radius: 999px; background: color-mix(in srgb, var(--ink) 10%, transparent); }
+.capture-tabs button { flex: 1 1 0; min-height: 40px; border: 0; border-radius: 999px; background: transparent; color: var(--ink); font-size: 15px; font-weight: 700; transition: background .2s, color .2s; }
+.capture-tabs button.on { background: var(--pink); color: var(--card-ink); box-shadow: 0 2px 6px rgba(0, 0, 0, .2); }
+.capture-tabs button:not(.on):hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.c-count { display: inline-block; min-width: 22px; margin-left: 4px; padding: 0 6px; border-radius: 999px; background: color-mix(in srgb, currentColor 15%, transparent); font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { .capture-tabs button, .capture-add input { transition: none; } }
 .capture-list { list-style: none; margin: 0; padding: 10px; display: grid; gap: 8px; border-radius: 18px; background: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, .25); }
 .capture-list li { display: flex; align-items: center; gap: 4px; padding: 4px 4px 4px 12px; border-radius: 14px; background: var(--peach, #ffd5bd); color: var(--card-ink); box-shadow: 0 3px 0 rgba(48, 39, 70, .14); }
 .c-text { flex: 1; min-width: 0; min-height: 40px; border: 0; background: transparent; color: var(--card-ink); font-size: 15px; font-weight: 600; text-align: left; overflow-wrap: anywhere; }
@@ -564,10 +584,6 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 /* The handle at the block's foot: pull it down or up to move the block's end; a badge shows the end while pulling */
 /* Only the grip itself pulls (Gianni: a scroll that started near it stretched the block): a 72×40px target centred
    on the bar, so the rest of the width scrolls as usual */
-.end-handle { position: relative; display: grid; place-items: center; width: 72px; height: 40px; margin: -10px auto -10px; cursor: ns-resize; touch-action: none; border-radius: 10px; }
-.end-handle:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
-.end-handle .grip-bar { width: 56px; height: 6px; border-radius: 999px; background: rgba(54, 38, 67, .45); }
-.end-handle:hover .grip-bar, .end-handle:active .grip-bar { background: #0d9488; }
 /* a card's own handle (edit mode): a short bar at its foot that stretches its minutes */
 .t-handle { position: relative; display: grid; place-items: center; width: 72px; height: 40px; margin: -8px auto -6px;   /* only the grip: 72×40px around the bar */
   cursor: ns-resize; touch-action: none; border-radius: 12px; }
@@ -637,9 +653,13 @@ body { letter-spacing: var(--app-ls); }
 .block-name { font-size: calc(16px * var(--esc)) !important; }
 .day-head h2 { font-size: calc(22px * var(--esc)); }
 .chip { font-size: calc(14px * var(--esc)); }
-.drawer-capture, .drawer-links a { font-size: calc(17px * var(--esc)); }
 
 /* Aa / AV steppers on the Week board's top while arranging (as in Epic Manager) */
+/* the edit bar (Week board while arranging, Canvas after ✎ Edit): px, Aa, AV and Themes */
+app-look-bar { grid-column: 1 / -1; display: block; }
+.look-themes { display: inline-flex; align-items: center; gap: 6px; min-height: 42px; font-weight: 500; }
+.look-themes.on { background: var(--teal); color: #0b2f2a; }
+.canvas-look { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin: 4px 0 10px; }
 .text-steppers { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 2px; }
 /* Compact, so px / Aa / AV share one row on a phone (Gianni: the top took too much room); the buttons stay 40px */
 .text-steppers .stepper { gap: 0; padding: 0; }
@@ -695,6 +715,11 @@ dialog.editor.color-window { width: min(340px, calc(100vw - 32px)); height: fit-
 /* Week: one switch opens / closes every block (beside the day's +); the body folds smoothly (grid rows 1fr ↔ 0fr) */
 .day-actions { display: inline-flex; align-items: center; gap: 8px; }
 .fold-all { font-size: 20px; line-height: 1; }
+/* the spotlight (Gianni): while the board rests centred on now, the other blocks dim a very little, so the current one
+   stands out; it fades in and out (instant under reduced motion) */
+.board.locked .block { transition: filter .6s ease; }
+.board.locked.spot .block:not(:has(.now-line)) { filter: brightness(.9) saturate(.9); }
+@media (prefers-reduced-motion: reduce) { .board.locked .block { transition: none; } }
 .block-body { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr; transition: grid-template-rows .4s cubic-bezier(.22, 1, .36, 1), opacity .3s ease; }
 .block-body.closed { grid-template-rows: 0fr; opacity: 0; }
 .block-inner { min-width: 0; min-height: 0; overflow: hidden; }   /* min-width 0: a long one-line title shrinks to the block (ellipsis) instead of stretching the card past it */
@@ -731,7 +756,6 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .c-check { margin: 6px 4px 6px 0; }
 .c-check.on { background: #d9f5ef; border-color: #0d9488; }
 .c-when { display: block; margin-top: 2px; font-size: 12px; font-weight: 600; opacity: .7; }
-.c-finished-title { margin: 14px 0 8px; font-size: 14px; color: var(--ink-soft); }
 .capture-list.finished li { background: #eceaf0; }
 .capture-list.finished .c-text { text-decoration: line-through; opacity: .7; }
 .todo-strip { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
@@ -819,15 +843,11 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .settings-window::backdrop { background: rgba(4, 9, 30, .3); }   /* light, so the theme just picked shows behind */
 .settings-head { display: flex; align-items: center; justify-content: space-between; }
 .settings-head h2 { margin: 0; font-size: 24px; }
-.settings-foot { display: flex; justify-content: flex-end; margin-top: 18px; }
-.settings-title { margin: 14px 4px 10px; font-size: 17px; }
-.theme-options { display: grid; gap: 10px; }
-.theme-option { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 72px; padding: 10px 14px 10px 10px; border: 2px solid transparent;
-  border-radius: 18px; background: rgba(255, 255, 255, .08); color: var(--ink); text-align: left; }
-.theme-option.on { border-color: var(--teal); }
-.theme-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
-.theme-text small { color: var(--ink-soft); }
-.theme-check { flex: none; width: 28px; font-size: 20px; font-weight: 900; color: var(--teal); text-align: center; }
+.settings-foot { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 18px; }
+.settings-foot .sign-out { margin-right: auto; min-height: 42px; }
+.settings-user { margin: 6px 0 0; color: var(--ink-soft); font-size: 13px; overflow-wrap: anywhere; }
+.setting-row.lang-row { align-items: center; justify-content: space-between; flex-wrap: wrap; cursor: default; }
+.lang-choice { margin: 0; flex: 0 1 240px; }
 /* a tiny day of each theme: column, block and two cards, in that theme's own colours */
 .theme-preview { flex: none; width: 64px; height: 52px; padding: 5px; border-radius: 12px; background: #101b42; }
 .tp-day { display: block; height: 100%; padding: 4px; border-radius: 8px; background: linear-gradient(155deg, #8f2859, #621c4b); }
@@ -1023,7 +1043,6 @@ html[data-theme='petalpunk'] input.block-name { border-bottom-color: rgba(240, 1
 html[data-theme='petalpunk'] .task .round:not(.danger-x) { color: var(--card-ink); border-color: rgba(42, 16, 32, .45); }
 /* on the dark blocks (Petal Punk, Smoked Citrus) the free-time stripes, the end handle and the summary dash turn light */
 html:is([data-theme='petalpunk'], [data-theme='smokedcitrus']) .free-band { background: repeating-linear-gradient(135deg, rgba(255, 255, 255, .14) 0 10px, transparent 10px 20px); }
-html:is([data-theme='petalpunk'], [data-theme='smokedcitrus']) .end-handle .grip-bar { background: rgba(255, 255, 255, .4); }
 html:is([data-theme='petalpunk'], [data-theme='smokedcitrus']) .summary .dash { color: rgba(255, 255, 255, .45); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .day { box-shadow: 0 6px 16px var(--g-shadow); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.free, .end-badge, .round:hover:not(:disabled)) { color: var(--g-soft-ink); }
@@ -1044,9 +1063,19 @@ html:is([data-theme='office'], [data-theme='graphite']) .update-button { backgro
 }
 html:is([data-theme='office'], [data-theme='graphite']) .sparkle { color: var(--g-sparkle); text-shadow: none; }
 /* text on the accent greys (selected chips, primary buttons, the menu's current page, done dots) */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.chip.quiet.on, .finish-fab, .primary, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.chip.quiet.on, .finish-fab, .primary, .capture-tabs button.on, .page-tile.on, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.primary, button.primary, .capture-fab:not(.finish-fab)):hover:not(:disabled) { background: color-mix(in srgb, var(--pink) 85%, #000) !important; }   /* hover darkens the theme's accent; the fixed pale-pink hover would wash out its ink */
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .capture-fab.finish-fab:hover { background: color-mix(in srgb, var(--teal) 85%, #000); }
+/* the light themes' round buttons (themes, day overview, +, ✎) are soft, not the dark accent (Gianni: too dark there):
+   a pale tone of the theme with its accent as ink, so the stack reads light like the page */
+html[data-theme='pinkpop'] { --fab: #f6c9dc; --fab-ink: #7a2a52; }
+html[data-theme='squeezeme'] { --fab: #fdd0b0; --fab-ink: #7a3414; }
+html[data-theme='sunburnt'] { --fab: #f8d4a8; --fab-ink: #743f14; }
+html[data-theme='office'] { --fab: #e1e3e6; --fab-ink: #3d4248; }
+html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) .capture-fab:not(.finish-fab):not(.open) {
+  background: var(--fab); color: var(--fab-ink); box-shadow: inset 0 0 0 1px rgba(40, 30, 30, .08), 0 3px 10px var(--g-shadow); }
+html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) .capture-fab:not(.finish-fab):not(.open):hover:not(:disabled) {
+  background: color-mix(in srgb, var(--fab) 90%, #000) !important; }
 /* surfaces and round buttons that were white or near-white */
 html:is([data-theme='office'], [data-theme='graphite']) .capture-list { background: var(--g-list); box-shadow: inset 0 1px 3px var(--g-shadow); }
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit) { background: var(--g-control); }
@@ -1080,24 +1109,35 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
 .setting-text small { color: var(--ink-soft); }
 .red-sample { display: inline-block; width: 22px; height: 0; margin: 0 8px 4px 0; border-top: 3px solid var(--now); vertical-align: middle; }
 
-/* Week: the tasks left open on earlier days float at the foot of the screen (Gianni: always in sight), beside the
-   floating ✎; the list scrolls inside when long, and the week leaves room under its last block */
-.overdue-tray { position: fixed; z-index: 15; left: max(12px, env(safe-area-inset-left)); right: calc(max(16px, env(safe-area-inset-right)) + 64px);
-  bottom: max(14px, env(safe-area-inset-bottom)); max-width: 560px; max-height: 34vh; display: flex; flex-direction: column; padding: 8px 8px 8px;
-  border-radius: 18px; background: var(--navy-card); box-shadow: 0 -2px 0 rgba(220, 38, 38, .55), 0 10px 30px rgba(0, 0, 0, .45); }
-/* The top border is a button (Gianni): it folds the list down out of sight, leaving only this bar, and back */
-.overdue-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 40px;
-  margin: -8px 0 0; padding: 8px 12px 6px; border: 0; border-radius: 18px 18px 8px 8px; background: transparent; cursor: pointer;
+/* Week: the tasks left open on earlier days wait at the foot of the screen (Gianni: always in sight), beside the
+   floating ✎, in a file folder (Gianni: not a floating box): its raised tab holds the heading, the folder's body sits
+   on the screen's bottom edge, the list scrolls inside it when long, and the week leaves room under its last block */
+.overdue-tray { --folder: var(--navy-card); position: fixed; z-index: 15; left: max(12px, env(safe-area-inset-left));
+  right: calc(max(16px, env(safe-area-inset-right)) + 64px); bottom: 0; max-width: 560px; max-height: 36vh; display: flex; flex-direction: column;
+  filter: drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
+/* The tab is a button (Gianni): it folds the folder down to its lip, leaving only the tab, and back */
+.overdue-head { position: relative; flex: none; align-self: flex-start; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 22px);
+  min-height: 40px; margin: 0; padding: 9px 16px 5px; border: 0; border-radius: 14px 14px 0 0; background: var(--folder);
+  box-shadow: inset 0 3px 0 rgba(220, 38, 38, .55); cursor: pointer;
   font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-soft); text-align: left; }
+.overdue-head span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* the tab's foot flares into the folder's edge, as on a real folder */
+.overdue-head::after { content: ''; position: absolute; right: -14px; bottom: 0; width: 14px; height: 14px; pointer-events: none;
+  background: radial-gradient(circle at 100% 0, transparent 13.5px, var(--folder) 14px); }
 .overdue-head:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
 .overdue-chev { font-size: 18px; line-height: 1; transition: rotate .35s cubic-bezier(.22, 1, .36, 1); }
 .overdue-tray.folded .overdue-chev { rotate: 180deg; }
-.overdue-body { flex: 0 1 auto; min-height: 0; display: grid; grid-template-rows: 1fr; transition: grid-template-rows .4s cubic-bezier(.22, 1, .36, 1), opacity .3s ease; }
-.overdue-tray.folded .overdue-body { grid-template-rows: 0fr; opacity: 0; }
-.overdue-tray.folded { padding-bottom: 0; }
-.overdue-tray { transition: padding-bottom .4s cubic-bezier(.22, 1, .36, 1); }
+.overdue-body { flex: 0 1 auto; min-height: 0; display: grid; grid-template-rows: 1fr; padding: 8px 8px max(10px, env(safe-area-inset-bottom));
+  border-radius: 0 16px 0 0; background: var(--folder);
+  transition: grid-template-rows .4s cubic-bezier(.22, 1, .36, 1), padding .4s cubic-bezier(.22, 1, .36, 1); }
+.overdue-body > ul { transition: opacity .3s ease; }
+/* folded: only the tab and the folder's lip stay on the screen's edge */
+.overdue-tray.folded .overdue-body { grid-template-rows: 0fr; padding-top: 0; padding-bottom: max(6px, env(safe-area-inset-bottom)); }
+.overdue-tray.folded .overdue-body > ul { opacity: 0; }
 .overdue-tray ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
-.board.has-tray { padding-bottom: min(36vh, 220px); }
+.board.has-tray { padding-bottom: min(38vh, 230px); }
 .board.has-tray.tray-folded { padding-bottom: 72px; }
-@media (prefers-reduced-motion: reduce) { .overdue-body, .overdue-chev, .overdue-tray { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .overdue-body, .overdue-body > ul, .overdue-chev { transition: none; } }
+html.tilt .overdue-head { rotate: none; translate: none; }   /* the tab is part of its folder: it never leans off it */
+html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray { filter: grayscale(1) drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
 @media (min-width: 821px) { .overdue-tray { left: 50%; right: auto; width: min(560px, calc(100vw - 180px)); translate: -50% 0; } }

@@ -1,4 +1,4 @@
-import { Todo, allDayTodos, convertDay, dayOverview, checkTodo, placeActivity, doneTodos, openTodos, overdueTodos, pastDueTodos, pinTodos, sanitizeTodo, todosForDate, weekDate } from './todo.model';
+import { Todo, allDayTodos, canBecomeActivity, convertDay, dayOverview, checkTodo, placeActivity, doneTodos, openTodos, overdueTodos, pastDueTodos, pinTodos, sanitizeTodo, todosForDate, weekDate } from './todo.model';
 import { DayPlan } from './week.model';
 
 const todo = (id: string, extra: Partial<Todo> = {}): Todo => ({ id, title: id, date: '2026-11-10', time: null, done: null, created: 1, repeat: [], doneOn: {}, ...extra });
@@ -135,19 +135,17 @@ describe('todo model', () => {
     const card = t('new', 45);
     const ids = (r: ReturnType<typeof placeActivity>) => r?.map((b) => `${b.id} ${b.start}-${b.end}: ${b.tasks.map((x) => x.id).join(',')}`);
     // 09:30 runs Work: right after it; the full block grows by the 45 minutes
-    expect(ids(placeActivity(plan, '09:30', card, 'N'))).toEqual(['b 09:00-11:15: t1,new,t2', 'e 18:00-20:00: t3']);
+    expect(ids(placeActivity(plan, '09:30', card))).toEqual(['b 09:00-11:15: t1,new,t2', 'e 18:00-20:00: t3']);
     // before the day's first activity: right before it
-    expect(ids(placeActivity(plan, '07:00', card, 'N'))?.[0]).toBe('b 09:00-11:15: new,t1,t2');
+    expect(ids(placeActivity(plan, '07:00', card))?.[0]).toBe('b 09:00-11:15: new,t1,t2');
     // 18:30 in Dinner's block, which has 60 free minutes: it fits, the block keeps its end
-    expect(ids(placeActivity(plan, '18:30', card, 'N'))?.[1]).toBe('e 18:00-20:00: t3,new');
-    // no hour: at the end of the day's last block (its note sat at the day's foot)
-    expect(ids(placeActivity(plan, null, card, 'N'))?.[1]).toBe('e 18:00-20:00: t3,new');
-    // a day with no blocks gets one at the task's hour
-    expect(placeActivity({ blocks: [] }, '08:00', card, 'N')?.map((b) => [b.name, b.start, b.end, b.tasks.map((x) => x.id)])).toEqual([['N', '08:00', null, ['new']]]);
+    expect(ids(placeActivity(plan, '18:30', card))?.[1]).toBe('e 18:00-20:00: t3,new');
+    // no hour, or no timed activity that day: it sits in no block, so it never converts
+    expect(placeActivity(plan, null, card)).toBeNull();
+    expect(placeActivity({ blocks: [] }, '08:00', card)).toBeNull();
     // never past midnight, also in a block with no end or a new one
-    expect(placeActivity({ blocks: [{ id: 'o', name: 'O', start: '23:00', end: null, tasks: [t('o1', 30)] }] }, '23:10', card, 'N')).toBeNull();
-    expect(placeActivity({ blocks: [] }, '23:30', card, 'N')).toBeNull();
-    expect(placeActivity({ blocks: [{ id: 'z', name: 'Z', start: '23:00', end: '23:50', tasks: [t('z1', 50)] }] }, '23:10', card, 'N')).toBeNull();
+    expect(placeActivity({ blocks: [{ id: 'o', name: 'O', start: '23:00', end: null, tasks: [t('o1', 30)] }] }, '23:10', card)).toBeNull();
+    expect(placeActivity({ blocks: [{ id: 'z', name: 'Z', start: '23:00', end: '23:50', tasks: [t('z1', 50)] }] }, '23:10', card)).toBeNull();
   });
 
   it("finds the day of this week where a task's note shows, to convert it from Capture", () => {
@@ -160,5 +158,21 @@ describe('todo model', () => {
     expect(convertDay(todo('h', { date: '2026-11-02', done: 5 }), tuesday)).toBeNull();      // finished in an earlier week
     expect(convertDay(todo('e', { date: null, repeat: ['MONDAY', 'TUESDAY'] }), tuesday)).toBe('TUESDAY');
     expect(convertDay(todo('f', { date: null, repeat: ['THURSDAY'] }), tuesday)).toBe('THURSDAY');
+  });
+
+  it('lets only a task inside a block become an activity: never an all-day one, nor one in the tray or the strip', () => {
+    const tuesday = new Date(2026, 10, 10, 9);
+    const plan: DayPlan = { blocks: [{ id: 'b', name: 'B', start: '09:00', end: '11:00', tasks: [{ id: 't', title: 't', minutes: 60, color: null, active: true, ref: null }] }] };
+    const can = (t: Todo, day: 'TUESDAY' | 'WEDNESDAY' | null, p: DayPlan | null = plan) => canBecomeActivity(t, t.time, day, p, tuesday);
+    expect(can(todo('a', { time: '10:00' }), 'TUESDAY')).toBe(true);                          // pinned on today's activity
+    expect(can(todo('b'), 'TUESDAY')).toBe(false);                                             // all day
+    expect(can(todo('c', { time: '08:00' }), 'TUESDAY')).toBe(false);                          // past due: in the tray
+    expect(can(todo('d', { time: '08:00', done: 5 }), 'TUESDAY')).toBe(true);                  // checked: its note stays on the card
+    expect(can(todo('e', { date: '2026-11-02', time: '10:00' }), 'TUESDAY')).toBe(false);      // rolled over: in the tray
+    expect(can(todo('f', { date: '2026-11-11', time: '08:00' }), 'WEDNESDAY')).toBe(true);     // another day, any hour
+    expect(can(todo('g', { time: '10:00' }), 'TUESDAY', { blocks: [] })).toBe(false);          // no activity: the strip
+    expect(can(todo('h', { date: '2026-11-20', time: '10:00' }), null)).toBe(false);          // a later week
+    expect(can(todo('i', { date: null, time: '10:00' }), 'TUESDAY')).toBe(false);              // undated: on no day of the board
+    expect(can(todo('j', { date: null, time: '10:00', repeat: ['TUESDAY'] }), 'TUESDAY')).toBe(true);   // repeating: on its days
   });
 });
