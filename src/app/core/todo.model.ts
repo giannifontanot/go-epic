@@ -1,4 +1,4 @@
-import { Block, DAYS, Day, DayPlan, Task, dateKey, parseClock, taskStarts, timeline } from './week.model';
+import { Block, DAYS, Day, DayPlan, Task, dateKey, dayOf, formatClock, freeMinutes, newId, parseClock, taskStarts, timeline, validMinutes } from './week.model';
 
 /**
  * A task from Capture (Gianni): a one-off to-do, not an Activity of the library. It has a day (a date) and maybe an
@@ -94,7 +94,7 @@ export function weekDate(today: Date, day: Day): string {
 export function pinTodos(plan: DayPlan, todos: Todo[]): { onTask: Map<string, Todo[]>; loose: Todo[] } {
   const onTask = new Map<string, Todo[]>();
   const loose: Todo[] = [];
-  const timed = timeline(plan).filter((t) => t.start !== null && t.end !== null && (t.end as number) > (t.start as number));
+  const timed = timedOf(plan);
   for (const todo of [...todos].sort((a, b) => (a.time ?? '99:99').localeCompare(b.time ?? '99:99'))) {
     const at = parseClock(todo.time);
     const host = at === null ? undefined : closestActivity(timed, at);
@@ -106,17 +106,67 @@ export function pinTodos(plan: DayPlan, todos: Todo[]): { onTask: Map<string, To
   return { onTask, loose };
 }
 
-/** The id of the activity running at `at`, else the one nearest to it in time (ties: the earlier one). */
-function closestActivity(timed: { task: { id: string }; start: number | null; end: number | null }[], at: number): string | undefined {
+/**
+ * A Capture task turned Activity takes the task's place on the Week board (Gianni: swapped in place, never sent away to
+ * be brought back): a timed task's card goes into the block of the activity its note was pinned to (as `pinTodos`),
+ * right after that activity when the hour falls on or after its start, else right before it; a task with no hour, or a
+ * day with no timed activity, goes at the end of the day's last block, where its note was (the strip at the day's
+ * foot). The card takes the hour its place gives it. The block grows by what its free time lacks, so its end limit
+ * still holds; a day with no blocks gets a new one at the task's hour. Null when the block cannot grow before midnight.
+ */
+export function placeActivity(plan: DayPlan, time: string | null, card: Task, blockName: string): Block[] | null {
+  const blocks = plan.blocks;
+  const at = parseClock(time);
+  if (!blocks.length) return [{ id: newId(), name: blockName, start: at === null ? null : formatClock(at), end: null, tasks: [card] }];
+  const host = at === null ? undefined : closestTimed(timedOf(plan), at);
+  let bi = blocks.length - 1;
+  let index = blocks[bi].tasks.length;
+  if (host) {
+    bi = blocks.indexOf(host.block);
+    index = host.index + ((at as number) >= (host.start as number) ? 1 : 0);
+  }
+  const block = blocks[bi];
+  const free = freeMinutes(block);
+  const short = free === null ? 0 : Math.max(0, validMinutes(card.minutes) - Math.max(0, free));
+  const end = parseClock(block.end);
+  if (short && end !== null && end + short > 1439) return null;
+  const tasks = [...block.tasks];
+  tasks.splice(index, 0, card);
+  const grown: Block = { ...block, end: short && end !== null ? formatClock(end + short) : block.end, tasks };
+  return blocks.map((b, i) => (i === bi ? grown : b));
+}
+
+/**
+ * The day of this week where a Capture task's note shows, for turning it into an Activity from Capture's own list:
+ * its date's weekday when it falls in this week; today when it rolled over from an earlier day or has no day; a
+ * repeating task today when it repeats today, else its first day. Null for a later week (it waits in Free Space).
+ */
+export function convertDay(todo: Todo, now: Date): Day | null {
+  const today = dayOf(now);
+  if (repeats(todo)) return todo.repeat.includes(today) ? today : todo.repeat[0];
+  if (todo.date === null || todo.date < dateKey(now)) return today;
+  return DAYS.find((d) => weekDate(now, d) === todo.date) ?? null;
+}
+
+function timedOf(plan: DayPlan) {
+  return timeline(plan).filter((t) => t.start !== null && t.end !== null && (t.end as number) > (t.start as number));
+}
+
+function closestTimed<T extends { start: number | null; end: number | null }>(timed: T[], at: number): T | undefined {
   const running = timed.find((t) => at >= (t.start as number) && at < (t.end as number));
-  if (running) return running.task.id;
-  let best: { id: string; gap: number; start: number } | undefined;
+  if (running) return running;
+  let best: { t: T; gap: number } | undefined;
   for (const t of timed) {
     const start = t.start as number, end = t.end as number;
     const gap = at < start ? start - at : at - end;   // minutes to its nearer edge
-    if (!best || gap < best.gap || (gap === best.gap && start < best.start)) best = { id: t.task.id, gap, start };
+    if (!best || gap < best.gap || (gap === best.gap && start < (best.t.start as number))) best = { t, gap };
   }
-  return best?.id;
+  return best?.t;
+}
+
+/** The id of the activity running at `at`, else the one nearest to it in time (ties: the earlier one). */
+function closestActivity(timed: { task: { id: string }; start: number | null; end: number | null }[], at: number): string | undefined {
+  return closestTimed(timed, at)?.task.id;
 }
 
 /**

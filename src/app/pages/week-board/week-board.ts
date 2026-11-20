@@ -26,6 +26,36 @@ import { readTrayFolded, writeTrayFolded } from '../../core/tray-fold';
  * "Arrange the week" unlocks editing: block windows, ▲▼, ⇄ copy/move, + and quick-add, and each card's ••• details.
  */
 /** An arrow key on a handle: to the next 5-minute step in its direction (23 → 25 or 20). */
+/**
+ * The card (else block, else day) nearest the middle of the screen, and a function that scrolls the page back so it
+ * sits where it was, at once (no glide), after the layout changed. Null when nothing is on screen.
+ */
+function viewAnchor(): (() => void) | null {
+  if (typeof document === 'undefined') return null;
+  const mid = (window.visualViewport?.height ?? window.innerHeight) / 2;
+  const pick = (selector: string) => {
+    let best: { el: HTMLElement; gap: number } | null = null;
+    for (const el of document.querySelectorAll<HTMLElement>(selector)) {
+      const r = el.getBoundingClientRect();
+      if (!r.height || r.bottom < 0 || r.top > mid * 2 || r.right < 0 || r.left > window.innerWidth) continue;
+      const gap = r.top <= mid && r.bottom >= mid ? 0 : Math.min(Math.abs(r.top - mid), Math.abs(r.bottom - mid));
+      if (!best || gap < best.gap) best = { el, gap };
+    }
+    return best?.el ?? null;
+  };
+  const el = pick('[data-task]') ?? pick('[data-block]') ?? pick('article.day');
+  if (!el) return null;
+  const key = el.dataset['task'] ? `[data-task="${CSS.escape(el.dataset['task'])}"]`
+    : el.dataset['block'] ? `[data-block="${CSS.escape(el.dataset['block'])}"]` : null;
+  const top = el.getBoundingClientRect().top;
+  return () => {
+    const now = key ? document.querySelector<HTMLElement>(key) : el.isConnected ? el : null;
+    if (!now) return;
+    const delta = now.getBoundingClientRect().top - top;
+    if (Math.abs(delta) >= 1) window.scrollBy({ top: delta, left: 0, behavior: 'instant' });
+  };
+}
+
 function keyStep(value: number, direction: number): number {
   return direction > 0 ? Math.ceil((value + 1) / 5) * 5 - value : Math.floor((value - 1) / 5) * 5 - value;
 }
@@ -208,7 +238,10 @@ export class WeekBoard {
   }
   /** Every task on the board keeps its ✎ (Gianni): it opens the same editor as Capture (name, day, hour, repeat). */
   protected readonly editingTodo = signal<Todo | null>(null);
-  protected editTodo(todo: Todo): void {
+  /** The day whose note was tapped: converting the task to an Activity puts it there, in the task's place. */
+  protected readonly editingDay = signal<Day | null>(null);
+  protected editTodo(todo: Todo, day: Day): void {
+    this.editingDay.set(day);
     this.editingTodo.set(this.todos.todos().find((t) => t.id === todo.id) ?? null);   // the stored task, not a date's view
   }
   /** + New above the floating ✎ (Gianni): a new task with its name, hour and repeat days; for today until changed. */
@@ -651,7 +684,16 @@ export class WeekBoard {
   protected toggleArrange(): void {
     if (!this.store.loaded() || !this.library.ready()) return;               // edits wait for the saved week and library
     const opening = !this.arranging();
-    const change = () => { this.arranging.set(opening); this.notice.set(''); };
+    // Gianni: switching keeps the page exactly where it was (the cards change height, the tools come and go): the card
+    // or block in the middle of the screen stays at the same place on it.
+    const anchor = viewAnchor();
+    const change = () => {
+      this.arranging.set(opening);
+      this.notice.set('');
+      this.appRef.tick();
+      anchor?.();
+      if (anchor) requestAnimationFrame(anchor);                            // and once more after the next layout
+    };
     const doc = document as Document & { startViewTransition?: (update: () => void) => { finished: Promise<void> } };
     const reduced = typeof matchMedia !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced || typeof doc.startViewTransition !== 'function') { change(); return; }
@@ -664,7 +706,7 @@ export class WeekBoard {
     root.style.setProperty('--vt-r', Math.ceil(radius) + 'px');
     root.classList.add(opening ? 'vt-grow' : 'vt-shrink');
     const done = () => root.classList.remove('vt-grow', 'vt-shrink');
-    doc.startViewTransition(() => { change(); this.appRef.tick(); }).finished.then(done, done);
+    doc.startViewTransition(change).finished.then(done, done);
   }
   private arrangeFrom: { x: number; y: number } | null = null;
   private readonly appRef = inject(ApplicationRef);

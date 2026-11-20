@@ -1,4 +1,4 @@
-import { Todo, allDayTodos, dayOverview, checkTodo, doneTodos, openTodos, overdueTodos, pastDueTodos, pinTodos, sanitizeTodo, todosForDate, weekDate } from './todo.model';
+import { Todo, allDayTodos, convertDay, dayOverview, checkTodo, placeActivity, doneTodos, openTodos, overdueTodos, pastDueTodos, pinTodos, sanitizeTodo, todosForDate, weekDate } from './todo.model';
 import { DayPlan } from './week.model';
 
 const todo = (id: string, extra: Partial<Todo> = {}): Todo => ({ id, title: id, date: '2026-11-10', time: null, done: null, created: 1, repeat: [], doneOn: {}, ...extra });
@@ -124,5 +124,37 @@ describe('todo model', () => {
     expect(view.blocks[0].activities.map((a) => [a.task.id, a.start, a.todos.map((t) => t.id)])).toEqual([['run', 420, ['jog']]]);
     expect(view.blocks[1].activities[0].todos.map((t) => t.id)).toEqual(['call']);
     expect(view.later.map((t) => t.id)).toEqual(['late']);   // it sat on the switched-off activity
+  });
+
+  it('swaps a converted task in place: its card goes where its note sat, the block growing by what its free time lacks', () => {
+    const t = (id: string, minutes: number) => ({ id, title: id, minutes, color: null, active: true, ref: null });
+    const plan: DayPlan = { blocks: [
+      { id: 'b', name: 'B', start: '09:00', end: '10:30', tasks: [t('t1', 60), t('t2', 30)] },
+      { id: 'e', name: 'E', start: '18:00', end: '20:00', tasks: [t('t3', 60)] },
+    ] };
+    const card = t('new', 45);
+    const ids = (r: ReturnType<typeof placeActivity>) => r?.map((b) => `${b.id} ${b.start}-${b.end}: ${b.tasks.map((x) => x.id).join(',')}`);
+    // 09:30 runs Work: right after it; the full block grows by the 45 minutes
+    expect(ids(placeActivity(plan, '09:30', card, 'N'))).toEqual(['b 09:00-11:15: t1,new,t2', 'e 18:00-20:00: t3']);
+    // before the day's first activity: right before it
+    expect(ids(placeActivity(plan, '07:00', card, 'N'))?.[0]).toBe('b 09:00-11:15: new,t1,t2');
+    // 18:30 in Dinner's block, which has 60 free minutes: it fits, the block keeps its end
+    expect(ids(placeActivity(plan, '18:30', card, 'N'))?.[1]).toBe('e 18:00-20:00: t3,new');
+    // no hour: at the end of the day's last block (its note sat at the day's foot)
+    expect(ids(placeActivity(plan, null, card, 'N'))?.[1]).toBe('e 18:00-20:00: t3,new');
+    // a day with no blocks gets one at the task's hour
+    expect(placeActivity({ blocks: [] }, '08:00', card, 'N')?.map((b) => [b.name, b.start, b.end, b.tasks.map((x) => x.id)])).toEqual([['N', '08:00', null, ['new']]]);
+    // never past midnight
+    expect(placeActivity({ blocks: [{ id: 'z', name: 'Z', start: '23:00', end: '23:50', tasks: [t('z1', 50)] }] }, '23:10', card, 'N')).toBeNull();
+  });
+
+  it("finds the day of this week where a task's note shows, to convert it from Capture", () => {
+    const tuesday = new Date(2026, 10, 10, 9);
+    expect(convertDay(todo('a', { date: '2026-11-13' }), tuesday)).toBe('FRIDAY');
+    expect(convertDay(todo('b', { date: '2026-11-02' }), tuesday)).toBe('TUESDAY');        // rolled over to today
+    expect(convertDay(todo('c', { date: null }), tuesday)).toBe('TUESDAY');
+    expect(convertDay(todo('d', { date: '2026-11-20' }), tuesday)).toBeNull();             // a later week
+    expect(convertDay(todo('e', { date: null, repeat: ['MONDAY', 'TUESDAY'] }), tuesday)).toBe('TUESDAY');
+    expect(convertDay(todo('f', { date: null, repeat: ['THURSDAY'] }), tuesday)).toBe('THURSDAY');
   });
 });

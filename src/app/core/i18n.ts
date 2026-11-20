@@ -164,6 +164,8 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'capture.toActivity': { en: 'Convert to activity', es: 'Convertir en actividad' },
   'capture.toActivityAsk': { en: 'Convert "{task}" to an activity? It goes to the Canvas\'s Free Space and leaves your tasks.', es: '¿Convertir "{task}" en actividad? Pasa al Espacio libre del Canvas y sale de tus tareas.' },
   'capture.activityMinutes': { en: 'Minutes of the activity', es: 'Minutos de la actividad' },
+  'capture.toActivityAskWeek': { en: 'Convert "{task}" to an activity? It takes the task\'s place on the Week board and leaves your tasks.', es: '¿Convertir "{task}" en actividad? Toma el lugar de la tarea en la semana y sale de tus tareas.' },
+  'capture.toActivityNoRoom': { en: 'Its block cannot grow past midnight. Shorten it and try again.', es: 'Su bloque no puede pasar de medianoche. Acórtala e inténtalo de nuevo.' },
   'capture.toActivityWait': { en: 'The library is still loading. Try again in a moment.', es: 'La biblioteca aún se está cargando. Inténtalo en un momento.' },
   'week.minutesLeft': { en: '{n} min left', es: 'Quedan {n} min' },
   'week.confirmDeleteTask': { en: 'Delete "{task}"?', es: '¿Eliminar "{task}"?' },
