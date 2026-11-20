@@ -967,7 +967,7 @@
         q(s, '.left').textContent = UI[lang].left.replace('{n}', 25 - m);
         q(s, '.pin').classList.toggle('ring', m >= 20);
       } },
-      2: { period: 8000, tick: function (s, t) {   // Focus: 15 → 5 min left, then Mark as done
+      2: { period: 8000, still: 7000, tick: function (s, t) {   // Focus: 15 → 5 min left, then Mark as done
         var p = .4 + .4 * clamp(t / 4300), m = Math.round(25 * p), won = t > 4450;
         s.style.setProperty('--p', p.toFixed(4));
         s.classList.toggle('won', won);
@@ -977,7 +977,7 @@
         q(s, '.clock').textContent = hhmm(380 + m).replace(/^0/, '');
       } },
       3: { period: 7500, start: canvasStart },
-      4: { period: 6500, tick: function (s, t) {   // Progress: today's dot fills, the streak grows by one
+      4: { period: 6500, still: 6000, tick: function (s, t) {   // Progress: today's dot fills, the streak grows by one
         s.querySelectorAll('.hb[data-hit]').forEach(function (h, i) {
           var hit = t > 2300 + i * 300, n = h.querySelector('.n');
           h.classList.toggle('hit', hit);
@@ -1015,7 +1015,9 @@
     function play(s) {
       if (loopS && loopS !== s) { stopAnims(); loopS.classList.remove('run', 'fade', 'snap', 'won'); }
       loopS = null;
-      if (reduce || !s || !LOOPS[s.dataset.n]) return;
+      // Under reduced motion nothing loops: a screen whose story ends in a new state just shows that finished state
+      if (reduce) { var R = s && LOOPS[s.dataset.n]; if (R && R.still != null) R.tick(s, R.still); return; }
+      if (!s || !LOOPS[s.dataset.n]) return;
       loopS = s;
       restart(s);
       if (!loopRaf) loopRaf = requestAnimationFrame(frame);
@@ -1092,6 +1094,7 @@
       document.querySelectorAll('.lang button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.lang === lang)); });
       try { localStorage.setItem('go-epic-get-lang', lang); } catch (e) {}
       if (cur >= 0) labels();
+      if (reduce && LOOPS) play(document.querySelector('.screen.on'));
     }
     document.querySelectorAll('.lang button').forEach(function (b) {
       b.addEventListener('click', function () { setLang(b.dataset.lang); });
