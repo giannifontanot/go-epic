@@ -71,6 +71,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'theme.smokedcitrus': { en: 'Smoked Citrus', es: 'Smoked Citrus' },
   'theme.graphite': { en: 'Graphite', es: 'Grafito' },
   'nav.menu': { en: 'Menu', es: 'Menú' },
+  'nav.actions': { en: 'Actions', es: 'Acciones' },
   'nav.close': { en: 'Close menu', es: 'Cerrar menú' },
   'nav.signOut': { en: 'Sign out', es: 'Salir' },
   'settings.size': { en: 'Text size', es: 'Tamaño de letra' },

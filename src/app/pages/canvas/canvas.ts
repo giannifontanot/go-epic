@@ -10,6 +10,7 @@ import { UnsavedWork } from '../../core/unsaved';
 import { CaptureUi } from '../capture/capture-ui';
 import { CanvasMotion } from './canvas-motion';
 import { CanvasNode } from './canvas-node';
+import { ActionMenu } from '../../shared/action-menu';
 import { CanvasLayout, CanvasState } from './canvas-state';
 
 interface Drag {
@@ -33,7 +34,7 @@ const LEAVE_SAVE_WAIT_MS = 6000;
 
 @Component({
   selector: 'app-canvas',
-  imports: [CanvasNode],
+  imports: [CanvasNode, ActionMenu],
   templateUrl: './canvas.html',
   styleUrl: './canvas.css',
 })
@@ -97,7 +98,7 @@ export class Canvas implements DoCheck {
         this.bump();
       });
     });
-    // Capture is the 💡 at the top right here, as on the Week; the floating ✎ (an edit button) is not shown on the Canvas.
+    // Capture is the 💡 at the top right and in the action menu (one round button, as on the Week); no floating ✎ here.
     this.capture.fab.set({ label: '', run: () => undefined, hidden: true });
     inject(DestroyRef).onDestroy(() => { this.cancelDrag(); this.motion.destroy(); this.capture.fab.set(null); this.unsaved.canvasDraft.set(false); });
   }

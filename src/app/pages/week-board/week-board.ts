@@ -14,9 +14,9 @@ import { CaptureUi } from '../capture/capture-ui';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { STATUSES, Status, isFinished } from '../../core/status.model';
-import { Todo, allDayTodos, dayOverview, overdueTodos, pastDueTodos, pinTodos, todosForDate, weekDate } from '../../core/todo.model';
+import { Todo, allDayTodos, overdueTodos, pastDueTodos, pinTodos, todosForDate, weekDate } from '../../core/todo.model';
 import { TodoDialog, TodoSave } from '../capture/todo-dialog';
-import { ThemeFan } from '../../shared/theme-fan';
+import { ActionMenu, MenuAction } from '../../shared/action-menu';
 import { TodoStore } from '../../core/todo.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
 import { Transfer, TransferDialog } from './transfer-dialog';
@@ -77,7 +77,7 @@ function readFolded(): Set<string> {
 
 @Component({
   selector: 'app-week-board',
-  imports: [TaskDialog, TransferDialog, TodoDialog, NgTemplateOutlet, ThemeFan],
+  imports: [TaskDialog, TransferDialog, TodoDialog, NgTemplateOutlet, ActionMenu],
   templateUrl: './week-board.html',
 })
 export class WeekBoard {
@@ -124,11 +124,8 @@ export class WeekBoard {
     });
     // Arranging files tasks in the library: it stops while the library is not loaded (sign-out, another account).
     effect(() => { if (!this.library.ready()) this.arranging.set(false); });
-    // On the Week board the floating ✎ arranges the week (Capture is the 💡 at the top); hidden while arranging.
-    effect(() => {
-      const hidden = this.arranging() || !this.store.loaded() || !this.library.ready();
-      this.capture.fab.set({ label: this.i18n.t('week.arrange'), run: () => this.toggleArrange(), hidden });
-    });
+    // The floating ✎ is not shown here: the action menu (one round button) holds ✎ arrange, + new, the overview, Capture and the themes.
+    this.capture.fab.set({ label: '', run: () => undefined, hidden: true });
     inject(DestroyRef).onDestroy(() => { this.capture.fab.set(null); this.cancelDrag?.(); });
     // On entering the Week board, the view centres on now (the red line in today's column), as in Epic Manager: once
     // the week, the library (card titles) and Capture's notes (the strip at the top) are there, so nothing shifts after.
@@ -270,10 +267,6 @@ export class WeekBoard {
   protected editTodo(todo: Todo, day: Day): void {
     this.editingDay.set(day);
     this.editingTodo.set(this.todos.todos().find((t) => t.id === todo.id) ?? null);   // the stored task, not a date's view
-  }
-  /** + New above the floating ✎ (Gianni): a new task with its name, hour and repeat days; for today until changed. */
-  protected newTodo(): void {
-    this.editingTodo.set({ id: '', title: '', date: this.store.todayKey(), time: null, done: null, created: Date.now(), repeat: [], doneOn: {} });
   }
   protected saveTodo(change: TodoSave): void {
     if (!change.id) { this.todos.add(change.title, change.repeat.length ? null : change.date, change.time, change.repeat); return; }
@@ -515,32 +508,6 @@ export class WeekBoard {
     if (d && isBackdropClick(event, d)) void closeDialog(d);
   }
 
-  /**
-   * The day overview (Gianni): a round button above + opens today as a nested bullet list, all-day tasks first, then
-   * each block with its activities and, under each, its timed tasks (todo.model `dayOverview`).
-   */
-  private readonly overviewDialog = viewChild<ElementRef<HTMLDialogElement>>('overviewDialog');
-  // always built (cheap), so the window has its full size when openDialog measures it to grow out of the button
-  protected readonly overview = computed(() => {
-    const day = this.store.today();
-    return dayOverview(this.store.week()[day], this.todos.todos(), this.store.todayKey(), day);
-  });
-  protected readonly overviewTitle = computed(() =>
-    this.store.now().toLocaleDateString(this.i18n.lang(), { weekday: 'long', day: 'numeric', month: 'long' }));
-  protected openOverview(): void {
-    const d = this.overviewDialog()?.nativeElement;
-    if (d) openDialog(d);
-  }
-  protected closeOverview(): void {
-    void closeDialog(this.overviewDialog()?.nativeElement);
-  }
-  protected onOverviewBackdrop(event: MouseEvent): void {
-    const d = this.overviewDialog()?.nativeElement;
-    if (d && isBackdropClick(event, d)) void closeDialog(d);
-  }
-  protected clock(minutes: number | null): string {
-    return minutes === null ? '' : formatClock(minutes);
-  }
 
   protected statusIcon(status: Status): string {
     return { todo: '', done: '✓', late: '⏰', progress: '▶', skipped: '⤼' }[status];
@@ -688,6 +655,9 @@ export class WeekBoard {
     doc.startViewTransition(change).finished.then(done, done);
   }
   private arrangeFrom: { x: number; y: number } | null = null;
+  /** The action menu's ✎: arrange the week, once the week and the library are loaded. */
+  protected readonly arrangeAction = computed<MenuAction | null>(() =>
+    this.store.loaded() && this.library.ready() ? { label: this.i18n.t('week.arrange'), run: () => this.toggleArrange() } : null);
   private readonly appRef = inject(ApplicationRef);
 
   // --- Blocks ---

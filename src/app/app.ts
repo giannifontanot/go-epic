@@ -3,7 +3,6 @@ import { SwUpdate } from '@angular/service-worker';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/auth.service';
 import { CapturePanel } from './pages/capture/capture-panel';
-import { CaptureUi } from './pages/capture/capture-ui';
 import { Settings } from './pages/settings/settings';
 import { closeDialog, isBackdropClick, openDialog, warmUpWindows } from './core/dialog';
 import { I18n } from './core/i18n';
@@ -30,10 +29,8 @@ import { WeekStore } from './core/week.store';
         @if (auth.user(); as user) { <p class="drawer-user">{{ user.displayName || user.email }}</p> }
         <nav class="drawer-links">
           <a routerLink="/" routerLinkActive="on" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenu()">{{ i18n.t('nav.week') }}</a>
-          <a routerLink="/focus" routerLinkActive="on" (click)="closeMenu()">{{ i18n.t('nav.focus') }}</a>
           <a routerLink="/canvas" routerLinkActive="on" (click)="closeMenu()">{{ i18n.t('nav.canvas') }}</a>
           <a routerLink="/progress" routerLinkActive="on" (click)="closeMenu()">{{ i18n.t('nav.progress') }}</a>
-          <button type="button" class="drawer-capture" (click)="openCapture()">✎ {{ i18n.t('capture.title') }}</button>
           <button type="button" class="drawer-capture" (click)="openSettings()">⚙ {{ i18n.t('settings.title') }}</button>
         </nav>
         <div class="drawer-foot">
@@ -80,7 +77,6 @@ export class App {
   protected readonly text = inject(TextSettings);
   /** The chosen theme (Ajustes) stays applied on every page. */
   protected readonly theme = inject(ThemeService);
-  private readonly capture = inject(CaptureUi);
   private readonly router = inject(Router);
   /** The installed app (service worker) has downloaded a newer version: offer to switch to it. */
   protected readonly updateReady = signal(false);
@@ -144,11 +140,6 @@ export class App {
   protected openSettings(): void {
     this.closeMenu();
     this.settingsOpen.set(true);
-  }
-  /** Capture from the menu: the menu closes and the panel opens from the pressed row. */
-  protected openCapture(): void {
-    this.closeMenu();
-    this.capture.open.set(true);
   }
   protected onDrawerClick(event: MouseEvent): void {
     const d = this.drawer()?.nativeElement;

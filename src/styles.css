@@ -334,11 +334,21 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
   width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--pink); color: var(--card-ink); font-size: 22px;
   box-shadow: 0 6px 18px rgba(1, 6, 29, .45); }
 .capture-fab:hover { background: #f8bfca; }
-/* Week board: the + (new task) is the floating ✎'s twin, standing 12px above it; only a symbol, no words (Gianni) */
-.new-fab { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 64px); font-size: 28px; line-height: 1; }
-.overview-fab { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 128px); display: grid; place-items: center; }   /* the day overview stands above + (Gianni) */
-/* the themes (Gianni): a round button on top of the stack; its tiles fan out to the left, two rows of four */
-.theme-fab { bottom: calc(max(18px, env(safe-area-inset-bottom)) + 192px); display: grid; place-items: center; z-index: 22; }
+/* One round button at the bottom right (ActionMenu, Gianni): a tap stacks the actions above it, each sliding up out of
+   it, the nearest first; ✎ arrange (the Week), + a new task, the day overview, 💡 Capture and the themes on top */
+.menu-fab { display: grid; place-items: center; z-index: 21; }
+.menu-fab.open { background: var(--teal); color: #0b2f2a; }
+.action-veil { position: fixed; inset: 0; z-index: 19; background: rgba(4, 9, 30, .14); }
+.action-stack { position: fixed; z-index: 20; right: max(16px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 64px);
+  display: flex; flex-direction: column-reverse; align-items: center; gap: 12px; visibility: hidden; transition: visibility 0s .3s; }
+.action-stack.open { visibility: visible; transition: none; }
+.action-stack .capture-fab { position: relative; inset: auto; display: grid; place-items: center;
+  opacity: 0; transform: translateY(calc((var(--i, 0) + 1) * 64px)) scale(.4); pointer-events: none;
+  transition: transform .26s cubic-bezier(.4, 0, 1, 1), opacity .2s ease; }
+.action-stack.open .capture-fab { opacity: 1; transform: none; pointer-events: auto;
+  transition: transform .3s cubic-bezier(0, 0, .2, 1) calc(var(--i, 0) * 35ms), opacity .2s ease calc(var(--i, 0) * 35ms); }
+.action-stack .new-act { font-size: 28px; line-height: 1; }
+.theme-fab { z-index: 22; }
 .theme-fab.open { background: var(--teal); }
 .theme-fan-veil { position: fixed; inset: 0; z-index: 21; background: rgba(4, 9, 30, .18); }
 .theme-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 64px);

@@ -345,94 +345,9 @@
 @if (arranging()) {
   <button type="button" class="capture-fab finish-fab" [attr.aria-label]="i18n.t('week.finish')" [title]="i18n.t('week.finish')" (click)="toggleArrange()">✓</button>
 }
-<!-- the day overview (Gianni): today as a nested bullet list, all-day tasks first, then blocks › activities › tasks -->
-<dialog #overviewDialog class="info-card day-overview" [attr.aria-label]="i18n.t('week.overview')" (click)="onOverviewBackdrop($event)">
-  @if (overview(); as view) {
-    <div class="info-head">
-      <h2>{{ overviewTitle() }}</h2>
-      <button type="button" class="round" [attr.aria-label]="i18n.t('week.infoClose')" [title]="i18n.t('week.infoClose')" (click)="closeOverview()">✕</button>
-    </div>
-    @if (!view.allDay.length && !view.blocks.length && !view.later.length) {
-      <p class="hint">{{ i18n.t('week.overviewEmpty') }}</p>
-    }
-    <ul class="ov-list">
-      @if (view.allDay.length) {
-        <li class="ov-group">
-          <span class="ov-head"><strong>{{ i18n.t('week.allDay') }}</strong></span>
-          <ul>
-            @for (todo of view.allDay; track todo.id) {
-              <li class="ov-todo" [class.done]="todo.done !== null">
-                <span class="ov-check" aria-hidden="true">{{ todo.done !== null ? '✓' : '☐' }}</span>
-                <span class="ov-title">{{ todo.title }}</span>
-                @if (todo.date !== null && todo.date < store.todayKey() && !todo.repeat.length) { <small class="ov-from">{{ fromLabel(todo) }}</small> }
-              </li>
-            }
-          </ul>
-        </li>
-      }
-      @for (item of view.blocks; track item.block.id) {
-        <li class="ov-block">
-          <span class="ov-head"><strong>{{ item.block.name }}</strong>
-            @if (summary(item.block); as range) { <span class="ov-time">{{ range.from }}–{{ range.to }}</span> }
-          </span>
-          <ul>
-            @for (act of item.activities; track act.task.id) {
-              @let state = store.status(act.task.id);
-              <li class="ov-act" [class.done]="state === 'done' || state === 'late'">
-                <span class="ov-line">
-                  @if (act.start !== null) { <span class="ov-time">{{ clock(act.start) }}</span> }
-                  <span class="ov-title">{{ act.task.title || i18n.t('week.newTask') }}</span>
-                  @if (statusIcon(state); as icon) { <span class="ov-state" [attr.aria-label]="i18n.t('status.' + state)">{{ icon }}</span> }
-                </span>
-                @if (act.todos.length) {
-                  <ul>
-                    @for (todo of act.todos; track todo.id) {
-                      <li class="ov-todo" [class.done]="todo.done !== null">
-                        <span class="ov-check" aria-hidden="true">{{ todo.done !== null ? '✓' : '☐' }}</span>
-                        <span class="ov-time">{{ todo.time }}</span>
-                        <span class="ov-title">{{ todo.title }}</span>
-                      </li>
-                    }
-                  </ul>
-                }
-              </li>
-            }
-          </ul>
-        </li>
-      }
-      @if (view.later.length) {
-        <li class="ov-group">
-          <span class="ov-head"><strong>{{ i18n.t('week.overviewOther') }}</strong></span>
-          <ul>
-            @for (todo of view.later; track todo.id) {
-              <li class="ov-todo" [class.done]="todo.done !== null">
-                <span class="ov-check" aria-hidden="true">{{ todo.done !== null ? '✓' : '☐' }}</span>
-                <span class="ov-time">{{ todo.time }}</span>
-                <span class="ov-title">{{ todo.title }}</span>
-              </li>
-            }
-          </ul>
-        </li>
-      }
-    </ul>
-    <div class="info-foot"><button type="button" class="primary" (click)="closeOverview()">{{ i18n.t('week.infoClose') }}</button></div>
-  }
-</dialog>
-<!-- the themes, on top of the floating buttons (Gianni): they fan out of it to the left -->
-@if (!arranging()) { <app-theme-fan /> }
-@if (!arranging() && store.loaded() && todos.ready()) {
-  <button type="button" class="capture-fab overview-fab" [attr.aria-label]="i18n.t('week.overview')" [title]="i18n.t('week.overview')" (click)="openOverview()">
-    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="currentColor">
-      <circle cx="5" cy="6" r="1.8"/><rect x="9" y="5" width="12" height="2" rx="1"/>
-      <circle cx="9" cy="12" r="1.6"/><rect x="13" y="11" width="8" height="2" rx="1"/>
-      <circle cx="9" cy="18" r="1.6"/><rect x="13" y="17" width="8" height="2" rx="1"/>
-    </svg>
-  </button>
-}
-<!-- + above the floating ✎, in its look (Gianni): a new task (name, hour, repeat days) without opening Capture -->
-@if (!arranging() && store.loaded() && todos.ready()) {
-  <button type="button" class="capture-fab new-fab" [attr.aria-label]="i18n.t('capture.new')" [title]="i18n.t('capture.new')" (click)="newTodo()">+</button>
-}
+<!-- one round button at the bottom right (Gianni): it opens ✎ arrange, + a new task, the day overview, 💡 Capture and
+     the themes; while arranging the round ✓ Finish takes its place -->
+@if (!arranging()) { <app-action-menu [edit]="arrangeAction()" /> }
 @if (editingTodo(); as todo) {
   <app-todo-dialog [todo]="todo" [isNew]="!todo.id" [day]="editingDay()" (save)="saveTodo($event)" (closed)="editingTodo.set(null)" />
 }

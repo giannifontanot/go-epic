@@ -6,12 +6,12 @@ const OPEN_MS = 340;
 const STEP_MS = 40;
 
 /**
- * The themes, one tap away (Gianni): a round button on top of the Week board's floating buttons. A tap fans the eight
+ * The themes, one tap away (Gianni): the top action of the floating buttons' menu (ActionMenu). A tap fans the eight
  * themes out of it, sliding to the left into two rows of four tiles (the light themes on top, the dark ones below), each
  * a little picture of the theme in its own colours, which never change with the theme that is on; a tap on a
  * tile puts that theme on at once (the fan stays open, so themes can be compared); a tap outside, Esc or the button
- * again draws them back into it. Under reduced motion they simply appear and go. Ajustes (☰ › ⚙) still holds the
- * themes and the red time line.
+ * again draws them back into it. Under reduced motion they simply appear and go. The tiles sit beside the button,
+ * centred on it as far as the screen allows. Ajustes (☰ › ⚙) holds only the red time line.
  */
 @Component({
   selector: 'app-theme-fan',
@@ -28,7 +28,7 @@ const STEP_MS = 40;
     @if (open()) {
       <!-- a div, not a button: buttons lean with the phone, and a leaning veil would leave the board tappable at its edges -->
       <div class="theme-fan-veil" aria-hidden="true" (click)="close()"></div>
-      <div id="theme-fan" class="theme-fan" role="radiogroup" [attr.aria-label]="i18n.t('settings.theme')">
+      <div #fanBox id="theme-fan" class="theme-fan" role="radiogroup" [attr.aria-label]="i18n.t('settings.theme')">
         @for (theme of themes; track theme) {
           <button #tile type="button" class="theme-tile" role="radio" [attr.data-preview]="theme" [class.dark]="dark.has(theme)"
                   [style.--tile-bg]="bar[theme]" [attr.aria-checked]="look.theme() === theme"
@@ -55,6 +55,7 @@ export class ThemeFan {
   protected readonly open = signal(false);
   private readonly injector = inject(Injector);
   private readonly fab = viewChild.required<ElementRef<HTMLButtonElement>>('fab');
+  private readonly fanBox = viewChild<ElementRef<HTMLElement>>('fanBox');
   private readonly tiles = viewChildren<ElementRef<HTMLButtonElement>>('tile');
   private closing = false;
 
@@ -63,14 +64,30 @@ export class ThemeFan {
     if (this.open()) this.close(true);
   }
 
+  /** Whether the tiles are out (the menu leaves Esc to them then). */
+  isOpen(): boolean {
+    return this.open();
+  }
+
   protected toggle(): void {
     if (this.open()) { this.close(); return; }
     this.open.set(true);
-    afterNextRender({ read: () => this.fly(true) }, { injector: this.injector });
+    afterNextRender(() => { this.place(); this.fly(true); }, { injector: this.injector });
+  }
+
+  /** The tiles beside the button, centred on it, never past the top or the bottom of the screen. */
+  private place(): void {
+    const fan = this.fanBox()?.nativeElement;
+    if (!fan || typeof innerHeight !== 'number') return;
+    const r = this.fab().nativeElement.getBoundingClientRect();
+    const h = fan.offsetHeight;
+    const centre = innerHeight - (r.top + r.bottom) / 2;
+    const bottom = Math.max(12, Math.min(centre - h / 2, innerHeight - h - 12));
+    fan.style.bottom = bottom + 'px';
   }
 
   /** Draws the tiles back into the button, then removes them; focus returns to the button after Esc. */
-  protected close(refocus = false): void {
+  close(refocus = false): void {
     if (!this.open() || this.closing) return;
     this.closing = true;
     const done = () => {
