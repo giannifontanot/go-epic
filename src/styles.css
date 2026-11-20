@@ -811,11 +811,38 @@ dialog.editor.color-window { width: min(340px, calc(100vw - 32px)); height: fit-
 /* Week: one switch opens / closes every block (beside the day's +); the body folds smoothly (grid rows 1fr ↔ 0fr) */
 .day-actions { display: inline-flex; align-items: center; gap: 8px; }
 .fold-all { font-size: 20px; line-height: 1; }
-/* the spotlight (Gianni): while the board rests centred on now, the other blocks dim a very little, so the current one
-   stands out; it fades in and out (instant under reduced motion) */
-.board.locked .block { transition: filter .6s ease; }
-.board.locked.spot .block:not(:has(.now-line)) { filter: brightness(.8) saturate(.75); }   /* visible but calm (Gianni did not notice .9) */
-@media (prefers-reduced-motion: reduce) { .board.locked .block { transition: none; } }
+/* the spotlight (Gianni): while the board rests centred on now, everything under the board's header dims (the day columns,
+   their names and every other block), so the current block stands out; Capture's pending tasks keep their colour too
+   (the notes pinned on a card, the day's foot strip; the overdue folder is outside the week). It fades in and out
+   (instant under reduced motion). A day or block with nothing to keep bright dims whole (its lip and edge with it);
+   one that holds something to keep dims piece by piece: its own surface by a dark veil behind its content (::before,
+   brightness .8 is a 20% black veil) and each child by the filter, so the kept ones are never filtered. */
+.board { --spot-dim: brightness(.8) saturate(.75); }   /* visible but calm (Gianni did not notice .9) */
+html:is([data-theme='office'], [data-theme='graphite']) .board { --spot-dim: grayscale(1) brightness(.8); }   /* the grey themes keep their grayscale */
+.board.locked :is(.day, .block, .task) { isolation: isolate; }
+.board.locked :is(.day, .block) { position: relative; }
+.board.locked :is(.day, .block, .task)::before { content: ''; position: absolute; z-index: -1; inset: 0; border-radius: inherit;
+  background: rgba(0, 0, 0, .2); opacity: 0; pointer-events: none; transition: opacity .6s ease; }
+.board.locked .block { --spot-lip: 9px; --spot-ring: 0px; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .board.locked .block { --spot-lip: 4px; }
+html:is([data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .board.locked .block { --spot-ring: 1.5px; }
+.board.locked .block::before { inset: calc(-1 * var(--spot-ring)) calc(-1 * var(--spot-ring)) calc(-1 * (var(--spot-lip) + var(--spot-ring))); }   /* over the lip and edge too */
+.board.locked .task::before { inset: 0 0 -5px; }
+.board.locked .task:is(.done, [data-status='late'])::before { inset: 0; }   /* pressed in: no lip */
+.board.locked .week :is(.day, .day > :not(.block), .block, .block > :not(.block-body), .block-inner > :not(.tasks), .task, .task > :not(.now-line)) { transition: filter .6s ease; }
+/* whole */
+.board.locked.spot .day:not(:has(.now-line, .todo-pins, .todo-strip)),
+.board.locked.spot .day:has(.now-line, .todo-pins, .todo-strip) .block:not(:has(.now-line, .todo-pins)),
+.board.locked.spot .block:not(:has(.now-line)):has(.todo-pins) .task:not(:has(.todo-pins)) { filter: var(--spot-dim); }
+/* piece by piece */
+.board.locked.spot .day:has(.now-line, .todo-pins, .todo-strip)::before,
+.board.locked.spot .block:not(:has(.now-line)):has(.todo-pins)::before,
+.board.locked.spot .block:not(:has(.now-line)) .task:has(.todo-pins)::before { opacity: 1; }
+.board.locked.spot .day:has(.now-line, .todo-pins, .todo-strip) > :not(.block, .todo-strip),
+.board.locked.spot .block:not(:has(.now-line)):has(.todo-pins) > :not(.block-body),
+.board.locked.spot .block:not(:has(.now-line)):has(.todo-pins) .block-inner > :not(.tasks),
+.board.locked.spot .block:not(:has(.now-line)) .task:has(.todo-pins) > :not(.todo-pins) { filter: var(--spot-dim); }
+@media (prefers-reduced-motion: reduce) { .board.locked .week :is(.day, .day > :not(.block), .block, .block > :not(.block-body), .block-inner > :not(.tasks), .task, .task > :not(.now-line)), .board.locked :is(.day, .block, .task)::before { transition: none; } }
 .block-body { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr; transition: grid-template-rows .4s cubic-bezier(.22, 1, .36, 1), opacity .3s ease; }
 .block-body.closed { grid-template-rows: 0fr; opacity: 0; }
 .block-inner { min-width: 0; min-height: 0; overflow: hidden; }   /* min-width 0: a long one-line title shrinks to the block (ellipsis) instead of stretching the card past it */
