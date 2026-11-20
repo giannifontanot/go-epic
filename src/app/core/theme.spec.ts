@@ -1,4 +1,4 @@
-import { THEMES, THEME_BAR, manifestFor, parseTheme } from './theme';
+import { DARK_THEMES, LIGHT_THEMES, THEMES, THEME_BAR, manifestFor, parseTheme } from './theme';
 
 describe('themes', () => {
   it('reads a stored theme, anything unknown being the Epic look', () => {
@@ -16,5 +16,11 @@ describe('themes', () => {
     expect(manifestFor('epic')).toBe('manifest.webmanifest');
     expect(manifestFor('office')).toBe('manifest-office.webmanifest');
     expect(new Set(THEMES.map(manifestFor)).size).toBe(THEMES.length);
+  });
+
+  it('splits the themes into four light and four dark, each once', () => {
+    expect(LIGHT_THEMES.length).toBe(4);
+    expect(DARK_THEMES.length).toBe(4);
+    expect([...LIGHT_THEMES, ...DARK_THEMES].sort()).toEqual([...THEMES].sort());
   });
 });
