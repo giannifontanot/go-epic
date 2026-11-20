@@ -15,8 +15,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Get Go Epic · Plan your week in blocks, live each day one step at a time</title>
-  <meta name="description" content="Go Epic is a free planner app for your phone and computer: plan your week in time blocks, focus on one task at a time, grow streaks, and turn who you want to be into small daily steps. Works offline." />
-  <meta name="keywords" content="Go Epic, weekly planner, time blocking app, habit tracker, streaks, focus mode, life planner, daily routine, planner app free" />
+  <meta name="description" content="Go Epic is a free planner app for your phone and computer: plan your week in time blocks, capture tasks in a second, grow streaks, and turn who you want to be into small daily steps. Works offline." />
+  <meta name="keywords" content="Go Epic, weekly planner, time blocking app, habit tracker, streaks, task capture, life planner, daily routine, planner app free" />
   <link rel="canonical" href="https://go-epic.web.app/get/" />
   <link rel="alternate" hreflang="en" href="https://go-epic.web.app/get/" />
   <link rel="alternate" hreflang="es" href="https://go-epic.web.app/get/?lang=es" />
@@ -31,7 +31,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Go Epic" />
   <meta property="og:title" content="Get Go Epic · Your week, in blocks you can live" />
-  <meta property="og:description" content="Plan your week in time blocks, focus on one task at a time and watch your streaks grow. Free, on phone and desktop, works offline." />
+  <meta property="og:description" content="Plan your week in time blocks, capture tasks in a second and watch your streaks grow. Free, on phone and desktop, works offline." />
   <meta property="og:url" content="https://go-epic.web.app/get/" />
   <meta property="og:image" content="https://go-epic.web.app/get/og-image.png" />
   <meta property="og:image:width" content="1200" />
@@ -41,7 +41,7 @@
   <meta property="og:locale:alternate" content="es_ES" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Get Go Epic · Your week, in blocks you can live" />
-  <meta name="twitter:description" content="Plan your week in time blocks, focus on one task at a time and watch your streaks grow. Free, on phone and desktop." />
+  <meta name="twitter:description" content="Plan your week in time blocks, capture tasks in a second and watch your streaks grow. Free, on phone and desktop." />
   <meta name="twitter:image" content="https://go-epic.web.app/get/og-image.png" />
 
   <script type="application/ld+json">
@@ -51,7 +51,7 @@
     "name": "Go Epic",
     "applicationCategory": "ProductivityApplication",
     "operatingSystem": "Android, iOS, Windows, macOS, ChromeOS, Linux (web app)",
-    "description": "Plan your week in time blocks, focus on one task at a time, track habits with streaks and organise your life from who you want to be down to today's small steps.",
+    "description": "Plan your week in time blocks, capture tasks, track habits with streaks and organise your life from who you want to be down to today's small steps.",
     "url": "https://go-epic.web.app/get/",
     "image": "https://go-epic.web.app/get/og-image.png",
     "inLanguage": ["en", "es"],
@@ -105,6 +105,11 @@
     /* The name, "Go Epic!", in the same size at the top left and on the first slide */
     .wm { margin: 0; font: 900 var(--wm)/1.08 'Cinzel Decorative', Georgia, serif; letter-spacing: .01em; white-space: nowrap; }
     .wm .gold { padding-right: .05em; }
+    /* First slide: the three words as big as the name, in its carved letters; the mission under them */
+    .motto { margin: 0; font: 900 var(--wm)/1.12 'Cinzel Decorative', Georgia, serif; letter-spacing: .01em; color: #101b42; text-wrap: balance; }
+    .motto span { display: inline-block; white-space: nowrap; }
+    .motto b { color: #b8860b; }
+    .mission { color: var(--ink); font-weight: 500; }
     .top .wm { flex: none; }
     .lang { margin-left: auto; display: inline-flex; padding: 2px; border-radius: 999px; background: var(--soft); }
     .lang button { border: 0; background: transparent; min-width: 40px; min-height: 36px; border-radius: 999px; cursor: pointer;
@@ -155,16 +160,15 @@
       transform: translate(-50%, -50%); background: radial-gradient(closest-side, var(--g), transparent 92%); transition: --g 1s ease; pointer-events: none; }
     body[data-slide="0"] { --g: rgba(224, 168, 58, .42); }
     body[data-slide="1"] { --g: rgba(245, 201, 69, .4); }
-    body[data-slide="2"] { --g: rgba(225, 215, 255, .75); }
-    body[data-slide="3"] { --g: rgba(167, 231, 227, .7); }
-    body[data-slide="4"] { --g: rgba(255, 196, 120, .55); }
-    body[data-slide="5"] { --g: rgba(244, 168, 183, .55); }
-    body[data-slide="6"] { --g: rgba(225, 243, 208, .85); }
-    body[data-slide="7"] { --g: rgba(255, 213, 189, .75); }
+    body[data-slide="2"] { --g: rgba(167, 231, 227, .7); }
+    body[data-slide="3"] { --g: rgba(255, 196, 120, .55); }
+    body[data-slide="4"] { --g: rgba(244, 168, 183, .55); }
+    body[data-slide="5"] { --g: rgba(225, 243, 208, .85); }
+    body[data-slide="6"] { --g: rgba(255, 213, 189, .75); }
 
     /* The emblem (first slide) and the phone (the others) share the same spot */
     .emblem, .phone-box { grid-area: 1 / 1; transition: opacity .7s ease, transform .9s var(--spring), visibility 0s; }
-    .emblem { position: relative; width: min(100%, calc(520px * var(--s, .7))); aspect-ratio: 760 / 825; isolation: isolate; }
+    .emblem { position: relative; width: min(100%, calc(600px * var(--s, .7))); aspect-ratio: 760 / 825; isolation: isolate; }
     /* Gianni's emblem stands free on the page (its background is transparent); the shine only touches the emblem itself */
     .emblem .float { position: absolute; inset: 0; }
     .emblem img { width: 100%; height: 100%; object-fit: contain;
@@ -287,46 +291,6 @@
     @keyframes press { from { transform: none; box-shadow: 0 3px 0 rgba(0, 0, 0, .14); } }
     @keyframes gild { 0% { opacity: 0; } 30% { opacity: 1; filter: brightness(1.2); box-shadow: inset 0 0 0 1.5px #e0b33a, 0 0 24px 7px rgba(245, 201, 69, .95); } 100% { opacity: 1; } }
     @keyframes fadein { from { opacity: 0; } }
-
-    /* Focus */
-    .s-focus { --p: .4; }
-    .f-day { margin: 0 2px; font-size: 10.5px; color: #c6cae2; }
-    .f-head { display: flex; justify-content: space-between; align-items: baseline; margin: 2px 2px 0; }
-    .f-head h3 { margin: 0; font: 700 28px/1.1 var(--serif); }
-    .f-head span { font-size: 11px; font-weight: 700; color: #c6cae2; }
-    .f-prog { height: 6px; margin: 8px 2px 11px; border-radius: 999px; background: #2a3563; overflow: hidden; }
-    .f-prog i { display: block; height: 100%; width: 14.3%; border-radius: inherit; background: #76e0d0; transition: width .9s var(--spring); }
-    .f-now { position: relative; padding: 12px 13px 13px; border-radius: 20px; background: #e1d7ff; color: #302746; box-shadow: 0 5px 0 rgba(0, 0, 0, .2);
-      transition: background-color .6s ease; }
-    .f-now .meta { font-size: 9.5px; font-weight: 700; color: rgba(48, 39, 70, .7); }
-    .f-now h4 { margin: 3px 0 0; font: 700 14px/1.2 var(--serif); }
-    .f-bar { position: relative; height: 8px; margin: 10px 0 9px; border-radius: 999px; background: #cdc3ea; overflow: hidden; }
-    .f-bar i { position: absolute; left: 0; top: 0; bottom: 0; width: calc((1 - var(--p)) * 100%); border-radius: inherit; background: #ff3b30; }
-    .f-row { display: flex; justify-content: space-between; align-items: center; }
-    .f-row b { font-size: 12.5px; }
-    .f-row span { padding: 5px 10px; border-radius: 999px; background: rgba(255, 255, 255, .35); color: rgba(48, 39, 70, .4); font-size: 10px; font-weight: 700; }
-    .mark { position: relative; display: inline-flex; margin-top: 9px; padding: 9px 15px; border-radius: 999px; background: #f4a8b7; color: #302746;
-      font-size: 11.5px; font-weight: 800; }
-    .fl { margin-top: 9px; }
-    .fr { display: flex; align-items: center; gap: 8px; margin-top: 6px; padding: 8px 10px; border-radius: 13px; color: #302746; font-size: 11.5px; font-weight: 700;
-      background: var(--tone, #e1d7ff); transition: background-color .5s, color .5s, box-shadow .5s; }
-    .fr .rc { width: 17px; height: 17px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 9px; font-style: normal; font-weight: 900;
-      box-shadow: inset 0 0 0 1.8px currentColor; }
-    .fr .rc u { text-decoration: none; opacity: 0; }
-    .fr .tm { font-weight: 500; font-size: 10.5px; opacity: .65; }
-    .fr small { margin-left: auto; font-size: 9px; font-weight: 800; opacity: .7; }
-    .fr.done, .s-focus.won .fr.cur { background: #d6d6dc; color: #5c5966; box-shadow: none; }
-    .fr.done b, .s-focus.won .fr.cur b { text-decoration: line-through; }
-    .fr.done .rc u, .s-focus.won .fr.cur .rc u { opacity: 1; }
-    .fr.cur { box-shadow: 0 0 0 2px #f4a8b7; }
-    .f-hint { margin-top: 10px; text-align: center; font-size: 9.5px; color: #c6cae2; }
-    /* the story: the time runs out, a tap marks it done, the day's bar grows */
-    .s-focus.won .f-now { background: #fbe9a6; }
-    .s-focus.won .f-prog i { width: 28.6%; }
-    .s-focus.run .mark .tap { animation: tapfx .9s ease 3.95s both; }
-    .s-focus.run .mark { animation: pressbtn .4s ease 4.35s both; }
-    .s-focus.won .f-now { animation: bump .8s ease both; }
-    .s-focus.won .fr.cur .rc u { animation: pop .5s var(--bounce) .2s both; }
 
     /* Canvas */
     .ctb { display: flex; align-items: center; gap: 5px; margin: 0 0 9px; }
@@ -517,22 +481,25 @@
     @keyframes halo { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.9); } }
     @keyframes openApp { 0% { opacity: 0; transform: scale(.12); border-radius: 80px; } 25% { opacity: 1; } 100% { opacity: 1; transform: none; border-radius: 43px; } }
 
-    /* ── Bottom: back, dots, next ────────────────────────────── */
-    .nav { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; max-width: 1200px; margin: 0 auto;
-      padding: 10px max(18px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left)); }
-    html:not(.js) .nav { display: none; }
-    .round { display: grid; place-items: center; width: 48px; height: 48px; flex: none; border: 0; border-radius: 50%; cursor: pointer;
-      background: var(--soft); color: var(--ink); transition: background-color .8s, color .8s, opacity .3s, transform .2s var(--spring); }
-    .round:disabled { opacity: .3; cursor: default; }
-    .round:not(:disabled):active { transform: scale(.92); }
-    .round svg, .next svg { width: 18px; height: 18px; flex: none; }
-    /* Small dots, 40px tap targets: on phones they get their own row above Back / Next */
-    .nav { flex-wrap: wrap; row-gap: 2px; }
-    .dotsnav { display: flex; align-items: center; justify-content: center; order: -1; flex: 1 0 100%; }
+    /* ── Bottom: the dots; left and right: thin arrows (Apple-style) ── */
+    .nav { display: flex; align-items: center; justify-content: center; width: 100%; max-width: 1200px; margin: 0 auto;
+      padding: 6px max(18px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left)); }
+    html:not(.js) .nav, html:not(.js) .edge { display: none; }
+    .dotsnav { display: flex; align-items: center; justify-content: center; }
     .dotsnav button { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 0; background: transparent; cursor: pointer; }
     .dotsnav button::before { content: ''; width: 7px; height: 7px; border-radius: 999px; background: var(--dot); transition: width .4s var(--spring), background-color .4s; }
     .dotsnav button[aria-current="step"]::before { width: 18px; background: var(--ink); }
-    .next { min-height: 48px; min-width: 128px; white-space: nowrap; padding: 0 20px 0 24px; border: 0; cursor: pointer; font-size: 16px; }
+    /* The arrows sit on the screen's edges, a thin chevron each; the first slide has no Back, the last no Next.
+       Height (--edge-y, set by fit()): on a phone 3/4 down the image, where the thumb already is; with a mouse its middle. */
+    .edge { position: fixed; top: var(--edge-y, 72%); z-index: 30; display: grid; place-items: center; width: 40px; height: 88px; padding: 0; border: 0;
+      border-radius: 20px; background: transparent; color: var(--ink); opacity: .45; cursor: pointer; transform: translateY(-50%);
+      transition: opacity .3s, visibility 0s, background-color .3s, top .5s var(--spring); }
+    .edge.prev { left: max(2px, env(safe-area-inset-left)); }
+    .edge.next { right: max(2px, env(safe-area-inset-right)); }
+    .edge svg { width: 16px; height: 40px; }
+    .edge:hover, .edge:focus-visible { opacity: .9; background: rgba(0, 0, 0, .04); }
+    .edge:active { opacity: 1; }
+    .edge[hidden] { display: grid; visibility: hidden; opacity: 0; transition: opacity .3s, visibility 0s linear .3s; }
     .toast { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom)); z-index: 40; max-width: min(92vw, 420px);
       padding: 13px 20px; border-radius: 16px; background: rgba(29, 29, 31, .92); color: #fff; font-size: 15px; text-align: center;
       transform: translate(-50%, 16px); opacity: 0; pointer-events: none; transition: opacity .3s, transform .4s var(--spring);
@@ -540,13 +507,15 @@
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
     @media (min-width: 720px) {
-      .nav { flex-wrap: nowrap; gap: 18px; padding-top: 14px; }
-      .dotsnav { order: 0; flex: none; }
+      .nav { padding-top: 10px; }
       .dotsnav button { width: 44px; height: 44px; }
+      .edge { width: 56px; height: 112px; }
+      .edge.prev { left: max(10px, env(safe-area-inset-left)); }
+      .edge.next { right: max(10px, env(safe-area-inset-right)); }
+      .edge svg { width: 20px; height: 52px; }
     }
-    /* 320px phones: the eight 40px dots may use the side padding too */
-    @media (max-width: 359px) { .dotsnav { margin-inline: -18px; } }
-    @media (max-width: 719px) { .toast { bottom: calc(128px + env(safe-area-inset-bottom)); } }
+    /* phones: the phone and the emblem leave the edges to the arrows */
+    @media (max-width: 879px) { .device { padding-inline: 20px; } }
     /* Side by side: the words left, the phone right */
     @media (min-width: 880px) {
       .stage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .9fr); align-items: center; gap: 48px; padding: 0 48px; }
@@ -558,7 +527,7 @@
       h2 { font-size: clamp(44px, 5.2vw, 72px); }
       .lead { font-size: clamp(19px, 1.7vw, 22px); }
     }
-    /* the big name needs the room on narrow phones: the first and last slides have their own Download button */
+    /* the big name needs the room on narrow phones: the last slide has its own Download button */
     @media (max-width: 389px) { .top .pill.small { display: none; } }
     @media (max-height: 760px) and (max-width: 879px) {
       .slide .fine, .slide .steps, .slide .swatches { display: none; }
@@ -584,40 +553,31 @@
   <main class="stage" id="tour" aria-roledescription="carousel" aria-label="Go Epic tour">
     <div class="copy">
       <div class="slides">
-        <section class="slide on" aria-roledescription="slide" aria-label="1 / 8">
-          <p class="kicker gold" data-i="k0">Plan. Focus. Grow.</p>
-          <h1 class="wm" translate="no"><span class="go">Go</span> <span class="gold">Epic!</span></h1>
-          <p class="lead" data-i="l0">Plan your week in blocks. Live each day one step at a time.</p>
-          <!-- placeholder download link: set GET_GO_EPIC_URL in the script at the bottom -->
-          <a class="pill big js-get" href="#get-go-epic-link-coming-soon" data-i="get_long">Download Go Epic, it's free</a>
-          <p class="fine" data-i="fine0">Free · Phone &amp; desktop · Works offline</p>
+        <section class="slide on" aria-roledescription="slide" aria-label="1 / 7">
+          <h1 class="motto" data-i="k0"><span>Plan<b>.</b></span> <span>Focus<b>.</b></span> <span>Grow<b>.</b></span></h1>
+          <p class="lead mission" data-i="l0">Our mission: to make good use of the time we have.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="2 / 8">
+        <section class="slide" aria-roledescription="slide" aria-label="2 / 7">
           <p class="kicker" style="--k:#c4302b" data-i="k1">Week board</p>
           <h2 data-i="h1">Every hour has a home.</h2>
           <p class="lead" data-i="l1">Give each part of your day a block. A red line shows where you are, and one tap marks it done, in gold.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="3 / 8">
-          <p class="kicker" style="--k:#7c5cd6" data-i="k2">Focus</p>
-          <h2 data-i="h2">One thing. Right now.</h2>
-          <p class="lead" data-i="l2">See the task that is running and the time it has left. Nothing else to decide.</p>
-        </section>
-        <section class="slide" aria-roledescription="slide" aria-label="4 / 8">
+        <section class="slide" aria-roledescription="slide" aria-label="3 / 7">
           <p class="kicker" style="--k:#0f8f80" data-i="k3">Canvas</p>
           <h2 data-i="h3">Start with who you want to be.</h2>
           <p class="lead" data-i="l3">Area, Epic, Feature, Story, Activity: from who you are down to today's small step.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="5 / 8">
+        <section class="slide" aria-roledescription="slide" aria-label="4 / 7">
           <p class="kicker" style="--k:#c47a12" data-i="k4">Progress</p>
           <h2 data-i="h4">Streaks that keep you going.</h2>
           <p class="lead" data-i="l4">Every activity becomes a habit with its own streak. A skipped day pauses it instead of breaking it.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="6 / 8">
+        <section class="slide" aria-roledescription="slide" aria-label="5 / 7">
           <p class="kicker" style="--k:#c2456b" data-i="k5">Capture</p>
           <h2 data-i="h5">Catch it before it slips away.</h2>
           <p class="lead" data-i="l5">Type it and press Enter. It lands on the right day and hour of your week.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="7 / 8">
+        <section class="slide" aria-roledescription="slide" aria-label="6 / 7">
           <p class="kicker" style="--k:#5f7d3a" data-i="k6">Themes</p>
           <h2 data-i="h6">Eight looks. One you.</h2>
           <p class="lead" data-i="l6">Bright for home, quiet greys for the office. The whole app follows.</p>
@@ -626,7 +586,7 @@
             <i style="--c:#1a1918"></i><i style="--c:#fff1e5"></i><i style="--c:#c6c9cd"></i><i style="--c:#2b2e33"></i>
           </div>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="8 / 8">
+        <section class="slide" aria-roledescription="slide" aria-label="7 / 7">
           <p class="kicker gold" data-i="k7">Ready?</p>
           <h2 data-i="h7">Your epic week starts now.</h2>
           <p class="lead" data-i="l7">Sign in with Google and add it to your home screen. Free, and it works offline.</p>
@@ -681,35 +641,8 @@
             <span class="fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2.2"/></svg></span>
           </div>
 
-          <!-- 3 · Focus: the minutes run out, a tap marks it done, the day's bar grows -->
-          <div class="screen s-focus" data-n="2">
-            <span class="clock">6:30</span><span class="batt"></span>
-            <div class="live">
-              <p class="f-day"><span data-i="p_fri">Friday</span> · <span class="fclock">06:30</span></p>
-              <div class="f-head"><h3 data-i="p_focus">Focus</h3><span class="fcount" data-i="p_1of7">1 of 7 done</span></div>
-              <div class="f-prog"><i></i></div>
-              <div class="f-now">
-                <p class="meta" data-i="p_nowmeta">Now · Dawn · 06:20–06:45</p>
-                <h4 data-i="p_breakfast">Breakfast with family</h4>
-                <div class="f-bar"><i></i></div>
-                <div class="f-row"><b class="fleft" data-i="p_left15">15 min left</b><span data-i="p_todo">To do</span></div>
-                <span class="mark"><span data-i="p_mark">✓ Mark as done</span><i class="tap" style="left:50%;top:50%"></i></span>
-              </div>
-              <div class="fl">
-                <div class="fr done"><i class="rc"><u>✓</u></i><span class="tm">06:00</span><b data-i="p_pray">Read 1 verse and pray</b><small>10 min</small></div>
-                <div class="fr" style="--tone:#e1f3d0"><i class="rc"><u>✓</u></i><span class="tm">06:10</span><b data-i="p_walk">Walk 10 min</b><small>10 min</small></div>
-                <div class="fr cur" style="--tone:#e1d7ff"><i class="rc"><u>✓</u></i><span class="tm">06:20</span><b data-i="p_breakfast">Breakfast with family</b><small>25 min</small></div>
-                <div class="fr" style="--tone:#ffd5bd"><i class="rc"><u>✓</u></i><span class="tm">08:00</span><b data-i="p_report">Write the report</b><small>60 min</small></div>
-                <div class="fr" style="--tone:#a7e7e3"><i class="rc"><u>✓</u></i><span class="tm">09:00</span><b data-i="p_study">Study 20 min</b><small>20 min</small></div>
-                <div class="fr" style="--tone:#e1f3d0"><i class="rc"><u>✓</u></i><span class="tm">19:00</span><b data-i="p_stretch">Stretch 5 min</b><small>5 min</small></div>
-              </div>
-              <p class="f-hint" data-i="p_hint">Tap: done. Long press: choose a state.</p>
-            </div>
-            <span class="fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2.2"/></svg></span>
-          </div>
-
-          <!-- 4 · Canvas: an Activity is lifted out of Free Space and dropped into its Story -->
-          <div class="screen s-canvas" data-n="3">
+          <!-- 3 · Canvas: an Activity is lifted out of Free Space and dropped into its Story -->
+          <div class="screen s-canvas" data-n="2">
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="live">
               <div class="hdr"><h3>Canvas <span class="spk">✦</span><i class="chev"></i></h3><span class="bulb">💡</span></div>
@@ -737,8 +670,8 @@
             <span class="fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2.2"/></svg></span>
           </div>
 
-          <!-- 5 · Progress: the days fill in, then today's dot fills and every streak grows by one -->
-          <div class="screen s-prog" data-n="4">
+          <!-- 4 · Progress: the days fill in, then today's dot fills and every streak grows by one -->
+          <div class="screen s-prog" data-n="3">
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="live">
               <div class="hdr"><h3><span data-i="p_progress">Progress</span><i class="chev"></i></h3><span class="bulb">💡</span></div>
@@ -758,8 +691,8 @@
             <span class="fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2.2"/></svg></span>
           </div>
 
-          <!-- 6 · Capture: a task is typed and added; another is ticked and moves to Finished -->
-          <div class="screen s-cap" data-n="5">
+          <!-- 5 · Capture: a task is typed and added; another is ticked and moves to Finished -->
+          <div class="screen s-cap" data-n="4">
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="live">
               <div class="cpan">
@@ -777,8 +710,8 @@
             </div>
           </div>
 
-          <!-- 7 · Themes -->
-          <div class="screen s-themes" data-n="6">
+          <!-- 6 · Themes -->
+          <div class="screen s-themes" data-n="5">
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="hdr"><h3><span data-i="p_wb">Week board</span><i class="chev"></i></h3><span class="bulb">💡</span></div>
             <div class="dayc">
@@ -805,8 +738,8 @@
             </div>
           </div>
 
-          <!-- 8 · Home screen: the app lands, a tap, and it opens -->
-          <div class="screen s-home" data-n="7">
+          <!-- 7 · Home screen: the app lands, a tap, and it opens -->
+          <div class="screen s-home" data-n="6">
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="live">
               <div class="apps">
@@ -838,19 +771,19 @@
     </div>
   </main>
 
+  <button type="button" class="edge prev" aria-label="Back" hidden>
+    <svg viewBox="0 0 16 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L3 20l10 18" /></svg>
+  </button>
+  <button type="button" class="edge next" aria-label="Next">
+    <svg viewBox="0 0 16 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 2l10 18L3 38" /></svg>
+  </button>
   <nav class="nav" aria-label="Tour">
-    <button type="button" class="round back" aria-label="Back" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
-    </button>
     <div class="dotsnav">
       <button type="button" data-go="0" aria-current="step"></button><button type="button" data-go="1"></button>
       <button type="button" data-go="2"></button><button type="button" data-go="3"></button>
       <button type="button" data-go="4"></button><button type="button" data-go="5"></button>
-      <button type="button" data-go="6"></button><button type="button" data-go="7"></button>
+      <button type="button" data-go="6"></button>
     </div>
-    <button type="button" class="pill next"><span class="next-l">Next</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
-    </button>
   </nav>
 
   <p class="sr" aria-live="polite" id="announce"></p>
@@ -863,12 +796,10 @@
     var GET_GO_EPIC_URL = '#get-go-epic-link-coming-soon';
 
     var ES = {
-      get_short: 'Descargar', get_long: 'Descarga Go Epic, es gratis', get_long2: 'Descarga Go Epic, es gratis',
-      k0: 'Planea. Enfócate. Crece.', l0: 'Planea tu semana en bloques. Vive cada día paso a paso.',
-      fine0: 'Gratis · Teléfono y computadora · Funciona sin internet',
+      get_short: 'Descargar', get_long2: 'Descarga Go Epic, es gratis',
+      k0: '<span>Planea<b>.</b></span> <span>Enfócate<b>.</b></span> <span>Crece<b>.</b></span>', l0: 'Nuestra misión: usar bien el tiempo que tenemos.',
       k1: 'Tablero semanal', h1: 'Cada hora tiene su lugar.',
       l1: 'Dale a cada parte de tu día su bloque. Una línea roja te dice dónde estás, y un toque lo marca hecho, en oro.',
-      k2: 'Enfoque', h2: 'Una cosa. Ahora.', l2: 'Ve la tarea en curso y el tiempo que le queda. Nada más que decidir.',
       k3: 'Canvas', h3: 'Empieza por quién quieres ser.', l3: 'Área, Epic, Feature, Story, Actividad: de quién eres al pequeño paso de hoy.',
       k4: 'Progreso', h4: 'Rachas que te impulsan.', l4: 'Cada actividad se vuelve un hábito con su propia racha. Un día omitido la pausa en vez de romperla.',
       k5: 'Captura', h5: 'Atrápalo antes de que se escape.', l5: 'Escríbelo y presiona Enter. Cae en el día y la hora correctos de tu semana.',
@@ -878,9 +809,9 @@
       p_wb: 'Semana', p_d1: 'Lun', p_d2: 'Mar', p_d3: 'Mié', p_d4: 'Jue', p_d5: 'Vie', p_d6: 'Sáb', p_d7: 'Dom', p_fri: 'Viernes',
       p_dawn: 'Amanecer', p_full: '✓ Lleno', p_pray: 'Leer 1 versículo y orar', p_walk: 'Caminar 10 min', p_dentist: 'Llamar al dentista',
       p_breakfast: 'Desayunar en familia', p_left15: 'quedan 15 min', p_deep: 'Trabajo profundo', p_free: '10 min libres',
-      p_report: 'Escribir el informe', p_study: 'Estudiar 20 min', p_focus: 'Enfoque', p_1of7: '1 de 7 hechos',
-      p_nowmeta: 'Ahora · Amanecer · 06:20–06:45', p_todo: 'Pendiente', p_mark: '✓ Marcar como hecho', p_stretch: 'Estirarme 5 min',
-      p_hint: 'Toca: hecho. Mantén presionado: elige un estado.', p_discard: 'Descartar', p_save: 'Guardar', p_ws: 'Espacio del Epic',
+      p_report: 'Escribir el informe', p_study: 'Estudiar 20 min', 
+      p_stretch: 'Estirarme 5 min',
+      p_discard: 'Descartar', p_save: 'Guardar', p_ws: 'Espacio del Epic',
       p_addf: '+ Feature', p_epic1: 'Soy fuerte y saludable', p_temple: 'El Templo', p_crumb: 'El Templo / Soy fuerte y saludable',
       p_feat: 'Me muevo cada día y como sano',
       p_story: 'Como persona activa, quiero caminar cada mañana después del café, para tener energía todo el día.',
@@ -891,15 +822,15 @@
       p_today: 'Hoy', p_gym0: 'Gimnasio', p_tuth: 'Ma Ju · 07:00', p_bill: 'Pagar la luz', p_mon16: 'lun, 16 nov', p_today0640: 'Hoy · 06:40'
     };
     var UI = {
-      en: { back: 'Back', next: 'Next', again: 'Start over', step: 'Slide %n of %t', go: 'Go to slide %n', tour: 'Go Epic tour', nav: 'Tour',
-            soon: 'The download link is coming soon. Thanks for your interest!', left: '{n} min left', done: '{d} of 7 done' },
-      es: { back: 'Atrás', next: 'Siguiente', again: 'Otra vez', step: 'Paso %n de %t', go: 'Ir al paso %n', tour: 'Recorrido por Go Epic', nav: 'Recorrido',
-            soon: 'El enlace de descarga llega muy pronto. ¡Gracias por tu interés!', left: 'quedan {n} min', done: '{d} de 7 hechos' }
+      en: { back: 'Back', next: 'Next', step: 'Slide %n of %t', go: 'Go to slide %n', tour: 'Go Epic tour', nav: 'Tour',
+            soon: 'The download link is coming soon. Thanks for your interest!', left: '{n} min left' },
+      es: { back: 'Atrás', next: 'Siguiente', step: 'Paso %n de %t', go: 'Ir al paso %n', tour: 'Recorrido por Go Epic', nav: 'Recorrido',
+            soon: 'El enlace de descarga llega muy pronto. ¡Gracias por tu interés!', left: 'quedan {n} min' }
     };
     var META = {
       en: { title: document.title, desc: document.querySelector('meta[name="description"]').content },
       es: { title: 'Get Go Epic · Planea tu semana en bloques y vive cada día paso a paso',
-            desc: 'Go Epic es una app gratis para tu teléfono y tu computadora: planea tu semana en bloques de tiempo, enfócate en una tarea a la vez, crea rachas y convierte quién quieres ser en pequeños pasos diarios. Funciona sin internet.' }
+            desc: 'Go Epic es una app gratis para tu teléfono y tu computadora: planea tu semana en bloques de tiempo, anota tareas en un segundo, crea rachas y convierte quién quieres ser en pequeños pasos diarios. Funciona sin internet.' }
     };
 
     document.documentElement.classList.add('js');
@@ -908,7 +839,7 @@
     var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
     var screens = Array.prototype.slice.call(document.querySelectorAll('.screen'));
     var dots = Array.prototype.slice.call(document.querySelectorAll('.dotsnav button'));
-    var backBtn = document.querySelector('.back'), nextBtn = document.querySelector('.next'), nextLabel = document.querySelector('.next-l');
+    var backBtn = document.querySelector('.edge.prev'), nextBtn = document.querySelector('.edge.next');
     var announce = document.getElementById('announce');
     var N = slides.length, cur = -1, lang = 'en';
 
@@ -921,7 +852,7 @@
     function labels() {
       var t = UI[lang];
       backBtn.setAttribute('aria-label', t.back);
-      nextLabel.textContent = cur === N - 1 ? t.again : t.next;
+      nextBtn.setAttribute('aria-label', t.next);
       dots.forEach(function (d, i) { d.setAttribute('aria-label', fmt(t.go, i)); });
       slides.forEach(function (s, i) { s.setAttribute('aria-label', fmt(t.step, i)); });
       document.getElementById('tour').setAttribute('aria-label', t.tour);
@@ -967,28 +898,19 @@
         q(s, '.left').textContent = UI[lang].left.replace('{n}', 25 - m);
         q(s, '.pin').classList.toggle('ring', m >= 20);
       } },
-      2: { period: 8000, still: 7000, tick: function (s, t) {   // Focus: 15 → 5 min left, then Mark as done
-        var p = .4 + .4 * clamp(t / 4300), m = Math.round(25 * p), won = t > 4450;
-        s.style.setProperty('--p', p.toFixed(4));
-        s.classList.toggle('won', won);
-        q(s, '.fleft').textContent = UI[lang].left.replace('{n}', 25 - m);
-        q(s, '.fcount').textContent = UI[lang].done.replace('{d}', won ? 2 : 1);
-        q(s, '.fclock').textContent = hhmm(380 + m);
-        q(s, '.clock').textContent = hhmm(380 + m).replace(/^0/, '');
-      } },
-      3: { period: 7500, start: canvasStart },
-      4: { period: 6500, still: 6000, tick: function (s, t) {   // Progress: today's dot fills, the streak grows by one
+      2: { period: 7500, start: canvasStart },
+      3: { period: 6500, still: 6000, tick: function (s, t) {   // Progress: today's dot fills, the streak grows by one
         s.querySelectorAll('.hb[data-hit]').forEach(function (h, i) {
           var hit = t > 2300 + i * 300, n = h.querySelector('.n');
           h.classList.toggle('hit', hit);
           if (n) n.textContent = +n.dataset.base + (hit ? 1 : 0);
         });
       } },
-      5: { period: 8000, tick: function (s, t) {   // Capture: 3 → 4 current when added, then 1 finished
+      4: { period: 8000, tick: function (s, t) {   // Capture: 3 → 4 current when added, then 1 finished
         q(s, '.ncur').textContent = t < 2350 ? 3 : t < 5350 ? 4 : 3;
         q(s, '.nfin').textContent = t < 5350 ? 0 : 1;
       } },
-      7: { period: 6500 }
+      6: { period: 6500 }
     };
     var loopS = null, loopT0 = 0, loopRaf = 0, anims = [];
     function stopAnims() { anims.forEach(function (a) { a.cancel(); }); anims = []; }
@@ -1042,12 +964,16 @@
       play(shown);
       body.dataset.slide = n;
       dots.forEach(function (d, i) { if (i === n) d.setAttribute('aria-current', 'step'); else d.removeAttribute('aria-current'); });
-      backBtn.disabled = n === 0;
+      backBtn.hidden = n === 0;
+      nextBtn.hidden = n === N - 1;
+      // an arrow that hides must not take the keyboard focus with it
+      if (backBtn.hidden && document.activeElement === backBtn) nextBtn.focus();
+      if (nextBtn.hidden && document.activeElement === nextBtn) backBtn.focus();
       labels();
       announce.textContent = fmt(UI[lang].step, n);
     }
 
-    nextBtn.addEventListener('click', function () { show(cur === N - 1 ? 0 : cur + 1); });
+    nextBtn.addEventListener('click', function () { show(cur + 1); });
     backBtn.addEventListener('click', function () { show(cur - 1); });
     dots.forEach(function (d) { d.addEventListener('click', function () { show(+d.dataset.go); }); });
     document.addEventListener('keydown', function (e) {
@@ -1072,12 +998,24 @@
     // The phone and the emblem take the room the words leave
     var device = document.querySelector('.device');
     function fit() {
-      var w = device.clientWidth, h = device.clientHeight, cs = getComputedStyle(device);
+      var cs = getComputedStyle(device), w = device.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), h = device.clientHeight;
       h -= parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
       if (!w || h <= 0) return;
       var s = Math.max(.3, Math.min(w / 320, h / 660, 1.45));
       device.style.setProperty('--s', s.toFixed(3));
+      place();
     }
+    // The arrows: 3/4 down the image on touch screens and narrow windows (the thumb's reach), its middle with a mouse
+    var low = matchMedia('(pointer: coarse), (max-width: 879px)');
+    function place() {
+      var r = device.getBoundingClientRect(), cs = getComputedStyle(device), pt = parseFloat(cs.paddingTop), pb = parseFloat(cs.paddingBottom);
+      if (!r.height) return;
+      var y = r.top + pt + (r.height - pt - pb) * (low.matches ? .75 : .5);
+      y = Math.max(70, Math.min(innerHeight - 70, y));
+      document.documentElement.style.setProperty('--edge-y', Math.round(y) + 'px');
+    }
+    addEventListener('resize', place);
+    addEventListener('scroll', place, { passive: true });
     if ('ResizeObserver' in window) new ResizeObserver(fit).observe(device); else addEventListener('resize', fit);
     fit();
 
