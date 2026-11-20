@@ -8,7 +8,6 @@ import { CaptureUi } from './pages/capture/capture-ui';
 import { ActionMenu } from './shared/action-menu';
 import { ThemeFan } from './shared/theme-fan';
 import { LookStack } from './shared/look-stack';
-import { UndoToast } from './shared/undo';
 import { AskWindow } from './shared/ask';
 import { Settings } from './pages/settings/settings';
 import { openDialog, warmUpWindows } from './core/dialog';
@@ -22,7 +21,7 @@ import { WeekStore } from './core/week.store';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, CapturePanel, Settings, ActionMenu, ThemeFan, TitleFan, AskWindow, LookStack, UndoToast],
+  imports: [RouterOutlet, RouterLink, CapturePanel, Settings, ActionMenu, ThemeFan, TitleFan, AskWindow, LookStack],
   template: `
     @if (auth.user()) {
       <app-capture-panel />
@@ -32,7 +31,6 @@ import { WeekStore } from './core/week.store';
       <!-- edit mode (Gianni): Aa, AV, Themes and px stack at the bottom right above a round ✓ Finish -->
       <app-look-stack />
       <!-- a confirmed delete waits 5 s with a Cancel (Gianni) -->
-      <app-undo-toast />
       <!-- the themes fan out of the edit bar's Themes button; drawn here, outside the page (a grey theme's filter would move and grey them) -->
       <app-theme-fan />
       <app-title-fan />

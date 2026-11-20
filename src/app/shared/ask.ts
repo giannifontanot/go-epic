@@ -1,6 +1,17 @@
-import { Component, ElementRef, Injectable, effect, inject, signal, untracked, viewChild } from '@angular/core';
+import { Component, ElementRef, Injectable, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../core/dialog';
 import { I18n } from '../core/i18n';
+import { UNDO_SECONDS, Undo } from './undo';
+
+/** A delete that waits for a Cancel once it is answered (Undo): the window then shows its countdown in place. */
+export interface AskCountdown {
+  /** What the window says while it counts (e.g. Deleting "Run"…). */
+  message: string;
+  /** What is dimmed where it shows meanwhile. */
+  ids: string[];
+  /** Deletes it, when the time is up. */
+  commit: () => void;
+}
 
 /** One question for the user: its text, the answer button's words and whether that answer destroys something. */
 export interface AskRequest {
@@ -11,6 +22,12 @@ export interface AskRequest {
   danger?: boolean;
   /** The cancel button's words (default Cancel). */
   cancel?: string;
+  /**
+   * Gianni: a second chance after a delete, in the same window. Answered yes, the window stays where it is and turns
+   * into the countdown (the seconds left, Cancel, a red line shrinking along its foot); only when the time is up is
+   * `commit` run.
+   */
+  countdown?: AskCountdown;
 }
 
 interface Pending extends AskRequest { answer: (yes: boolean) => void; }
@@ -46,8 +63,19 @@ export class Ask {
   selector: 'app-ask-window',
   template: `
     <dialog #dialog class="ask-window" role="alertdialog" aria-modal="true" aria-describedby="ask-text"
-            (click)="onBackdrop($event)" (close)="settle(false)">
-      @if (shown(); as q) {
+            (click)="onBackdrop($event)" (close)="closed()">
+      @if (counting(); as c) {
+        <p id="ask-text">{{ c.message }}</p>
+        <p class="ask-count" role="timer" aria-live="off">
+          <span class="ask-sec">{{ undo.left() }}</span>
+          <span>{{ i18n.t(undo.left() === 1 ? 'undo.second' : 'undo.seconds') }}</span>
+        </p>
+        <div class="ask-actions">
+          <button #undoCancel type="button" class="ask-ok undo-keep" (click)="keep()">{{ i18n.t('task.cancel') }}</button>
+          <button type="button" class="ask-cancel undo-now" (click)="undo.flush()">{{ i18n.t('undo.now') }}</button>
+        </div>
+        <span class="ask-timer" aria-hidden="true"><i [style.--secs]="seconds + 's'" [style.--frac]="undo.left() / seconds"></i></span>
+      } @else if (shown(); as q) {
         <p id="ask-text">{{ q.message }}</p>
         <div class="ask-actions">
           @if (q.ok) {
@@ -67,8 +95,34 @@ export class AskWindow {
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
   /** What the window shows; kept while it shrinks away after an answer. */
   protected readonly shown = signal<AskRequest | null>(null);
+  protected readonly undo = inject(Undo);
+  protected readonly seconds = UNDO_SECONDS;
+  private readonly undoCancel = viewChild<ElementRef<HTMLButtonElement>>('undoCancel');
+  /** The countdown this window started, while it is still waiting (Cancel, Delete now or the time up end it). */
+  private readonly started = signal<AskCountdown | null>(null);
+  protected readonly counting = computed(() => {
+    const c = this.started();
+    const p = this.undo.pending();
+    return c && p && p.commit === c.commit ? c : null;
+  });
 
   constructor() {
+    // the countdown over (deleted, cancelled, or replaced): the window goes
+    effect(() => {
+      if (!this.started() || this.counting()) return;
+      untracked(() => {
+        this.started.set(null);
+        if (this.asks.current()) return;                    // a new question took the window meanwhile
+        const d = this.dialog().nativeElement;
+        if (!d.open) return;
+        if (typeof d.showModal === 'function') void closeDialog(d); else d.removeAttribute('open');
+      });
+    });
+    // the Cancel takes the focus as the window turns into the countdown (the answer button it had is gone)
+    effect(() => {
+      const b = this.undoCancel();
+      if (b) untracked(() => b.nativeElement.focus({ preventScroll: true }));
+    });
     effect(() => {
       const q = this.asks.current();
       if (!q) return;
@@ -83,9 +137,26 @@ export class AskWindow {
   }
 
   protected answer(yes: boolean): void {
+    const countdown = yes ? this.asks.current()?.countdown : undefined;
     this.settle(yes);
+    if (countdown) {                                         // the same window, in the same place, now counts down
+      this.undo.later(countdown.message, countdown.ids, countdown.commit);
+      this.started.set(countdown);
+      return;
+    }
     const d = this.dialog().nativeElement;
     if (typeof d.showModal === 'function') void closeDialog(d); else d.removeAttribute('open');
+  }
+
+  /** Cancel during the countdown: nothing is deleted. */
+  protected keep(): void {
+    this.undo.cancel();
+  }
+
+  /** The window closed by itself (Esc): during a countdown that is a Cancel; otherwise the question's no. */
+  protected closed(): void {
+    if (this.counting()) { this.started.set(null); this.undo.cancel(); return; }
+    this.settle(false);
   }
 
   /** Gives the answer to whoever asked (once): the window closing by Esc counts as no. */
@@ -97,6 +168,7 @@ export class AskWindow {
   }
 
   protected onBackdrop(event: MouseEvent): void {
+    if (this.counting()) return;                             // during the countdown only its own buttons answer
     if (isBackdropClick(event, this.dialog().nativeElement)) this.answer(false);
   }
 }

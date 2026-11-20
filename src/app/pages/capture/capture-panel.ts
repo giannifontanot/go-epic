@@ -1,5 +1,5 @@
 import { Ask } from '../../shared/ask';
-import { Undo, UndoToast } from '../../shared/undo';
+import { Undo } from '../../shared/undo';
 import { Component, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
@@ -88,13 +88,12 @@ import { TodoDialog, TodoSave } from './todo-dialog';
       }
       </div>
       <!-- inside the panel: the App's note would sit under this modal window, out of reach (Undo) -->
-      <app-undo-toast place="panel" />
     </dialog>
     @if (editingTodo(); as todo) {
       <app-todo-dialog [todo]="todo" (save)="saveTodo($event)" (closed)="editingTodo.set(null)" />
     }
   `,
-  imports: [TodoDialog, UndoToast],
+  imports: [TodoDialog],
 })
 export class CapturePanel {
   protected readonly i18n = inject(I18n);
@@ -235,7 +234,7 @@ export class CapturePanel {
 
   protected async remove(todo: Todo): Promise<void> {
     const message = this.i18n.t('week.confirmDeleteTask', { task: todo.title });
-    if (!(await this.asks.ask({ message, ok: this.i18n.t('task.delete'), danger: true }))) return;
-    this.undo.later(this.i18n.t('undo.deleting', { name: todo.title }), [todo.id], () => this.todos.remove(todo.id));
+    await this.asks.ask({ message, ok: this.i18n.t('task.delete'), danger: true,
+      countdown: { message: this.i18n.t('undo.deleting', { name: todo.title }), ids: [todo.id], commit: () => this.todos.remove(todo.id) } });
   }
 }
