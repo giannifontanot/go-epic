@@ -57,7 +57,14 @@ export class TitleFan {
           this.from = anchor;
           anchor.setAttribute('aria-expanded', 'true');
           this.shown.set(true);
-          afterNextRender(() => { this.place(); this.fly(true); }, { injector: this.injector });
+          afterNextRender(() => {
+            this.place();
+            this.fly(true);
+            // the keyboard goes into the menu (the App draws it before the page, so Tab would not reach it): the page
+            // you are on, else the first
+            const tiles = this.tiles().map((t) => t.nativeElement);
+            (tiles.find((t) => t.classList.contains('on')) ?? tiles[0])?.focus({ preventScroll: true });
+          }, { injector: this.injector });
         } else if (!anchor && this.shown()) {
           this.hide();
         }
