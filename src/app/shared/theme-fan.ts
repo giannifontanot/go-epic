@@ -15,8 +15,8 @@ export class ThemePicker {
 }
 
 /**
- * The themes (Gianni): the edit bar's Themes button fans the eight themes out of it into two straight columns of
- * four square tiles (the dark themes on the left, the light ones on the right, each row one family; they never lean), each a little picture of the theme in its own colours, which never change
+ * The themes (Gianni): the edit bar's Themes button fans the ten themes out of it into two straight columns of
+ * five square tiles (the dark themes on the left, the light ones on the right, each row one family; they never lean), each a little picture of the theme in its own colours, which never change
  * with the theme that is on; a tap on a tile puts that theme on at once (the fan stays open, so themes can be
  * compared); a tap outside, Esc or the button again draws them back into it. Under reduced motion they simply appear
  * and go. Drawn by the App, outside the page (a grey theme's filter on the page would move and grey the tiles), under
