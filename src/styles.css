@@ -1134,6 +1134,13 @@ html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(h2, h3, .bloc
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Inter, 'Segoe UI', Roboto, Arial, sans-serif; letter-spacing: -.01em; }
 html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(h1, .day-head h2) { font-family: 'Cinzel Decorative', Georgia, serif; font-weight: 900; letter-spacing: .01em; color: var(--title-ink); }
 html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(.board-top h1, .focus-top h1) { font-size: 28px; }
+/* the page titles (Week, Canvas, Progress, Focus) and the day names in the wordmark's gold, as on the Get Go Epic page (Gianni):
+   Light the page's deep gold gradient, darkened to stay readable on the light days (at least 3.8:1), Dark a bright gold */
+html[data-theme='goepiclight'] { --title-ink: #8a5a12; --title-gold: linear-gradient(100deg, #9a6f0c, #7d5210); --day-gold: #8a5a12; }
+html[data-theme='goepicdark'] { --title-gold: linear-gradient(100deg, #f5d77a, #e2b84a 55%, #c9a227); --day-gold: #f0cf6e; }
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(h1:not(:has(.title-btn)), h1 .title-btn, h1 .title-btn:hover, .title-chev, .day-head h2) {
+  background: var(--title-gold); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .day-tabs button:not([aria-selected='true']) { color: var(--day-gold); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepiclight'], [data-theme='goepicdark'])[data-red-line] { --now: #e0463b; --now-ink: #fff; }     /* Ajustes › red line */
 html[data-theme='graphite'][data-red-line] { --now: #d0564c; }
 
