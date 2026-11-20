@@ -16,6 +16,7 @@ import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core
 import { STATUSES, Status, isFinished } from '../../core/status.model';
 import { Todo, allDayTodos, dayOverview, overdueTodos, pastDueTodos, pinTodos, todosForDate, weekDate } from '../../core/todo.model';
 import { TodoDialog, TodoSave } from '../capture/todo-dialog';
+import { ThemeFan } from '../../shared/theme-fan';
 import { TodoStore } from '../../core/todo.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
 import { Transfer, TransferDialog } from './transfer-dialog';
@@ -76,7 +77,7 @@ function readFolded(): Set<string> {
 
 @Component({
   selector: 'app-week-board',
-  imports: [TaskDialog, TransferDialog, TodoDialog, NgTemplateOutlet],
+  imports: [TaskDialog, TransferDialog, TodoDialog, NgTemplateOutlet, ThemeFan],
   templateUrl: './week-board.html',
 })
 export class WeekBoard {
