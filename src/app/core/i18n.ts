@@ -125,6 +125,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'week.todoFrom': { en: 'from {day}', es: 'del {day}' },
   'week.allDay': { en: 'All day', es: 'Todo el día' },
   'week.overview': { en: 'Day overview', es: 'Resumen del día' },
+  'week.overviewDays': { en: 'Days of the week', es: 'Días de la semana' },
   'week.overviewEmpty': { en: 'Nothing planned for today.', es: 'No hay nada planeado para hoy.' },
   'week.overviewOther': { en: 'Other tasks', es: 'Otras tareas' },
   'week.trayFold': { en: 'Fold the list down', es: 'Bajar la lista' },

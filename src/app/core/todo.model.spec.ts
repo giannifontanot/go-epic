@@ -124,6 +124,9 @@ describe('todo model', () => {
     expect(view.blocks[0].activities.map((a) => [a.task.id, a.start, a.todos.map((t) => t.id)])).toEqual([['run', 420, ['jog']]]);
     expect(view.blocks[1].activities[0].todos.map((t) => t.id)).toEqual(['call']);
     expect(view.later.map((t) => t.id)).toEqual(['late']);   // it sat on the switched-off activity
+    // another day's overview leaves the rolled-over tasks out
+    const other = dayOverview(plan, list, '2026-11-10', 'TUESDAY', false);
+    expect(other.allDay.map((t) => t.id)).toEqual(['free1', 'free2']);
   });
 
   it('swaps a converted task in place: its card goes where its note sat, the block growing by what its free time lacks', () => {

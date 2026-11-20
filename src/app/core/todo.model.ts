@@ -240,9 +240,10 @@ export interface OverviewActivity { task: Task; start: number | null; todos: Tod
  * holds timed tasks no activity can take (none is timed, or theirs is switched off), by hour.
  */
 export interface DayOverview { allDay: Todo[]; blocks: { block: Block; activities: OverviewActivity[] }[]; later: Todo[] }
-export function dayOverview(plan: DayPlan, todos: Todo[], date: string, day: Day): DayOverview {
+export function dayOverview(plan: DayPlan, todos: Todo[], date: string, day: Day, withOverdue = true): DayOverview {
   const own = todosForDate(todos, date, day);
-  const allDay = [...overdueTodos(todos, date), ...own.filter((t) => t.time === null).sort((a, b) => a.created - b.created)];
+  // the tasks rolled over from earlier days belong to today only (another day's overview leaves them out)
+  const allDay = [...(withOverdue ? overdueTodos(todos, date) : []), ...own.filter((t) => t.time === null).sort((a, b) => a.created - b.created)];
   const pins = pinTodos(plan, own.filter((t) => t.time !== null));
   const later = [...pins.loose];
   const blocks = plan.blocks.map((block) => {
