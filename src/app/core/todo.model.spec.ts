@@ -172,5 +172,7 @@ describe('todo model', () => {
     expect(can(todo('f', { date: '2026-11-11', time: '08:00' }), 'WEDNESDAY')).toBe(true);     // another day, any hour
     expect(can(todo('g', { time: '10:00' }), 'TUESDAY', { blocks: [] })).toBe(false);          // no activity: the strip
     expect(can(todo('h', { date: '2026-11-20', time: '10:00' }), null)).toBe(false);          // a later week
+    expect(can(todo('i', { date: null, time: '10:00' }), 'TUESDAY')).toBe(false);              // undated: on no day of the board
+    expect(can(todo('j', { date: null, time: '10:00', repeat: ['TUESDAY'] }), 'TUESDAY')).toBe(true);   // repeating: on its days
   });
 });

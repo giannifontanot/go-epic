@@ -116,6 +116,7 @@ export function canBecomeActivity(todo: Todo, time: string | null, day: Day | nu
   const at = parseClock(time);
   if (at === null || day === null || !plan || !timedOf(plan).length) return false;
   const today = dateKey(now);
+  if (!repeats(todo) && todo.date === null) return false;                                              // undated: on no day of the board
   if (!repeats(todo) && todo.done === null && todo.date !== null && todo.date < today) return false;   // rolled over
   if (day === dayOf(now) && doneOnDate(todo, today) === null && at < minutesOfDay(now)) return false;  // past due today
   return true;
