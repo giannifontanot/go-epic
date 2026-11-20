@@ -50,6 +50,16 @@
         @for (block of blocks(day); track block.id; let bi = $index, bfirst = $first, blast = $last) {
           @let tones = colors(block);
           <section class="block" [class.deleting]="undo.isPending(block.id)" [class.over]="isOver(block)" [attr.data-flip]="block.id" [attr.data-block]="block.id">
+            <!-- While arranging the block's tools sit at its very top, above its name (Gianni) -->
+            @if (arranging()) {
+              <div class="block-tools">
+                <button type="button" class="round" [disabled]="bfirst" [attr.aria-label]="i18n.t('week.blockUp')" [title]="i18n.t('week.blockUp')" (click)="moveBlock(day, bi, -1)">▲</button>
+                <button type="button" class="round" [disabled]="blast" [attr.aria-label]="i18n.t('week.blockDown')" [title]="i18n.t('week.blockDown')" (click)="moveBlock(day, bi, 1)">▼</button>
+                <button type="button" class="round push" [attr.aria-label]="i18n.t('week.transfer')" [title]="i18n.t('week.transfer')" (click)="openTransfer(day, block)">⇄</button>
+                <button type="button" class="round" [disabled]="!canAddTo(block)" [attr.aria-label]="i18n.t('week.addTask')" [title]="i18n.t('week.addTask')" (click)="addTask(day, block)">+</button>
+                <button type="button" class="round danger-x" [attr.aria-label]="i18n.t('week.deleteBlock')" [title]="i18n.t('week.deleteBlock')" (click)="deleteBlock(day, block)">✕</button>
+              </div>
+            }
             <div class="block-head">
               @if (arranging()) {
                 <input class="block-name" type="text" [value]="block.name" [attr.aria-label]="i18n.t('week.blockName')"
@@ -74,13 +84,6 @@
                   <input #winEnd type="time" step="60" [value]="block.end ?? ''" (change)="setWindow(day, block, winStart.value, winEnd.value)" /></label>
               </div>
               @if (windowErrors()[block.id]) { <p class="window-error">{{ windowErrors()[block.id] }}</p> }
-              <div class="block-tools">
-                <button type="button" class="round" [disabled]="bfirst" [attr.aria-label]="i18n.t('week.blockUp')" [title]="i18n.t('week.blockUp')" (click)="moveBlock(day, bi, -1)">▲</button>
-                <button type="button" class="round" [disabled]="blast" [attr.aria-label]="i18n.t('week.blockDown')" [title]="i18n.t('week.blockDown')" (click)="moveBlock(day, bi, 1)">▼</button>
-                <button type="button" class="round push" [attr.aria-label]="i18n.t('week.transfer')" [title]="i18n.t('week.transfer')" (click)="openTransfer(day, block)">⇄</button>
-                <button type="button" class="round" [disabled]="!canAddTo(block)" [attr.aria-label]="i18n.t('week.addTask')" [title]="i18n.t('week.addTask')" (click)="addTask(day, block)">+</button>
-                <button type="button" class="round danger-x" [attr.aria-label]="i18n.t('week.deleteBlock')" [title]="i18n.t('week.deleteBlock')" (click)="deleteBlock(day, block)">✕</button>
-              </div>
             } @else if (summary(block); as range) {
               <p class="summary">{{ range.from }}<span class="dash">–</span>{{ range.to }}</p>
             }
