@@ -122,6 +122,8 @@ const NO_PLAN_R = 9;
 export class BalanceView {
   /** The day documents, read by the Progress page (from the start of the previous quarter). */
   readonly history = input<Record<string, DayMarks>>({});
+  /** The user's earliest day document when it is older than `history` (a first mark before what was read), else null. */
+  readonly olderFirstKey = input<string | null>(null);
 
   protected readonly i18n = inject(I18n);
   private readonly store = inject(WeekStore);
@@ -137,7 +139,7 @@ export class BalanceView {
   private readonly todayKey = computed(() => this.store.todayKey());
   private readonly today = computed(() => { this.todayKey(); return untracked(() => this.store.now()); });
 
-  protected readonly axes = computed(() => balance(this.library.library(), this.store.week(), this.history(), this.period(), this.today()));
+  protected readonly axes = computed(() => balance(this.library.library(), this.store.week(), this.history(), this.period(), this.today(), this.olderFirstKey()));
   protected readonly total = computed(() => overall(this.axes()));
   protected readonly prevTotal = computed(() => overall(this.axes(), true));
   protected readonly detail = computed(() => this.axes().find((a) => a.epicId === this.selected()) ?? null);

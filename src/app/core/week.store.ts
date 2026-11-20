@@ -1,5 +1,5 @@
 import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angular/core';
-import { Unsubscribe, collection, deleteField, doc, documentId, onSnapshot, query, setDoc, where } from 'firebase/firestore';
+import { Unsubscribe, collection, deleteField, doc, documentId, limit, onSnapshot, orderBy, query, setDoc, where } from 'firebase/firestore';
 import { AuthService } from './auth.service';
 import { firebase } from './firebase';
 import { DayMarks, Status, applyStatus, isFinished, statusOf, statusPatch } from './status.model';
@@ -136,6 +136,18 @@ export class WeekStore {
     return onSnapshot(
       query(collection(fb.db, 'users', uid, 'days'), where(documentId(), '>=', fromKey)),
       (snap) => receive(Object.fromEntries(snap.docs.map((d) => [d.id, d.data() as DayMarks]))),
+      (error) => this.fail(error),
+    );
+  }
+
+  /** Follows the key of the user's earliest day document (or null), for counts that start at the first day ever used. */
+  watchFirstDay(receive: (key: string | null) => void): Unsubscribe {
+    const fb = firebase();
+    const uid = this.auth.user()?.uid;
+    if (!fb || !uid) { receive(null); return () => undefined; }
+    return onSnapshot(
+      query(collection(fb.db, 'users', uid, 'days'), orderBy(documentId()), limit(1)),
+      (snap) => receive(snap.docs[0]?.id ?? null),
       (error) => this.fail(error),
     );
   }

@@ -118,11 +118,16 @@ function countWindow(lib: Library, week: Week, marksByDate: Record<string, DayMa
 
 const sum = (acts: Iterable<ActivityCount>, field: 'planned' | 'done') => [...acts].reduce((n, a) => n + a[field], 0);
 
-/** One axis per Epic of the library (every Epic under an Area, in the areas' order, then the library's order). */
-export function balance(lib: Library, week: Week, marksByDate: Record<string, DayMarks>, period: BalancePeriod, today: Date): BalanceAxis[] {
+/**
+ * One axis per Epic of the library (every Epic under an Area, in the areas' order, then the library's order).
+ * `marksByDate` may be only part of the history (read from some day on); `olderFirstKey` is then the user's earliest
+ * day document before that part, so a first mark older than what was read still counts as the start.
+ */
+export function balance(lib: Library, week: Week, marksByDate: Record<string, DayMarks>, period: BalancePeriod, today: Date, olderFirstKey: string | null = null): BalanceAxis[] {
   const { current, previous } = periodWindows(period, today);
   const todayKey = dateKey(today);
-  const start = firstMarkedKey(marksByDate);
+  const recent = firstMarkedKey(marksByDate);
+  const start = olderFirstKey !== null && (recent === null || olderFirstKey < recent) ? olderFirstKey : recent;
   const now = countWindow(lib, week, marksByDate, current, todayKey, start);
   const before = countWindow(lib, week, marksByDate, previous, todayKey, start);
   const out: BalanceAxis[] = [];

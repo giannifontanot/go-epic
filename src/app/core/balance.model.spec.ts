@@ -86,6 +86,17 @@ describe('balance', () => {
     expect(overall(axes)).toBeNull();
   });
 
+  it('a first mark older than the history read still starts the count', () => {
+    const week = weekEveryDay([task('r', 'run')]);
+    const marks = { '2026-11-19': { done: { r: 1 } } };
+    // only the 19th and on were read: the 19th is the start, today is open
+    expect(balance(lib, week, marks, '3w', today)[0].planned).toBe(1);
+    // the user's day documents go back to June: the whole 3 weeks count
+    const body = balance(lib, week, marks, '3w', today, '2026-06-02')[0];
+    expect([body.planned, body.done]).toEqual([20, 1]);
+    expect(body.previous).toBe(0);
+  });
+
   it('places axis 0 at the top, then clockwise', () => {
     const top = radarPoint(0, 4, 10);
     const right = radarPoint(1, 4, 10);

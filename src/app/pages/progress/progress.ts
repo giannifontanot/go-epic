@@ -44,7 +44,7 @@ function readTab(): 'streaks' | 'balance' {
       @if (!store.loaded() || !library.ready()) {
         <p class="muted">{{ i18n.t('loading') }}</p>
       } @else if (tab() === 'balance') {
-        <div role="tabpanel" aria-labelledby="tab-balance"><app-balance-view [history]="history()" /></div>
+        <div role="tabpanel" aria-labelledby="tab-balance"><app-balance-view [history]="history()" [olderFirstKey]="olderFirstKey()" /></div>
       } @else if (!list().length && !taskList().length) {
         <p class="muted center">{{ i18n.t(noneTracked() ? 'progress.pickHint' : 'progress.empty') }}</p>
       } @else {
@@ -94,6 +94,12 @@ export class Progress {
   protected readonly store = inject(WeekStore);
   private readonly auth = inject(AuthService);
   protected readonly history = signal<Record<string, DayMarks>>({});
+  /** The earliest day document ever; passed to the radar only when it is older than the days read. */
+  private readonly firstDay = signal<string | null>(null);
+  protected readonly olderFirstKey = computed(() => {
+    const first = this.firstDay();
+    return first !== null && first < this.fromKey() ? first : null;
+  });
   protected readonly tab = signal<'streaks' | 'balance'>(readTab());
   protected setTab(tab: 'streaks' | 'balance'): void {
     this.tab.set(tab);
@@ -142,7 +148,16 @@ export class Progress {
         stop = this.store.watchHistory(from, (byDate) => this.history.set(byDate));
       });
     });
-    inject(DestroyRef).onDestroy(() => stop?.());
+    let stopFirst: (() => void) | null = null;
+    effect(() => {
+      this.auth.user();
+      untracked(() => {
+        stopFirst?.();
+        this.firstDay.set(null);
+        stopFirst = this.store.watchFirstDay((key) => this.firstDay.set(key));
+      });
+    });
+    inject(DestroyRef).onDestroy(() => { stop?.(); stopFirst?.(); });
   }
 
   protected streakLabel(n: number, capped = false): string {
