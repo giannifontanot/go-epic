@@ -79,7 +79,7 @@ export class ThemeFan {
   private show(anchor: HTMLElement): void {
     this.from = anchor;
     this.open.set(true);
-    afterNextRender(() => { (anchor.closest('.look-stack') ? placeLeft : placeBelow)(anchor, this.fanBox()?.nativeElement); this.fly(true); }, { injector: this.injector });
+    afterNextRender(() => { (anchor.closest('.look-stack, .action-stack') ? placeLeft : placeBelow)(anchor, this.fanBox()?.nativeElement); this.fly(true); }, { injector: this.injector });
   }
 
   /** Draws the tiles back into the button, then removes them; focus returns to the button after Esc. */
