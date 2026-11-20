@@ -232,6 +232,19 @@
       font: italic 400 clamp(22px, 6.2vw, 30px)/1.32 var(--serif); color: #101b42; text-wrap: balance;
       transition: opacity .7s ease, transform .9s var(--spring), visibility 0s; }
     .quote::before { content: ''; display: block; width: 44px; height: 2px; margin: 0 auto 22px; border-radius: 2px; background: #c9a227; }
+    /* the quotes share one grid cell, so the box is as tall as the longest and never jumps; one fades in as the last fades out */
+    .q-track { display: grid; }
+    .q { grid-area: 1 / 1; margin: 0; opacity: 0; transform: translateY(10px); visibility: hidden;
+      transition: opacity .8s ease, transform .9s var(--spring), visibility 0s linear .9s; }
+    .q.on { opacity: 1; transform: none; visibility: visible; transition: opacity .8s ease .25s, transform .9s var(--spring) .25s, visibility 0s; }
+    .q p { margin: 0; }
+    .q cite { display: block; margin-top: .7em; font: 600 .55em/1.2 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-style: normal; letter-spacing: .12em; text-transform: uppercase; color: #9a6a12; }
+    .q-dots { display: flex; justify-content: center; margin-top: 18px; }
+    .q-dots button { width: 26px; height: 32px; padding: 0; border: 0; background: transparent; cursor: pointer; display: grid; place-items: center; }
+    .q-dots button::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: rgba(16, 27, 66, .22); transition: background-color .4s, transform .4s; }
+    .q-dots button[aria-current]::before { background: #c9a227; transform: scale(1.35); }
+    .q-dots:not(:has(button)) { display: none; }
     .quote b { display: block; margin-bottom: .55em; font: 900 1.12em/1.15 'Cinzel Decorative', Georgia, serif; font-style: normal; letter-spacing: .01em; }
     .quote em { font-style: italic; color: #9a6a12; }
     body:not([data-slide="6"]) .quote { transform: translateY(12px); }
@@ -621,7 +634,23 @@
     </div>
 
     <div class="device">
-      <p class="quote" data-i="q7"><b>Every hour is a gift.</b> Give it a purpose, and your small days become an <em>epic</em> story.</p>
+      <!-- the last slide: a small carousel of quotes, fading on its own (Gianni) -->
+      <div class="quote" role="group" aria-roledescription="carousel" aria-label="Quotes">
+       <div class="q-track">
+        <blockquote class="q on" data-q="0"><p data-i="q7"><b>Every hour is a gift.</b> Give it a purpose, and your small days become an <em>epic</em> story.</p></blockquote>
+        <blockquote class="q" data-q="1" aria-hidden="true"><p data-i="q8">“A wizard is never late, nor is he early. He arrives precisely when he means to.”</p><cite>Gandalf</cite></blockquote>
+        <blockquote class="q" data-q="2" aria-hidden="true"><p data-i="q9">“Isn't it nice to think that tomorrow is a new day with no mistakes in it yet?”</p><cite data-i="c9">Anne Shirley</cite></blockquote>
+        <blockquote class="q" data-q="3" aria-hidden="true"><p data-i="q10">“Dreams save us. Dreams lift us up and transform us.”</p><cite>Superman</cite></blockquote>
+        <blockquote class="q" data-q="4" aria-hidden="true"><p data-i="q11">“Hope is like the sun. If you only believe in it when you can see it, you'll never make it through the night.”</p><cite data-i="c11">Princess Leia</cite></blockquote>
+        <blockquote class="q" data-q="5" aria-hidden="true"><p data-i="q12">“It's not who I am underneath, but what I do that defines me.”</p><cite>Batman</cite></blockquote>
+        <blockquote class="q" data-q="6" aria-hidden="true"><p data-i="q13">“Even the smallest person can change the course of the future.”</p><cite>Galadriel</cite></blockquote>
+        <blockquote class="q" data-q="7" aria-hidden="true"><p data-i="q14">“With great power comes great responsibility.”</p><cite data-i="c14">Spider-Man</cite></blockquote>
+        <blockquote class="q" data-q="8" aria-hidden="true"><p data-i="q15">“It's not about what you deserve. It's about what you believe.”</p><cite data-i="c15">Wonder Woman</cite></blockquote>
+        <blockquote class="q" data-q="9" aria-hidden="true"><p data-i="q16">“Do. Or do not. There is no try.”</p><cite>Yoda</cite></blockquote>
+        <blockquote class="q" data-q="10" aria-hidden="true"><p data-i="q17">“Just keep swimming.”</p><cite>Dory</cite></blockquote>
+       </div>
+       <div class="q-dots"></div>
+      </div>
       <div class="emblem" aria-hidden="true">
         <div class="float">
           <img src="/get/emblem.webp" alt="" width="760" height="825" />
@@ -803,6 +832,20 @@
       k5: 'Captura', h5: 'Atrápalo antes de que se escape.', l5: 'Escríbelo y presiona Enter. Cae en el día y la hora correctos de tu semana.',
       k6: 'Temas', h6: 'Ocho estilos. Un solo tú.', l6: 'Alegre para la casa, grises tranquilos para la oficina. Toda la app lo sigue.',
       q7: '<b>Cada hora es un regalo.</b> Dale un propósito, y tus días pequeños se volverán una historia <em>épica</em>.',
+      q8: '«Un mago nunca llega tarde, ni pronto. Llega exactamente cuando se lo propone.»',
+      q9: '«¿No es bonito pensar que mañana es un nuevo día, todavía sin errores?»',
+      c9: 'Ana de las Tejas Verdes',
+      q10: '«Los sueños nos salvan. Los sueños nos elevan y nos transforman.»',
+      q11: '«La esperanza es como el sol: si solo crees en ella cuando la ves, nunca sobrevivirás a la noche.»',
+      c11: 'Princesa Leia',
+      q12: '«No es lo que soy por dentro, sino lo que hago lo que me define.»',
+      q13: '«Hasta la persona más pequeña puede cambiar el curso del futuro.»',
+      q14: '«Un gran poder conlleva una gran responsabilidad.»',
+      c14: 'Hombre Araña',
+      q15: '«No se trata de lo que mereces. Se trata de lo que crees.»',
+      c15: 'Mujer Maravilla',
+      q16: '«Hazlo, o no lo hagas, pero no lo intentes.»',
+      q17: '«Tú sigue nadando.»',
       k7: '¿Listo?', h7: 'Tu semana épica empieza hoy.', l7: 'Entra con Google y agrégala a tu pantalla de inicio. Gratis, y funciona sin internet.',
       steps: '<b>iPhone:</b> Safari → Compartir → Agregar a inicio · <b>Android y computadora:</b> Chrome → Instalar app',
       p_wb: 'Semana', p_d1: 'Lun', p_d2: 'Mar', p_d3: 'Mié', p_d4: 'Jue', p_d5: 'Vie', p_d6: 'Sáb', p_d7: 'Dom', p_fri: 'Viernes',
@@ -822,9 +865,9 @@
     };
     var UI = {
       en: { back: 'Back', end: 'Go to the last slide', next: 'Next', again: 'Start over', step: 'Slide %n of %t', go: 'Go to slide %n', tour: 'Go Epic tour', nav: 'Tour',
-            soon: 'The download link is coming soon. Thanks for your interest!', left: '{n} min left' },
+            soon: 'The download link is coming soon. Thanks for your interest!', left: '{n} min left', qs: 'Quotes', q: 'Quote {n} of {t}' },
       es: { back: 'Atrás', end: 'Ir a la última lámina', next: 'Siguiente', again: 'Volver al inicio', step: 'Paso %n de %t', go: 'Ir al paso %n', tour: 'Recorrido por Go Epic', nav: 'Recorrido',
-            soon: 'El enlace de descarga llega muy pronto. ¡Gracias por tu interés!', left: 'quedan {n} min' }
+            soon: 'El enlace de descarga llega muy pronto. ¡Gracias por tu interés!', left: 'quedan {n} min', qs: 'Frases', q: 'Frase {n} de {t}' }
     };
     var META = {
       en: { title: document.title, desc: document.querySelector('meta[name="description"]').content },
@@ -856,6 +899,8 @@
       slides.forEach(function (s, i) { s.setAttribute('aria-label', fmt(t.step, i)); });
       document.getElementById('tour').setAttribute('aria-label', t.tour);
       document.querySelector('.nav').setAttribute('aria-label', t.nav);
+      qBox.setAttribute('aria-label', t.qs);
+      qDots.forEach(function (b, i) { b.setAttribute('aria-label', t.q.replace('{n}', i + 1).replace('{t}', qDots.length)); });
     }
 
     // Each phone screen plays its little story in a loop (CSS keyed on .run, numbers here), so anyone sees what happens.
@@ -962,10 +1007,43 @@
       });
       play(shown);
       body.dataset.slide = n;
+      quoteTick();
       dots.forEach(function (d, i) { if (i === n) d.setAttribute('aria-current', 'step'); else d.removeAttribute('aria-current'); });
       labels();
       announce.textContent = fmt(UI[lang].step, n);
     }
+
+    // The last slide's quotes fade one into the next every 7 s while that slide is shown (Gianni). A dot shows its quote
+    // and stops the turning; a mouse over them or the keyboard inside them pauses it; nothing turns under reduced motion.
+    var qBox = document.querySelector('.quote'), qs = [].slice.call(qBox.querySelectorAll('.q')), qDots = [];
+    var qAt = 0, qTimer = 0, qStopped = false, qHover = false, qFocus = false;
+    function quoteTo(i) {
+      qAt = (i + qs.length) % qs.length;
+      qs.forEach(function (el, k) {
+        var on = k === qAt;
+        el.classList.toggle('on', on);
+        if (on) el.removeAttribute('aria-hidden'); else el.setAttribute('aria-hidden', 'true');
+      });
+      qDots.forEach(function (b, k) { if (k === qAt) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+    }
+    function quoteTick() {
+      clearTimeout(qTimer); qTimer = 0;
+      if (reduce || qStopped || qHover || qFocus || cur !== N - 1 || document.hidden) return;
+      qTimer = setTimeout(function () { quoteTo(qAt + 1); quoteTick(); }, 7000);
+    }
+    qs.forEach(function (el, i) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.addEventListener('click', function () { qStopped = true; quoteTo(i); quoteTick(); });
+      qBox.querySelector('.q-dots').appendChild(b);
+      qDots.push(b);
+    });
+    qBox.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') { qHover = true; quoteTick(); } });
+    qBox.addEventListener('pointerleave', function (e) { if (e.pointerType === 'mouse') { qHover = false; quoteTick(); } });
+    qBox.addEventListener('focusin', function () { qFocus = true; quoteTick(); });
+    qBox.addEventListener('focusout', function (e) { if (!qBox.contains(e.relatedTarget)) { qFocus = false; quoteTick(); } });
+    document.addEventListener('visibilitychange', quoteTick);
+    quoteTo(0);
 
     // Both arrows go round: the last slide starts over, and Back on the first goes to the last
     function forward() { show(cur === N - 1 ? 0 : cur + 1); }
