@@ -22,6 +22,7 @@ import { TodoStore } from '../../core/todo.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
 import { Transfer, TransferDialog } from './transfer-dialog';
 import { readTrayFolded, writeTrayFolded } from '../../core/tray-fold';
+import { SwipeTracker, stepDay } from '../../core/swipe';
 
 /**
  * The week in seven columns of blocks and task cards. Locked by default (a calm view of the week);
@@ -212,6 +213,40 @@ export class WeekBoard {
     this.spotlight.set(!this.arranging() && !!line?.closest('.block') && line.getClientRects().length > 0);
   }
   protected readonly mobileDay = signal<Day>(this.store.today());
+  private readonly swipe = new SwipeTracker();
+  /**
+   * On a phone (one day at a time) another day comes in from the side it lies on (Gianni): the day chips and a
+   * sideways swipe both slide it; none under reduced motion.
+   */
+  protected showDay(day: Day): void {
+    const from = DAYS.indexOf(this.mobileDay());
+    if (day === this.mobileDay()) return;
+    this.mobileDay.set(day);
+    const week = this.boardEl()?.nativeElement.querySelector<HTMLElement>('.week');
+    const reduced = typeof matchMedia !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!week || reduced || typeof week.animate !== 'function') return;
+    const side = DAYS.indexOf(day) > from ? 1 : -1;
+    week.animate([{ opacity: 0, transform: `translateX(${side * 36}px)` }, { opacity: 1, transform: 'none' }],
+      { duration: 260, easing: 'cubic-bezier(0, 0, .6, 1)' });
+  }
+  /**
+   * Swiping sideways moves between days on a phone (Gianni): left to the next day, right to the previous, stopping at
+   * Monday and Sunday. A vertical scroll, a card's grip or handle, a field, the overdue folder and any open window are
+   * left alone, and nothing happens while a card is being dragged or resized.
+   */
+  protected swipeStart(event: TouchEvent): void {
+    const target = event.target instanceof Element ? event.target : null;
+    const phone = typeof matchMedia === 'function' && matchMedia('(max-width: 820px)').matches;
+    if (!phone || target?.closest('dialog, .overdue-tray') || this.cancelDrag || this.sizing()) { this.swipe.cancel(); return; }
+    this.swipe.start(event);
+  }
+  protected swipeCancel(): void { this.swipe.cancel(); }
+  protected swipeEnd(event: TouchEvent): void {
+    const step = this.swipe.end(event);
+    if (!step || this.cancelDrag || this.sizing()) return;
+    const next = stepDay(DAYS, this.mobileDay(), step);
+    if (next) this.showDay(next);
+  }
   /**
    * Capture's tasks on the board (Gianni): each day of this week shows the tasks dated that day, pinned over the
    * activity running at their hour (else the closest one), on top of its card; the ones with no hour at the foot of the day.

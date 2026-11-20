@@ -1,4 +1,4 @@
-<section #board class="board" [class.locked]="!arranging()" [class.spot]="spotlight()" [class.has-tray]="overdue().length > 0" [class.tray-folded]="trayFolded()">
+<section #board class="board" (touchstart)="swipeStart($event)" (touchend)="swipeEnd($event)" (touchcancel)="swipeCancel()" [class.locked]="!arranging()" [class.spot]="spotlight()" [class.has-tray]="overdue().length > 0" [class.tray-folded]="trayFolded()">
   <!-- why a move or a drop was refused (no room in that block): a short note that fades by itself -->
   @if (notice()) { <p class="board-notice" role="status">{{ notice() }}</p> }
   <!-- Title and 💡 Capture at the right; while arranging ✓ Finish takes the 💡's place (Capture's tasks are hidden then
@@ -21,7 +21,7 @@
   <nav class="day-tabs" role="tablist">
     @for (day of days; track day) {
       <button type="button" role="tab" [attr.aria-selected]="day === mobileDay()" [class.today]="day === store.today()"
-              (click)="mobileDay.set(day)">{{ i18n.t('dayShort.' + day) }}</button>
+              (click)="showDay(day)">{{ i18n.t('dayShort.' + day) }}</button>
     }
   </nav>
 

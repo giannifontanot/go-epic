@@ -172,6 +172,13 @@ dialog.info-card::backdrop { background: rgba(4, 9, 30, .55); }
 .info-where .pc-story strong { font-size: 15px; line-height: 1.4; }
 .info-foot { display: flex; justify-content: flex-end; margin-top: 14px; }
 /* the day overview (Gianni): a nested bullet list, blocks › activities › tasks, all-day tasks first */
+/* the overview's weekday chips (Gianni): any day of this week, one tap; a sideways swipe steps them too */
+.ov-days { display: flex; gap: 4px; margin: 0 0 12px; }
+.ov-days button { flex: 1 1 0; min-width: 0; min-height: 40px; padding: 0 2px; border: 1.5px solid color-mix(in srgb, var(--ink) 25%, transparent); border-radius: 12px;
+  background: color-mix(in srgb, var(--ink) 6%, transparent); color: var(--ink); font-size: calc(13px * var(--esc, 1)); font-weight: 700; }
+.ov-days button[aria-selected='true'] { background: var(--pink); border-color: var(--pink); color: var(--card-ink); }
+.ov-days button.today:not([aria-selected='true']) { border-color: var(--pink); }
+dialog.day-overview { touch-action: pan-y; }
 .ov-list, .ov-list ul { list-style: none; margin: 0; padding: 0; }
 .ov-list { display: grid; gap: 14px; margin-top: 6px; font-size: calc(15px * var(--esc, 1)); }
 .ov-list ul { display: grid; gap: 6px; margin-top: 6px; padding-left: 14px; border-left: 2px solid color-mix(in srgb, var(--ink) 18%, transparent); }
@@ -373,6 +380,10 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 .board-notice { position: fixed; z-index: 40; left: 50%; bottom: calc(max(18px, env(safe-area-inset-bottom)) + 70px); translate: -50% 0;
   width: max-content; max-width: calc(100vw - 32px); margin: 0; padding: 10px 16px; border-radius: 14px; background: var(--navy-card, #1b2757);
   color: var(--ink); font-size: 15px; text-align: center; box-shadow: 0 8px 28px #0007; pointer-events: none; animation: notice-in .25s ease-out; }
+/* every page fades in when it opens (Gianni: never all at once); opacity only, so its fixed parts stay in place */
+main > :not(router-outlet) { animation: page-in .3s ease-out; }
+@keyframes page-in { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { main > :not(router-outlet) { animation: none; } }
 @keyframes notice-in { from { opacity: 0; translate: -50% 8px; } }
 @media (prefers-reduced-motion: reduce) { .board-notice { animation: none; } }
 .capture-fab.finish-fab:hover { background: color-mix(in srgb, var(--teal) 85%, #fff); }
@@ -391,10 +402,21 @@ dialog.capture-panel h2 { margin: 0; font-size: 22px; }
 .capture-add input:focus, .capture-add input:focus-visible { outline: none; border-color: var(--c-blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-blue) 35%, transparent); }
 html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) .capture-add input { --c-blue: #3b78d8; }
 /* Current / Finished tabs: one tap apart, the chosen one filled with the theme's primary colour */
-.capture-tabs { display: flex; gap: 4px; margin: 0 0 10px; padding: 4px; border-radius: 999px; background: color-mix(in srgb, var(--ink) 10%, transparent); }
-.capture-tabs button { flex: 1 1 0; min-height: 40px; border: 0; border-radius: 999px; background: transparent; color: var(--ink); font-size: 15px; font-weight: 700; transition: background .2s, color .2s; }
-.capture-tabs button.on { background: var(--pink); color: var(--card-ink); box-shadow: 0 2px 6px rgba(0, 0, 0, .2); }
-.capture-tabs button:not(.on):hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.capture-tabs { --tab-face: #fff; --tab-ink: var(--card-ink); display: flex; align-items: flex-end; gap: 6px; margin: 0; padding: 0 10px 0 0; }
+/* Real folder tabs (Gianni, like the overdue folder's): rounded on top, each with a fine line of its own; the chosen
+   one is the list box's own colour and runs into it, a pink line along its top, its foot flaring into the box's edge;
+   the other sits a little lower and quieter, behind it */
+.capture-tabs button { position: relative; flex: 1 1 0; min-height: 40px; margin: 0; padding: 8px 12px 6px; border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  border-bottom: 0; border-radius: 14px 14px 0 0; background: color-mix(in srgb, var(--ink) 9%, transparent); color: var(--ink-soft);
+  font-size: 15px; font-weight: 700; translate: 0 3px; transition: background .2s, color .2s, translate .2s; }
+.capture-tabs button.on { z-index: 1; min-height: 44px; border-color: color-mix(in srgb, var(--pink) 70%, transparent); background: var(--tab-face); color: var(--tab-ink);
+  margin-bottom: -1px; box-shadow: inset 0 3px 0 var(--pink); translate: 0 0; }
+.capture-tabs button.on::after { content: ''; position: absolute; right: -14px; bottom: 0; width: 14px; height: 14px; pointer-events: none;
+  background: radial-gradient(circle at 100% 0, transparent 13.5px, var(--tab-face) 14px); }
+.capture-tabs button:not(.on):hover { background: color-mix(in srgb, var(--ink) 15%, transparent); color: var(--ink); }
+.capture-tabs:has(#c-tab-open.on) + #c-pane .capture-list { border-top-left-radius: 0; }
+html.tilt .capture-tabs button { rotate: none; translate: 0 3px; }
+html.tilt .capture-tabs button.on { translate: 0 0; }   /* the tabs belong to their folder: they never lean off it */
 .c-count { display: inline-block; min-width: 22px; margin-left: 4px; padding: 0 6px; border-radius: 999px; background: color-mix(in srgb, currentColor 15%, transparent); font-size: 13px; }
 @media (prefers-reduced-motion: reduce) { .capture-tabs button, .capture-add input { transition: none; } }
 .capture-list { list-style: none; margin: 0; padding: 10px; display: grid; gap: 8px; border-radius: 18px; background: #fff; box-shadow: 0 2px 10px rgba(0, 0, 0, .25); }
@@ -1062,7 +1084,7 @@ html:is([data-theme='office'], [data-theme='graphite']) .update-button { backgro
 }
 html:is([data-theme='office'], [data-theme='graphite']) .sparkle { color: var(--g-sparkle); text-shadow: none; }
 /* text on the accent greys (selected chips, primary buttons, the menu's current page, done dots) */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.chip.quiet.on, .finish-fab, .primary, .capture-tabs button.on, .page-tile.on, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.chip.quiet.on, .finish-fab, .primary, .page-tile.on, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.primary, button.primary, .capture-fab:not(.finish-fab)):hover:not(:disabled) { background: color-mix(in srgb, var(--pink) 85%, #000) !important; }   /* hover darkens the theme's accent; the fixed pale-pink hover would wash out its ink */
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .capture-fab.finish-fab:hover { background: color-mix(in srgb, var(--teal) 85%, #000); }
 /* the light themes' round buttons (themes, day overview, +, ✎) are soft, not the dark accent (Gianni: too dark there):
@@ -1077,6 +1099,7 @@ html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'
   background: color-mix(in srgb, var(--fab) 90%, #000) !important; }
 /* surfaces and round buttons that were white or near-white */
 html:is([data-theme='office'], [data-theme='graphite']) .capture-list { background: var(--g-list); box-shadow: inset 0 1px 3px var(--g-shadow); }
+html:is([data-theme='office'], [data-theme='graphite']) .capture-tabs { --tab-face: var(--g-list); --tab-ink: var(--ink); }
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit) { background: var(--g-control); }
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit):hover:not(:disabled) { background: var(--g-control-hover); }
 html:is([data-theme='office'], [data-theme='graphite']) .block-window input { background: var(--g-input); border-color: var(--g-edge); }
