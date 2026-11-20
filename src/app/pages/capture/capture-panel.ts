@@ -49,9 +49,9 @@ import { TodoDialog, TodoSave } from './todo-dialog';
           <li [attr.data-paper]="paper(todo)" [style.--tone]="tones().get(todo.id)" [class.deleting]="undo.isPending(todo.id)">
             <!-- A repeating task is checked for today only (when today is one of its days); a single one leaves the list -->
             @let checked = checkedToday(todo);
-            <button type="button" class="c-check" [class.on]="checked" role="checkbox" [attr.aria-checked]="checked"
+            <button type="button" class="c-check t-state" [class.on]="checked" [attr.data-status]="checked ? 'done' : 'todo'" role="checkbox" [attr.aria-checked]="checked"
               [disabled]="!checkableToday(todo)" [attr.aria-label]="i18n.t(checked ? 'capture.uncheck' : 'capture.check') + ': ' + todo.title"
-              [title]="i18n.t(checked ? 'capture.uncheck' : 'capture.check')" (click)="todos.setDone(todo.id, !checked, today())">{{ checked ? '✓' : '' }}</button>
+              [title]="i18n.t(checked ? 'capture.uncheck' : 'capture.check')" (click)="todos.setDone(todo.id, !checked, today())"><svg viewBox="0 0 24 24" aria-hidden="true">@if (checked) { <path class="t-check" d="M5 12.5l4.5 4.5L19 7" /> }</svg></button>
             @if (editing() === todo.id) {
               <input class="c-edit" type="text" [value]="todo.title" [attr.aria-label]="i18n.t('capture.task')"
                 (keydown.enter)="$event.preventDefault(); saveEdit(todo, $any($event.target).value)"
@@ -73,8 +73,8 @@ import { TodoDialog, TodoSave } from './todo-dialog';
         <ul class="capture-list finished">
           @for (todo of todos.finished(); track todo.id) {
             <li>
-              <button type="button" class="c-check on" role="checkbox" aria-checked="true" [attr.aria-label]="i18n.t('capture.uncheck') + ': ' + todo.title"
-                [title]="i18n.t('capture.uncheck')" (click)="todos.setDone(todo.id, false, today())">✓</button>
+              <button type="button" class="c-check t-state on" data-status="done" role="checkbox" aria-checked="true" [attr.aria-label]="i18n.t('capture.uncheck') + ': ' + todo.title"
+                [title]="i18n.t('capture.uncheck')" (click)="todos.setDone(todo.id, false, today())"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="t-check" d="M5 12.5l4.5 4.5L19 7" /></svg></button>
               <span class="c-text">{{ todo.title }} <small class="c-when">{{ when(todo) }}</small></span>
               <button type="button" class="c-icon" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
                 (click)="editingTodo.set(todo)">✎</button>
