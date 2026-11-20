@@ -1,3 +1,4 @@
+import { Ask } from '../../shared/ask';
 import { AutoColors } from '../../core/auto-colors';
 import { NgTemplateOutlet } from '@angular/common';
 import { ApplicationRef, Component, DestroyRef, ElementRef, Injector, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
@@ -10,13 +11,13 @@ import {
 } from '../../core/week.model';
 import { Library, fileTask, followLibrary, nodeById, paperAge, pathOf, updateNode } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
-import { CaptureUi } from '../capture/capture-ui';
+import { CaptureUi, MenuAction } from '../capture/capture-ui';
+import { LookBar } from '../../shared/look-bar';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { STATUSES, Status, isFinished } from '../../core/status.model';
 import { Todo, allDayTodos, overdueTodos, pastDueTodos, pinTodos, todosForDate, weekDate } from '../../core/todo.model';
 import { TodoDialog, TodoSave } from '../capture/todo-dialog';
-import { ActionMenu, MenuAction } from '../../shared/action-menu';
 import { TodoStore } from '../../core/todo.store';
 import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
 import { Transfer, TransferDialog } from './transfer-dialog';
@@ -77,12 +78,14 @@ function readFolded(): Set<string> {
 
 @Component({
   selector: 'app-week-board',
-  imports: [TaskDialog, TransferDialog, TodoDialog, NgTemplateOutlet, ActionMenu],
+  imports: [TaskDialog, TransferDialog, TodoDialog, NgTemplateOutlet, LookBar],
   templateUrl: './week-board.html',
 })
 export class WeekBoard {
   protected readonly store = inject(WeekStore);
   protected readonly i18n = inject(I18n);
+  /** The app's own question windows (never the browser's confirm/alert). */
+  private readonly asks = inject(Ask);
   protected readonly library = inject(LibraryStore);
   protected readonly capture = inject(CaptureUi);
   private readonly injector = inject(Injector);
@@ -124,9 +127,12 @@ export class WeekBoard {
     });
     // Arranging files tasks in the library: it stops while the library is not loaded (sign-out, another account).
     effect(() => { if (!this.library.ready()) this.arranging.set(false); });
-    // The floating ✎ is not shown here: the action menu (one round button) holds ✎ arrange, + new, the overview, Capture and the themes.
-    this.capture.fab.set({ label: '', run: () => undefined, hidden: true });
-    inject(DestroyRef).onDestroy(() => { this.capture.fab.set(null); this.cancelDrag?.(); });
+    // The action menu (one round button, App) gets ✎ arrange here; while arranging it hides and the round ✓ Finish takes its spot.
+    effect(() => {
+      this.capture.menuEdit.set(this.arrangeAction());
+      this.capture.menuHidden.set(this.arranging());
+    });
+    inject(DestroyRef).onDestroy(() => { this.capture.menuEdit.set(null); this.capture.menuHidden.set(false); this.cancelDrag?.(); });
     // On entering the Week board, the view centres on now (the red line in today's column), as in Epic Manager: once
     // the week, the library (card titles) and Capture's notes (the strip at the top) are there, so nothing shifts after.
     let centred = false;
@@ -707,8 +713,8 @@ export class WeekBoard {
     flip(document, this.injector, () => this.store.update(day, (blocks) => moveItem(blocks, index, index + offset)));
   }
 
-  protected deleteBlock(day: Day, block: Block): void {
-    if (!confirm(this.i18n.t('week.confirmDeleteBlock', { block: block.name }))) return;
+  protected async deleteBlock(day: Day, block: Block): Promise<void> {
+    if (!(await this.asks.ask({ message: this.i18n.t('week.confirmDeleteBlock', { block: block.name }), ok: this.i18n.t('task.delete'), danger: true }))) return;
     this.store.update(day, (blocks) => blocks.filter((b) => b.id !== block.id));
   }
 
@@ -937,8 +943,9 @@ export class WeekBoard {
     });
   }
 
-  protected deleteTask(day: Day, block: Block, task: Task): void {
-    if (!confirm(this.i18n.t('week.confirmDeleteTask', { task: task.title || this.i18n.t('week.newTask') }))) return;
+  protected async deleteTask(day: Day, block: Block, task: Task): Promise<void> {
+    const message = this.i18n.t('week.confirmDeleteTask', { task: task.title || this.i18n.t('week.newTask') });
+    if (!(await this.asks.ask({ message, ok: this.i18n.t('task.delete'), danger: true }))) return;
     this.removeTask(day, block.id, task.id);
   }
 

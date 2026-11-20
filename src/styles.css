@@ -49,31 +49,9 @@ button:disabled { opacity: .4; cursor: default; }
 .round:hover:not(:disabled) { border-color: #0d9488; color: #0d9488; }
 .day-head .round { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .3); color: var(--ink); }
 
-/* App navigation: a floating ☰ (top-left, beside each page's title) opens a drawer from the left, as in Epic Manager */
-.nav-toggle { position: fixed; z-index: 20; top: max(8px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left));
-  width: 44px; height: 44px; border: 0; border-radius: 14px; background: rgba(255, 255, 255, .1); color: var(--ink);
-  font-size: 22px; line-height: 1; backdrop-filter: blur(6px); }
-.nav-toggle:hover { background: rgba(255, 255, 255, .18); }
-.board-top > :first-child, .focus-top > :first-child, .page-header > :first-child { margin-left: 52px; }   /* room for the ☰ */
+/* App navigation: no ☰ any more (Gianni); the pages are in the action menu (shared/page-fan) */
 .board-top, .focus-top, .page-header { min-height: 44px; }
-dialog.app-drawer { margin: 0; width: min(300px, 84vw); max-width: none; height: 100dvh; max-height: none; padding: 0;
-  border: 0; border-radius: 0 22px 22px 0; background: var(--navy-card); color: var(--ink); box-shadow: 12px 0 40px #0008;
-  display: flex; flex-direction: column; gap: 6px;
-  padding: max(14px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-}   /* opens growing out of the ☰ and closes back into it (core/dialog openDialog/closeDialog) */
-dialog.app-drawer:not([open]) { display: none; }
-dialog.app-drawer::backdrop { background: rgba(4, 9, 30, .55); }
-.drawer-head { display: flex; align-items: center; justify-content: space-between; }
-.drawer-head .brand { font-family: Georgia, serif; font-size: 26px; font-weight: 700; }
 .drawer-close { width: 44px; height: 44px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .08); color: var(--ink); font-size: 24px; }
-.drawer-user { margin: 0 0 10px; color: var(--ink-soft); font-size: 13px; overflow-wrap: anywhere; }
-.drawer-links { display: grid; gap: 6px; }
-.drawer-links a { display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 14px; color: var(--ink);
-  font-size: 17px; font-weight: 700; text-decoration: none; }
-.drawer-links a:hover { background: rgba(255, 255, 255, .08); }
-.drawer-links a.on { background: var(--pink); color: var(--card-ink); }
-.drawer-foot { margin-top: auto; display: flex; gap: 8px; flex-wrap: wrap; }
-.drawer-foot .chip { min-height: 44px; }
 .app-error { margin: 8px 16px; padding: 8px 12px; border-radius: 12px; background: #7a2440; color: #fff4e9; font-weight: 600; }   /* its own light ink: the theme ink can be dark */
 
 /* Sign-in */
@@ -162,6 +140,21 @@ dialog.leave-ask .leave-discard { border: 1.5px solid rgba(248, 113, 113, .6); b
 dialog.leave-ask .leave-stay { border: 0; background: rgba(255, 255, 255, .08); color: var(--ink-soft); }
 html:is([data-theme='office'], [data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt']) dialog.leave-ask .leave-discard { color: #b91c1c; border-color: rgba(185, 28, 28, .5); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) dialog.leave-ask .leave-stay { background: rgba(var(--g-tint), .1); }
+/* The app's own question windows (Gianni: no more browser boxes): the leave window's look, Cancel then the answer,
+   the answer red when it deletes or discards */
+dialog.ask-window { width: min(380px, calc(100vw - 32px)); padding: 22px 20px 18px; border: 0; border-radius: 22px;
+  background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; }
+dialog.ask-window::backdrop { background: rgba(4, 9, 30, .5); }
+dialog.ask-window p { margin: 0 0 18px; font-size: calc(17px * var(--esc)); line-height: 1.4; overflow-wrap: anywhere; }
+.ask-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.ask-actions button { flex: 1 1 120px; min-height: 46px; padding: 0 18px; border-radius: 999px; font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; }
+.ask-actions .ask-cancel { border: 0; background: rgba(255, 255, 255, .08); color: var(--ink-soft); }
+.ask-actions .ask-ok { border: 0; background: var(--pink); color: var(--card-ink); }
+.ask-actions .ask-ok.danger { background: #c0392b; color: #fff; }
+.ask-actions button:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .ask-actions .ask-cancel { background: rgba(var(--g-tint), .1); }
+html:is([data-theme='office'], [data-theme='graphite']) dialog.ask-window { filter: none; }   /* a destructive answer keeps a (quiet) red */
+html:is([data-theme='office'], [data-theme='graphite']) .ask-actions .ask-ok.danger { background: #9b3b3b; }
 /* Where an activity lives (a tap on its title, locked board): its Area, Epic, Feature and Story drawn as in the Canvas */
 /* The title's tap target reaches past its text (≥ 40px tall even on one line) without moving anything: padding the
    negative margin gives back, a little above (the notes' gap) and more below */
@@ -340,16 +333,25 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 .menu-fab.open { background: var(--teal); color: #0b2f2a; }
 .action-veil { position: fixed; inset: 0; z-index: 19; background: rgba(4, 9, 30, .14); }
 .action-stack { position: fixed; z-index: 20; right: max(16px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 64px);
-  display: flex; flex-direction: column-reverse; align-items: center; gap: 12px; visibility: hidden; transition: visibility 0s .3s; }
+  display: flex; flex-flow: column-reverse wrap-reverse; align-content: flex-end; align-items: center; gap: 12px;
+  max-height: calc(100dvh - max(18px, env(safe-area-inset-bottom)) - 64px - max(12px, env(safe-area-inset-top)));
+  visibility: hidden; transition: visibility 0s .34s; }
 .action-stack.open { visibility: visible; transition: none; }
 .action-stack .capture-fab { position: relative; inset: auto; display: grid; place-items: center;
   opacity: 0; transform: translateY(calc((var(--i, 0) + 1) * 64px)) scale(.4); pointer-events: none;
-  transition: transform .26s cubic-bezier(.4, 0, 1, 1), opacity .2s ease; }
+  transition: transform .3s cubic-bezier(.4, 0, 1, 1), opacity .26s ease; }
 .action-stack.open .capture-fab { opacity: 1; transform: none; pointer-events: auto;
-  transition: transform .3s cubic-bezier(0, 0, .2, 1) calc(var(--i, 0) * 35ms), opacity .2s ease calc(var(--i, 0) * 35ms); }
+  transition: transform .34s cubic-bezier(0, 0, .2, 1) calc(var(--i, 0) * 40ms), opacity .26s ease calc(var(--i, 0) * 40ms); }
 .action-stack .new-act { font-size: 28px; line-height: 1; }
-.theme-fab { z-index: 22; }
-.theme-fab.open { background: var(--teal); }
+.page-fab { z-index: 22; }
+.page-fab.open { background: var(--teal); }
+/* the pages (Gianni): pills that fan out to the left of their button, the page you are on marked */
+.page-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 64px); display: grid; gap: 8px; width: min(220px, calc(100vw - 96px)); }
+.page-tile { position: relative; display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 16px;
+  background: var(--navy-card); color: var(--ink); font-size: calc(17px * var(--esc)); font-weight: 700; text-decoration: none;
+  box-shadow: 0 6px 18px rgba(1, 6, 29, .35); }
+.page-tile.on { background: var(--pink); color: var(--card-ink); box-shadow: 0 0 0 3px var(--teal), 0 6px 18px rgba(1, 6, 29, .35); }
+.page-tile:focus-visible, .page-fab:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
 .theme-fan-veil { position: fixed; inset: 0; z-index: 21; background: rgba(4, 9, 30, .18); }
 .theme-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 64px);
   bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(360px, calc(100vw - max(16px, env(safe-area-inset-right)) - 76px));
@@ -364,7 +366,7 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 .theme-tile.on { box-shadow: 0 0 0 3px #0d9488, 0 8px 22px rgba(1, 6, 29, .4); }   /* fixed teal: the same on every tile and look */
 .theme-tile-check { position: absolute; top: -6px; right: -6px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%;
   background: #0d9488; color: #fff; font-size: 13px; font-weight: 700; }
-.theme-tile:focus-visible, .theme-fab:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+.theme-tile:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
 /* while arranging, the ✎'s spot holds a third ✓ Finish (Gianni): the same size and place as the other round buttons,
    in the Finish chips' teal and weight, without their heavy shadow */
 .capture-fab.finish-fab { background: var(--teal); color: #0b2f2a; font-size: 20px; font-weight: 700; line-height: 1; box-shadow: none; }
@@ -375,15 +377,12 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 @keyframes notice-in { from { opacity: 0; translate: -50% 8px; } }
 @media (prefers-reduced-motion: reduce) { .board-notice { animation: none; } }
 .capture-fab.finish-fab:hover { background: color-mix(in srgb, var(--teal) 85%, #fff); }
-.drawer-capture { display: flex; align-items: center; min-height: 48px; padding: 0 16px; border: 0; border-radius: 14px; background: transparent;
-  color: var(--ink); font-size: 17px; font-weight: 700; text-align: left; }
-.drawer-capture:hover { background: rgba(255, 255, 255, .08); }
 /* Capture opens near the TOP, so the keyboard that comes up for the box never covers it; it fits the visible part of the
    screen above the keyboard (--vv-top / --vv-h follow window.visualViewport while it is open, capture-panel.ts). */
 dialog.capture-panel { margin: calc(var(--vv-top, 0px) + max(12px, env(safe-area-inset-top))) auto auto;
   width: min(460px, calc(100vw - 24px)); max-height: min(680px, calc(var(--vv-h, 100dvh) - 24px - env(safe-area-inset-top))); padding: 18px; border: 0; border-radius: 22px;
   background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; overflow-y: auto; }
-dialog.capture-panel::backdrop, dialog.app-drawer::backdrop, dialog.editor::backdrop, dialog.transfer::backdrop { background: rgba(4, 9, 30, .55); }
+dialog.capture-panel::backdrop, dialog.editor::backdrop, dialog.transfer::backdrop { background: rgba(4, 9, 30, .55); }
 dialog.capture-panel header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 dialog.capture-panel h2 { margin: 0; font-size: 22px; }
 .capture-add { display: flex; gap: 8px; margin-bottom: 10px; }
@@ -654,9 +653,13 @@ body { letter-spacing: var(--app-ls); }
 .block-name { font-size: calc(16px * var(--esc)) !important; }
 .day-head h2 { font-size: calc(22px * var(--esc)); }
 .chip { font-size: calc(14px * var(--esc)); }
-.drawer-capture, .drawer-links a { font-size: calc(17px * var(--esc)); }
 
 /* Aa / AV steppers on the Week board's top while arranging (as in Epic Manager) */
+/* the edit bar (Week board while arranging, Canvas after ✎ Edit): px, Aa, AV and Themes */
+app-look-bar { grid-column: 1 / -1; display: block; }
+.look-themes { display: inline-flex; align-items: center; gap: 6px; min-height: 42px; font-weight: 500; }
+.look-themes.on { background: var(--teal); color: #0b2f2a; }
+.canvas-look { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin: 4px 0 10px; }
 .text-steppers { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 2px; }
 /* Compact, so px / Aa / AV share one row on a phone (Gianni: the top took too much room); the buttons stay 40px */
 .text-steppers .stepper { gap: 0; padding: 0; }
@@ -840,7 +843,11 @@ html.vt-shrink::view-transition-old(root) { z-index: 1; animation: vt-shrink 300
 .settings-window::backdrop { background: rgba(4, 9, 30, .3); }   /* light, so the theme just picked shows behind */
 .settings-head { display: flex; align-items: center; justify-content: space-between; }
 .settings-head h2 { margin: 0; font-size: 24px; }
-.settings-foot { display: flex; justify-content: flex-end; margin-top: 18px; }
+.settings-foot { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 18px; }
+.settings-foot .sign-out { margin-right: auto; min-height: 42px; }
+.settings-user { margin: 6px 0 0; color: var(--ink-soft); font-size: 13px; overflow-wrap: anywhere; }
+.setting-row.lang-row { align-items: center; justify-content: space-between; flex-wrap: wrap; cursor: default; }
+.lang-choice { margin: 0; flex: 0 1 240px; }
 /* a tiny day of each theme: column, block and two cards, in that theme's own colours */
 .theme-preview { flex: none; width: 64px; height: 52px; padding: 5px; border-radius: 12px; background: #101b42; }
 .tp-day { display: block; height: 100%; padding: 4px; border-radius: 8px; background: linear-gradient(155deg, #8f2859, #621c4b); }
@@ -1056,7 +1063,7 @@ html:is([data-theme='office'], [data-theme='graphite']) .update-button { backgro
 }
 html:is([data-theme='office'], [data-theme='graphite']) .sparkle { color: var(--g-sparkle); text-shadow: none; }
 /* text on the accent greys (selected chips, primary buttons, the menu's current page, done dots) */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.chip.quiet.on, .finish-fab, .primary, .capture-tabs button.on, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.chip.quiet.on, .finish-fab, .primary, .capture-tabs button.on, .page-tile.on, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary) { color: var(--g-on-ink) !important; }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) :is(.primary, button.primary, .capture-fab:not(.finish-fab)):hover:not(:disabled) { background: color-mix(in srgb, var(--pink) 85%, #000) !important; }   /* hover darkens the theme's accent; the fixed pale-pink hover would wash out its ink */
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .capture-fab.finish-fab:hover { background: color-mix(in srgb, var(--teal) 85%, #000); }
 /* the light themes' round buttons (themes, day overview, +, ✎) are soft, not the dark accent (Gianni: too dark there):

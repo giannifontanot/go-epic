@@ -70,9 +70,11 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'theme.sunburnt': { en: 'Sunburnt Toast', es: 'Sunburnt Toast' },
   'theme.smokedcitrus': { en: 'Smoked Citrus', es: 'Smoked Citrus' },
   'theme.graphite': { en: 'Graphite', es: 'Grafito' },
-  'nav.menu': { en: 'Menu', es: 'Menú' },
+  'nav.pages': { en: 'Pages', es: 'Páginas' },
+  'nav.edit': { en: 'Edit', es: 'Editar' },
+  'settings.language': { en: 'Language', es: 'Idioma' },
   'nav.actions': { en: 'Actions', es: 'Acciones' },
-  'nav.close': { en: 'Close menu', es: 'Cerrar menú' },
+  'nav.close': { en: 'Close', es: 'Cerrar' },
   'nav.signOut': { en: 'Sign out', es: 'Salir' },
   'settings.size': { en: 'Text size', es: 'Tamaño de letra' },
   'settings.pxPerMin': { en: 'Pixels per minute', es: 'Píxeles por minuto' },
@@ -192,6 +194,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'task.auto': { en: 'Automatic', es: 'Automático' },
   'task.active': { en: 'Active', es: 'Activo' },
   'task.cancel': { en: 'Cancel', es: 'Cancelar' },
+  'ask.ok': { en: 'OK', es: 'Entendido' },
   'task.done': { en: 'Done', es: 'Listo' },
   'task.nameRequired': { en: 'Give it a name.', es: 'Ponle un nombre.' },
   'task.where': { en: 'Where', es: 'Dónde' },
@@ -307,7 +310,10 @@ export class I18n {
   }
 
   toggle(): void {
-    const next: Lang = this.lang() === 'en' ? 'es' : 'en';
+    this.setLang(this.lang() === 'en' ? 'es' : 'en');
+  }
+
+  setLang(next: Lang): void {
     this.lang.set(next);
     try { localStorage.setItem(STORAGE_KEY, next); } catch { /* a view preference only */ }
   }

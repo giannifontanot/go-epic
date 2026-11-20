@@ -1,3 +1,4 @@
+import { Ask } from '../../shared/ask';
 import { Component, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
@@ -10,7 +11,7 @@ import { CaptureUi } from './capture-ui';
 import { TodoDialog, TodoSave } from './todo-dialog';
 
 /**
- * Capture = tasks (Gianni): one-off to-dos, not Activities. The floating ✎ (or the menu's Capture) opens the panel
+ * Capture = tasks (Gianni): one-off to-dos, not Activities. The action menu's 💡 (or a page's 💡) opens the panel
  * without putting the cursor in the box (you may only want to look); tap the box, type and press Enter, as many as you like; each new task is for today, any hour. The panel
  * lists the open tasks soonest first, on aged paper tinted with their colour, under the Current tab; ☐ checks one (it moves to
  * the Finished tab, where ☑ opens it again), ✎ sets its name, day and hour, ✕ deletes it (asks first). In the Week a task
@@ -19,12 +20,6 @@ import { TodoDialog, TodoSave } from './todo-dialog';
 @Component({
   selector: 'app-capture-panel',
   template: `
-    @if (ui.fab(); as fab) {
-      @if (!fab.hidden) { <button type="button" class="capture-fab" [attr.aria-label]="fab.label" [title]="fab.label" (click)="fab.run()">✎</button> }
-    } @else {
-      <button type="button" class="capture-fab" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')"
-        (click)="ui.open.set(true)">✎</button>
-    }
     <dialog #panel class="capture-panel" aria-labelledby="capture-title" (click)="onBackdrop($event)" (close)="unfollow?.(); ui.open.set(false)">
       <header>
         <h2 id="capture-title" tabindex="-1">{{ i18n.t('capture.title') }}</h2>
@@ -100,6 +95,8 @@ import { TodoDialog, TodoSave } from './todo-dialog';
 })
 export class CapturePanel {
   protected readonly i18n = inject(I18n);
+  /** The app's own question windows (never the browser's confirm/alert). */
+  private readonly asks = inject(Ask);
   protected readonly ui = inject(CaptureUi);
   protected readonly todos = inject(TodoStore);
   private readonly week = inject(WeekStore);
@@ -232,7 +229,8 @@ export class CapturePanel {
     this.todos.update(change.id, { title: change.title, date: change.date, time: change.time, repeat: change.repeat });
   }
 
-  protected remove(todo: Todo): void {
-    if (confirm(this.i18n.t('week.confirmDeleteTask', { task: todo.title }))) this.todos.remove(todo.id);
+  protected async remove(todo: Todo): Promise<void> {
+    const message = this.i18n.t('week.confirmDeleteTask', { task: todo.title });
+    if (await this.asks.ask({ message, ok: this.i18n.t('task.delete'), danger: true })) this.todos.remove(todo.id);
   }
 }

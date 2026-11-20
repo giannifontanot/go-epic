@@ -1,3 +1,4 @@
+import { Ask } from '../../shared/ask';
 import { AfterViewInit, Component, ElementRef, computed, inject, input, output, signal, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
@@ -61,6 +62,8 @@ export interface TodoSave { id: string; title: string; date: string | null; time
 })
 export class TodoDialog implements AfterViewInit {
   protected readonly i18n = inject(I18n);
+  /** The app's own question windows (never the browser's confirm/alert). */
+  private readonly asks = inject(Ask);
   readonly todo = input.required<Todo>();
   /** A new task (the Week board's + New): titled "New task"; the cursor stays out of the name box until it is tapped. */
   readonly isNew = input(false);
@@ -126,7 +129,7 @@ export class TodoDialog implements AfterViewInit {
     return this.week.loaded() && canBecomeActivity(this.todo(), this.editorTime(), day, day ? this.week.plan(day) : null, this.week.now());
   });
 
-  protected toActivity(): void {
+  protected async toActivity(): Promise<void> {
     if (this.leaving) return;
     const todo = this.todo();
     const title = this.title().trim() || todo.title.trim();
@@ -134,7 +137,8 @@ export class TodoDialog implements AfterViewInit {
     if (!this.library.ready() || !this.week.loaded()) { this.problem.set(this.i18n.t('capture.toActivityWait')); return; }
     const day = this.convertTo();
     if (!day || !this.canConvert()) return;
-    if (!confirm(this.i18n.t('capture.toActivityAskWeek', { task: title }))) return;
+    if (!(await this.asks.ask({ message: this.i18n.t('capture.toActivityAskWeek', { task: title }), ok: this.i18n.t('capture.toActivity') }))) return;
+    if (this.leaving || !this.library.ready() || !this.week.loaded() || !this.canConvert()) return;   // things moved on while asking
     const made = activityFromTodo(structuredClone(this.library.library()), title, todo.created, this.activityMinutes());
     if (!made) { this.problem.set(this.i18n.t('capture.toActivityWait')); return; }
     const writes: WeekWrite[] = [];

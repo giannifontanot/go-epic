@@ -1,30 +1,30 @@
-import { Component, ElementRef, afterNextRender, inject, Injector, signal, viewChild, viewChildren } from '@angular/core';
+import { Component, ElementRef, Injectable, Injector, afterNextRender, effect, inject, signal, untracked, viewChild, viewChildren } from '@angular/core';
 import { I18n } from '../core/i18n';
+import { flyTiles, placeBelow } from './fan';
 import { DARK_THEMES, LIGHT_THEMES, THEME_BAR, Theme, ThemeService } from '../core/theme';
 
-const OPEN_MS = 340;
-const STEP_MS = 40;
+
+/** Who asks for the themes: the button they fan out of (the edit bar's Themes), or null while they are away. */
+@Injectable({ providedIn: 'root' })
+export class ThemePicker {
+  readonly anchor = signal<HTMLElement | null>(null);
+  /** The edit bar's Themes button: opens the themes from it, or draws them back. */
+  toggle(button: HTMLElement): void {
+    this.anchor.set(this.anchor() === button ? null : button);
+  }
+}
 
 /**
- * The themes, one tap away (Gianni): the top action of the floating buttons' menu (ActionMenu). A tap fans the eight
- * themes out of it, sliding to the left into two rows of four tiles (the light themes on top, the dark ones below), each
- * a little picture of the theme in its own colours, which never change with the theme that is on; a tap on a
- * tile puts that theme on at once (the fan stays open, so themes can be compared); a tap outside, Esc or the button
- * again draws them back into it. Under reduced motion they simply appear and go. The tiles sit beside the button,
- * centred on it as far as the screen allows. Ajustes (☰ › ⚙) holds only the red time line.
+ * The themes (Gianni): the edit bar's Themes button fans the eight themes out of it into two rows of four tiles (the
+ * light themes on top, the dark ones below), each a little picture of the theme in its own colours, which never change
+ * with the theme that is on; a tap on a tile puts that theme on at once (the fan stays open, so themes can be
+ * compared); a tap outside, Esc or the button again draws them back into it. Under reduced motion they simply appear
+ * and go. Drawn by the App, outside the page (a grey theme's filter on the page would move and grey the tiles), under
+ * the button as far as the screen allows. Ajustes holds the language, the weighted buttons and the red time line.
  */
 @Component({
   selector: 'app-theme-fan',
   template: `
-    <button #fab type="button" class="capture-fab theme-fab" [class.open]="open()" [attr.aria-expanded]="open()" aria-controls="theme-fan"
-            [attr.aria-label]="i18n.t('settings.theme')" [title]="i18n.t('settings.theme')" (click)="toggle()">
-      <!-- an outlined palette in the button's ink, as light as the other round buttons' icons (Gianni: the filled one was too dark) -->
-      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
-        <path d="M12 3.5a8.5 8.5 0 0 0 0 17c1 0 1.6-.7 1.6-1.5 0-.5-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.1 0-.9.7-1.6 1.6-1.6H16a4.6 4.6 0 0 0 4.5-4.6C20.5 6.7 16.7 3.5 12 3.5Z"/>
-        <g fill="currentColor" stroke="none"><circle cx="7.6" cy="11" r="1.3"/><circle cx="10" cy="7.5" r="1.3"/>
-        <circle cx="14.4" cy="7.5" r="1.3"/><circle cx="16.8" cy="11" r="1.3"/></g>
-      </svg>
-    </button>
     @if (open()) {
       <!-- a div, not a button: buttons lean with the phone, and a leaning veil would leave the board tappable at its edges -->
       <div class="theme-fan-veil" aria-hidden="true" (click)="close()"></div>
@@ -48,82 +48,56 @@ const STEP_MS = 40;
 export class ThemeFan {
   protected readonly i18n = inject(I18n);
   protected readonly look = inject(ThemeService);
+  private readonly picker = inject(ThemePicker);
   /** Light themes on the top row, dark ones below; each tile keeps its own theme's colours whatever look is on. */
   protected readonly themes: readonly Theme[] = [...LIGHT_THEMES, ...DARK_THEMES];
   protected readonly dark = new Set<Theme>(DARK_THEMES);
   protected readonly bar = THEME_BAR;
   protected readonly open = signal(false);
   private readonly injector = inject(Injector);
-  private readonly fab = viewChild.required<ElementRef<HTMLButtonElement>>('fab');
   private readonly fanBox = viewChild<ElementRef<HTMLElement>>('fanBox');
   private readonly tiles = viewChildren<ElementRef<HTMLButtonElement>>('tile');
+  /** The button the tiles came out of (they go back into it). */
+  private from: HTMLElement | null = null;
   private closing = false;
 
-  /** Esc draws the fan back; when it is closed nothing happens, and Esc still reaches the open windows. */
+  constructor() {
+    effect(() => {
+      const anchor = this.picker.anchor();
+      untracked(() => {
+        if (anchor && !this.open()) this.show(anchor);
+        else if (!anchor && this.open()) this.close();
+      });
+    });
+  }
+
   protected onEscape(): void {
     if (this.open()) this.close(true);
   }
 
-  /** Whether the tiles are out (the menu leaves Esc to them then). */
-  isOpen(): boolean {
-    return this.open();
-  }
-
-  protected toggle(): void {
-    if (this.open()) { this.close(); return; }
+  private show(anchor: HTMLElement): void {
+    this.from = anchor;
     this.open.set(true);
-    afterNextRender(() => { this.place(); this.fly(true); }, { injector: this.injector });
-  }
-
-  /** The tiles beside the button, centred on it, never past the top or the bottom of the screen. */
-  private place(): void {
-    const fan = this.fanBox()?.nativeElement;
-    if (!fan || typeof innerHeight !== 'number') return;
-    const r = this.fab().nativeElement.getBoundingClientRect();
-    const h = fan.offsetHeight;
-    const centre = innerHeight - (r.top + r.bottom) / 2;
-    const bottom = Math.max(12, Math.min(centre - h / 2, innerHeight - h - 12));
-    fan.style.bottom = bottom + 'px';
+    afterNextRender(() => { placeBelow(anchor, this.fanBox()?.nativeElement); this.fly(true); }, { injector: this.injector });
   }
 
   /** Draws the tiles back into the button, then removes them; focus returns to the button after Esc. */
   close(refocus = false): void {
     if (!this.open() || this.closing) return;
     this.closing = true;
+    const from = this.from;
     const done = () => {
       this.closing = false;
       this.open.set(false);
-      if (refocus) this.fab().nativeElement.focus({ preventScroll: true });
+      if (this.picker.anchor() === from) this.picker.anchor.set(null);
+      if (refocus) from?.focus({ preventScroll: true });
     };
     const animations = this.fly(false);
     if (!animations.length) { done(); return; }
     Promise.all(animations.map((a) => a.finished)).then(done, done);
   }
 
-  /**
-   * Each tile slides out of the button (or back into it): it starts on the button, small and clear, and glides to its
-   * place, the nearest ones first. Nothing under reduced motion.
-   */
   private fly(out: boolean): Animation[] {
-    const reduced = typeof matchMedia !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const tiles = this.tiles().map((t) => t.nativeElement);
-    if (reduced || !tiles.length || typeof tiles[0].animate !== 'function') return [];
-    const from = this.fab().nativeElement.getBoundingClientRect();
-    const fx = from.left + from.width / 2, fy = from.top + from.height / 2;
-    const rects = tiles.map((t) => t.getBoundingClientRect());
-    const far = Math.max(...rects.map((r) => fx - (r.left + r.width / 2)));
-    return tiles.map((tile, i) => {
-      const r = rects[i];
-      const dx = fx - (r.left + r.width / 2), dy = fy - (r.top + r.height / 2);
-      const order = far > 0 ? Math.round(((dx / far) * 3)) : 0;          // 0 = the column next to the button
-      const home = { transform: 'none', opacity: 1 };
-      const away = { transform: `translate(${dx}px, ${dy}px) scale(.3)`, opacity: 0 };
-      return tile.animate(out ? [away, home] : [home, away], {
-        duration: OPEN_MS,
-        delay: (out ? order : 3 - order) * STEP_MS,
-        easing: out ? 'cubic-bezier(0, 0, .2, 1)' : 'cubic-bezier(.4, 0, 1, 1)',
-        fill: 'both',
-      });
-    });
+    return this.from ? flyTiles(this.from, this.tiles().map((t) => t.nativeElement), out) : [];
   }
 }

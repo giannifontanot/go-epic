@@ -20,6 +20,7 @@ describe('App', () => {
     expect(root.querySelector('router-outlet')).toBeTruthy();
     expect(root.querySelector('.nav-toggle')).toBeNull();
     expect(root.querySelector('.app-drawer')).toBeNull();
+    expect(root.querySelector('.menu-fab')).toBeNull();
     expect(root.querySelector('dialog.update-overlay')?.hasAttribute('open')).toBeFalsy();
   });
 

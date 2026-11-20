@@ -1,3 +1,4 @@
+import { Ask } from '../../shared/ask';
 import { Component, DestroyRef, DoCheck, ElementRef, HostListener, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
@@ -10,7 +11,7 @@ import { UnsavedWork } from '../../core/unsaved';
 import { CaptureUi } from '../capture/capture-ui';
 import { CanvasMotion } from './canvas-motion';
 import { CanvasNode } from './canvas-node';
-import { ActionMenu } from '../../shared/action-menu';
+import { LookBar } from '../../shared/look-bar';
 import { CanvasLayout, CanvasState } from './canvas-state';
 
 interface Drag {
@@ -34,13 +35,17 @@ const LEAVE_SAVE_WAIT_MS = 6000;
 
 @Component({
   selector: 'app-canvas',
-  imports: [CanvasNode, ActionMenu],
+  imports: [CanvasNode, LookBar],
   templateUrl: './canvas.html',
   styleUrl: './canvas.css',
 })
 export class Canvas implements DoCheck {
   protected readonly i18n = inject(I18n);
+  /** The app's own question windows (never the browser's confirm/alert). */
+  private readonly asks = inject(Ask);
   protected readonly capture = inject(CaptureUi);
+  /** The edit bar (Aa / AV, Themes), opened by the action menu's Edit. */
+  protected readonly lookOpen = signal(false);
   protected readonly libraryStore = inject(LibraryStore);
   private readonly week = inject(WeekStore);
   private readonly auth = inject(AuthService);
@@ -98,9 +103,9 @@ export class Canvas implements DoCheck {
         this.bump();
       });
     });
-    // Capture is the 💡 at the top right and in the action menu (one round button, as on the Week); no floating ✎ here.
-    this.capture.fab.set({ label: '', run: () => undefined, hidden: true });
-    inject(DestroyRef).onDestroy(() => { this.cancelDrag(); this.motion.destroy(); this.capture.fab.set(null); this.unsaved.canvasDraft.set(false); });
+    // The action menu's Edit opens the edit bar here (Aa / AV, Themes); objects can always be moved on the Canvas.
+    this.capture.menuEdit.set({ label: this.i18n.t('nav.edit'), run: () => this.lookOpen.update((v) => !v) });
+    inject(DestroyRef).onDestroy(() => { this.capture.menuEdit.set(null); this.cancelDrag(); this.motion.destroy(); this.unsaved.canvasDraft.set(false); });
   }
 
   // --- What the page shows ---
@@ -174,8 +179,10 @@ export class Canvas implements DoCheck {
     this.libraryStore.error.set('');
   }
 
-  discard(): void {
-    if (!this.saving && confirm(this.i18n.t('canvas.confirmDiscard'))) {
+  async discard(): Promise<void> {
+    if (this.saving) return;
+    const yes = await this.asks.ask({ message: this.i18n.t('canvas.confirmDiscard'), ok: this.i18n.t('canvas.discard'), danger: true });
+    if (yes && !this.saving) {
       this.mutate(() => { this.state.load(this.libraryStore.library(), this.readLayout()); this.ensureActive(); });
     }
   }
@@ -200,7 +207,7 @@ export class Canvas implements DoCheck {
   canLeave(): boolean | Promise<boolean> {
     const dialog = this.leaveDialog()?.nativeElement;
     if (!this.state.dirty) return true;
-    if (!dialog) return confirm(this.i18n.t('canvas.leaveAsk'));
+    if (!dialog) return this.asks.ask({ message: this.i18n.t('canvas.leaveAsk'), ok: this.i18n.t('canvas.leaveDiscard'), danger: true });
     this.leaveAnswer?.(false);                                             // a second navigation replaces the first
     this.leaveError.set('');
     return new Promise<boolean>((resolve) => {
@@ -484,13 +491,14 @@ export class Canvas implements DoCheck {
     return DAYS.reduce((sum, day) => sum + this.week.week()[day].blocks.reduce((n, b) => n + b.tasks.filter((t) => t.ref === id).length, 0), 0);
   }
 
-  remove(): void {
+  async remove(): Promise<void> {
     const node = this.modal?.node;
     if (!node || this.saving || this.editorClosing) return;
-    if (!this.state.canDelete(node.id)) { alert(this.i18n.t('canvas.deleteHint')); return; }
+    if (!this.state.canDelete(node.id)) { void this.asks.tell(this.i18n.t('canvas.deleteHint')); return; }
     const places = node.kind === 'task' ? this.weekPlaces(node.id) : 0;
     const question = places ? this.i18n.t('canvas.confirmDeleteTask', { n: places }) : this.i18n.t('canvas.confirmDelete');
-    if (!confirm(question)) return;
+    if (!(await this.asks.ask({ message: question, ok: this.i18n.t('task.delete'), danger: true }))) return;
+    if (this.modal?.node !== node || this.saving || this.editorClosing || !this.state.canDelete(node.id)) return;   // the draft moved on meanwhile
     this.mutate(() => { this.state.delete(node.id); this.ensureActive(); });
     this.close();
   }

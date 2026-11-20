@@ -13,25 +13,8 @@
       <button type="button" class="round idea" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')" (click)="capture.open.set(true)">💡</button>
     }
       @if (arranging()) {
-      <!-- px / Aa / AV, as in Epic Manager: pixels per minute, the activities' text size and the space between letters,
-           seen at once on the cards -->
-      <div class="text-steppers">
-        <div class="stepper" role="group" [attr.aria-label]="i18n.t('settings.pxPerMin')">
-          <button type="button" [disabled]="!text.canStep('px', -1)" [attr.aria-label]="i18n.t('settings.shorter')" (click)="text.stepPx(-1)">−</button>
-          <span class="px-value">{{ text.pxPerMin() }}<small>px</small></span>
-          <button type="button" [disabled]="!text.canStep('px', 1)" [attr.aria-label]="i18n.t('settings.longer')" (click)="text.stepPx(1)">+</button>
-        </div>
-        <div class="stepper" role="group" [attr.aria-label]="i18n.t('settings.size')">
-          <button type="button" [disabled]="!text.canStep('size', -1)" [attr.aria-label]="i18n.t('settings.smaller')" (click)="text.stepSize(-1)">−</button>
-          <span>Aa</span>
-          <button type="button" [disabled]="!text.canStep('size', 1)" [attr.aria-label]="i18n.t('settings.bigger')" (click)="text.stepSize(1)">+</button>
-        </div>
-        <div class="stepper" role="group" [attr.aria-label]="i18n.t('settings.spacing')">
-          <button type="button" [disabled]="!text.canStep('spacing', -1)" [attr.aria-label]="i18n.t('settings.tighter')" (click)="text.stepSpacing(-1)">−</button>
-          <span>AV</span>
-          <button type="button" [disabled]="!text.canStep('spacing', 1)" [attr.aria-label]="i18n.t('settings.wider')" (click)="text.stepSpacing(1)">+</button>
-        </div>
-      </div>
+      <!-- the edit bar (Gianni): px / Aa / AV, as in Epic Manager, seen at once on the cards, and the Themes -->
+      <app-look-bar [px]="true" />
     }
   </header>
 
@@ -345,9 +328,6 @@
 @if (arranging()) {
   <button type="button" class="capture-fab finish-fab" [attr.aria-label]="i18n.t('week.finish')" [title]="i18n.t('week.finish')" (click)="toggleArrange()">✓</button>
 }
-<!-- one round button at the bottom right (Gianni): it opens ✎ arrange, + a new task, the day overview, 💡 Capture and
-     the themes; while arranging the round ✓ Finish takes its place -->
-@if (!arranging()) { <app-action-menu [edit]="arrangeAction()" /> }
 @if (editingTodo(); as todo) {
   <app-todo-dialog [todo]="todo" [isNew]="!todo.id" [day]="editingDay()" (save)="saveTodo($event)" (closed)="editingTodo.set(null)" />
 }
