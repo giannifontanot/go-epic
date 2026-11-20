@@ -85,7 +85,11 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 .summary { margin: 0; text-align: center; font-size: 14px; font-weight: 700; opacity: .85; }
 .block-window { display: flex; gap: 8px; }
 .block-window label { flex: 1 1 0; min-width: 0; display: grid; gap: 2px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
-.block-window input { -webkit-appearance: none; appearance: none; width: 100%; min-width: 0; min-height: 38px; padding: 4px 12px; border: 1px solid rgba(54, 38, 67, .3); border-radius: 14px; text-align: center; background: #fff8e8; color: var(--jelly-ink); font-size: 16px; color-scheme: light; }
+/* the block's Start / End are wells in the block itself (Gianni; a panel chose it): its own colour a tone darker, sunk in, with
+   a border in the block's ink (≥ 3:1 against the block) so they read as fields that belong to it, in every theme */
+.block-window input { -webkit-appearance: none; appearance: none; width: 100%; min-width: 0; min-height: 38px; padding: 4px 12px; border-radius: 14px; text-align: center; font-size: 16px; color-scheme: light;
+  background: color-mix(in srgb, var(--jelly-b) 93%, #000); color: var(--jelly-ink); border: 1px solid color-mix(in srgb, var(--jelly-ink) 55%, color-mix(in srgb, var(--jelly-b) 93%, #000));
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .18); }
 @media (min-width: 821px) { .block-window input { font-size: 14px; } }
 .window-error { margin: 0; color: var(--red); font-size: 12px; font-weight: 700; }
 .block-tools { display: flex; }
@@ -121,7 +125,7 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 html:is([data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepicdark']) .block { --head-shade: rgba(0, 0, 0, .4); }
 html[data-theme='graphite'] .task { --head-shade: rgba(0, 0, 0, .34); }
 html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .block { --head-line: color-mix(in srgb, var(--block-edge) 75%, transparent); }
-html[data-theme='goepiclight'] .block { --head-shade: #cfcfd8; }   /* the white block's header: a soft grey */
+html[data-theme='goepiclight'] .block { --head-shade: #c6c6d0; }   /* the grey block's header: a shade darker still */
 .block-tools { margin: -10px -10px 0; padding: 8px 10px; gap: 10px; align-items: center;
   border-start-start-radius: inherit; border-start-end-radius: inherit; background: var(--head-shade); border-bottom: 1px solid var(--head-line); }
 .board:not(.locked) .t-tools { width: calc(100% + 24px); margin: -6px -12px 0; padding: 6px 12px; gap: 10px; align-items: center;
@@ -1042,8 +1046,8 @@ button.t-state:focus-visible { outline: 3px solid var(--teal); outline-offset: 3
 [data-preview='sunburnt'] .tp-day { background: linear-gradient(155deg, #f7e8d8, #f0dcc6); }
 [data-preview='sunburnt'] .tp-block { background: linear-gradient(150deg, #fdf8ef, #f4ead8); box-shadow: 0 0 0 1px #dcae63; }
 [data-preview='goepiclight'] .theme-preview { background: #fbfbfd; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .06); }
-[data-preview='goepiclight'] .tp-day { background: #f0f0f4; }
-[data-preview='goepiclight'] .tp-block { background: #fff; box-shadow: 0 0 0 1px #d9b54a; }
+[data-preview='goepiclight'] .tp-day { background: #f2f2f6; }
+[data-preview='goepiclight'] .tp-block { background: #e5e5ea; box-shadow: 0 0 0 1px #d9b54a; }
 [data-preview='goepicdark'] .theme-preview { background: #0a1130; }
 [data-preview='goepicdark'] .tp-day { background: linear-gradient(155deg, #16214f, #111a42); }
 [data-preview='goepicdark'] .tp-block { background: linear-gradient(150deg, #1d2a5e, #17224f); box-shadow: 0 0 0 1px #c9a227; }
@@ -1144,7 +1148,7 @@ html[data-theme='smokedcitrus'] body { min-height: 100dvh; background: linear-gr
 /* Smoked Citrus blocks: warm smoked stone with an ember edge (a thin tangerine light on top, a burnt-orange lip below),
    so the orange stays an accent (day border, buttons, free time) instead of filling every block */
 html[data-theme='smokedcitrus'] .block { box-shadow: inset 0 1px 0 rgba(251, 146, 60, .45), 0 4px 0 #7c2d12, 0 8px 16px rgba(0, 0, 0, .45); }
-html[data-theme='smokedcitrus'] .block-window input { background: #2b2926; border-color: #5c5650; color: var(--jelly-ink); color-scheme: dark; }
+html[data-theme='smokedcitrus'] .block-window input { color-scheme: dark; }
 html[data-theme='smokedcitrus'] input.block-name { border-bottom-color: rgba(253, 186, 116, .5); }
 /* the cards stay light pastels: their own buttons keep the dark card ink (the block's ink is light now) */
 html[data-theme='smokedcitrus'] .task .round:not(.danger-x) { color: var(--card-ink); border-color: rgba(42, 20, 6, .45); }
@@ -1163,17 +1167,17 @@ html[data-theme='sunburnt'] {
 }
 html[data-theme='sunburnt'] body { min-height: 100dvh; background: linear-gradient(135deg, #ffffff 0%, #fff1e5 30%, #ffe0c7 65%, #fff8f1 100%) fixed; }
 /* Go Epic Light and Go Epic Dark (Gianni): the Get Go Epic page made into a pair of themes. Light is the page itself: an
-   Apple-like off-white, near-black ink, soft grey days, white porcelain blocks with a thin gold edge, black pill
+   Apple-like off-white, near-black ink, near-white days, pale grey blocks with a thin gold edge, black pill
    buttons and the wordmark's Cinzel Decorative in navy for the page titles. Dark is the same page at night: deep navy
    (the wordmark's "Go"), navy days and blocks with a gold edge, gold buttons and the titles in the wordmark's gold. */
 html[data-theme='goepiclight'] {
   --countdown: #a87b14;
   --page: #fbfbfd; --ink: #1d1d1f; --ink-soft: #6e6e73;
-  --plum-a: #f2f2f6; --plum-b: #ebebf0; --jelly-a: #ffffff; --jelly-b: #f8f8fa; --jelly-ink: #1d1d1f; --card-ink: #1d1d1f;   /* white blocks, soft grey days */
+  --plum-a: #f4f4f7; --plum-b: #efeff3; --jelly-a: #e9e9ee; --jelly-b: #e1e1e7; --jelly-ink: #1d1d1f; --card-ink: #1d1d1f;   /* pale grey blocks on near-white days (Gianni: white blocks were lost on the page and their header; a panel chose it) */
   --block-edge: #d9b54a;                                           /* the wordmark's gold, only on the block's border */
   --pink: #1d1d1f; --teal: #b8860b; --red: #b91c1c; --navy-card: #ffffff; --light: #ffffff;   /* black pill buttons, gold focus */
   --now: #c9a227; --now-ink: #1d1d1f;                              /* the gold rule of the page; red with Ajustes' box */
-  --g-lip: #e4e4ea; --g-shadow: rgba(16, 27, 66, .09); --g-soft-ink: #101b42; --g-end: #101b42; --g-end-ink: #fbfbfd;
+  --g-lip: #cdcdd5; --g-shadow: rgba(16, 27, 66, .09); --g-soft-ink: #101b42; --g-end: #101b42; --g-end-ink: #fbfbfd;
   --g-chip: #ededf2; --g-badge-ring: #d9b54a; --g-veil: rgba(16, 27, 66, .32); --g-veil-strong: rgba(16, 27, 66, .6);
   --g-on-ink: #fbfbfd; --g-tint: 16, 27, 66; --g-edge: #d2d2d7; --g-placeholder: #8e8e93;
   --title-ink: #101b42;
@@ -1195,7 +1199,7 @@ html[data-theme='goepicdark'] {
 }
 html[data-theme='goepicdark'] body { min-height: 100dvh; background: radial-gradient(120% 70% at 50% 0%, #17245a 0%, #0a1130 62%) fixed; }
 /* the navy blocks: dark fields, a gold name line, and the light cards keep their dark ink */
-html[data-theme='goepicdark'] .block-window input { background: #111a42; border-color: #3a4777; color: var(--jelly-ink); color-scheme: dark; }
+html[data-theme='goepicdark'] .block-window input { color-scheme: dark; }
 html[data-theme='goepicdark'] input.block-name { border-bottom-color: rgba(226, 184, 74, .55); }
 html[data-theme='goepicdark'] .task .round:not(.danger-x) { color: var(--card-ink); border-color: rgba(34, 32, 58, .45); }
 /* the page's type: the wordmark's Cinzel Decorative for the page titles and day names, the clean system sans elsewhere */
@@ -1268,7 +1272,7 @@ html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], 
 html:is([data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .block {
   box-shadow: 0 0 0 1.5px var(--block-edge), inset 0 1px 0 rgba(255, 255, 255, .12), 0 4px 0 var(--g-lip), 0 8px 14px var(--g-shadow); }
 /* Petal Punk's blocks are dark now: dark fields, a rose dashed name line, and the light cards keep their dark ink */
-html[data-theme='petalpunk'] .block-window input { background: #2a2130; border-color: #5a4660; color: var(--jelly-ink); color-scheme: dark; }
+html[data-theme='petalpunk'] .block-window input { color-scheme: dark; }
 html[data-theme='petalpunk'] input.block-name { border-bottom-color: rgba(240, 184, 211, .5); }
 html[data-theme='petalpunk'] .task .round:not(.danger-x) { color: var(--card-ink); border-color: rgba(42, 16, 32, .45); }
 /* on the dark blocks (Petal Punk, Smoked Citrus) the free-time stripes, the end handle and the summary dash turn light */
@@ -1315,7 +1319,6 @@ html:is([data-theme='office'], [data-theme='graphite']) .capture-list { backgrou
 html:is([data-theme='office'], [data-theme='graphite']) .capture-tabs { --tab-face: var(--g-list); --tab-ink: var(--ink); }
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit) { background: var(--g-control); }
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-icon, .todo-edit):hover:not(:disabled) { background: var(--g-control-hover); }
-html:is([data-theme='office'], [data-theme='graphite']) .block-window input { background: var(--g-input); border-color: var(--g-edge); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .field :is(input, select) { border-color: var(--g-edge); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) :is(.round, .nav-toggle, .idea, .chip.quiet:not(.on)) { background-color: rgba(var(--g-tint), .08); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .stepper { border-color: rgba(var(--g-tint), .25); }
