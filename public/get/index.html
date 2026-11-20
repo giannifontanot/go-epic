@@ -124,7 +124,7 @@
     /* Phones: room to breathe at the top (Gianni found it crowded). One quiet language chip instead of the two-part switch,
        the motto on three lines with space around it, the mission set apart under a short gold rule. */
     @media (max-width: 879px) {
-      .lang { padding: 0 10px; background: transparent; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .12); }
+      .lang { padding: 0 10px; }
       .lang .lang-name { display: none; }
       .lang .lang-code { display: inline; }
       .top { padding-bottom: 10px; }
@@ -143,14 +143,16 @@
     /* The language switch is a list, not a pair of buttons, so more languages can join it (Gianni): a pill with a globe,
        the language in use and a chevron, over an invisible native <select> that opens the list. */
     .lang { margin-left: auto; position: relative; display: inline-flex; align-items: center; gap: 6px; min-width: 40px; min-height: 40px;
-      padding: 0 12px; border-radius: 999px; background: var(--soft); color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer; }
-    .lang svg { flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-    .lang .globe { width: 17px; height: 17px; color: var(--mute); }
-    .lang .lang-chev { width: 10px; height: 10px; color: var(--mute); stroke-width: 2; }
+      padding: 0 12px; border-radius: 999px; background: rgba(255, 255, 255, .7); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .07);
+      color: var(--mute); font-size: 14px; font-weight: 500; cursor: pointer; transition: color .2s, box-shadow .2s; }
+    /* Light (Gianni): a white pill with a hairline edge and soft grey type, so it never competes with the name or Download */
+    .lang svg { flex: none; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+    .lang .globe { width: 17px; height: 17px; color: #a1a1a6; }
+    .lang .lang-chev { width: 10px; height: 10px; color: #a1a1a6; stroke-width: 1.6; }
     .lang-code { display: none; }
     .lang select { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; border: 0; border-radius: 999px; opacity: 0;
       cursor: pointer; font-size: 16px; -webkit-appearance: none; appearance: none; }
-    .lang:hover { color: #101b42; }
+    .lang:hover { color: #101b42; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .14); }
     .lang:has(select:focus-visible) { outline: 2px solid #c9a227; outline-offset: 2px; }
     .pill { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; text-decoration: none;
       background: var(--btn); color: var(--btn-ink); font-weight: 600; transition: background-color .8s, color .8s, transform .2s var(--spring); }
@@ -161,7 +163,9 @@
     .slide .pill.big { position: relative; margin-block: 6px; box-shadow: 0 0 0 6px #f5c945; }
     .slide .pill.big::after { content: ''; position: absolute; inset: -6px; border-radius: inherit; pointer-events: none;
       box-shadow: 0 0 0 6px #f5c945, 0 0 26px 8px rgba(245, 201, 69, .8); opacity: 0; }
-    .slide.on .pill.big::after { animation: ring-flash 1.6s ease-out .9s infinite; }
+    /* It flashes from the page's first moment, like the header's circle, so both rings glow at the same time (Gianni);
+       the slide being hidden only hides it, the beat keeps running */
+    .slide .pill.big::after { animation: ring-flash 1.6s ease-out .9s infinite; }
     /* Top right: a white download arrow on a black circle with the same flashing yellow ring as the last slide's
        Download (Gianni), instead of the word */
     .dl-top { position: relative; flex: none; display: grid; place-items: center; width: 40px; height: 40px; margin: 0 6px 0 4px;
