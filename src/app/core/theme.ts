@@ -3,6 +3,9 @@ import { Injectable, effect, signal } from '@angular/core';
 /** The looks Go Epic can wear (Ajustes › Theme). */
 export const THEMES = ['epic', 'pinkpop', 'petalpunk', 'squeezeme', 'sunburnt', 'smokedcitrus', 'office', 'graphite'] as const;
 export type Theme = (typeof THEMES)[number];
+/** Light and dark, four each: the themes button shows the light ones on its top row, the dark ones below (Gianni). */
+export const LIGHT_THEMES: readonly Theme[] = ['pinkpop', 'squeezeme', 'sunburnt', 'office'];
+export const DARK_THEMES: readonly Theme[] = ['epic', 'petalpunk', 'smokedcitrus', 'graphite'];
 
 /** This device's choice: each device keeps its own (an office computer can stay discreet while the phone stays Epic). */
 export const THEME_KEY = 'go-epic-theme';

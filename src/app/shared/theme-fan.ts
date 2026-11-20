@@ -1,13 +1,14 @@
 import { Component, ElementRef, afterNextRender, inject, Injector, signal, viewChild, viewChildren } from '@angular/core';
 import { I18n } from '../core/i18n';
-import { THEMES, Theme, ThemeService } from '../core/theme';
+import { DARK_THEMES, LIGHT_THEMES, THEME_BAR, Theme, ThemeService } from '../core/theme';
 
 const OPEN_MS = 340;
 const STEP_MS = 40;
 
 /**
  * The themes, one tap away (Gianni): a round button on top of the Week board's floating buttons. A tap fans the eight
- * themes out of it, sliding to the left into two rows of four tiles, each a little picture of the theme; a tap on a
+ * themes out of it, sliding to the left into two rows of four tiles (the light themes on top, the dark ones below), each
+ * a little picture of the theme in its own colours, which never change with the theme that is on; a tap on a
  * tile puts that theme on at once (the fan stays open, so themes can be compared); a tap outside, Esc or the button
  * again draws them back into it. Under reduced motion they simply appear and go. Ajustes (☰ › ⚙) still holds the
  * themes and the red time line.
@@ -28,7 +29,8 @@ const STEP_MS = 40;
       <div class="theme-fan-veil" aria-hidden="true" (click)="close()"></div>
       <div id="theme-fan" class="theme-fan" role="radiogroup" [attr.aria-label]="i18n.t('settings.theme')">
         @for (theme of themes; track theme) {
-          <button #tile type="button" class="theme-tile" role="radio" [attr.data-preview]="theme" [attr.aria-checked]="look.theme() === theme"
+          <button #tile type="button" class="theme-tile" role="radio" [attr.data-preview]="theme" [class.dark]="dark.has(theme)"
+                  [style.--tile-bg]="bar[theme]" [attr.aria-checked]="look.theme() === theme"
                   [class.on]="look.theme() === theme" (click)="look.set(theme)">
             <span class="theme-preview" aria-hidden="true">
               <span class="tp-day"><span class="tp-block"><span class="tp-card"></span><span class="tp-card"></span></span></span>
@@ -45,7 +47,10 @@ const STEP_MS = 40;
 export class ThemeFan {
   protected readonly i18n = inject(I18n);
   protected readonly look = inject(ThemeService);
-  protected readonly themes = THEMES;
+  /** Light themes on the top row, dark ones below; each tile keeps its own theme's colours whatever look is on. */
+  protected readonly themes: readonly Theme[] = [...LIGHT_THEMES, ...DARK_THEMES];
+  protected readonly dark = new Set<Theme>(DARK_THEMES);
+  protected readonly bar = THEME_BAR;
   protected readonly open = signal(false);
   private readonly injector = inject(Injector);
   private readonly fab = viewChild.required<ElementRef<HTMLButtonElement>>('fab');
