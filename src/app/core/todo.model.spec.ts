@@ -144,7 +144,9 @@ describe('todo model', () => {
     expect(ids(placeActivity(plan, null, card, 'N'))?.[1]).toBe('e 18:00-20:00: t3,new');
     // a day with no blocks gets one at the task's hour
     expect(placeActivity({ blocks: [] }, '08:00', card, 'N')?.map((b) => [b.name, b.start, b.end, b.tasks.map((x) => x.id)])).toEqual([['N', '08:00', null, ['new']]]);
-    // never past midnight
+    // never past midnight, also in a block with no end or a new one
+    expect(placeActivity({ blocks: [{ id: 'o', name: 'O', start: '23:00', end: null, tasks: [t('o1', 30)] }] }, '23:10', card, 'N')).toBeNull();
+    expect(placeActivity({ blocks: [] }, '23:30', card, 'N')).toBeNull();
     expect(placeActivity({ blocks: [{ id: 'z', name: 'Z', start: '23:00', end: '23:50', tasks: [t('z1', 50)] }] }, '23:10', card, 'N')).toBeNull();
   });
 
@@ -154,6 +156,8 @@ describe('todo model', () => {
     expect(convertDay(todo('b', { date: '2026-11-02' }), tuesday)).toBe('TUESDAY');        // rolled over to today
     expect(convertDay(todo('c', { date: null }), tuesday)).toBe('TUESDAY');
     expect(convertDay(todo('d', { date: '2026-11-20' }), tuesday)).toBeNull();             // a later week
+    expect(convertDay(todo('g', { date: '2026-11-09', done: 5 }), tuesday)).toBe('MONDAY');   // finished: its note stays on Monday
+    expect(convertDay(todo('h', { date: '2026-11-02', done: 5 }), tuesday)).toBeNull();      // finished in an earlier week
     expect(convertDay(todo('e', { date: null, repeat: ['MONDAY', 'TUESDAY'] }), tuesday)).toBe('TUESDAY');
     expect(convertDay(todo('f', { date: null, repeat: ['THURSDAY'] }), tuesday)).toBe('THURSDAY');
   });

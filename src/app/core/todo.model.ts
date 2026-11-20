@@ -117,7 +117,10 @@ export function pinTodos(plan: DayPlan, todos: Todo[]): { onTask: Map<string, To
 export function placeActivity(plan: DayPlan, time: string | null, card: Task, blockName: string): Block[] | null {
   const blocks = plan.blocks;
   const at = parseClock(time);
-  if (!blocks.length) return [{ id: newId(), name: blockName, start: at === null ? null : formatClock(at), end: null, tasks: [card] }];
+  if (!blocks.length) {
+    const fresh: Block = { id: newId(), name: blockName, start: at === null ? null : formatClock(at), end: null, tasks: [card] };
+    return pastMidnight(fresh) ? null : [fresh];
+  }
   const host = at === null ? undefined : closestTimed(timedOf(plan), at);
   let bi = blocks.length - 1;
   let index = blocks[bi].tasks.length;
@@ -133,18 +136,25 @@ export function placeActivity(plan: DayPlan, time: string | null, card: Task, bl
   const tasks = [...block.tasks];
   tasks.splice(index, 0, card);
   const grown: Block = { ...block, end: short && end !== null ? formatClock(end + short) : block.end, tasks };
-  return blocks.map((b, i) => (i === bi ? grown : b));
+  return pastMidnight(grown) ? null : blocks.map((b, i) => (i === bi ? grown : b));
+}
+
+/** Some task of the block would run past 23:59 (a block with no end grows freely, but never past midnight). */
+function pastMidnight(block: Block): boolean {
+  const starts = taskStarts(block);
+  return block.tasks.some((t, i) => starts[i] !== null && (starts[i] as number) + validMinutes(t.minutes) > 1439);
 }
 
 /**
  * The day of this week where a Capture task's note shows, for turning it into an Activity from Capture's own list:
- * its date's weekday when it falls in this week; today when it rolled over from an earlier day or has no day; a
+ * its date's weekday when it falls in this week (a finished task keeps its own day); today when it rolled over
+ * (open, from an earlier day) or has no day; a
  * repeating task today when it repeats today, else its first day. Null for a later week (it waits in Free Space).
  */
 export function convertDay(todo: Todo, now: Date): Day | null {
   const today = dayOf(now);
   if (repeats(todo)) return todo.repeat.includes(today) ? today : todo.repeat[0];
-  if (todo.date === null || todo.date < dateKey(now)) return today;
+  if (todo.date === null || (todo.done === null && todo.date < dateKey(now))) return today;   // only open ones roll over
   return DAYS.find((d) => weekDate(now, d) === todo.date) ?? null;
 }
 
