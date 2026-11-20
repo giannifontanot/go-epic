@@ -11,7 +11,7 @@ import {
   addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, countdown, Task, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, stepTask, newId, resizedMinutes,
   moveToHour, snapDelta, nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
 } from '../../core/week.model';
-import { Library, fileTask, followLibrary, nodeById, paperAge, pathOf, updateNode } from '../../core/library.model';
+import { Library, fileTask, followLibrary, nodeById, paperAge, pathOf, setTracked, updateNode } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
 import { CaptureUi, MenuAction } from '../capture/capture-ui';
 import { WeekStore, WeekWrite } from '../../core/week.store';
@@ -1113,7 +1113,7 @@ export class WeekBoard {
    * story (or Free Space), or a new one there. A colour picked here is the library task's colour, in every block.
    * Returns the filed task and the library to save (null when unchanged); `inBatch` saves both together.
    */
-  private fileInLibrary(task: Task, parentId: string | null, colorPicked: boolean): { task: Task; lib: Library | null } {
+  private fileInLibrary(task: Task, parentId: string | null, colorPicked: boolean, track?: boolean): { task: Task; lib: Library | null } {
     if (!this.library.ready() || !task.title.trim()) return { task, lib: null };
     const current = this.library.library();
     let lib = current;
@@ -1121,6 +1121,7 @@ export class WeekBoard {
     if (!id) ({ lib, id } = fileTask(lib, task.title, parentId, task.color));
     const node = nodeById(lib, id)!;
     if (colorPicked && node.color !== task.color) lib = updateNode(lib, id, { color: task.color });
+    if (track !== undefined && !!node.track !== track) lib = setTracked(lib, id, track);
     return { task: { ...task, title: node.title, color: colorPicked ? task.color : node.color, ref: id }, lib: lib === current ? null : lib };
   }
 
@@ -1164,7 +1165,7 @@ export class WeekBoard {
   }
 
   protected saveTask(raw: TaskSave): void {
-    const filed = this.fileInLibrary(raw.task, raw.parentId, raw.colorPicked);
+    const filed = this.fileInLibrary(raw.task, raw.parentId, raw.colorPicked, raw.track);
     this.inBatch(filed.lib, () => this.applySave({ ...raw, task: filed.task }));
   }
 

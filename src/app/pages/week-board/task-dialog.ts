@@ -26,6 +26,8 @@ export interface TaskSave {
   parentId: string | null;
   /** The colour was chosen in these details (else a reused library task keeps its own). */
   colorPicked: boolean;
+  /** "Track in Progress" as ticked here: saved on the library task, so it holds for every place it is planned. */
+  track: boolean;
 }
 
 /**
@@ -117,6 +119,14 @@ export interface TaskSave {
                  [attr.aria-label]="i18n.t('task.minutesOther')" (input)="minutes.set(validMinutes($any($event.target).value))" />
         </div>
       </fieldset>
+      <!-- Track in Progress (Gianni: too many Activities to follow them all): one quiet row at the foot, after the
+           minutes, with the streak's 🔥; it belongs to the Activity itself, so it holds wherever it is planned -->
+      @if (libraryReady()) {
+        <label class="track-row" [class.on]="tracked()">
+          <input type="checkbox" [checked]="tracked()" (change)="trackSet.set($any($event.target).checked)" />
+          <span class="track-text"><strong>🔥 {{ i18n.t('task.track') }}</strong><small>{{ i18n.t('task.trackHint') }}</small></span>
+        </label>
+      }
       @if (problem()) { <p class="app-error" role="alert">{{ problem() }}</p> }
 
       <footer>
@@ -221,6 +231,16 @@ export class TaskDialog implements AfterViewInit {
     });
   }
 
+  /** "Track in Progress" ticked here (null: untouched, the Activity's own value shows). */
+  protected readonly trackSet = signal<boolean | null>(null);
+  protected readonly tracked = computed(() => {
+    const own = this.trackSet();
+    if (own !== null) return own;
+    // The draft's own identity, as Done files it (a saved card opens linked to its Activity): an unlinked card that
+    // becomes a new Activity starts untracked, never inheriting the Activity it was unlinked from.
+    const node = this.linkedNode() ?? this.twin();
+    return node?.kind === 'task' && node.track === true;
+  });
   protected readonly linkedNode = computed(() => {
     const node = nodeById(this.library(), this.linked());
     return node?.kind === 'task' ? node : undefined;
@@ -453,6 +473,7 @@ export class TaskDialog implements AfterViewInit {
       blockName: this.newBlock() ? this.newBlockName().trim() || undefined : undefined,
       parentId: this.where().story || null,
       colorPicked: this.colorPicked(),
+      track: this.tracked(),
     };
     this.leaving = true;
     void closeDialog(this.dialog().nativeElement).then(() => this.save.emit(save));

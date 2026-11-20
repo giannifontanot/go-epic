@@ -682,6 +682,16 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 /* Minutes under the name: ten quick radio chips (1, 5 … 45) and a box for any other value on two rows of six
    columns (Gianni: one line looked cramped): 1–25, then 30–45 and the box over two columns; every chip ≥ 40px */
 fieldset.minutes-pick { border: 0; margin: 0; padding: 0; min-width: 0; }
+/* Track in Progress: one quiet row at the foot of the details (Gianni), a checkbox, the streak's 🔥 and a short hint;
+   ticked, the row takes a teal edge */
+.track-row { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 8px 12px; border-radius: 14px; cursor: pointer;
+  border: 1.5px solid color-mix(in srgb, var(--ink) 18%, transparent); background: color-mix(in srgb, var(--ink) 5%, transparent); color: var(--ink); }
+.track-row input { flex: none; width: 24px; height: 24px; margin: 0; accent-color: var(--teal); cursor: pointer; }
+.track-row.on { border-color: var(--teal); background: color-mix(in srgb, var(--teal) 14%, transparent); }
+.track-text { display: grid; gap: 2px; min-width: 0; }
+.track-text strong { font-size: 16px; }
+.track-text small { font-size: 13px; opacity: .75; }
+.track-hint { margin: 4px 0 14px; }
 fieldset.minutes-pick legend { padding: 0; margin-bottom: 6px; }
 .min-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; align-items: stretch; }
 .min-chip { position: relative; display: grid; place-items: center; min-width: 0; min-height: 44px; border-radius: 12px;

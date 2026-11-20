@@ -29,6 +29,9 @@ export interface LibNode {
   /** Tasks only, optional: how long the Activity takes (a Capture task turned into one saves it, Gianni); a card that
    *  picks it in a block takes these minutes when they fit. */
   minutes?: number;
+  /** Tasks only, optional: shown in Progress (Gianni: too many Activities to follow them all; only the ones ticked
+   *  "Track in Progress" show there). Written only when true; absent = not tracked. */
+  track?: true;
 }
 
 /** Days a task stays fresh paper, and from when it is old stained paper (as in Epic Manager's Capture). */
@@ -128,6 +131,22 @@ export function updateNode(lib: Library, id: string, change: Partial<Pick<LibNod
   return { nodes: lib.nodes.map((node) => (node.id === id ? { ...node, ...change } : node)) };
 }
 
+/** Ticks or unticks a library task's "Track in Progress" (the field is removed when off: Firestore refuses undefined). */
+export function setTracked(lib: Library, id: string, on: boolean): Library {
+  return {
+    nodes: lib.nodes.map((node) => {
+      if (node.id !== id || node.kind !== 'task' || !!node.track === on) return node;
+      const { track: _off, ...rest } = node;
+      return on ? { ...rest, track: true } : rest;
+    }),
+  };
+}
+
+/** The ids of the library tasks ticked "Track in Progress": the habits Progress shows. */
+export function trackedIds(lib: Library): Set<string> {
+  return new Set(lib.nodes.filter((n) => n.kind === 'task' && n.track === true).map((n) => n.id));
+}
+
 /** Moves a node (with everything under it) to a new parent, at the end of its new siblings. */
 export function moveNode(lib: Library, id: string, parentId: string | null): Library {
   const node = nodeById(lib, id);
@@ -193,6 +212,7 @@ export function sanitizeLibrary(raw: unknown): Library {
     // Only when present: Firestore refuses undefined fields.
     if (n.kind === 'task' && typeof n.created === 'number' && Number.isFinite(n.created)) node.created = n.created;
     if (n.kind === 'task' && typeof n.minutes === 'number' && Number.isFinite(n.minutes)) node.minutes = validMinutes(n.minutes);
+    if (n.kind === 'task' && n.track === true) node.track = true;
     nodes.push(node);
   }
   // A parent that no longer exists, or of the wrong kind, sends the node to Free Space instead of hiding it.

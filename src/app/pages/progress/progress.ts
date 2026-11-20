@@ -4,7 +4,8 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { AuthService } from '../../core/auth.service';
 import { I18n } from '../../core/i18n';
-import { paperAge } from '../../core/library.model';
+import { paperAge, trackedIds } from '../../core/library.model';
+import { LibraryStore } from '../../core/library.store';
 import { DayMarks, DayResult, Habit, habits, taskHabits } from '../../core/status.model';
 import { TodoStore } from '../../core/todo.store';
 import { dateKey } from '../../core/week.model';
@@ -28,12 +29,13 @@ const HISTORY_DAYS = 90;
         <!-- 💡 Capture's lists, at the top right as on the other pages (Gianni) -->
         <button type="button" class="round idea" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')" (click)="captureUi.open.set(true)">💡</button>
       </header>
-      @if (!store.loaded()) {
+      @if (!store.loaded() || !library.ready()) {
         <p class="muted">{{ i18n.t('loading') }}</p>
       } @else if (!list().length && !taskList().length) {
-        <p class="muted center">{{ i18n.t('progress.empty') }}</p>
+        <p class="muted center">{{ i18n.t(noneTracked() ? 'progress.pickHint' : 'progress.empty') }}</p>
       } @else {
         <p class="muted legend">{{ i18n.t('progress.legend') }}</p>
+        @if (!list().length && noneTracked()) { <p class="muted track-hint">{{ i18n.t('progress.pickHint') }}</p> }
         @if (list().length) {
           <ul class="habits">
             @for (habit of list(); track habit.key) {
@@ -84,7 +86,13 @@ export class Progress {
     const now = this.store.now();
     return dateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - (HISTORY_DAYS - 1)));
   });
-  protected readonly list = computed(() => habits(this.store.week(), this.history(), this.store.now(), DAYS_SHOWN, HISTORY_DAYS));
+  protected readonly library = inject(LibraryStore);
+  /** Every Activity of the week as a habit; only those ticked "Track in Progress" show (Gianni: too many to follow all). */
+  private readonly all = computed(() => habits(this.store.week(), this.history(), this.store.now(), DAYS_SHOWN, HISTORY_DAYS));
+  private readonly tracked = computed(() => trackedIds(this.library.library()));
+  protected readonly list = computed(() => this.all().filter((h) => this.tracked().has(h.key)));
+  /** Some Activities are planned but none is tracked: Progress says how to add them. */
+  protected readonly noneTracked = computed(() => this.all().length > 0 && !this.list().length);
   /** Capture's repeating tasks as habits: their checks live in each task (`doneOn`), no day documents needed. */
   private readonly todos = inject(TodoStore);
   protected readonly taskList = computed(() => taskHabits(this.todos.todos(), this.store.now(), DAYS_SHOWN, HISTORY_DAYS));
