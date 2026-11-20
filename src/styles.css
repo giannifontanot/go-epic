@@ -842,6 +842,13 @@ html:is([data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme
 .board.locked.spot .block:not(:has(.now-line)):has(.todo-pins) > :not(.block-body),
 .board.locked.spot .block:not(:has(.now-line)):has(.todo-pins) .block-inner > :not(.tasks),
 .board.locked.spot .block:not(:has(.now-line)) .task:has(.todo-pins) > :not(.todo-pins) { filter: var(--spot-dim); }
+/* and the page behind the days (Gianni): a fixed veil just over the page's own background, under everything else,
+   so the board's header, the overdue folder and the round buttons (each on its own surface) stay in front */
+body:has(.board.locked) { isolation: isolate; }   /* the veil (z -1) then sits above the page colour, below all content */
+body:has(.board.locked)::before { content: ''; position: fixed; inset: 0; z-index: -1; background: rgba(0, 0, 0, .2);
+  opacity: 0; pointer-events: none; transition: opacity .6s ease; }
+body:has(.board.locked.spot)::before { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { body:has(.board.locked)::before { transition: none; } }
 @media (prefers-reduced-motion: reduce) { .board.locked .week :is(.day, .day > :not(.block), .block, .block > :not(.block-body), .block-inner > :not(.tasks), .task, .task > :not(.now-line)), .board.locked :is(.day, .block, .task)::before { transition: none; } }
 .block-body { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr; transition: grid-template-rows .4s cubic-bezier(.22, 1, .36, 1), opacity .3s ease; }
 .block-body.closed { grid-template-rows: 0fr; opacity: 0; }
