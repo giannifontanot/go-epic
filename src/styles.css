@@ -1136,11 +1136,14 @@ html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(h1, .day-head
 html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(.board-top h1, .focus-top h1) { font-size: 28px; }
 /* the page titles (Week, Canvas, Progress, Focus) and the day names in the wordmark's gold, as on the Get Go Epic page (Gianni):
    Light the page's deep gold gradient, darkened to stay readable on the light days (at least 3.8:1), Dark a bright gold */
-html[data-theme='goepiclight'] { --title-ink: #8a5a12; --title-gold: linear-gradient(100deg, #9a6f0c, #7d5210); --day-gold: #8a5a12; }
-html[data-theme='goepicdark'] { --title-gold: linear-gradient(100deg, #f5d77a, #e2b84a 55%, #c9a227); --day-gold: #f0cf6e; }
+html[data-theme='goepiclight'] { --title-ink: #8a5a12; --title-gold: linear-gradient(100deg, #9a6f0c, #7d5210); --tab-ink: #1d1d1f; }
+html[data-theme='goepicdark'] { --title-gold: linear-gradient(100deg, #f5d77a, #e2b84a 55%, #c9a227); --tab-ink: #f5f5f7; }
 html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(h1:not(:has(.title-btn)), h1 .title-btn, h1 .title-btn:hover, .title-chev, .day-head h2) {
   background: var(--title-gold); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
-html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .day-tabs button:not([aria-selected='true']) { color: var(--day-gold); }
+/* the phone's day tabs (Gianni): the days in black (Dark: its light ink, black would not read on navy), the chosen one filled with gold */
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .day-tabs button:not([aria-selected='true']) { color: var(--tab-ink); }
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .board-head .day-tabs button[aria-selected='true'] {
+  background: linear-gradient(100deg, #f0cf6e, #d9b54a 50%, #b8860b); border-color: #b8860b; color: #101b42 !important; }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepiclight'], [data-theme='goepicdark'])[data-red-line] { --now: #e0463b; --now-ink: #fff; }     /* Ajustes › red line */
 html[data-theme='graphite'][data-red-line] { --now: #d0564c; }
 
