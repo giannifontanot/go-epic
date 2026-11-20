@@ -63,7 +63,7 @@ export class Ask {
   selector: 'app-ask-window',
   template: `
     <dialog #dialog class="ask-window" role="alertdialog" aria-modal="true" aria-describedby="ask-text"
-            (click)="onBackdrop($event)" (close)="closed()">
+            (click)="onBackdrop($event)" (cancel)="escaped()" (close)="closed()">
       @if (counting(); as c) {
         <p id="ask-text">{{ c.message }}</p>
         <p class="ask-count" role="timer" aria-live="off">
@@ -151,6 +151,11 @@ export class AskWindow {
   /** Cancel during the countdown: nothing is deleted. */
   protected keep(): void {
     this.undo.cancel();
+  }
+
+  /** Esc during the countdown cancels at once, before the window's closing animation (the time could run out in it). */
+  protected escaped(): void {
+    if (this.counting()) { this.started.set(null); this.undo.cancel(); }
   }
 
   /** The window closed by itself (Esc): during a countdown that is a Cancel; otherwise the question's no. */
