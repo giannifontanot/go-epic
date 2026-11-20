@@ -389,8 +389,9 @@ html.tilt .title-btn { translate: none; }   /* it leans with its title, never sl
 .page-fan.title-fan { z-index: 32; right: auto; }
 @media (prefers-reduced-motion: reduce) { .title-chev { transition: none; } }
 .theme-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 64px);
-  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(232px, calc(100vw - max(16px, env(safe-area-inset-right)) - 88px));
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(232px, calc(100vw - max(16px, env(safe-area-inset-right)) - 88px), calc(50dvh - 17px - env(safe-area-inset-top) / 2 - env(safe-area-inset-bottom) / 2));
+  max-height: calc(100dvh - 24px); overflow-y: auto; overscroll-behavior: contain;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }   /* four square rows always fit the screen's height (a landscape phone too) */
 /* two straight columns of square tiles (Gianni: a vertical menu, the dark themes on the left, the light ones on the
    right, each row a family: Epic | Clear Sky, Petal Punk | Pink Pop, Smoked Citrus | Sunburnt, Graphite | Office); they
    never lean with the phone, so they stay square and never overlap. Each wears its own theme's page colour and ink. */
@@ -1243,14 +1244,14 @@ html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'
 html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office']) {
   --edit-fab: color-mix(in srgb, var(--fab-ink) 55%, #16121c); --edit-ink: #fff; --edit-ring: rgba(255, 255, 255, .35);
   --edit-open: #fff; --edit-open-ink: color-mix(in srgb, var(--fab-ink) 55%, #16121c); }
-html .capture-fab.look-fab.look-fab.look-fab:not(.open), html .look-stack .capture-fab.finish-fab {
+html .capture-fab.look-fab.look-fab.look-fab:not(.open), html .capture-fab.finish-fab.finish-fab {
   background: var(--edit-fab); color: var(--edit-ink); border: 1.5px solid var(--edit-ring); box-shadow: 0 4px 14px rgba(0, 0, 0, .28); }
-html .look-stack .capture-fab.finish-fab { border: 0; box-shadow: 0 0 0 2.5px var(--pink), 0 4px 14px rgba(0, 0, 0, .28); color: var(--edit-ink) !important; }
-html:not([data-theme]) .look-stack .capture-fab.finish-fab, html[data-theme='epic'] .look-stack .capture-fab.finish-fab {
+html .capture-fab.finish-fab.finish-fab { border: 0; box-shadow: 0 0 0 2.5px var(--pink), 0 4px 14px rgba(0, 0, 0, .28); color: var(--edit-ink) !important; }
+html:not([data-theme]) .capture-fab.finish-fab.finish-fab.finish-fab, html[data-theme='epic'] .capture-fab.finish-fab.finish-fab.finish-fab {
   background: var(--teal); color: #0b2f2a !important; box-shadow: none; }
 html .capture-fab.look-fab.look-fab.open { background: var(--edit-open); color: var(--edit-open-ink) !important; border-color: var(--edit-open); }
-html body :is(.capture-fab.look-fab.look-fab.look-fab:not(.open), .look-stack .capture-fab.finish-fab.finish-fab.finish-fab):hover:not(:disabled) { background: color-mix(in srgb, var(--edit-fab) 82%, #fff) !important; }
-html:is(:not([data-theme]), [data-theme='epic']) body .look-stack .capture-fab.finish-fab.finish-fab.finish-fab:hover:not(:disabled) { background: color-mix(in srgb, var(--teal) 85%, #000) !important; }
+html body :is(.capture-fab.look-fab.look-fab.look-fab:not(.open), .capture-fab.finish-fab.finish-fab.finish-fab):hover:not(:disabled) { background: color-mix(in srgb, var(--edit-fab) 82%, #fff) !important; }
+html:is(:not([data-theme]), [data-theme='epic']) body .capture-fab.finish-fab.finish-fab.finish-fab.finish-fab:hover:not(:disabled) { background: color-mix(in srgb, var(--teal) 85%, #000) !important; }
 
 /* A delete waits 8 s with a Cancel (Undo, Gianni), in the same question window: the seconds left, Cancel first and a red
    line along the window's foot that shrinks to nothing as the time runs out; what waits is dimmed where it shows */
