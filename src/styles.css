@@ -389,9 +389,10 @@ html.tilt .title-btn { translate: none; }   /* it leans with its title, never sl
 .page-fan.title-fan { z-index: 32; right: auto; }
 @media (prefers-reduced-motion: reduce) { .title-chev { transition: none; } }
 .theme-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 72px);
-  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(232px, calc(100vw - max(16px, env(safe-area-inset-right)) - 96px), calc(50dvh - 17px - env(safe-area-inset-top) / 2 - env(safe-area-inset-bottom) / 2));
+  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(248px, calc(100vw - max(16px, env(safe-area-inset-right)) - 80px), calc(50dvh - 9px - env(safe-area-inset-top) / 2 - env(safe-area-inset-bottom) / 2));
   max-height: calc(100dvh - max(12px, env(safe-area-inset-top)) - max(12px, env(safe-area-inset-bottom))); overflow-y: auto; overscroll-behavior: contain;
-  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }   /* four square rows always fit the screen's height (a landscape phone too) */
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 8px; }   /* four square rows always fit the screen's height (a landscape phone too); the 8px
+  padding keeps the chosen tile's teal ring and its ✓ inside the scrolling box, which would clip them (Gianni) */
 /* two straight columns of square tiles (Gianni: a vertical menu, the dark themes on the left, the light ones on the
    right, each row a family: Epic | Clear Sky, Petal Punk | Pink Pop, Smoked Citrus | Sunburnt, Graphite | Office); they
    never lean with the phone, so they stay square and never overlap. Each wears its own theme's page colour and ink. */

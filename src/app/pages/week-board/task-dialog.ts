@@ -44,11 +44,13 @@ export interface TaskSave {
             <p class="eyebrow">{{ i18n.t('day.' + edit().day) }} · {{ newBlock() ? (newBlockName().trim() || blockName()) : blockName() }}</p>
             <h2 id="task-dialog-title" tabindex="-1" autofocus>{{ i18n.t(newBlock() ? 'task.newBlockTitle' : edit().isNew ? 'task.newTitle' : 'task.title') }}</h2>
           </div>
-          <!-- Active, at the top where Delete used to be (Gianni) -->
-          <label class="switch-row head-switch">
-            <input type="checkbox" role="switch" [checked]="active()" (change)="active.set($any($event.target).checked)" />
-            <span>{{ i18n.t('task.active') }}</span>
-          </label>
+          <!-- Active, at the top where Delete used to be (Gianni); a new block has none: it is always active -->
+          @if (!newBlock()) {
+            <label class="switch-row head-switch">
+              <input type="checkbox" role="switch" [checked]="active()" (change)="active.set($any($event.target).checked)" />
+              <span>{{ i18n.t('task.active') }}</span>
+            </label>
+          }
         </div>
       </header>
 
@@ -447,7 +449,7 @@ export class TaskDialog implements AfterViewInit {
       fromBlockId,
       day: this.day$(),
       blockId: this.blockId(),
-      task: { ...task, title, minutes: this.minutes(), color: this.color(), active: this.active(), ref: this.linkedNode()?.id ?? this.twin()?.id ?? (this.libraryReady() ? null : task.ref) },
+      task: { ...task, title, minutes: this.minutes(), color: this.color(), active: this.newBlock() || this.active(), ref: this.linkedNode()?.id ?? this.twin()?.id ?? (this.libraryReady() ? null : task.ref) },
       blockName: this.newBlock() ? this.newBlockName().trim() || undefined : undefined,
       parentId: this.where().story || null,
       colorPicked: this.colorPicked(),
