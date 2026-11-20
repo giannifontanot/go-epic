@@ -29,6 +29,8 @@ import { readTrayFolded, writeTrayFolded } from '../../core/tray-fold';
 function keyStep(value: number, direction: number): number {
   return direction > 0 ? Math.ceil((value + 1) / 5) * 5 - value : Math.floor((value - 1) / 5) * 5 - value;
 }
+/** How long a FLIP glide lasts (core/flip). */
+const FLIP_MS = 380;
 const FOLD_KEY = 'go-epic-week-folded';
 /** How long the page stays still before it glides back to the red line (Gianni: about 4 s). */
 const NOW_IDLE_MS = 4000;
@@ -700,12 +702,13 @@ export class WeekBoard {
   }
   /** Brings a block that has just moved into the middle of the screen (Gianni: the focus goes where it went). */
   private scrollToBlock(id: string): void {
+    const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     afterNextRender({
-      read: () => {
+      // after its glide (flip, 380 ms): while it runs the block is drawn at its old place, and the scroll would aim there
+      read: () => setTimeout(() => {
         const el = document.querySelector<HTMLElement>(`[data-block="${CSS.escape(id)}"]`);
-        const reduced = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
         el?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center', inline: 'nearest' });
-      },
+      }, reduced ? 0 : FLIP_MS + 20),
     }, { injector: this.injector });
   }
 
