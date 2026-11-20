@@ -1121,6 +1121,8 @@ html:is([data-theme='office'], [data-theme='graphite']) .task.done > * { color: 
 html:is([data-theme='office'], [data-theme='graphite']) .t-state { background: var(--g-badge); color: var(--g-done-ink); box-shadow: 0 0 0 1.5px var(--g-badge-ring); }
 /* the check boxes: grey inside, never white (Gianni) */
 html:is([data-theme='office'], [data-theme='graphite']) :is(.c-check, .todo-check) { background: var(--g-check); border-color: var(--g-check-edge); color: var(--g-done-ink); }
+html:is([data-theme='office'], [data-theme='graphite']) .t-track input { background: var(--g-check); border-color: var(--g-check-edge); }   /* no white in the grey themes */
+html:is([data-theme='office'], [data-theme='graphite']) .t-track input:checked::after { border-color: var(--g-done-ink); }
 html:is([data-theme='office'], [data-theme='graphite']) .c-check.on { background: var(--g-check-on); border-color: var(--g-end); }
 /* the blocks keep their shape, without the yellow lip */
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt']) .block { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 4px 0 var(--g-lip), 0 8px 14px var(--g-shadow); }
