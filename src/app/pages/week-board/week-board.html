@@ -4,8 +4,10 @@
   <!-- Title and 💡 Capture at the right; while arranging ✓ Finish takes the 💡's place (Capture's tasks are hidden then
        anyway, and the menu still opens Capture), so edit mode costs no extra row (Gianni: the top took too much room).
        The floating ✎ arranges the week. -->
+  <!-- The title and the day chips stay at the top (Gianni): only the blocks scroll under them; while arranging the edit bar stays with them -->
+  <div class="board-head">
   <header class="board-top week-top">
-    <h1>{{ i18n.t('nav.week') }}</h1>
+    <h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')" (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('nav.week') }}<span class="title-chev" aria-hidden="true">⌄</span></button></h1>
     <span></span>
     @if (arranging()) {
       <button type="button" class="chip quiet on finish" (click)="toggleArrange()">✓ {{ i18n.t('week.finish') }}</button>
@@ -24,6 +26,7 @@
               (click)="showDay(day)">{{ i18n.t('dayShort.' + day) }}</button>
     }
   </nav>
+  </div>
 
   @if (!store.loaded()) { <p class="muted">{{ i18n.t('loading') }}</p> }
 

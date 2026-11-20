@@ -3,6 +3,13 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { I18n } from '../core/i18n';
 import { flyTiles, placeBeside } from './fan';
 
+/** The pages of the menu (Week board, Canvas, Progress), shared by the round menu's fan and the page titles'. */
+export const PAGES = [
+  { link: '/', label: 'nav.week' },
+  { link: '/canvas', label: 'nav.canvas' },
+  { link: '/progress', label: 'nav.progress' },
+] as const;
+
 /**
  * The pages, one tap away (Gianni: the ☰ menu left, and scrolling up to navigate was not wanted): an action of the
  * floating buttons' menu (ActionMenu). A tap slides the pages out of it to the left, exactly as the themes do, the page
@@ -35,11 +42,7 @@ import { flyTiles, placeBeside } from './fan';
 })
 export class PageFan {
   protected readonly i18n = inject(I18n);
-  protected readonly pages = [
-    { link: '/', label: 'nav.week' },
-    { link: '/canvas', label: 'nav.canvas' },
-    { link: '/progress', label: 'nav.progress' },
-  ];
+  protected readonly pages = PAGES;
   /** A page was tapped: the menu closes. */
   readonly went = output<void>();
   protected readonly open = signal(false);

@@ -1,3 +1,4 @@
+import { PageMenu } from '../../shared/title-fan';
 import { Ask } from '../../shared/ask';
 import { AutoColors } from '../../core/auto-colors';
 import { NgTemplateOutlet } from '@angular/common';
@@ -25,6 +26,14 @@ import { readTrayFolded, writeTrayFolded } from '../../core/tray-fold';
 import { SwipeTracker, stepDay } from '../../core/swipe';
 
 /**
+ * Whether an element is really on the board: laid out and not in a hidden day (on a phone the other days stay in
+ * the layout, invisible, so every day takes the tallest day's height).
+ */
+function shownOnScreen(el: HTMLElement): boolean {
+  return el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
+}
+
+/**
  * The week in seven columns of blocks and task cards. Locked by default (a calm view of the week);
  * "Arrange the week" unlocks editing: block windows, ▲▼, ⇄ copy/move, + and quick-add, and each card's ••• details.
  */
@@ -40,7 +49,7 @@ function viewAnchor(): (() => void) | null {
     let best: { el: HTMLElement; gap: number } | null = null;
     for (const el of document.querySelectorAll<HTMLElement>(selector)) {
       const r = el.getBoundingClientRect();
-      if (!r.height || r.bottom < 0 || r.top > mid * 2 || r.right < 0 || r.left > window.innerWidth) continue;
+      if (!r.height || !shownOnScreen(el) || r.bottom < 0 || r.top > mid * 2 || r.right < 0 || r.left > window.innerWidth) continue;
       const gap = r.top <= mid && r.bottom >= mid ? 0 : Math.min(Math.abs(r.top - mid), Math.abs(r.bottom - mid));
       if (!best || gap < best.gap) best = { el, gap };
     }
@@ -85,6 +94,7 @@ function readFolded(): Set<string> {
 export class WeekBoard {
   protected readonly store = inject(WeekStore);
   protected readonly i18n = inject(I18n);
+  protected readonly pageMenu = inject(PageMenu);
   /** The app's own question windows (never the browser's confirm/alert). */
   private readonly asks = inject(Ask);
   protected readonly library = inject(LibraryStore);
@@ -213,7 +223,7 @@ export class WeekBoard {
   }
   private light(): void {
     const line = document.querySelector<HTMLElement>('article.day.today .now-line');
-    const on = !this.arranging() && !!line?.closest('.block') && line.getClientRects().length > 0;
+    const on = !this.arranging() && !!line?.closest('.block') && !!line && shownOnScreen(line);
     if (on) this.litAt = Date.now();
     this.spotlight.set(on);
   }
@@ -413,7 +423,7 @@ export class WeekBoard {
     const line = today?.querySelector<HTMLElement>('.now-line');
     if (!entering && (!line || this.arranging() || document.querySelector('dialog[open]'))) return;
     const target = line ?? today;
-    if (!target || !target.getClientRects().length) return;                 // hidden (another day's tab)
+    if (!target || !shownOnScreen(target)) return;                          // hidden (another day's tab)
     const rect = target.getBoundingClientRect();
     const view = window.visualViewport?.height ?? window.innerHeight;
     if (line && Math.abs(rect.top - view / 2) <= 4) { if (!this.autoScroll) this.light(); return; }   // already in the middle

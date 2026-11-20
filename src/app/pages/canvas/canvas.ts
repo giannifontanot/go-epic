@@ -1,3 +1,4 @@
+import { PageMenu } from '../../shared/title-fan';
 import { Ask } from '../../shared/ask';
 import { Component, DestroyRef, DoCheck, ElementRef, HostListener, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
@@ -41,6 +42,7 @@ const LEAVE_SAVE_WAIT_MS = 6000;
 })
 export class Canvas implements DoCheck {
   protected readonly i18n = inject(I18n);
+  protected readonly pageMenu = inject(PageMenu);
   /** The app's own question windows (never the browser's confirm/alert). */
   private readonly asks = inject(Ask);
   protected readonly capture = inject(CaptureUi);
