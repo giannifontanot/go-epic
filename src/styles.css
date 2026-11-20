@@ -681,6 +681,13 @@ app-look-bar { grid-column: 1 / -1; display: block; }
 .look-themes { display: inline-flex; align-items: center; gap: 6px; min-height: 42px; font-weight: 500; }
 .look-themes.on { background: var(--teal); color: #0b2f2a; }
 .canvas-look { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin: 4px 0 10px; }
+/* The edit bar floats (Gianni): it keeps its place at the top but stays in sight while the page scrolls; on the Week
+   board the whole top while arranging (title, ✓ Finish and the bar), on the Canvas the bar with its Finish. Drawn on
+   the page's own colour, edge to edge, with a soft shadow under it. */
+.board:not(.locked) > .week-top, .canvas-look { position: sticky; z-index: 30; top: 0;
+  margin-left: -16px; margin-right: -16px; padding: max(6px, env(safe-area-inset-top)) 16px 8px; background: var(--page);
+  box-shadow: 0 8px 14px -10px rgba(0, 0, 0, .45); }
+.canvas-look { margin-top: 0; }
 .text-steppers { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 2px; }
 /* Compact, so px / Aa / AV share one row on a phone (Gianni: the top took too much room); the buttons stay 40px */
 .text-steppers .stepper { gap: 0; padding: 0; }
