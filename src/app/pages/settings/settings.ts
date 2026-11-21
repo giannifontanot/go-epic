@@ -3,7 +3,7 @@ import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { AuthService } from '../../core/auth.service';
 import { I18n } from '../../core/i18n';
 import { Tilt } from '../../core/tilt';
-import { THEMES, Theme, ThemeService } from '../../core/theme';
+import { ThemeService } from '../../core/theme';
 import { PaletteService } from '../../core/palette';
 import { PALETTES, defaultPalette, edgeFor, paletteFor } from '../../core/palette.model';
 
@@ -60,12 +60,6 @@ import { PALETTES, defaultPalette, edgeFor, paletteFor } from '../../core/palett
         </button>
         @if (palettesOpen()) {
           <div id="palette-panel" class="palette-panel">
-            <p class="palette-label" id="palette-theme-label">{{ i18n.t('palette.forTheme') }}</p>
-            <div class="palette-themes" role="group" aria-labelledby="palette-theme-label">
-              @for (t of themes; track t) {
-                <button type="button" class="chip" [class.on]="editing() === t" [attr.aria-pressed]="editing() === t" (click)="editing.set(t)">{{ i18n.t('theme.' + t) }}</button>
-              }
-            </div>
             <p class="palette-label" id="palette-list-label">{{ i18n.t('palette.list') }} · {{ i18n.t('theme.' + editing()) }}</p>
             <div class="palette-list" role="radiogroup" aria-labelledby="palette-list-label">
               @for (p of palettes; track p.id) {
@@ -104,11 +98,10 @@ export class Settings implements AfterViewInit {
   protected readonly tilt = inject(Tilt);
   protected readonly auth = inject(AuthService);
   protected readonly palette = inject(PaletteService);
-  protected readonly themes = THEMES;
   protected readonly palettes = PALETTES;
   protected readonly palettesOpen = signal(false);
-  /** The theme whose palette is being chosen: the one on, until another chip is tapped. */
-  protected readonly editing = signal<Theme>(this.look.theme());
+  /** The theme whose palette is being chosen: always the one on (Gianni); each theme keeps its own choice. */
+  protected editing() { return this.look.theme(); }
   protected chosen() { return paletteFor(this.editing(), this.palette.palettes()); }
   protected ownPalette(): string { return defaultPalette(this.editing()); }
   protected edge(): boolean { return edgeFor(this.editing(), this.palette.edges()); }
