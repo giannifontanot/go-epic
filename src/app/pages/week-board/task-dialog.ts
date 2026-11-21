@@ -96,7 +96,7 @@ export interface TaskSave {
           <input #name type="text" [value]="title()" [readOnly]="!!linkedNode()" [class.locked]="!!linkedNode()"
             (input)="title.set($any($event.target).value)" (keydown.enter)="done()" />
           @if (libraryReady()) {
-            <button type="button" class="color-btn" aria-haspopup="dialog" [style.background]="toneVar(color())" [class.picked]="!!color()"
+            <button type="button" class="color-btn" aria-haspopup="dialog" [style.background]="toneVar(color())" [style.--tone]="toneVar(color())" [class.picked]="!!color()"
                     [disabled]="choice() === 'existing'"
                     [attr.aria-label]="i18n.t('task.color')" [title]="i18n.t('task.color')"
                     (click)="$event.preventDefault(); $event.stopPropagation(); colorWindow.open()">{{ i18n.t('task.color') }}</button>
@@ -163,12 +163,12 @@ export interface TaskSave {
               @if (option.story) {
                 <span class="pc-feature"><small>{{ i18n.t('canvas.feature') }}</small><strong>@for (part of hits(option.feature); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong>
                   <span class="pc-story"><small>{{ i18n.t('canvas.story') }}</small><strong>@for (part of hits(option.story); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong>
-                    <span class="pc-activity" [style.background]="option.tone">
+                    <span class="pc-activity" [style.background]="option.tone" [style.--tone]="option.tone">
                       <small>{{ i18n.t('canvas.task') }}</small><strong>@for (part of hits(option.node.title); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong></span>
                   </span>
                 </span>
               } @else {
-                <span class="pc-activity" [style.background]="option.tone">
+                <span class="pc-activity" [style.background]="option.tone" [style.--tone]="option.tone">
                   <small>{{ i18n.t('canvas.task') }}</small><strong>@for (part of hits(option.node.title); track $index) { @if (part.hit) { <mark>{{ part.t }}</mark> } @else { {{ part.t }} } }</strong></span>
               }
             </span>

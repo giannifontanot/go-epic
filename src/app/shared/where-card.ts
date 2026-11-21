@@ -47,7 +47,7 @@ import { Library, Where, WhereLevel, nodeById, whereOptions } from '../core/libr
       @if (pickCount() || linked()) {
         <!-- The Activity line is also the way to pick an existing one (Gianni: one card, no separate button): a tap opens
              the list; once one is picked it shows here, with a × that lets it go -->
-        <span class="pc-activity pc-pickable" [class.chosen]="chosen()" [style.background]="tone()">
+        <span class="pc-activity pc-pickable" [class.chosen]="chosen()" [style.background]="tone()" [style.--tone]="tone()">
           <!-- Drawn like the other levels (a panel: the same «Choose ›» and ⌄ say "tap to choose" everywhere on the card) -->
           <button type="button" class="pc-act-open" [class.pc-tap]="!linked()" aria-haspopup="dialog" (click)="activityTap.emit()">
             <small>{{ i18n.t('canvas.task') }}</small>
@@ -59,7 +59,7 @@ import { Library, Where, WhereLevel, nodeById, whereOptions } from '../core/libr
           }
         </span>
       } @else {
-        <span class="pc-activity" [style.background]="tone()"><small>{{ i18n.t('canvas.task') }}</small><strong>{{ title() || i18n.t('task.newTitle') }}</strong></span>
+        <span class="pc-activity" [style.background]="tone()" [style.--tone]="tone()"><small>{{ i18n.t('canvas.task') }}</small><strong>{{ title() || i18n.t('task.newTitle') }}</strong></span>
       }
     </ng-template>
   `,

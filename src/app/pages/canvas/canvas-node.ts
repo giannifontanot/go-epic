@@ -14,7 +14,7 @@ import { CanvasState } from './canvas-state';
     @let n = node();
     <article class="object" [class.feature]="n.kind === 'feature'" [class.story]="n.kind === 'story'" [class.task]="n.kind === 'task'"
       [attr.data-node]="n.id" [attr.data-drop-kind]="n.kind" [attr.data-parent]="n.id" [style.--ox]="offset().x" [style.--oy]="offset().y"
-      [style.background]="tone()" [attr.aria-label]="n.title">
+      [style.background]="tone()" [style.--tone]="tone()" [attr.aria-label]="n.title">
       @if (n.kind === 'task') {
         <header>
           <button type="button" class="grip" [disabled]="disabled()" [attr.aria-label]="i18n.t('canvas.drag') + ' ' + n.title"

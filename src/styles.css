@@ -1422,7 +1422,7 @@ html[data-theme='graphite'] .now-badge { color: #1f2226 !important; }   /* dark 
 /* ...except the activity cards, which take their own brighter ink (--act-ink, 5.4:1 on the tinted greys), and the tasks'
    manila paper, which takes a dark ink so a task never looks like an activity (the panel) */
 html[data-theme='graphite'] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done)) :is(.t-title, .t-time, .t-dur, .t-link, .t-track span, h2, .eyebrow) { color: var(--act-ink) !important; }
-html[data-theme='graphite'] :is(.todo-note, .capture-list:not(.finished) li, .habit.todo-habit) :is(.todo-title, .todo-title *, .todo-time, .c-text, .c-text *, .h-head, .h-head *):not(.t-state, .grid-btn, .todo-edit, .c-icon, .streak:not(.zero)) { color: #26292d !important; }
+html[data-theme='graphite'] :is(.todo-note, .capture-list:not(.finished) li, .habit.todo-habit) :is(.todo-title, .todo-title *, .todo-time, .c-text, .c-text *, .h-head, .h-head *):not(.t-state, .grid-btn, .todo-edit, .c-icon, .streak:not(.zero)) { color: #1f2226 !important; }
 html[data-theme='graphite'] :is(.todo-note, .capture-list li) .t-state[data-status='todo'] { background: rgba(255, 255, 255, .3); box-shadow: inset 0 0 0 2px rgba(38, 41, 45, .55); }
 html[data-theme='graphite'] .block-window input { color-scheme: dark; }
 
@@ -1658,62 +1658,84 @@ html[data-theme='goepiclight'] .day-head .round { border-color: color-mix(in srg
 html[data-theme='goepiclight'] .t-track input { border-color: #5f5c69; }
 html[data-theme='goepiclight'] .free-band { background: repeating-linear-gradient(135deg, rgba(16, 27, 66, .2) 0 10px, transparent 10px 20px); }
 
-/* ── Activity and task colours per theme (Gianni: Epic's pastels belonged to Epic only; a panel redrew them) ──
+/* ── Activity and task colours per theme (Gianni: Epic's pastels belonged to Epic only; a panel redrew them from each theme's name) ──
    A card's stored colour is never changed: toneVar()/noteVar() (week.model) draw it as var(--act-N, stored) and
    var(--note-N, stored), N = its slot in COLOR_CHOICES / PASTELS. Epic defines none of these, so it keeps its pastels.
    Each theme keeps the slot's family (aqua, green, violet, orange, pink, yellow, blue, sand) and sets its own lightness
    and undertone. Activities are cards (--act-*); Capture's tasks stay paper notes (--note-*), a different, lighter
    material, so the two are told apart at a glance. Dark themes have dark cards with light ink (Gianni). */
-/* sorbet pastels, a touch juicier than Epic's, so they stand off the porcelain blocks */
+/* Each palette starts from what the theme's name evokes (Gianni: colours that belong to the theme, not hues picked for
+   contrast). Slots 0–3 are the automatic colours, so they carry the theme's four main notes. */
+/* Pink Pop: a baby's hand and skin, cheeks, ballet slippers and cotton candy: cotton candy, peach fuzz, lilac blush,
+   apricot cheek, rose petal, baby-blanket mint, dusty mauve, warm tan */
 html[data-theme='pinkpop'] {
-  --act-0: #99e5df; --act-1: #bbe1b2; --act-2: #dfc8fd; --act-3: #fec7a9; --act-4: #f9bcd0; --act-5: #d9d58f; --act-6: #b8d6ff; --act-7: #e6cfbe;
-  --note-0: #ffe1ef; --note-1: #def2d9; --note-2: #f1e5ff; --note-3: #ffe6d1;
+  --act-0: #f8c8da; --act-1: #fcd9c5; --act-2: #dccdf2; --act-3: #eeb08e; --act-4: #e897b2; --act-5: #d3eadf; --act-6: #c9a9c0; --act-7: #d4a777;
+  --note-0: #fff1e4; --note-1: #ffe9ef; --note-2: #fdf6e8; --note-3: #f6e7dd;
 }
-/* airy watercolours, cool and light like the sky */
+/* Clear Sky: a clear day: the sea, a meadow, dusk lavender, sunrise peach, sunset rose, the sun, the sky, the beach */
 html[data-theme='squeezeme'] {
-  --act-0: #abe3ea; --act-1: #b7e4ca; --act-2: #d3d3fd; --act-3: #f9ccb8; --act-4: #fac8d2; --act-5: #c9da9b; --act-6: #c2d4fb; --act-7: #e2d6c2;
-  --note-0: #d9f4fd; --note-1: #def5e8; --note-2: #ececff; --note-3: #f9edd9;
+  --act-0: #b2e6e6; --act-1: #cbe8c2; --act-2: #d6d3f6; --act-3: #fcd3bc; --act-4: #f7c6d3; --act-5: #f1d98a; --act-6: #a3c0ea; --act-7: #e0c9a0;
+  --note-0: #e3f1ff; --note-1: #e6f6ef; --note-2: #efeeff; --note-3: #fbf1df;
 }
-/* earthy kitchen tones: sage, olive, mauve, terracotta, clay, honey, denim, oat */
+/* Sunburnt Toast: breakfast: strawberry jam, avocado toast, blueberry jam, marmalade, butter, honey, café au lait, the crust
+   (no pale yellow among the automatic four: it would read as the yellow pinned notes or the gold Done) */
 html[data-theme='sunburnt'] {
-  --act-0: #b2dbd2; --act-1: #ccd7af; --act-2: #e7c5de; --act-3: #fec2a4; --act-4: #f1c0cf; --act-5: #d6d28f; --act-6: #b7d6ec; --act-7: #e0ceb9;
-  --note-0: #fde7cf; --note-1: #eceed0; --note-2: #ffe3d7; --note-3: #f5ebce;
+  --act-0: #f2b2ae; --act-1: #c8dba0; --act-2: #d2cbe6; --act-3: #f8c292; --act-4: #f7e3a3; --act-5: #e8b65c; --act-6: #dcc3a8; --act-7: #cf9a68;
+  --note-0: #fff0dc; --note-1: #f6efd4; --note-2: #ffe6dc; --note-3: #f3e9cf;
 }
-/* Apple-clean tints, a step lighter than the grey blocks, like white cards on a grey list */
-html[data-theme='goepiclight'] {
-  --act-0: #b9f5f4; --act-1: #d0f3d0; --act-2: #eee0ff; --act-3: #ffddc5; --act-4: #ffd8e6; --act-5: #f7e7bb; --act-6: #caecff; --act-7: #f3e4cf;
-  --note-0: #f4dfb4; --note-1: #d6ecc9; --note-2: #d3e6f5; --note-3: #ffd7be;
-  --act-off: #f4f4f7;
-}
-/* quiet tinted greys, lighter than the blocks; the notes are manila paper, so a task never looks like an activity */
+/* Office: a desk: ledger green, a sticky note, blue ink, an eraser, red pen, a highlighter, slate, pencil wood, all
+   muted; the notes are the manila folders, so a task never looks like an activity */
 html[data-theme='office'] {
-  --act-0: #cee1e1; --act-1: #dee8dc; --act-2: #e0dbeb; --act-3: #eaddd3; --act-4: #ebd9db; --act-5: #e2ded0; --act-6: #d4dfeb; --act-7: #e3ddd5;
-  --note-0: #dcd0b8; --note-1: #e2cdba; --note-2: #d6d2b8; --note-3: #e5cbbd;
+  --act-0: #c6dad2; --act-1: #e9dd9f; --act-2: #c0cfec; --act-3: #e8c6b6; --act-4: #e1c3c6; --act-5: #c8d6a6; --act-6: #b3bfca; --act-7: #e2d3c1;
+  --note-0: #d8c79f; --note-1: #dcc6a4; --note-2: #d2cba2; --note-3: #e0c4a6;
 }
-/* jewels a step lighter than the plum blocks: teal, emerald, amethyst, copper, raspberry, ochre, sapphire, mocha */
+/* Go Epic Light and Dark (the landing page's minimal white; Light's most used edge is the wordmark's navy): the card stays white (navy in Dark) and only its left
+   edge wears the colour (rules below), so these are edge colours, also what the pickers show */
+html[data-theme='goepiclight'] {
+  --act-0: #1f3a8a; --act-1: #3a8f4f; --act-2: #6b5bd2; --act-3: #c26a15; --act-4: #d0457e; --act-5: #a67c0a; --act-6: #2f7fd6; --act-7: #9a7656;
+  --note-0: #f4dfb4; --note-1: #d6ecc9; --note-2: #d3e6f5; --note-3: #ffd7be;
+  --act-off: #f4f4f7; --ge-card: #ffffff; --ge-hair: #dcdce3; --ge-drop: rgba(0, 0, 0, .06);
+}
+html[data-theme='goepicdark'] {
+  --act-0: #4fd1c9; --act-1: #6fd68a; --act-2: #a59cff; --act-3: #ffa65a; --act-4: #ff7fab; --act-5: #f5c945; --act-6: #6cb6ff; --act-7: #d1ad84;
+  --note-0: #f4ebd1; --note-1: #daeeff; --note-2: #fee6d4; --note-3: #daf3e1;
+  --act-ink: #f5f5f7; --act-off: #182255; --ge-card: #17204b; --ge-hair: rgba(255, 255, 255, .14); --ge-drop: rgba(0, 0, 0, .3);
+}
+/* Petal Punk: a rose garden at night with a punk edge: wine rose, thorn stem, orchid, rust tulip, fuchsia hair, moonlit
+   dew, tattoo ink, worn leather */
 html[data-theme='petalpunk'] {
-  --act-0: #196467; --act-1: #376441; --act-2: #5e5b94; --act-3: #8a5238; --act-4: #79465a; --act-5: #6b5421; --act-6: #435782; --act-7: #685346;
-  --note-0: #fedeec; --note-1: #eee2fe; --note-2: #fde2ce; --note-3: #daefd6;
+  --act-0: #7d3049; --act-1: #355a43; --act-2: #5f3c82; --act-3: #94482a; --act-4: #8e2a73; --act-5: #2f5f63; --act-6: #3c4785; --act-7: #6b4a3e;
+  --note-0: #fde1ec; --note-1: #f0e4fb; --note-2: #fde6d6; --note-3: #e2efdc;
   --act-ink: #fbf1f6; --act-off: #2a2230;
 }
-/* smoked jewels a step lighter than the stone blocks, so they lie on it: petrol, olive, plum, ember, brick, bronze, slate, walnut */
+/* Smoked Citrus: the citrus tree: blue sky, green leaves, the brown trunk, orange peel, grapefruit, lemon, lime, dusk smoke; the
+   notes are the fruits' pale pith */
 html[data-theme='smokedcitrus'] {
-  --act-0: #2c6565; --act-1: #456446; --act-2: #605378; --act-3: #76513c; --act-4: #774c59; --act-5: #685932; --act-6: #405d7b; --act-7: #665849;
-  --note-0: #fce3c8; --note-1: #f1e8c7; --note-2: #ffdfd0; --note-3: #e4edcc;
+  --act-0: #2b5675; --act-1: #2f5c3c; --act-2: #5c4636; --act-3: #8a4316; --act-4: #8f3e4a; --act-5: #6a5410; --act-6: #4b5a15; --act-7: #5a4560;
+  --note-0: #fde9c8; --note-1: #f3f0c4; --note-2: #f9e1d6; --note-3: #e5efcc;
   --act-ink: #f5efe8; --act-off: #3a3835;
 }
-/* softly tinted greys a step lighter than the blocks; the notes are soft manila paper with dark ink */
+/* Graphite: a sketchbook in pencil: slate, steel, charcoal plum, iron oxide, dusty rose, brass, blue steel, pencil
+   wood; the notes are soft manila */
 html[data-theme='graphite'] {
-  --act-0: #445e5d; --act-1: #4e5d4e; --act-2: #5a5467; --act-3: #665349; --act-4: #675157; --act-5: #5e5845; --act-6: #4c5a69; --act-7: #5e574f;
-  --note-0: #a89d86; --note-1: #af9a89; --note-2: #9fa188; --note-3: #b3988e;
-  --act-ink: #dfe2e6; --act-off: #383c42;
+  --act-0: #344d63; --act-1: #365443; --act-2: #4d4456; --act-3: #5a4139; --act-4: #5a4048; --act-5: #504a35; --act-6: #2c4570; --act-7: #524a42;
+  --note-0: #b4a991; --note-1: #bba693; --note-2: #aaad94; --note-3: #bfa49a;
+  --act-ink: #e6e8eb; --act-off: #383c42;
 }
-/* jewels a step lighter than the navy blocks */
-html[data-theme='goepicdark'] {
-  --act-0: #1d6767; --act-1: #356748; --act-2: #65507d; --act-3: #8e503a; --act-4: #7d4859; --act-5: #6b5924; --act-6: #2e6a8a; --act-7: #685846;
-  --note-0: #f4ebd1; --note-1: #daeeff; --note-2: #fee6d4; --note-3: #daf3e1;
-  --act-ink: #f5f5f7; --act-off: #24305e;
-}
+/* Go Epic: a white (navy) card with a hairline and its colour as a left edge, everywhere an activity is drawn; Done,
+   Late and inactive cards keep their own looks */
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity) {
+  background: var(--ge-card) !important; background-image: none !important;
+  box-shadow: inset 6px 0 0 var(--tone, var(--ge-hair)), inset 0 0 0 1px var(--ge-hair), 0 2px 6px var(--ge-drop) !important; }
+html[data-theme='goepicdark'] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity) {
+  box-shadow: inset 6px 0 0 var(--tone, var(--ge-hair)), inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 0 0 1px var(--ge-hair), 0 2px 6px var(--ge-drop) !important; }
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(.task, .pc-activity:not(.pc-pickable)) { padding-left: 16px; }
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .today-task { padding-left: 18px; }
+html[data-theme='goepicdark'] .task:not(.done) .round:not(.danger-x) { background-color: rgba(255, 255, 255, .08); }
+/* The details' Color button: the picked colour is an edge there too, so its word keeps the theme's ink */
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .color-btn.picked {
+  background: var(--ge-card) !important; color: var(--ink);
+  box-shadow: inset 6px 0 0 var(--tone, var(--ge-hair)), inset 0 0 0 1px var(--ge-hair); padding-left: 18px; }
 /* the dark cards (Petal Punk, Smoked Citrus, Graphite, Go Epic Dark): light ink everywhere on them, a deeper lip, light
    grip and buttons, an empty To do ring drawn in the card's ink; Done keeps its glorious gold */
 html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='graphite'], [data-theme='goepicdark']) { --act-lip: rgba(0, 0, 0, .42); }
