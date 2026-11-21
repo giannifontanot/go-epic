@@ -10,5 +10,7 @@
   { "id": 9, "date": "2026-11-21", "es": "Esta ventana muestra qué hay de nuevo en cada versión.", "en": "This window shows what is new in each version." },
   { "id": 10, "date": "2026-11-21", "es": "Capture vuelve a ser una ventana flotante, casi hasta los bordes, con una × roja discreta.", "en": "Capture is a floating window again, almost to the edges, with a discreet red ×." },
   { "id": 11, "date": "2026-11-21", "es": "Cada tema tiene colores inspirados en su nombre; en Go Epic las tarjetas son blancas con un filo de color.", "en": "Every theme has colours inspired by its name; in Go Epic the cards are white with a coloured edge." },
-  { "id": 12, "date": "2026-11-21", "es": "Capture tiene una segunda × abajo a la derecha, siempre en su esquina, para cerrarla con el pulgar.", "en": "Capture has a second × at the bottom right, always in its corner, to close it with your thumb." }
+  { "id": 12, "date": "2026-11-21", "es": "Capture tiene una segunda × abajo a la derecha, siempre en su esquina, para cerrarla con el pulgar.", "en": "Capture has a second × at the bottom right, always in its corner, to close it with your thumb." },
+  { "id": 13, "date": "2026-11-21", "es": "En Capture las tareas van de la más nueva arriba a la más vieja abajo.", "en": "In Capture the tasks go from the newest at the top to the oldest at the bottom." },
+  { "id": 14, "date": "2026-11-21", "es": "En Capture, la tarea nueva con su botón, los días, el día y la hora están juntos dentro de una línea.", "en": "In Capture, the new task with its button, the days, the day and the hour sit together inside one line." }
 ]

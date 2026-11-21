@@ -17,7 +17,7 @@ import { TodoDialog, TodoSave } from './todo-dialog';
  * New task into it) without putting the cursor in the box (you may only want to look): on top the new task's box, its
  * repeat days, day and hour (today, any hour, no repeat to start with); tap the box, type and press Enter, as many as
  * you like. Under them the panel
- * lists the open tasks soonest first, on aged paper tinted with their colour, under the Current tab; ☐ checks one (it moves to
+ * lists the open tasks newest first, on aged paper tinted with their colour, under the Current tab; ☐ checks one (it moves to
  * the Finished tab, where ☑ opens it again), ✎ sets its name, day and hour, ✕ deletes it (asks first). In the Week a task
  * shows over the activity running at its hour (todo.model `pinTodos`).
  */
