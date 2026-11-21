@@ -124,6 +124,10 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'pwa.update': { en: 'A new version of Go Epic is ready.', es: '¡Hay una versión nueva de Go Epic!' },
   'pwa.reload': { en: 'Tap to update', es: 'Presiona para actualizar' },
   'pwa.whatsNew': { en: 'What is new', es: 'Qué hay de nuevo' },
+  'pwa.version': { en: 'Version {n}', es: 'Versión {n}' },
+  'pwa.newTag': { en: 'New', es: 'Nueva' },
+  'pwa.older': { en: 'Earlier version', es: 'Versión anterior' },
+  'pwa.newer': { en: 'Later version', es: 'Versión siguiente' },
   'saveFailed': { en: 'Could not save', es: 'No se pudo guardar' },
 
   'day.MONDAY': { en: 'Monday', es: 'Lunes' },
