@@ -533,21 +533,23 @@ dialog.capture-panel { margin: calc(var(--vv-top, 0px) + max(12px, env(safe-area
   height: calc(var(--vv-h, 100dvh) - max(12px, env(safe-area-inset-top)) - max(12px, env(safe-area-inset-bottom)));
   padding: 0; border: 0; border-radius: 22px;
   background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; overflow: hidden; }
-/* its contents scroll inside the still window; the room at the foot keeps the corner × off the last task */
+/* its contents scroll inside the still window; the room at the foot keeps the corner Close off the last task */
 dialog.capture-panel .capture-scroll { height: 100%; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain;
   padding: 18px 18px calc(18px + 56px); }
 dialog.capture-panel .capture-x { --tap: 40px; flex: none; }
-/* the thumb's × (Gianni): always in the window's bottom-right corner, over the list as it scrolls */
-dialog.capture-panel .capture-x-foot { position: absolute; right: 14px; bottom: 14px; z-index: 2; box-shadow: 0 4px 14px #0006; }
+/* the thumb's Close (Gianni): the other windows' Close button, always in the window's bottom-right corner, over the list */
+dialog.capture-panel .capture-close-foot { position: absolute; right: 14px; bottom: 14px; z-index: 2; box-shadow: 0 4px 14px #0006; }
 dialog.capture-panel::backdrop, dialog.editor::backdrop, dialog.transfer::backdrop { background: rgba(4, 9, 30, .55); }
 dialog.capture-panel header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 dialog.capture-panel h2 { margin: 0; font-size: 22px; }
 /* One window (Gianni): the new task's box and Add, its repeat days, then day and hour, over the Current / Finished tabs */
-.capture-add { margin-bottom: 12px; }
+/* everything about adding a task is one group with a thin line around it, like the activity's two ways (Gianni) */
+.capture-add { margin-bottom: 14px; padding: 12px; border: 1.5px solid color-mix(in srgb, var(--ink) 30%, transparent); border-radius: 20px; }
 .capture-line { display: flex; gap: 8px; margin-bottom: 10px; }
 /* the seven repeat days keep their 40px taps: one row from a 360px phone (a narrower panel padding and 3px gaps), two on the narrowest */
 .capture-add .repeat-days { justify-content: space-between; gap: 3px; margin: 0 0 10px; }
-@media (max-width: 400px) { dialog.capture-panel .capture-scroll { padding-inline: 12px; } }
+/* the seven repeat days still fit one row inside the group on a 360px phone */
+@media (max-width: 400px) { dialog.capture-panel .capture-scroll { padding-inline: 8px; } .capture-add { padding: 10px 8px; } }
 .capture-add .capture-when .field { margin-bottom: 0; }
 .capture-line input, .c-edit { flex: 1; min-width: 0; min-height: 44px; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px; background: var(--page); color: var(--ink); font-size: 16px; }
 /* The box for a new task always shows its blue border, so it reads as a box at a glance; tapped, it turns stronger with a ring (Gianni) */

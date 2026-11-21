@@ -11,9 +11,10 @@ describe('todo model', () => {
     expect(sanitizeTodo('c', { title: '  ' })).toBeNull();
   });
 
-  it('lists the open ones soonest first and the finished ones last checked first', () => {
-    const list = [todo('late', { time: '18:00' }), todo('none', { date: null }), todo('early', { time: '08:00' }), todo('done', { done: 9 }), todo('done2', { done: 20 })];
-    expect(openTodos(list).map((t) => t.id)).toEqual(['early', 'late', 'none']);
+  it('lists the open ones newest captured first and the finished ones last checked first', () => {
+    const list = [todo('late', { time: '18:00', created: 5 }), todo('none', { date: null, created: 30 }), todo('early', { time: '08:00', created: 10 }),
+      todo('rep', { repeat: ['MONDAY'], created: 20 }), todo('done', { done: 9 }), todo('done2', { done: 20 })];
+    expect(openTodos(list).map((t) => t.id)).toEqual(['none', 'rep', 'early', 'late']);
     expect(doneTodos(list).map((t) => t.id)).toEqual(['done2', 'done']);
   });
 
