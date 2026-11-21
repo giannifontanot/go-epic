@@ -233,6 +233,8 @@ export class Year {
   /** the finger (or mouse) on a sprint's line: it opens the window after a short hold, or at once when it slides along */
   private touch: { id: number; line: HTMLElement; x0: number; y0: number; live: boolean; timer: number } | null = null;
   private closing: Promise<void> | null = null;
+  /** the window is drawn and in place (false from the start of its closing) */
+  private shown = false;
   private placing = 0;
   private readonly destroyRef = inject(DestroyRef);
 
@@ -420,10 +422,12 @@ export class Year {
     this.faces.update((list) => [...list.filter((f) => !f.out).map((f) => ({ ...f, out: true })), { id, key: date, out: false }]);
     setTimeout(() => this.faces.update((list) => list.filter((f) => !f.out || f.id > id)), FADE_MS);
     const pop = this.popRef().nativeElement;
-    const opening = !was || wasClosing;
+    if (wasClosing) this.shown = false;
     afterNextRender(() => {
       if (this.editing() !== date) return;
-      if (opening) {
+      // decided here, not when the day was picked: a quick slide can pick several days before the first render
+      if (!this.shown) {
+        this.shown = true;
         pop.getAnimations().forEach((a) => a.cancel());
         pop.classList.add('still');
         if (!pop.matches(':popover-open')) try { pop.showPopover(); } catch { /* no popover: drawn fixed anyway */ }
@@ -496,6 +500,7 @@ export class Year {
     if (this.closing) return this.closing;
     const pop = this.popRef().nativeElement;
     const key = this.editing();
+    this.shown = false;
     const done = () => {
       if (this.closing !== run || this.editing() !== key) return;
       this.closing = null;
