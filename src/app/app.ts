@@ -151,7 +151,7 @@ export class App {
 
     effect((onCleanup) => {
       if (!this.updateReady() || this.unsaved.canvasDraft() || this.showUpdate()) return;
-      const otherWindowOpen = () => typeof document !== 'undefined' && !!document.querySelector('dialog[open]:not(.update-overlay)');
+      const otherWindowOpen = () => typeof document !== 'undefined' && !!document.querySelector('dialog[open]:not(.update-overlay), .pop-window.on');
       if (!otherWindowOpen()) { this.showUpdate.set(true); return; }
       const timer = setInterval(() => { if (!otherWindowOpen() && !this.unsaved.canvasDraft()) this.showUpdate.set(true); }, 1000);
       onCleanup(() => clearInterval(timer));
