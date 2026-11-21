@@ -460,10 +460,17 @@ html[data-theme='goepicdark'] .update-button { border-radius: 999px; background:
 .menu-fab { display: grid; place-items: center; z-index: 21; bottom: calc(max(18px, env(safe-area-inset-bottom)) + 72px); }   /* right above the 💡 */
 .idea-fab { display: grid; place-items: center; font-size: 27px; line-height: 1; }   /* 💡 Capture, its own button, the lowest (Gianni): the bulb alone, no words */
 .menu-fab.open { background: var(--teal); color: #0b2f2a; }
+/* Gianni: opening the menu fades the 💡 away and glides the menu button down into its place, so the actions sit closer
+   to the thumb (the stack comes down with it); closing glides it back up and the 💡 returns */
+.menu-fab, .idea-fab { transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .28s ease, visibility 0s; }
+.menu-fab.open { transform: translateY(72px); }
+.idea-fab.away { opacity: 0; transform: scale(.6); visibility: hidden; pointer-events: none;
+  transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .28s ease, visibility 0s .34s; }
+@media (prefers-reduced-motion: reduce) { .menu-fab, .idea-fab, .idea-fab.away { transition: none; } }
 .action-veil { position: fixed; inset: 0; z-index: 19; background: rgba(4, 9, 30, .14); }
-.action-stack { position: fixed; z-index: 20; right: max(16px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 144px);
+.action-stack { position: fixed; z-index: 20; right: max(16px, env(safe-area-inset-right)); bottom: calc(max(18px, env(safe-area-inset-bottom)) + 72px);   /* right above the menu button once it has come down */
   display: flex; flex-flow: column-reverse wrap-reverse; align-content: flex-end; align-items: center; gap: 12px;
-  max-height: calc(100dvh - max(18px, env(safe-area-inset-bottom)) - 144px - max(12px, env(safe-area-inset-top)));
+  max-height: calc(100dvh - max(18px, env(safe-area-inset-bottom)) - 72px - max(12px, env(safe-area-inset-top)));
   visibility: hidden; transition: visibility 0s .34s; }
 .action-stack.open { visibility: visible; transition: none; }
 .action-stack .capture-fab { position: relative; inset: auto; display: grid; place-items: center; flex: none; width: 60px; height: 60px;
