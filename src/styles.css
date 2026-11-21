@@ -417,6 +417,13 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 .update-card p { margin: 0; font-family: Georgia, serif; font-size: 24px; line-height: 1.25; }
 .update-changes { text-align: start; max-height: min(40vh, 300px); overflow-y: auto; overscroll-behavior: contain; }
 .update-changes h2 { margin: 0 0 8px; font-size: 14px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: inherit; opacity: .8; }
+.update-nav { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 8px; margin: 0 0 10px; }
+.update-step { width: 44px; height: 44px; padding: 0; border: 1px solid var(--win-edge); border-radius: 50%; background: transparent;
+  color: inherit; font-size: 24px; line-height: 1; cursor: pointer; }
+.update-step:disabled { opacity: .3; cursor: default; }
+.update-version { margin: 0; font-size: 15px; font-weight: 700; line-height: 1.3; text-align: center; }
+.update-new-tag { display: inline-block; margin-inline-start: 6px; padding: 1px 8px; border: 1px solid currentColor; border-radius: 999px;
+  font-size: 12px; font-weight: 700; opacity: .85; }
 .update-changes ul { margin: 0; padding-inline-start: 22px; display: grid; gap: 8px; }
 .update-changes li { font-size: 16px; line-height: 1.35; }
 .update-button { min-height: 96px; padding: 0 20px; border: 0; border-radius: 24px; background: var(--pink);
@@ -651,7 +658,7 @@ dialog.info-card.track-grid[open] { display: flex; flex-direction: column; overf
 @property --tilt-r { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
 @property --tilt-k { syntax: '<number>'; inherits: true; initial-value: 0; }
 html.tilt { transition: --tilt-r .55s cubic-bezier(.34, 1.4, .64, 1), --tilt-k .55s cubic-bezier(.34, 1.4, .64, 1); }
-html.tilt button { rotate: var(--tilt-r);
+html.tilt button:not(.yr-cell) { rotate: var(--tilt-r);
   translate: calc((max(var(--tilt-k), 0) * var(--tilt-rr, 0px) + min(var(--tilt-k), 0) * var(--tilt-rl, 0px)) * .55) 0; }
 /* Everything has weight (Gianni): blocks, day columns, cards, titles and texts, fields, notes, habits and Canvas
    objects lean and slide too, less than the buttons since they nest (a title leans inside its leaning card, inside its
@@ -1809,3 +1816,77 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
 .palette-tick { grid-area: tick; width: 24px; text-align: center; font-size: 20px; font-weight: 900; color: var(--pink); }
 .edge-sample { display: inline-block; width: 22px; height: 16px; margin: 0 8px 2px 0; border-radius: 4px; vertical-align: middle;
   background: #fff; box-shadow: inset 5px 0 0 var(--pink), inset 0 0 0 1px rgba(0, 0, 0, .2); }
+
+/* The Year (Gianni): 2027 as four seasons, each 4 sprints of 3 weeks (one row each, 3 weeks × 7 days, like the
+   tracking grid) and a striped rest and review week. Above all visual: each season has its own soft tint (--season),
+   today a ring, past days fade, the day the season really begins a dot, an important date a ★ on the theme's accent.
+   The day cells never lean with the phone (tilt.ts): a grid must stay aligned. */
+.year-page { max-width: 760px; margin: 0 auto; }
+.year-top > .why { margin-left: auto; }
+.year-status { margin: -4px 0 14px; color: var(--ink-soft); font-size: calc(14px * var(--esc, 1)); font-weight: 600; }
+.year-seasons { display: grid; gap: 14px; }
+.season { --season: #9cc9ee; padding: 12px 12px 14px; border-radius: 20px;
+  background: color-mix(in srgb, var(--season) 9%, transparent); border: 1px solid color-mix(in srgb, var(--season) 32%, transparent);
+  animation: season-in .55s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
+.season[data-season='spring'], [data-season='spring'] { --season: #93dc9c; }
+.season[data-season='summer'], [data-season='summer'] { --season: #f5c945; }
+.season[data-season='autumn'], [data-season='autumn'] { --season: #f0975c; }
+[data-season='winter'] { --season: #9cc9ee; }
+@keyframes season-in { from { opacity: 0; translate: 0 14px; } }
+.season-head { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
+.season-ico { display: inline-grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 50%;
+  background: color-mix(in srgb, var(--season) 26%, transparent); color: color-mix(in srgb, var(--season) 62%, var(--ink)); }
+.season-head h2 { margin: 0; font-size: calc(20px * var(--esc, 1)); }
+.season-range { margin-left: auto; color: var(--ink-soft); font-size: calc(13px * var(--esc, 1)); font-weight: 700; white-space: nowrap; }
+.yr-row + .yr-row { margin-top: 8px; }
+.yr-label { margin: 0 0 4px; font: 700 calc(11.5px * var(--esc, 1))/1.2 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: .05em; text-transform: uppercase; color: var(--ink-soft); }
+.yr-label span { margin-left: 4px; font-weight: 600; opacity: .8; text-transform: none; letter-spacing: 0; }
+.yr-weeks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(6px, 2vw, 14px); }
+.yr-week { container-type: inline-size; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: clamp(2px, .7vw, 5px); }
+.yr-week li { display: grid; }
+.yr-cell { position: relative; aspect-ratio: 1; min-width: 0; padding: 0; display: grid; place-items: center; border: 0; border-radius: 28%;
+  background: color-mix(in srgb, var(--season) 44%, transparent); color: var(--g-on-ink, var(--card-ink));
+  font-size: min(13px, 9cqw); font-weight: 900; line-height: 1; transition: opacity .3s ease, scale .15s ease; }
+.yr-cell:active { scale: .9; }
+@media (hover: hover) { .yr-cell:hover { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink) 55%, transparent); } }
+.yr-cell.month-start { box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ink) 55%, transparent); }
+.yr-cell.past { opacity: .32; }
+.yr-cell.astro::after { content: ''; position: absolute; width: 26%; aspect-ratio: 1; border-radius: 50%; background: var(--ink); opacity: .85; }
+.yr-cell.named { background: var(--pink); opacity: 1; }
+.yr-cell.named.astro::after { display: none; }
+.yr-cell.named.past { opacity: .55; }
+.yr-cell.today { opacity: 1; box-shadow: 0 0 0 2px var(--page), 0 0 0 4px var(--pink); z-index: 1; }
+.yr-cell.named.today { box-shadow: 0 0 0 2px var(--page), 0 0 0 4px var(--ink); }
+/* the rest and review week: striped, as the free time of a block; the rest of its row a soft striped band */
+.yr-row.rest .yr-cell:not(.named) { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--season) 50%, transparent) 0 3px, color-mix(in srgb, var(--season) 14%, transparent) 3px 6px); }
+.rest-mark { grid-column: 2 / 4; border-radius: 10px; border: 1.5px dashed color-mix(in srgb, var(--season) 45%, transparent);
+  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--season) 12%, transparent) 0 4px, transparent 4px 9px); }
+/* phones and touch screens: one week per row, so every day is a tap target of at least 40px; the three weeks of a
+   sprint stay close together under its label, and the rest week's band is not needed */
+@media (max-width: 700px), (pointer: coarse) {
+  .yr-weeks { grid-template-columns: minmax(0, 460px); gap: 4px; }
+  .yr-week { gap: 4px; }
+  .yr-cell { min-height: 40px; }
+  .rest-mark { display: none; }
+  .yr-row + .yr-row { margin-top: 12px; }
+}
+.year-legend { margin: 14px 2px 0; font-size: calc(13px * var(--esc, 1)); }
+.year-dates { margin-top: 18px; }
+.year-dates h2 { margin: 0 0 8px; font-size: calc(20px * var(--esc, 1)); }
+.year-dates ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.year-dates li button { width: 100%; min-height: 46px; display: flex; align-items: center; gap: 10px; padding: 8px 12px; border: 0; border-radius: 14px;
+  border-left: 4px solid var(--season, var(--pink)); background: color-mix(in srgb, var(--season, var(--pink)) 13%, transparent); color: var(--ink); text-align: left; }
+.year-dates li.past button { opacity: .55; }
+.yd-star { color: var(--pink); }
+.yd-name { flex: 1 1 auto; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
+.yd-date { flex: none; color: var(--ink-soft); font-size: 13px; text-align: right; }
+@media (max-width: 420px) { .year-dates li button { flex-wrap: wrap; } .yd-date { flex-basis: 100%; text-align: left; padding-left: 24px; } }
+dialog.info-card.year-date { width: min(420px, calc(100vw - 32px)); border: 1px solid var(--win-edge); }
+.yd-place { display: flex; align-items: center; gap: 8px; }
+.yd-place::before { content: ''; width: 10px; height: 10px; flex: none; border-radius: 50%; background: var(--season, transparent); }
+.yd-field { margin-top: 6px; }
+.yd-foot { margin-top: 4px; }
+.ask-actions .yd-remove { color: var(--red); }
+.year-date .info-head h2::first-letter, .yd-date::first-letter { text-transform: uppercase; }
+@media (prefers-reduced-motion: reduce) { .season { animation: none; } .yr-cell { transition: none; } }

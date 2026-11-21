@@ -6,7 +6,7 @@ import type { Lang } from './i18n';
  * whoever wants to know more. Written with a panel of experts (life design, habit and behavioural psychology, time and
  * attention, pastoral care, UX writing), from what each screen really does. English and Spanish (a spec checks both).
  */
-export type WhyScreen = 'week' | 'canvas' | 'progress' | 'capture' | 'focus';
+export type WhyScreen = 'week' | 'canvas' | 'progress' | 'capture' | 'focus' | 'year';
 export interface WhySection { heading: string; body: string[] }
 export interface WhyText {
   /** The window's title: "Why the Week board?" */
@@ -18,7 +18,7 @@ export interface WhyText {
   sections: WhySection[];
 }
 
-export const WHY_SCREENS: WhyScreen[] = ['week', 'canvas', 'progress', 'capture', 'focus'];
+export const WHY_SCREENS: WhyScreen[] = ['week', 'canvas', 'progress', 'capture', 'focus', 'year'];
 
 export const WHY: Record<WhyScreen, Record<Lang, WhyText>> = {
   week: {
@@ -291,6 +291,60 @@ export const WHY: Record<WhyScreen, Record<Lang, WhyText>> = {
         ] },
         { heading: 'Finishing with presence', body: [
           'Closing one activity makes room for the next. Watching the day move forward gives you something hurry never gives: the certainty that you were there.',
+        ] },
+      ],
+    },
+  },
+  year: {
+    es: {
+      title: '¿Por qué el Año?',
+      orders: 'tu horizonte',
+      lead: 'El Año ordena tu horizonte. La semana te dice qué hacer hoy, pero solo el año te muestra hacia dónde vas. Aquí ves las cuatro estaciones, cada una con cuatro tramos de tres semanas y una semana para descansar y revisar, y marcas las fechas que importan. Así cada semana se vuelve un paso de un camino más largo, y no un día más que pasa.',
+      sections: [
+        { heading: 'Todo tiene su tiempo', body: [
+          'La creación vive en estaciones: un tiempo para sembrar, otro para crecer, otro para cosechar y otro para descansar, como dice el Eclesiastés. Tu vida también tiene ritmos, y no tiene por qué ser el mismo esfuerzo de enero a diciembre.',
+          'Por eso cada trimestre empieza con su estación. El invierno invita a mirar hacia dentro y a preparar; la primavera, a empezar; el verano, a dar fruto; el otoño, a recoger y soltar.',
+        ] },
+        { heading: 'Tres semanas: lo bastante cerca', body: [
+          'Un año entero es demasiado lejos para sentir urgencia, y una semana es demasiado poco para ver un avance. Tres semanas están en el punto justo: se ve el final desde el principio y alcanza para que algo cambie de verdad.',
+          'Cuatro de esos tramos forman una estación. Es la idea del «año de doce semanas»: cuando la meta está cerca, se trabaja con más claridad y se posterga menos.',
+        ] },
+        { heading: 'Una semana para parar', body: [
+          'Al final de cada estación hay una semana sin tramo. No es tiempo perdido, es el tiempo en que se aprende: mirar lo que funcionó, lo que no, y decidir con calma la estación que viene.',
+          'Sin descanso el esfuerzo se vuelve rutina y luego cansancio. Es el sentido del sábado: detenerse para recordar para qué se trabaja.',
+        ] },
+        { heading: 'Fechas que te sostienen', body: [
+          'Las fechas importantes son anclas. Los estudios sobre el «efecto del nuevo comienzo» muestran que un cumpleaños, un aniversario o el inicio de una estación nos dan fuerza para empezar de nuevo.',
+          'Marcarlas en el año te deja verlas venir: prepararte, celebrarlas y no dejar que te tomen por sorpresa.',
+        ] },
+        { heading: 'Ver el año entero', body: [
+          'Solemos creer que nos sobrará tiempo y luego el año se va. Ver todos los días a la vez, los que ya pasaron y los que faltan, es una forma honesta de contar bien nuestros días y de vivir cada estación con intención.',
+        ] },
+      ],
+    },
+    en: {
+      title: 'Why the Year?',
+      orders: 'your horizon',
+      lead: 'The Year orders your horizon. The week tells you what to do today, but only the year shows you where you are going. Here you see the four seasons, each with four stretches of three weeks and one week to rest and review, and you mark the dates that matter. Every week becomes a step on a longer road, not just another day going by.',
+      sections: [
+        { heading: 'Everything has its time', body: [
+          'Creation lives in seasons: a time to sow, a time to grow, a time to harvest and a time to rest, as Ecclesiastes says. Your life has rhythms too, and it does not need the same effort from January to December.',
+          'That is why every quarter begins with its season. Winter invites you to look inward and prepare; spring, to begin; summer, to bear fruit; autumn, to gather and let go.',
+        ] },
+        { heading: 'Three weeks: close enough', body: [
+          'A whole year is too far away to feel urgent, and a week is too short to see progress. Three weeks are just right: you can see the end from the start, and there is enough time for something to really change.',
+          'Four of those stretches make a season. It is the idea of the “12 week year”: when the goal is near, you work with more clarity and put things off less.',
+        ] },
+        { heading: 'A week to stop', body: [
+          'At the end of every season there is one week with no stretch. It is not lost time, it is the time when you learn: looking at what worked, what did not, and calmly deciding the season ahead.',
+          'Without rest, effort turns into routine and then into weariness. That is the meaning of the sabbath: stopping to remember what the work is for.',
+        ] },
+        { heading: 'Dates that hold you', body: [
+          'Important dates are anchors. Research on the “fresh start effect” shows that a birthday, an anniversary or the start of a season gives us strength to begin again.',
+          'Marking them on the year lets you see them coming: prepare, celebrate them and never be caught by surprise.',
+        ] },
+        { heading: 'Seeing the whole year', body: [
+          'We tend to believe we will have time to spare, and then the year is gone. Seeing every day at once, those already lived and those still to come, is an honest way to number our days and live each season with intention.',
         ] },
       ],
     },

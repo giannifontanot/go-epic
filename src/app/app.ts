@@ -10,9 +10,10 @@ import { ThemeFan } from './shared/theme-fan';
 import { LookStack } from './shared/look-stack';
 import { AskWindow } from './shared/ask';
 import { Settings } from './pages/settings/settings';
-import { Change, lastChangeId, newChanges, sanitizeChanges } from './core/changes.model';
+import { CHANGES, Change, lastVersion, sanitizeChanges, versionPages } from './core/changes.model';
 import { openDialog, warmUpWindows } from './core/dialog';
 import { I18n } from './core/i18n';
+import { DatesStore } from './core/dates.store';
 import { LibraryStore } from './core/library.store';
 import { Tilt } from './core/tilt';
 import { TextSettings } from './core/text-settings';
@@ -44,6 +45,10 @@ import { WeekStore } from './core/week.store';
         <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ store.error() }}
           <button type="button" class="chip quiet" (click)="store.error.set('')">×</button></p>
       }
+      @if (dates.error()) {
+        <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ dates.error() }}
+          <button type="button" class="chip quiet" (click)="dates.error.set('')">×</button></p>
+      }
       @if (library.error() && !library.rejected()) {
         <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ library.error() }}
           <button type="button" class="chip quiet" (click)="library.error.set('')">×</button></p>
@@ -58,11 +63,22 @@ import { WeekStore } from './core/week.store';
     <dialog #updateDialog class="update-overlay" aria-labelledby="update-text" (cancel)="$event.preventDefault()">
       <div class="update-card">
         <p id="update-text">{{ i18n.t('pwa.update') }}</p>
-        @if (changes().length) {
+        @if (page(); as p) {
           <section class="update-changes" aria-labelledby="update-new">
             <h2 id="update-new">{{ i18n.t('pwa.whatsNew') }}</h2>
+            <!-- ‹ › page through every earlier version's list (Gianni: to see what each update window said) -->
+            <div class="update-nav">
+              <button type="button" class="update-step" [disabled]="pageIndex() >= pages().length - 1"
+                [attr.aria-label]="i18n.t('pwa.older')" [title]="i18n.t('pwa.older')" (click)="stepPage(1)">‹</button>
+              <div class="update-version" aria-live="polite">
+                {{ i18n.t('pwa.version', { n: p.v }) }} · {{ shortDate(p.date) }}
+                @if (p.isNew) { <span class="update-new-tag">{{ i18n.t('pwa.newTag') }}</span> }
+              </div>
+              <button type="button" class="update-step" [disabled]="pageIndex() === 0"
+                [attr.aria-label]="i18n.t('pwa.newer')" [title]="i18n.t('pwa.newer')" (click)="stepPage(-1)">›</button>
+            </div>
             <ul>
-              @for (line of changes(); track $index) { <li>{{ line }}</li> }
+              @for (line of p.lines; track $index) { <li>{{ line }}</li> }
             </ul>
           </section>
         }
@@ -76,6 +92,7 @@ export class App {
   protected readonly i18n = inject(I18n);
   protected readonly store = inject(WeekStore);
   protected readonly library = inject(LibraryStore);
+  protected readonly dates = inject(DatesStore);
   private readonly tilt = inject(Tilt);
   /** The text size and letter spacing chosen on the Week board (Aa / AV) apply everywhere from the start. */
   protected readonly text = inject(TextSettings);
@@ -98,7 +115,14 @@ export class App {
   protected readonly showUpdate = signal(false);
   /** What the waiting version brings, newer than this build's last change, in the chosen language. */
   private readonly waitingChanges = signal<Change[]>([]);
-  protected readonly changes = computed(() => newChanges(this.waitingChanges(), lastChangeId(), this.i18n.lang()));
+  /** Every version's list, newest first (the waiting version's file, else this build's own history). */
+  protected readonly pages = computed(() => {
+    const list = this.waitingChanges().length ? this.waitingChanges() : CHANGES;
+    return versionPages(list, lastVersion(), this.i18n.lang());
+  });
+  /** The page shown: 0 is the newest version; ‹ goes back in time. */
+  protected readonly pageIndex = signal(0);
+  protected readonly page = computed(() => this.pages()[Math.min(this.pageIndex(), this.pages().length - 1)] ?? null);
 
   constructor() {
     this.tilt.start();   // buttons lean when the phone leans (a visual detail)
@@ -151,8 +175,18 @@ export class App {
   private loadChanges(): void {
     fetch(`/changes.json?ngsw-bypass=true&t=${Date.now()}`, { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : []))
-      .then((raw: unknown) => this.waitingChanges.set(sanitizeChanges(raw)))
+      .then((raw: unknown) => { this.waitingChanges.set(sanitizeChanges(raw)); this.pageIndex.set(0); })
       .catch(() => undefined);
+  }
+
+  protected stepPage(delta: number): void {
+    this.pageIndex.update((i) => Math.max(0, Math.min(this.pages().length - 1, i + delta)));
+  }
+
+  protected shortDate(date: string): string {
+    const d = new Date(`${date}T12:00:00`);
+    if (isNaN(d.getTime())) return date;
+    return d.toLocaleDateString(this.i18n.lang() === 'es' ? 'es' : 'en', { day: 'numeric', month: 'short' });
   }
 
   protected reload(): void {
