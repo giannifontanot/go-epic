@@ -216,10 +216,10 @@ dialog.info-card::backdrop { background: rgba(4, 9, 30, .55); }
 .why-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 11px;
   border: 0; background: none; color: color-mix(in srgb, var(--ink-soft) 80%, transparent); cursor: pointer;
   font: italic 600 14px/1 Georgia, 'Times New Roman', serif; letter-spacing: .01em; transition: color .2s ease, scale .15s ease; }
-.why-btn::before { content: ''; position: absolute; inset: 8px 0; border: 1px solid color-mix(in srgb, var(--ink-soft) 22%, transparent);
+.why-btn::before { content: ''; position: absolute; inset: 8px 0; border: 1px solid color-mix(in srgb, var(--ink-soft) 38%, transparent);
   border-radius: 999px; transition: border-color .2s ease; pointer-events: none; }
 .why-q { margin-left: 1px; }
-@media (hover: hover) { .why-btn:hover { color: var(--ink-soft); } .why-btn:hover::before { border-color: color-mix(in srgb, var(--ink-soft) 40%, transparent); } }
+@media (hover: hover) { .why-btn:hover { color: var(--ink-soft); } .why-btn:hover::before { border-color: color-mix(in srgb, var(--ink-soft) 55%, transparent); } }
 .why-btn:active { scale: .94; }
 .why-btn:focus-visible { outline: 2px solid var(--teal); outline-offset: 0; border-radius: 999px; }
 .week-top > .why { grid-column: 3; justify-self: end; }
