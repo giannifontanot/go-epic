@@ -66,7 +66,7 @@ function readLastCalendar(): string | null {
             </header>
             @for (sprint of q.sprints; track sprint.n) {
               <div class="yr-row">
-                <h3 class="yr-label">{{ i18n.t('year.sprint', { n: sprint.n }) }} <span>{{ shortDate(sprint.weeks[0][0]) }}</span></h3>
+                <h3 class="yr-label">{{ i18n.t('year.sprint', { n: sprint.n }) }}</h3>
                 <!-- the sprint's 21 days on one line: touch a day and slide along it, the window follows (never past the sprint) -->
                 <ol class="yr-line" (pointerdown)="press($event)" (pointermove)="drag($event)" (pointerup)="lift($event)"
                     (pointercancel)="drop($event)" (touchmove)="holdScroll($event)" (contextmenu)="$event.preventDefault()">
@@ -80,7 +80,7 @@ function readLastCalendar(): string | null {
             }
             @for (week of q.rest; track week[0]) {
               <div class="yr-row rest">
-                <h3 class="yr-label">{{ i18n.t('year.rest') }} <span>{{ shortDate(week[0]) }}</span></h3>
+                <h3 class="yr-label">{{ i18n.t('year.rest') }}</h3>
                 <ol class="yr-line" (pointerdown)="press($event)" (pointermove)="drag($event)" (pointerup)="lift($event)"
                     (pointercancel)="drop($event)" (touchmove)="holdScroll($event)" (contextmenu)="$event.preventDefault()">
                   @for (date of week; track date; let di = $index) {
@@ -98,7 +98,7 @@ function readLastCalendar(): string | null {
         <button type="button" class="yr-cell" [class.past]="date < today()" [class.today]="date === today()" [class.astro]="astroDays.has(date)"
                 [class.named]="!!name" [class.picked]="date === editing()" [class.deleting]="undo.isPending('date:' + date)"
                 [attr.aria-label]="cellLabel(date, name)" [title]="cellLabel(date, name)" [attr.data-date]="date"
-                (click)="cellClick($event, date)" (keydown)="cellKey($event)"></button>
+                (click)="cellClick($event, date)" (keydown)="cellKey($event)"><span class="yr-num" aria-hidden="true">{{ +date.slice(8) }}</span></button>
       </ng-template>
       <p class="muted year-legend">{{ i18n.t('year.legend') }}</p>
       <!-- the important dates of the year, in order: a tap opens the same window as the day -->
