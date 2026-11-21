@@ -1847,9 +1847,9 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
   grid-template-columns: repeat(7, minmax(0, 1fr)) var(--wk) repeat(7, minmax(0, 1fr)) var(--wk) repeat(7, minmax(0, 1fr));
   column-gap: clamp(2px, .6vw, 5px); touch-action: pan-y; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .yr-line li { display: grid; min-width: 0; }
-.year-page { --yr-done: #2fa864; --yr-future: #3d4047; --yr-edge: #000; --yr-red: #ff1f3d; }
-/* every square holds its day of the month (Gianni): green once it has passed, black-grey while it is to come,
-   a black edge, and a bright red ring when the day is important */
+.year-page { --yr-done: #c9ccd2; --yr-future: #3d4047; --yr-edge: #000; --yr-red: #ff1f3d; --yr-today: #22e06b; }
+/* every square holds its day of the month (Gianni): a light, faded grey once it has passed, dark grey while it is
+   to come, a black edge; a bright green ring marks today and a bright red ring an important day */
 .yr-cell { position: relative; display: grid; place-items: center; aspect-ratio: 1; min-width: 0; padding: 0; border: 0; border-radius: 22%;
   background: var(--yr-future); box-shadow: inset 0 0 0 1.5px var(--yr-edge); color: #eceef2; overflow: visible;
   transition: scale .18s cubic-bezier(.2, .8, .2, 1), background-color .3s ease; }
@@ -1857,17 +1857,18 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
   font-variant-numeric: tabular-nums; letter-spacing: -.04em; pointer-events: none; }
 @media (hover: hover) { .yr-cell:hover { box-shadow: inset 0 0 0 1.5px var(--yr-edge), inset 0 0 0 3px rgba(255, 255, 255, .55); } }
 .yr-cell:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
-.yr-cell.past { background: var(--yr-done); color: #fff; }
-/* today: a white ring inside its black edge and a dot under it */
-.yr-cell.today { box-shadow: inset 0 0 0 1.5px var(--yr-edge), inset 0 0 0 3px #fff; }
-.yr-cell.today::before { content: ''; position: absolute; left: 50%; top: calc(100% + 3px); width: 5px; height: 5px; translate: -50% 0;
-  border-radius: 50%; background: var(--ink); }
-/* an important date: a bright red ring around the square (Gianni) */
+.yr-cell.past { background: var(--yr-done); color: #5d6068; }
+/* today: a bright green ring around the square */
+.yr-cell.today { outline: 2.5px solid var(--yr-today); outline-offset: 1px; }
+/* an important date: a bright red ring around the square; when it is also today, the green ring goes inside it */
 .yr-cell.named { outline: 2.5px solid var(--yr-red); outline-offset: 1px; }
+.yr-cell.named.today { box-shadow: inset 0 0 0 1.5px var(--yr-edge), inset 0 0 0 3.5px var(--yr-today); }
 /* the day the season really begins: a small dot in the corner, clear of the number */
 .yr-cell.astro::after { content: ''; position: absolute; top: 12%; right: 12%; width: 18%; aspect-ratio: 1; border-radius: 50%; background: #fff; }
+.yr-cell.past.astro::after { background: #5d6068; }
 /* the day the window shows grows a little out of the line */
-.yr-cell.picked { z-index: 2; scale: 1.55; box-shadow: inset 0 0 0 1.5px var(--yr-edge), inset 0 0 0 3px #fff, 0 3px 10px rgba(0, 0, 0, .35); }
+.yr-cell.picked { z-index: 2; scale: 1.55; box-shadow: inset 0 0 0 1.5px var(--yr-edge), 0 3px 10px rgba(0, 0, 0, .35); }
+.yr-cell.picked.named.today { box-shadow: inset 0 0 0 1.5px var(--yr-edge), inset 0 0 0 3.5px var(--yr-today), 0 3px 10px rgba(0, 0, 0, .35); }
 /* the rest and review week: its days to come striped, as the free time of a block, then a soft striped band */
 .yr-row.rest .yr-cell:not(.past) { background: repeating-linear-gradient(135deg, rgba(255, 255, 255, .12) 0 2px, transparent 2px 4px), var(--yr-future); }
 .rest-mark { grid-column: 9 / -1; align-self: stretch; border-radius: 8px; border: 1.5px dashed color-mix(in srgb, var(--season) 45%, transparent);
@@ -1875,7 +1876,7 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
 .yr-row + .yr-row { margin-top: 2px; }
 /* the day's window: in the top layer, above the day touched (below it when there is no room), its tail on the day;
    it glides along with the finger and its date fades out as the next one fades in */
-.yr-pop { --yr-done: #2fa864; position: fixed; inset: auto; left: 0; top: 0; margin: 0; width: min(340px, calc(100vw - 16px)); height: auto;
+.yr-pop { position: fixed; inset: auto; left: 0; top: 0; margin: 0; width: min(340px, calc(100vw - 16px)); height: auto;
   padding: 14px 14px 12px; overflow: visible; border: 1px solid var(--win-edge); border-radius: 20px; background: var(--navy-card); color: var(--ink);
   box-shadow: 0 18px 60px rgba(0, 0, 0, .5); transform-origin: var(--tail-x, 50%) 100%; transition: left .2s ease, top .2s ease; }
 .yr-pop:not(.on) { display: none; }
