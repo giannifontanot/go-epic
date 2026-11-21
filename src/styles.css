@@ -1739,6 +1739,10 @@ html[data-theme='goepicdark'] :is(.task:not(.done):not(.off), .now-card:not(.don
 html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(.task, .pc-activity:not(.pc-pickable)) { padding-left: 16px; }
 html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .today-task { padding-left: 18px; }
 html[data-theme='goepicdark'] .task:not(.done) .round:not(.danger-x) { background-color: rgba(255, 255, 255, .08); }
+/* The details' Color button: the picked colour is an edge there too, so its word keeps the theme's ink */
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .color-btn.picked {
+  background: var(--ge-card) !important; color: var(--ink);
+  box-shadow: inset 6px 0 0 var(--tone, var(--ge-hair)), inset 0 0 0 1px var(--ge-hair); padding-left: 18px; }
 /* the dark cards (Petal Punk, Smoked Citrus, Graphite, Go Epic Dark): light ink everywhere on them, a deeper lip, light
    grip and buttons, an empty To do ring drawn in the card's ink; Done keeps its glorious gold */
 html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='graphite'], [data-theme='goepicdark']) { --act-lip: rgba(0, 0, 0, .42); }

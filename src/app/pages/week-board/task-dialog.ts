@@ -96,7 +96,7 @@ export interface TaskSave {
           <input #name type="text" [value]="title()" [readOnly]="!!linkedNode()" [class.locked]="!!linkedNode()"
             (input)="title.set($any($event.target).value)" (keydown.enter)="done()" />
           @if (libraryReady()) {
-            <button type="button" class="color-btn" aria-haspopup="dialog" [style.background]="toneVar(color())" [class.picked]="!!color()"
+            <button type="button" class="color-btn" aria-haspopup="dialog" [style.background]="toneVar(color())" [style.--tone]="toneVar(color())" [class.picked]="!!color()"
                     [disabled]="choice() === 'existing'"
                     [attr.aria-label]="i18n.t('task.color')" [title]="i18n.t('task.color')"
                     (click)="$event.preventDefault(); $event.stopPropagation(); colorWindow.open()">{{ i18n.t('task.color') }}</button>
