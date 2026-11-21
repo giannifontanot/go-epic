@@ -100,8 +100,6 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'theme.goepiclight': { en: 'Go Epic Light', es: 'Go Epic Claro' },
   'theme.goepicdark': { en: 'Go Epic Dark', es: 'Go Epic Oscuro' },
   'palette.title': { en: 'Palettes', es: 'Paletas' },
-  'palette.hint': { en: 'The colours of your activities in the theme you have on.', es: 'Los colores de tus actividades en el tema que tienes puesto.' },
-  'palette.list': { en: 'Palettes', es: 'Paletas' },
   'palette.own': { en: 'its own', es: 'la suya' },
   'palette.edge': { en: 'Only the edge', es: 'Solo el filo' },
   'palette.edgeHint': { en: 'The activity keeps the theme’s plain card and the colour goes only on its left edge.', es: 'La actividad queda con la tarjeta normal del tema y el color va solo en su filo izquierdo.' },

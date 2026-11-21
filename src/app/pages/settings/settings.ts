@@ -1,17 +1,15 @@
-import { AfterViewInit, Component, ElementRef, inject, output, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, output, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { AuthService } from '../../core/auth.service';
 import { I18n } from '../../core/i18n';
 import { Tilt } from '../../core/tilt';
 import { ThemeService } from '../../core/theme';
-import { PaletteService } from '../../core/palette';
-import { PALETTES, defaultPalette, edgeFor, paletteFor } from '../../core/palette.model';
 
 /**
  * Ajustes (⚙ in the ☰ menu): a window over the page you are on, not a page of its own (Gianni: going to another page
  * and then looking for the Week again felt wrong); closing it (×, Done, Esc or the backdrop) leaves you where you were.
  * Opened by the action menu's ⚙ (the ☰ menu is gone). It holds who is signed in, English / Español, the weighted
- * buttons, the red time line and the Palettes (each theme's activity colours, and whether only their edge wears them) (no Sign out: Gianni, it left the app altogether); the themes are the action menu's palette (Gianni). Kept on this device.
+ * buttons, the red time line (no Sign out: Gianni, it left the app altogether); the themes are the action menu's palette (Gianni). Kept on this device.
  */
 @Component({
   selector: 'app-settings',
@@ -46,46 +44,6 @@ import { PALETTES, defaultPalette, edgeFor, paletteFor } from '../../core/palett
           <small>{{ i18n.t('settings.redLineHint') }}</small>
         </span>
       </label>
-      <!-- Palettes: the colours each theme draws its activities with, and whether only their edge wears it (Gianni) -->
-      <section class="palette-section">
-        <button type="button" class="setting-row palette-toggle" [attr.aria-expanded]="palettesOpen()" aria-controls="palette-panel" (click)="palettesOpen.set(!palettesOpen())">
-          <span class="palette-mini" aria-hidden="true">
-            @for (c of chosen().colors.slice(0, 4); track $index) { <i [style.background]="c"></i> }
-          </span>
-          <span class="setting-text">
-            <strong>{{ i18n.t('palette.title') }}</strong>
-            <small>{{ i18n.t('palette.hint') }}</small>
-          </span>
-          <span class="palette-chev" aria-hidden="true">⌄</span>
-        </button>
-        @if (palettesOpen()) {
-          <div id="palette-panel" class="palette-panel">
-            <p class="palette-label" id="palette-list-label">{{ i18n.t('palette.list') }} · {{ i18n.t('theme.' + editing()) }}</p>
-            <div class="palette-list" role="radiogroup" aria-labelledby="palette-list-label">
-              @for (p of palettes; track p.id) {
-                <button type="button" role="radio" class="palette-row" [class.on]="chosen().id === p.id" [attr.aria-checked]="chosen().id === p.id"
-                  (click)="palette.setPalette(editing(), p.id)">
-                  <span class="palette-name">
-                    {{ i18n.t('palette.' + p.id) }}
-                    @if (p.id === ownPalette()) { <small>· {{ i18n.t('palette.own') }}</small> }
-                  </span>
-                  <span class="palette-swatches" aria-hidden="true">
-                    @for (c of p.colors; track $index) { <i [style.background]="c"></i> }
-                  </span>
-                  <span class="palette-tick" aria-hidden="true">{{ chosen().id === p.id ? '✓' : '' }}</span>
-                </button>
-              }
-            </div>
-            <label class="setting-row">
-              <input type="checkbox" class="setting-check" [checked]="edge()" (change)="palette.setEdge(editing(), $any($event.target).checked)" />
-              <span class="setting-text">
-                <strong><span class="edge-sample" aria-hidden="true"></span>{{ i18n.t('palette.edge') }} · {{ i18n.t('theme.' + editing()) }}</strong>
-                <small>{{ i18n.t('palette.edgeHint') }}</small>
-              </span>
-            </label>
-          </div>
-        }
-      </section>
       <footer class="settings-foot">
         <button type="button" class="primary" (click)="close()">{{ i18n.t('task.done') }}</button>
       </footer>
@@ -97,14 +55,6 @@ export class Settings implements AfterViewInit {
   protected readonly look = inject(ThemeService);
   protected readonly tilt = inject(Tilt);
   protected readonly auth = inject(AuthService);
-  protected readonly palette = inject(PaletteService);
-  protected readonly palettes = PALETTES;
-  protected readonly palettesOpen = signal(false);
-  /** The theme whose palette is being chosen: always the one on (Gianni); each theme keeps its own choice. */
-  protected editing() { return this.look.theme(); }
-  protected chosen() { return paletteFor(this.editing(), this.palette.palettes()); }
-  protected ownPalette(): string { return defaultPalette(this.editing()); }
-  protected edge(): boolean { return edgeFor(this.editing(), this.palette.edges()); }
   /** Emitted once the window has shrunk away (the App then removes it). */
   readonly closed = output<void>();
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');

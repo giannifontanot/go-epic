@@ -39,15 +39,18 @@ export class ThemeService {
   readonly theme = signal<Theme>(parseTheme(read(THEME_KEY)));
   /** The now-line red whatever the theme (off: it goes with the theme; Epic's is red anyway). */
   readonly redLine = signal(read(RED_LINE_KEY) === '1');
+  /** True while a theme is only tried on (the palette window is open over the themes): it shows but is not stored. */
+  private readonly trying = signal(false);
 
   constructor() {
     effect(() => {
       const theme = this.theme();
+      const trying = this.trying();
       if (typeof document === 'undefined') return;
       document.documentElement.dataset['theme'] = theme;
       document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_BAR[theme]);
       document.querySelector('link[rel="manifest"]')?.setAttribute('href', manifestFor(theme));
-      try { localStorage.setItem(THEME_KEY, theme); } catch { /* a view preference */ }
+      if (!trying) try { localStorage.setItem(THEME_KEY, theme); } catch { /* a view preference */ }
     });
     effect(() => {
       const red = this.redLine();
@@ -57,7 +60,15 @@ export class ThemeService {
     });
   }
 
+  /** Puts the theme on and keeps it on this device. */
   set(theme: Theme): void {
+    this.trying.set(false);
+    this.theme.set(theme);
+  }
+
+  /** Shows the theme without keeping it (the palette window's live preview); set() keeps it, or puts the old one back. */
+  preview(theme: Theme): void {
+    this.trying.set(true);
     this.theme.set(theme);
   }
 }

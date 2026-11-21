@@ -3,8 +3,8 @@ import { ThemeService, Theme } from './theme';
 import { EDGE_KEY, EdgeChoices, PALETTE_KEY, PaletteChoices, SLOTS, paletteLook, parseEdgeChoices, parsePaletteChoices } from './palette.model';
 
 /**
- * The palette each theme draws its activities with, and whether only their left edge wears it (Ajustes › Palettes,
- * kept on this device like the theme). It sets the chosen colours inline on <html> as --act-0…7 (over styles.css's
+ * The palette each theme draws its activities with, and whether only their left edge wears it (chosen in the window a
+ * theme opens when its tile is tapped, kept on this device like the theme). It sets the chosen colours inline on <html> as --act-0…7 (over styles.css's
  * own), and <html data-edge> / <html data-auto-ink> for styles.css's edge-only cards and the ink worked out from each
  * card's colour.
  */
@@ -27,13 +27,29 @@ export class PaletteService {
     });
   }
 
+  /** Shows a palette for a theme at once; save() keeps it on this device, restore() takes it back. */
   setPalette(theme: Theme, id: string): void {
     this.palettes.update((p) => ({ ...p, [theme]: id }));
-    writeJson(PALETTE_KEY, this.palettes());
   }
 
+  /** Shows (or hides) Only the edge for a theme at once; save() keeps it, restore() takes it back. */
   setEdge(theme: Theme, on: boolean): void {
     this.edges.update((e) => ({ ...e, [theme]: on }));
+  }
+
+  /** What is chosen now, to put back if the window is closed without OK. */
+  snapshot(): { palettes: PaletteChoices; edges: EdgeChoices } {
+    return { palettes: this.palettes(), edges: this.edges() };
+  }
+
+  restore(saved: { palettes: PaletteChoices; edges: EdgeChoices }): void {
+    this.palettes.set(saved.palettes);
+    this.edges.set(saved.edges);
+  }
+
+  /** Keeps what is shown (the palette window's OK). */
+  save(): void {
+    writeJson(PALETTE_KEY, this.palettes());
     writeJson(EDGE_KEY, this.edges());
   }
 }
