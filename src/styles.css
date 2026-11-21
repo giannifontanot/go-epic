@@ -1399,7 +1399,12 @@ html.tilt .overdue-head { rotate: none; translate: none; }   /* the tab is part 
 /* Office and Graphite: the folder is drawn in greys like the rest of the page, but its line stays a red (Gianni: super
    visible, never hidden), a muted brick that suits the quiet greys: Office a deep brick (4.2:1 or more), Graphite a
    dusty one (3.4:1 or more) with the dark halo */
-html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray { --tray-pre: grayscale(1); }
+/* the filter is declared again here: the grey themes' `.board > :not(.week)` grayscale rule is more specific than the
+   base tray rule and would otherwise drop the line */
+html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray { --tray-pre: grayscale(1);
+  filter: var(--tray-pre) drop-shadow(var(--tray-w) 0 0 var(--tray-edge)) drop-shadow(calc(-1 * var(--tray-w)) 0 0 var(--tray-edge)) drop-shadow(0 calc(-1 * var(--tray-w)) 0 var(--tray-edge))
+    drop-shadow(var(--tray-halo-w) 0 0 var(--tray-halo)) drop-shadow(calc(-1 * var(--tray-halo-w)) 0 0 var(--tray-halo)) drop-shadow(0 calc(-1 * var(--tray-halo-w)) 0 var(--tray-halo))
+    drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
 html[data-theme='office'] .board > .overdue-tray { --tray-edge: #7f3434; --tray-halo-w: 0px; }
 html[data-theme='graphite'] .board > .overdue-tray { --tray-edge: #d27870; --tray-halo: rgba(10, 11, 13, .8); }
 @media (min-width: 821px) { .overdue-tray { left: 50%; right: auto; width: min(560px, calc(100vw - 180px)); translate: -50% 0; } }
