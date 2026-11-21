@@ -357,19 +357,19 @@ dialog.transfer footer .primary { border-color: var(--pink); background: var(--p
 .today-task .check { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border: 2px solid currentColor; border-radius: 50%; font-weight: 800; }
 
 /* New version of the installed app (Gianni: impossible to miss): it covers the screen, a card in the middle with one
-   huge glowing button */
+   huge, sober button: flat, no halo, no flash (Gianni) */
 dialog.update-overlay { width: min(440px, calc(100vw - 32px)); max-width: none; padding: 0; border: 0; background: transparent; color: var(--ink); overflow: visible; }
 dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filter: blur(4px); }
 .update-card { width: 100%; display: grid; gap: 22px; padding: 28px 22px; border: 1px solid var(--win-edge); border-radius: 26px;
   background: var(--navy-card); color: var(--ink); text-align: center; box-shadow: 0 25px 80px rgba(0, 0, 0, .4); }
 .update-card p { margin: 0; font-family: Georgia, serif; font-size: 24px; line-height: 1.25; }
-.update-button { min-height: 96px; padding: 0 20px; border: 0; border-radius: 24px; background: linear-gradient(150deg, #ffc3cf, var(--pink));
-  color: var(--card-ink); font-size: 24px; font-weight: 900; animation: update-glow 1.6s ease-in-out infinite; --glow: #ffdf77; }
-/* in the other themes it wears the theme (Gianni: it looked out of place): the theme's primary button and a halo in its accent */
+.update-button { min-height: 96px; padding: 0 20px; border: 0; border-radius: 24px; background: var(--pink);
+  color: var(--card-ink); font-size: 24px; font-weight: 900; }
+/* in the other themes it wears the theme (Gianni: it looked out of place): the theme's primary button */
 html:is([data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight']) .update-button {
-  background: var(--pink); color: var(--g-on-ink); --glow: var(--pink); }
-html[data-theme='goepiclight'] .update-button { border-radius: 999px; --glow: #d9b54a; }   /* the page's black pill with its gold ring */
-html[data-theme='goepicdark'] .update-button { border-radius: 999px; background: linear-gradient(100deg, #f0cf6e, #d9b54a 50%, #b8860b); color: #101b42; --glow: #f5c945; }
+  background: var(--pink); color: var(--g-on-ink); }
+html[data-theme='goepiclight'] .update-button { border-radius: 999px; }   /* the page's black pill */
+html[data-theme='goepicdark'] .update-button { border-radius: 999px; background: #d9b54a; color: #101b42; }
 
 /* Phones and touch screens: every control is at least 40px tall (AGENTS.md). */
 @media (pointer: coarse), (max-width: 820px) {
@@ -600,12 +600,6 @@ html.tilt .object { translate: calc(var(--ox, 0px) + (max(var(--tilt-k), 0) * va
 @media (prefers-reduced-motion: reduce) { html.tilt :is(button, .block, .task, .now-card, .habit, .capture-list li, .epics-label, .pc-feature, .pc-story, .pc-activity, .day, .field, .min-chip, input:not([type=radio]), select:not(.pc-head > select), .todo-note, .todo-strip, .stepper, .linked-chip, h1, h2, .t-title, .t-time, .t-dur, .summary, .free, .hint, .eyebrow) { rotate: none; translate: none; }
   html.tilt .object { rotate: none; translate: var(--ox, 0px) var(--oy, 0px); } }
 
-/* The update button glows and breathes, a gold halo pulsing around it (a still halo under reduced motion) */
-@keyframes update-glow {
-  0%, 100% { scale: 1; box-shadow: 0 0 0 3px color-mix(in srgb, var(--glow) 70%, transparent), 0 0 22px 6px color-mix(in srgb, var(--glow) 35%, transparent); }
-  50% { scale: 1.04; box-shadow: 0 0 0 5px var(--glow), 0 0 46px 18px color-mix(in srgb, var(--glow) 65%, transparent); }
-}
-@media (prefers-reduced-motion: reduce) { .update-button { animation: none !important; box-shadow: 0 0 0 4px color-mix(in srgb, var(--glow) 90%, transparent), 0 0 30px 10px color-mix(in srgb, var(--glow) 50%, transparent); } }
 
 /* Paper that ages (as in Epic Manager's Capture): a captured task is a note on fresh paper, parchment after 5 days and
    old stained paper after 21 (paperAge), in the Capture list and on its week cards, so a neglected idea shows it. */
@@ -1312,11 +1306,7 @@ html:is([data-theme='office'], [data-theme='graphite']) .switch-row input::befor
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) :is(.capture-fab:not(.finish-fab), .nav-toggle) { box-shadow: 0 3px 10px var(--g-shadow); }
 html:is([data-theme='office'], [data-theme='graphite']) .capture-fab:not(.finish-fab):hover { background: var(--g-control-hover); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) dialog.update-overlay::backdrop { background: var(--g-veil-strong); }
-html:is([data-theme='office'], [data-theme='graphite']) .update-button { background: var(--g-button); color: var(--g-button-ink); animation-name: update-glow-grey; --glow: rgb(var(--g-glow)); }
-@keyframes update-glow-grey {
-  0%, 100% { scale: 1; box-shadow: 0 0 0 3px rgba(var(--g-glow), .7), 0 0 20px 6px rgba(var(--g-glow), .35); }
-  50% { scale: 1.04; box-shadow: 0 0 0 5px rgba(var(--g-glow), 1), 0 0 42px 16px rgba(var(--g-glow), .6); }
-}
+html:is([data-theme='office'], [data-theme='graphite']) .update-button { background: var(--g-button); color: var(--g-button-ink); }
 html:is([data-theme='office'], [data-theme='graphite']) .sparkle { color: var(--g-sparkle); text-shadow: none; }
 /* text on the accent greys (selected chips, primary buttons, the menu's current page, done dots) */
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) :is(.chip.quiet.on, .finish-fab, .primary, .page-tile.on, .drawer-links a.on, .dot[data-result='done'], .repeat-day.on, .setting-check:checked::before, button.primary,
