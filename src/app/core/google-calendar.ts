@@ -10,7 +10,7 @@ const API = 'https://www.googleapis.com/calendar/v3';
 export interface GoogleCalendar { id: string; name: string; primary: boolean; color: string | null }
 
 /** Why an import could not go on, for the window to say in plain words. */
-export type CalendarProblem = 'cancelled' | 'blocked' | 'denied' | 'mismatch' | 'disabled' | 'expired' | 'offline' | 'failed';
+export type CalendarProblem = 'cancelled' | 'blocked' | 'denied' | 'mismatch' | 'disabled' | 'expired' | 'offline' | 'loading' | 'failed';
 export class CalendarError extends Error {
   constructor(readonly problem: CalendarProblem) { super(problem); }
 }

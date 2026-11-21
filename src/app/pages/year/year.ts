@@ -158,7 +158,7 @@ function readLastCalendar(): string | null {
             <p class="muted gcal-small">{{ i18n.t('gcal.rules') }}</p>
             @if (problem()) { <p class="gcal-problem" role="alert">{{ i18n.t('gcal.problem.' + problem()) }}</p> }
             <div class="ask-actions"><button type="button" class="ask-cancel" (click)="closeImport()">{{ i18n.t('year.cancel') }}</button>
-              <button type="button" class="ask-ok" [disabled]="busy() || !chosen()" (click)="runImport()">{{ i18n.t(busy() ? 'gcal.importing' : 'gcal.import') }}</button></div>
+              <button type="button" class="ask-ok" [disabled]="busy() || !chosen() || !dates.ready()" (click)="runImport()">{{ i18n.t(busy() ? 'gcal.importing' : 'gcal.import') }}</button></div>
           }
           @case ('done') {
             <p class="gcal-result">{{ result() }}</p>
@@ -259,7 +259,10 @@ export class Year {
     this.busy.set(true);
     this.problem.set(null);
     try {
+      // the days already kept must be known first, or an import could overwrite a day named by hand
+      if (!this.dates.ready()) throw new CalendarError('loading');
       const events = await this.gcal.events(calendar, this.first, this.last);
+      if (!this.dates.ready()) throw new CalendarError('loading');
       const plan = importPlan(this.dates.kept(), eventDates(events, this.first, this.last), calendar, this.first, this.last);
       this.dates.applyImport(calendar, plan.write, plan.remove);
       try { localStorage.setItem(LAST_CALENDAR_KEY, calendar); } catch { /* a convenience only */ }

@@ -323,6 +323,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'gcal.problem.disabled': { en: 'Google Calendar is not switched on for Go Epic yet. It has to be enabled once in the Google project.', es: 'Google Calendar todavía no está activado para Go Epic. Hay que activarlo una vez en el proyecto de Google.' },
   'gcal.problem.expired': { en: 'Google’s permission ran out. Connect again.', es: 'El permiso de Google venció. Conecta otra vez.' },
   'gcal.problem.offline': { en: 'No connection. Try again when you are online.', es: 'Sin conexión. Inténtalo cuando tengas internet.' },
+  'gcal.problem.loading': { en: 'Your dates are still loading. Try again in a moment.', es: 'Tus fechas todavía se están cargando. Inténtalo en un momento.' },
   'gcal.problem.failed': { en: 'Google Calendar did not answer. Try again in a moment.', es: 'Google Calendar no respondió. Inténtalo en un momento.' },
   'canvas.area': { en: 'Area', es: 'Área' },
   'canvas.epic': { en: 'Epic', es: 'Epic' },
