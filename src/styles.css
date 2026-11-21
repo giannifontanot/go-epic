@@ -1325,7 +1325,9 @@ html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .board-head .day-
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepiclight'], [data-theme='goepicdark'])[data-red-line] { --now: #e0463b; --now-ink: #fff; }     /* Ajustes › red line */
 html[data-theme='graphite'][data-red-line] { --now: #d0564c; }
 
-html:is([data-theme='office'], [data-theme='graphite']) :is(main:not(:has(.board)), dialog) { filter: grayscale(1); }
+html:is([data-theme='office'], [data-theme='graphite']) :is(main:not(:has(.board, .year-page)), dialog) { filter: grayscale(1); }
+/* the Year keeps its own colours in every theme (Gianni), so only what is around its seasons is grayed */
+html:is([data-theme='office'], [data-theme='graphite']) .year-page > :not(.year-seasons) { filter: grayscale(1); }
 /* On the Week board the now-line must keep its colour (it can be red, Ajustes), so everything around it is grayed
    instead of the whole page: the cards' own backgrounds are already greys (--tone below) */
 html:is([data-theme='office'], [data-theme='graphite']) .board > :not(.week),
@@ -1827,14 +1829,17 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
 /* The Year (Gianni): 2027 as four seasons, each 4 sprints of 3 weeks (one line of 21 days each) and a rest and review
    week. Above all visual: each season has its own soft tint (--season); every day is a grey-edged square with its
    number, grey once it has passed, today a neon green edge, an important date a bright red one.
+   These colours are the same in every theme (Gianni): each season is a fixed light card with its own dark ink, so the
+   black numbers read on the dark themes too, and the grey themes leave it in colour.
    The day cells never lean with the phone (tilt.ts): a grid must stay aligned. */
 .year-page { max-width: 760px; margin: 0 auto; }
 .year-top > .why { margin-left: auto; }
 .year-status { margin: -4px 0 14px; color: var(--ink-soft); font-size: calc(14px * var(--esc, 1)); font-weight: 600; }
 .year-seasons { display: grid; gap: 14px; }
 @media (max-width: 520px) { .year-seasons { margin-inline: -8px; } .season { padding: 10px 7px 12px; } }
-.season { --season: #9cc9ee; padding: 12px 12px 14px; border-radius: 20px;
-  background: color-mix(in srgb, var(--season) 9%, transparent); border: 1px solid color-mix(in srgb, var(--season) 32%, transparent);
+.season { --season: #9cc9ee; --ink: #16181d; --ink-soft: #5b5f68; --page: #fff; padding: 12px 12px 14px; border-radius: 20px;
+  color: var(--ink); background: color-mix(in srgb, var(--season) 10%, #fff); border: 1px solid color-mix(in srgb, var(--season) 55%, #fff);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .12);
   animation: season-in .55s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
 .season[data-season='spring'], [data-season='spring'] { --season: #93dc9c; }
 .season[data-season='summer'], [data-season='summer'] { --season: #f5c945; }
@@ -1857,16 +1862,16 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
   column-gap: clamp(1.5px, .45vw, 5px); touch-action: pan-y; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .yr-line li { display: grid; min-width: 0; }
 .year-page { --yr-edge: #8a8f98; --yr-red: #ff1f3d; --yr-today: #39ff14; }
-/* every square is only a grey edge round its day of the month (Gianni: legible first): the number in the page's ink
-   (black on the light themes, the light ink on the dark ones), grey like the edge once the day has passed; today's
-   edge is neon green and an important day's bright red (both: the green edge inside a red ring) */
+/* every square is only a grey edge round its day of the month (Gianni: legible first): a black number, grey like the
+   edge once the day has passed; today's edge is neon green and an important day's bright red (both: the green edge
+   inside a red ring); the same in every theme */
 .yr-cell { position: relative; display: grid; place-items: center; aspect-ratio: 1; min-width: 0; padding: 0; box-sizing: border-box;
-  border: 1.5px solid var(--yr-edge); border-radius: 22%; background: transparent; color: var(--ink); overflow: visible;
+  border: 1.5px solid var(--yr-edge); border-radius: 22%; background: transparent; color: #000; overflow: visible;
   transition: scale .18s cubic-bezier(.2, .8, .2, 1), border-color .3s ease, color .3s ease; }
 .yr-num { font: 800 clamp(9.5px, 2.8vw, 13.5px)/1 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   font-variant-numeric: tabular-nums; letter-spacing: -.06em; pointer-events: none; }
-@media (hover: hover) { .yr-cell:hover { border-color: var(--ink); } }
-.yr-cell:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+@media (hover: hover) { .yr-cell:hover { border-color: #000; } }
+.yr-cell:focus-visible { outline: 2px solid #0b7a6e; outline-offset: 2px; }
 .yr-cell.past { color: var(--yr-edge); }
 .yr-cell.today { border: 2.5px solid var(--yr-today); }
 .yr-cell.named { border: 2.5px solid var(--yr-red); }
