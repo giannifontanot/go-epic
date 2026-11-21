@@ -13,6 +13,7 @@ import { Settings } from './pages/settings/settings';
 import { CHANGES, Change, lastVersion, sanitizeChanges, versionPages } from './core/changes.model';
 import { openDialog, warmUpWindows } from './core/dialog';
 import { I18n } from './core/i18n';
+import { DatesStore } from './core/dates.store';
 import { LibraryStore } from './core/library.store';
 import { Tilt } from './core/tilt';
 import { TextSettings } from './core/text-settings';
@@ -42,6 +43,10 @@ import { WeekStore } from './core/week.store';
       @if (store.error()) {
         <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ store.error() }}
           <button type="button" class="chip quiet" (click)="store.error.set('')">×</button></p>
+      }
+      @if (dates.error()) {
+        <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ dates.error() }}
+          <button type="button" class="chip quiet" (click)="dates.error.set('')">×</button></p>
       }
       @if (library.error() && !library.rejected()) {
         <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ library.error() }}
@@ -86,6 +91,7 @@ export class App {
   protected readonly i18n = inject(I18n);
   protected readonly store = inject(WeekStore);
   protected readonly library = inject(LibraryStore);
+  protected readonly dates = inject(DatesStore);
   private readonly tilt = inject(Tilt);
   /** The text size and letter spacing chosen on the Week board (Aa / AV) apply everywhere from the start. */
   protected readonly text = inject(TextSettings);

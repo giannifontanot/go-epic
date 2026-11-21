@@ -3,11 +3,12 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { I18n } from '../core/i18n';
 import { flyTiles, placeBeside } from './fan';
 
-/** The pages of the menu (Week board, Canvas, Progress), shared by the round menu's fan and the page titles'. */
+/** The pages of the menu (Week board, Canvas, Progress, Year), shared by the round menu's fan and the page titles'. */
 export const PAGES = [
   { link: '/', label: 'nav.week' },
   { link: '/canvas', label: 'nav.canvas' },
   { link: '/progress', label: 'nav.progress' },
+  { link: '/year', label: 'nav.year' },
 ] as const;
 
 /**

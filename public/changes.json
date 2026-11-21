@@ -17,5 +17,6 @@
   { "id": 16, "v": 14, "date": "2026-11-21", "es": "En Capture las tareas van de la más nueva arriba a la más vieja abajo.", "en": "In Capture the tasks go from the newest at the top to the oldest at the bottom." },
   { "id": 17, "v": 14, "date": "2026-11-21", "es": "En Capture, la tarea nueva con su botón, los días, el día y la hora están juntos dentro de una línea.", "en": "In Capture, the new task with its button, the days, the day and the hour sit together inside one line." },
   { "id": 18, "v": 14, "date": "2026-11-21", "es": "En Capture, la × de abajo ahora es un botón «Cerrar», igual que en las otras ventanas.", "en": "In Capture, the × at the bottom is now a Close button, like in the other windows." },
-  { "id": 19, "v": 15, "date": "2026-11-21", "es": "En esta ventana, las flechas ‹ › de «Qué hay de nuevo» te dejan ver lo que traía cada versión anterior.", "en": "In this window, the ‹ › arrows of “What is new” let you see what each earlier version brought." }
+  { "id": 19, "v": 15, "date": "2026-11-21", "es": "En esta ventana, las flechas ‹ › de «Qué hay de nuevo» te dejan ver lo que traía cada versión anterior.", "en": "In this window, the ‹ › arrows of “What is new” let you see what each earlier version brought." },
+  { "id": 20, "v": 16, "date": "2026-11-21", "es": "Nueva pantalla Año: 2027 en cuatro estaciones de 4 sprints de 3 semanas y una semana de descanso; toca un día para marcar una fecha importante.", "en": "New Year screen: 2027 in four seasons of 4 sprints of 3 weeks and a rest week; tap a day to mark an important date." }
 ]
