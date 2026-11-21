@@ -125,7 +125,7 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 html:is([data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepicdark']) .block { --head-shade: rgba(0, 0, 0, .4); }
 html[data-theme='graphite'] .task { --head-shade: rgba(0, 0, 0, .34); }
 html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .block { --head-line: color-mix(in srgb, var(--block-edge) 75%, transparent); }
-html[data-theme='goepiclight'] .block { --head-shade: #bebec9; }   /* the grey block's header: a shade darker still */
+html[data-theme='goepiclight'] .block { --head-shade: #b9b9c5; }   /* the grey block's header: a shade darker still */
 .block-tools { margin: -10px -10px 0; padding: 8px 10px; gap: 10px; align-items: center;
   border-start-start-radius: inherit; border-start-end-radius: inherit; background: var(--head-shade); border-bottom: 1px solid var(--head-line); }
 .board:not(.locked) .t-tools { width: calc(100% + 24px); margin: -6px -12px 0; padding: 6px 12px; gap: 10px; align-items: center;
@@ -526,6 +526,31 @@ html.tilt .capture-tabs button.on { translate: 0 0; }   /* the tabs belong to th
 .dot[data-result='missed'] { background: rgba(220, 38, 38, .55); color: #fff; }
 .dot[data-result='pending'] { background: transparent; box-shadow: inset 0 0 0 2px var(--pink); color: var(--pink); }
 .dot[data-result='none'] { background: transparent; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); }
+/* beside each streak, the button that opens the tracking grid (Gianni) */
+.h-side { flex: none; display: flex; align-items: center; gap: 8px; }
+.round.grid-btn { --tap: 40px; font-size: 18px; }
+.todo-habit .round.grid-btn { background: rgba(42, 32, 24, .1); color: #2a2018; border-color: rgba(42, 32, 24, .35); }
+/* the tracking grid (Gianni): almost the whole screen, the period's 126 days as 6 rows of 3 weeks of 7 days, growing
+   out of the button like every window; cells read like the habit's dots, today ringed, days to come blank */
+dialog.info-card.track-grid { width: min(1000px, calc(100vw - 16px)); max-width: none; height: min(94dvh, 900px); max-height: none; padding: 16px; }
+dialog.info-card.track-grid[open] { display: flex; flex-direction: column; overflow: hidden; }
+.track-grid :is(.info-head, .tg-period, .tg-legend, .info-foot) { flex: none; }
+.tg-period { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 6px 0 12px; font-size: calc(15px * var(--esc, 1)); }
+.tg-period div { display: flex; gap: 6px; }
+.tg-period dt { color: var(--ink-soft); font-weight: 600; }
+.tg-period dd { margin: 0; font-weight: 800; }
+.tg-period .tg-today dd { color: var(--pink); }
+.tg-rows { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: grid; gap: 12px; align-content: start; padding: 2px; }
+.tg-range { margin: 0 0 5px; font-size: calc(12px * var(--esc, 1)); font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .04em; }
+.tg-weeks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(6px, 2vw, 16px); }
+.tg-week { container-type: inline-size; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: clamp(2px, .7vw, 5px); }
+.dot.tg-cell { border-radius: 28%; font-size: min(14px, 7.5cqw); }
+.dot.tg-cell[data-result='none'] { background: color-mix(in srgb, var(--ink) 5%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 16%, transparent); }
+.dot.tg-cell[data-result='skipped'] { background: color-mix(in srgb, var(--ink) 22%, transparent); }
+.dot.tg-cell.future { background: transparent; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 9%, transparent); }
+.dot.tg-cell.today { box-shadow: 0 0 0 2px var(--navy-card), 0 0 0 4px var(--pink); }
+.tg-legend { margin: 10px 0 0; font-size: calc(13px * var(--esc, 1)); }
+.track-grid .info-foot { margin-top: 10px; }
 
 /* Starter template preview: a Feature renamed from its old name (Canvas) */
 .template-tree .renamed { display: block; color: var(--accent-text, var(--jelly-b)); font-size: 12px; font-style: normal; }
@@ -1023,34 +1048,34 @@ button.t-state:focus-visible { outline: 3px solid var(--teal); outline-offset: 3
 .tp-card { border-radius: 4px; background: #a7e7e3; }
 .tp-card + .tp-card { background: #ffd5bd; }
 [data-preview='office'] .theme-preview { background: #c6c9cd; }
-[data-preview='office'] .tp-day { background: #b5b9be; }
-[data-preview='office'] .tp-block { background: #c9ccd0; }
+[data-preview='office'] .tp-day { background: #a6abb1; }
+[data-preview='office'] .tp-block { background: #cbced1; }
 [data-preview='office'] .tp-card, [data-preview='office'] .tp-card + .tp-card { background: #d6d8db; }
 [data-preview='graphite'] .theme-preview { background: #2b2e33; }
 [data-preview='graphite'] .tp-day { background: #34383e; }
-[data-preview='graphite'] .tp-block { background: #3d4147; }
-[data-preview='graphite'] .tp-card, [data-preview='graphite'] .tp-card + .tp-card { background: #4a4e55; }
+[data-preview='graphite'] .tp-block { background: #44494f; }
+[data-preview='graphite'] .tp-card, [data-preview='graphite'] .tp-card + .tp-card { background: #4e545c; }
 [data-preview='pinkpop'] .theme-preview { background: #fbeaf3; }
-[data-preview='pinkpop'] .tp-day { background: linear-gradient(155deg, #f4e4ec, #ecd6e1); }
-[data-preview='pinkpop'] .tp-block { background: #f9f4f5; box-shadow: 0 0 0 1px #e3a6c1; }
+[data-preview='pinkpop'] .tp-day { background: linear-gradient(155deg, #efcadb, #e6bacf); }
+[data-preview='pinkpop'] .tp-block { background: #f9f4f5; box-shadow: 0 0 0 1px #d98fb2; }
 [data-preview='petalpunk'] .theme-preview { background: #1b141f; }
 [data-preview='petalpunk'] .tp-day { background: linear-gradient(155deg, #2e2238, #251b2d); }
-[data-preview='petalpunk'] .tp-block { background: linear-gradient(150deg, #3d3043, #33283a); box-shadow: 0 0 0 1px #c98aac; }
+[data-preview='petalpunk'] .tp-block { background: linear-gradient(150deg, #4a3a52, #413349); box-shadow: 0 0 0 1px #c98aac; }
 [data-preview='squeezeme'] .theme-preview { background: #eef4fc; }
-[data-preview='squeezeme'] .tp-day { background: linear-gradient(155deg, #e2ecf9, #d6e3f5); }
-[data-preview='squeezeme'] .tp-block { background: #f6f9fe; box-shadow: 0 0 0 1px #a9c1e8; }
+[data-preview='squeezeme'] .tp-day { background: linear-gradient(155deg, #d3e1f5, #c3d6f0); }
+[data-preview='squeezeme'] .tp-block { background: #f6f9fe; box-shadow: 0 0 0 1px #93b0e0; }
 [data-preview='smokedcitrus'] .theme-preview { background: #1a1918; }
 [data-preview='smokedcitrus'] .tp-day { background: linear-gradient(155deg, #2c2b29, #232220); }
-[data-preview='smokedcitrus'] .tp-block { background: linear-gradient(150deg, #47433e, #3b3834); box-shadow: inset 0 1px 0 rgba(251, 146, 60, .5); }
+[data-preview='smokedcitrus'] .tp-block { background: linear-gradient(150deg, #56514a, #4a4640); box-shadow: inset 0 1px 0 rgba(251, 146, 60, .5); }
 [data-preview='sunburnt'] .theme-preview { background: #fff1e5; }
-[data-preview='sunburnt'] .tp-day { background: linear-gradient(155deg, #f7e8d8, #f0dcc6); }
-[data-preview='sunburnt'] .tp-block { background: linear-gradient(150deg, #fdf8ef, #f4ead8); box-shadow: 0 0 0 1px #dcae63; }
+[data-preview='sunburnt'] .tp-day { background: linear-gradient(155deg, #f2d8bc, #e9c7a2); }
+[data-preview='sunburnt'] .tp-block { background: linear-gradient(150deg, #fdf8ef, #f8efe1); box-shadow: 0 0 0 1px #d19c4a; }
 [data-preview='goepiclight'] .theme-preview { background: #fbfbfd; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .06); }
 [data-preview='goepiclight'] .tp-day { background: #ececf1; box-shadow: 0 0 0 1px rgba(16, 27, 66, .12); }
-[data-preview='goepiclight'] .tp-block { background: #dfdfe6; box-shadow: 0 0 0 1px #b8901e; }
+[data-preview='goepiclight'] .tp-block { background: #d4d4dd; box-shadow: 0 0 0 1px #b8901e; }
 [data-preview='goepicdark'] .theme-preview { background: #0a1130; }
 [data-preview='goepicdark'] .tp-day { background: linear-gradient(155deg, #16214f, #111a42); }
-[data-preview='goepicdark'] .tp-block { background: linear-gradient(150deg, #25346f, #1f2d63); box-shadow: 0 0 0 1px #c9a227; }
+[data-preview='goepicdark'] .tp-block { background: linear-gradient(150deg, #2f428c, #283a7e); box-shadow: 0 0 0 1px #c9a227; }
 
 /* ── Grey themes: Office (light greys) and Graphite (dark greys). Nothing that draws attention: no white, no black,
    no bright colour. Each theme sets the colour tokens and the --g-* surfaces below; the rules after them are shared:
@@ -1059,8 +1084,8 @@ button.t-state:focus-visible { outline: 3px solid var(--teal); outline-offset: 3
 /* Office (Gianni): quiet light greys for a work screen */
 html[data-theme='office'] {
   --countdown: #5f6770;
-  --page: #c6c9cd; --ink: #26292d; --ink-soft: #555a61;
-  --plum-a: #b8bcc1; --plum-b: #b1b5ba; --jelly-a: #cdd0d3; --jelly-b: #c6c9cd; --jelly-ink: #2a2d31; --card-ink: #2a2d31;
+  --page: #c6c9cd; --ink: #26292d; --ink-soft: #4a4f55;
+  --plum-a: #a9aeb4; --plum-b: #a3a8ae; --jelly-a: #cdd0d3; --jelly-b: #c6c9cd; --jelly-ink: #2a2d31; --card-ink: #2a2d31;
   --pink: #9aa2ab; --teal: #7f8b96; --red: #8f4444; --navy-card: #cfd1d4; --light: #dfe1e4;
   --now: #7c848d;                                                  /* quiet: seen, but it draws no attention */
   --g-card: #d8dadc; --g-card-2: #d2d4d7; --g-done: #bfc2c6; --g-done-ink: #3d4147; --g-badge: #e2e3e5; --g-badge-ring: #9aa0a7;
@@ -1076,10 +1101,10 @@ html[data-theme='office'] {
 html[data-theme='graphite'] {
   --countdown: #9aa2ab;
   --page: #2b2e33; --ink: #c9ccd1; --ink-soft: #8f959d;
-  --plum-a: #34383e; --plum-b: #31353a; --jelly-a: #3d4147; --jelly-b: #3a3e44; --jelly-ink: #c9ccd1; --card-ink: #c9ccd1;
+  --plum-a: #34383e; --plum-b: #31353a; --jelly-a: #464b52; --jelly-b: #42474e; --jelly-ink: #c9ccd1; --card-ink: #c9ccd1;
   --pink: #59616b; --teal: #6c7884; --red: #a85a54; --navy-card: #33373d; --light: #3d4147;
   --now: #858d96;
-  --g-card: #454950; --g-card-2: #41454c; --g-done: #30333a; --g-done-ink: #8f959d; --g-badge: #50555c; --g-badge-ring: #6c737b;
+  --g-card: #50565e; --g-card-2: #4c525a; --g-done: #30333a; --g-done-ink: #8f959d; --g-badge: #50555c; --g-badge-ring: #6c737b;
   --g-check: #50555c; --g-check-on: #5d636b; --g-check-edge: #7d838a; --g-control: #4a4f56; --g-control-hover: #555a62;
   --g-input: #383c42; --g-edge: #5d636b; --g-list: #363a40; --g-lip: #26292d; --g-soft-ink: #a3a9b0; --g-end: #5d636b; --g-end-ink: #dfe1e4;
   --g-window: #33373d; --g-chip: #41454c; --g-knob: #9aa0a8; --g-veil: rgba(10, 11, 13, .5); --g-veil-strong: rgba(10, 11, 13, .72);
@@ -1093,8 +1118,8 @@ html[data-theme='graphite'] {
 html[data-theme='pinkpop'] {
   --countdown: #b5546d;
   --page: #fbeaf3; --ink: #2a1f2b; --ink-soft: #6b5566;
-  --plum-a: #f4e4ec; --plum-b: #ecd6e1; --jelly-a: #fdfafa; --jelly-b: #f6eff1; --jelly-ink: #3b2a35; --card-ink: #2a1f2b;   /* porcelain blocks, blush days */
-  --block-edge: #e3a6c1;                                           /* the pink stays only on the block's border (Gianni: not loud) */
+  --plum-a: #efcadb; --plum-b: #e6bacf; --jelly-a: #fdfafa; --jelly-b: #f7f0f2; --jelly-ink: #3b2a35; --card-ink: #2a1f2b;   /* porcelain blocks, blush days */
+  --block-edge: #d98fb2;                                           /* the pink stays only on the block's border (Gianni: not loud) */
   --pink: #b04a73; --teal: #a8466e; --red: #be123c; --navy-card: #fff5fb; --light: #fff5fb;
   --now: #e11d48;
   --g-lip: #e2c9d4; --g-shadow: rgba(120, 40, 80, .12); --g-soft-ink: #8f3a62; --g-end: #b04a73; --g-end-ink: #fff5fb;
@@ -1106,7 +1131,7 @@ html[data-theme='pinkpop'] body { min-height: 100dvh; background: linear-gradien
 html[data-theme='petalpunk'] {
   --countdown: #d98a9a;
   --page: #1b141f; --ink: #f6e9f1; --ink-soft: #c7b2c1;
-  --plum-a: #2e2238; --plum-b: #251b2d; --jelly-a: #3d3043; --jelly-b: #33283a; --jelly-ink: #f4e6ef; --card-ink: #2a1020;   /* plum velvet blocks (Gianni: the hot pink shouted) */
+  --plum-a: #2e2238; --plum-b: #251b2d; --jelly-a: #4a3a52; --jelly-b: #413349; --jelly-ink: #f4e6ef; --card-ink: #2a1020;   /* plum velvet blocks (Gianni: the hot pink shouted) */
   --block-edge: #c98aac;                                           /* a rose border is all the pink a block keeps */
   --pink: #e39bbf; --teal: #f0b8d3; --red: #fb7185; --navy-card: #2e2238; --light: #fde7f3;
   --now: #fbbf24; --now-ink: #2a1020;                              /* gold, so it reads on the cards and plum blocks; dark time on it */
@@ -1123,8 +1148,8 @@ html[data-theme='petalpunk'] body { min-height: 100dvh; background: linear-gradi
 html[data-theme='squeezeme'] {
   --countdown: #5a7bb5;
   --page: #eef4fc; --ink: #1f2937; --ink-soft: #4a5872;
-  --plum-a: #e2ecf9; --plum-b: #d6e3f5; --jelly-a: #fbfdff; --jelly-b: #eef3fa; --jelly-ink: #1e2a44; --card-ink: #1f2937;   /* porcelain blocks, sky days */
-  --block-edge: #a9c1e8;                                           /* periwinkle border */
+  --plum-a: #d3e1f5; --plum-b: #c3d6f0; --jelly-a: #fbfdff; --jelly-b: #eff4fb; --jelly-ink: #1e2a44; --card-ink: #1f2937;   /* porcelain blocks, sky days */
+  --block-edge: #93b0e0;                                           /* periwinkle border */
   --pink: #3d68b0; --teal: #2f5596; --red: #b91c1c; --navy-card: #f8fbff; --light: #f8fbff;
   --now: #dc2626;
   --g-lip: #cfdcef; --g-shadow: rgba(30, 60, 120, .12); --g-soft-ink: #2f5596; --g-end: #3d68b0; --g-end-ink: #f8fbff;
@@ -1136,7 +1161,7 @@ html[data-theme='squeezeme'] body { min-height: 100dvh; background: linear-gradi
 html[data-theme='smokedcitrus'] {
   --countdown: #d7773f;
   --page: #1a1918; --ink: #f5efe8; --ink-soft: #cfc3b6;
-  --plum-a: #2c2b29; --plum-b: #232220; --jelly-a: #47433e; --jelly-b: #3b3834; --jelly-ink: #f3ece4; --card-ink: #2a1406;   /* blocks in warm smoked stone (Gianni: the orange blocks shouted) */
+  --plum-a: #2c2b29; --plum-b: #232220; --jelly-a: #56514a; --jelly-b: #4a4640; --jelly-ink: #f3ece4; --card-ink: #2a1406;   /* blocks in warm smoked stone (Gianni: the orange blocks shouted) */
   --pink: #fb923c; --teal: #fdba74; --red: #f87171; --navy-card: #2c2b29; --light: #ffedd5;
   --now: #bef264; --now-ink: #1c1406;                              /* citrus lime, so it reads on the cards and stone blocks; dark time on it */
   --g-lip: #7c2d12; --g-shadow: rgba(0, 0, 0, .4); --g-soft-ink: #fdba74; --g-end: #f97316; --g-end-ink: #1c1917;
@@ -1156,8 +1181,8 @@ html[data-theme='smokedcitrus'] .task .round:not(.danger-x) { color: var(--card-
 html[data-theme='sunburnt'] {
   --countdown: #a9522f;
   --page: #fff1e5; --ink: #1f2937; --ink-soft: #5c4633;
-  --plum-a: #f7e8d8; --plum-b: #f0dcc6; --jelly-a: #fdf8ef; --jelly-b: #f4ead8; --jelly-ink: #3b2a12; --card-ink: #1f2937;   /* oat blocks, toast days */
-  --block-edge: #dcae63;                                           /* honey border */
+  --plum-a: #f2d8bc; --plum-b: #e9c7a2; --jelly-a: #fdf8ef; --jelly-b: #f8efe1; --jelly-ink: #3b2a12; --card-ink: #1f2937;   /* oat blocks, toast days */
+  --block-edge: #d19c4a;                                           /* honey border */
   --pink: #b5652a; --teal: #92541f; --red: #b91c1c; --navy-card: #fff8f1; --light: #fff8f1;
   --now: #dc2626;
   --g-lip: #e0cfae; --g-shadow: rgba(120, 70, 20, .14); --g-soft-ink: #92541f; --g-end: #b5652a; --g-end-ink: #fff8f1;
@@ -1173,7 +1198,7 @@ html[data-theme='sunburnt'] body { min-height: 100dvh; background: linear-gradie
 html[data-theme='goepiclight'] {
   --countdown: #a87b14;
   --page: #fbfbfd; --ink: #1d1d1f; --ink-soft: #5c5c63;          /* the soft ink darkened to read on the grey days (5.6:1) */
-  --plum-a: #f0f0f4; --plum-b: #ececf1; --jelly-a: #e5e5eb; --jelly-b: #dcdce3; --jelly-ink: #1d1d1f; --card-ink: #1d1d1f;   /* pale grey blocks on near-white days (Gianni: white blocks were lost on the page and their header; a panel chose it) */
+  --plum-a: #f0f0f4; --plum-b: #ececf1; --jelly-a: #d9d9e2; --jelly-b: #cfcfd9; --jelly-ink: #1d1d1f; --card-ink: #1d1d1f;   /* pale grey blocks on near-white days (Gianni: white blocks were lost on the page and their header; a panel chose it) */
   --block-edge: #b8901e;                                           /* the wordmark's gold, deep enough to outline the block (2.2:1 or more) */
   --pink: #1d1d1f; --teal: #b8860b; --red: #b91c1c; --navy-card: #ffffff; --light: #ffffff;   /* black pill buttons, gold focus */
   --now: #c9a227; --now-ink: #1d1d1f;                              /* the gold rule of the page; red with Ajustes' box */
@@ -1187,7 +1212,7 @@ html[data-theme='goepiclight'] body { min-height: 100dvh; background: #fbfbfd; }
 html[data-theme='goepicdark'] {
   --countdown: #c9a227;
   --page: #0a1130; --ink: #f5f5f7; --ink-soft: #a9afc6;
-  --plum-a: #16214f; --plum-b: #111a42; --jelly-a: #25346f; --jelly-b: #1f2d63; --jelly-ink: #f5f5f7; --card-ink: #22203a;   /* navy blocks with a gold edge */
+  --plum-a: #16214f; --plum-b: #111a42; --jelly-a: #2f428c; --jelly-b: #283a7e; --jelly-ink: #f5f5f7; --card-ink: #22203a;   /* navy blocks with a gold edge */
   --block-edge: #c9a227;
   --pink: #e2b84a; --teal: #f5c945; --red: #f87171; --navy-card: #131c47; --light: #f5f5f7;   /* gold buttons, the ring's yellow for focus */
   --now: #f5c945; --now-ink: #101b42;
@@ -1356,10 +1381,10 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
   /* a red line around the whole folder (Gianni: so it is noticed, never hidden): up the tab, over it, down, along the
      flare and the folder's top edge to its far right. Three shadows of the folder's own shape draw it, curves
      included; the bottom edge is the screen's, so it shows no line there. A panel (visual design, contrast, UX) set
-     it per theme (below): 4px wide, a red that keeps at least 3:1 against the page, the day column, the blocks and the
+     it per theme (below): 3px wide (Gianni: thinner), a red that keeps at least 3:1 against the page, the day column, the blocks and the
      folder behind it, and on the dark themes a 2px dark halo outside it, so it also stands off a yellow block or a
      plum day (Epic's old #dc2626 nearly vanished on the plum days, 1.7:1) */
-  --tray-edge: #ff6b6b; --tray-w: 4px; --tray-halo: rgba(4, 7, 22, .85); --tray-halo-w: 2px; --tray-pre: grayscale(0);
+  --tray-edge: #ff6b6b; --tray-w: 3px; --tray-halo: rgba(4, 7, 22, .85); --tray-halo-w: 2px; --tray-pre: grayscale(0);
   filter: var(--tray-pre) drop-shadow(var(--tray-w) 0 0 var(--tray-edge)) drop-shadow(calc(-1 * var(--tray-w)) 0 0 var(--tray-edge)) drop-shadow(0 calc(-1 * var(--tray-w)) 0 var(--tray-edge))
     drop-shadow(var(--tray-halo-w) 0 0 var(--tray-halo)) drop-shadow(calc(-1 * var(--tray-halo-w)) 0 0 var(--tray-halo)) drop-shadow(0 calc(-1 * var(--tray-halo-w)) 0 var(--tray-halo))
     drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
@@ -1484,19 +1509,25 @@ html[data-theme='goepiclight'] .capture-fab:not(.finish-fab):not(.open) { box-sh
 .seg button:hover:not(.on) { color: var(--ink); }
 .seg button.on { background: var(--pink); color: var(--g-on-ink, #1b2757); }
 /* Progress's two views are tabs, not pills (Gianni): one line under both, the open one in full ink with a thick
-   accent bar on that line, the other quieter; the bar never leans with the phone, it belongs to the line */
-.seg.progress-tabs { display: flex; gap: 0; width: 100%; max-width: 560px; margin: 0 auto 16px; padding: 0; border-radius: 0; background: none;
+   accent bar on that line, the other quieter; the bar never leans with the phone, it belongs to the line. Changing
+   tab is soft (Gianni: everything moves gently): the bar glides to the other tab with a small bounce, and the new
+   view slides in from that side, overshooting a little before it settles */
+.seg.progress-tabs { position: relative; display: flex; gap: 0; width: 100%; max-width: 560px; margin: 0 auto 16px; padding: 0; border-radius: 0; background: none;
   border-bottom: 1px solid color-mix(in srgb, var(--ink) 22%, transparent); }
+.seg.progress-tabs::after { content: ''; position: absolute; left: 0; bottom: -1px; width: 50%; height: 4px; padding: 0 10px; box-sizing: border-box;
+  background: var(--pink); background-clip: content-box; border-radius: 4px 4px 0 0; pointer-events: none;
+  translate: calc(var(--tab-i, 0) * 100%) 0; transition: translate .55s cubic-bezier(.34, 1.56, .64, 1); }
 .progress-tabs button { position: relative; flex: 1 1 0; min-height: 46px; padding: 8px 10px 10px; border-radius: 10px 10px 0 0;
-  font-size: calc(15px * var(--esc, 1)); transition: color .2s, background-color .2s; }
-.progress-tabs button::after { content: ''; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 4px; border-radius: 4px 4px 0 0;
-  background: var(--pink); transform: scaleX(0); transition: transform .25s cubic-bezier(.22, 1, .36, 1); }
+  font-size: calc(15px * var(--esc, 1)); transition: color .3s ease, background-color .3s ease; }
 .progress-tabs button:hover:not(.on) { background: color-mix(in srgb, var(--ink) 7%, transparent); }
 .seg.progress-tabs button.on { background: none; color: var(--ink); }
-.progress-tabs button.on::after { transform: scaleX(1); }
 .progress-tabs button:focus-visible { outline-offset: -3px; }
 html.tilt .progress-tabs button { rotate: none; translate: none; }
-@media (prefers-reduced-motion: reduce) { .progress-tabs button, .progress-tabs button::after { transition: none; } }
+.tab-pane[data-dir] { animation: tab-in .6s cubic-bezier(.34, 1.4, .64, 1) both; }
+.tab-pane[data-dir='left'] { --tab-from: -36px; }
+.tab-pane[data-dir='right'] { --tab-from: 36px; }
+@keyframes tab-in { from { opacity: 0; translate: var(--tab-from, 36px) 0; } 45% { opacity: 1; } to { opacity: 1; translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .progress-tabs button, .seg.progress-tabs::after { transition: none; } .tab-pane[data-dir] { animation: none; } }
 
 /* Areas of life: the radar (balance-view). Area colours in a fixed order, stepped for dark and light surfaces
    (validated categorical palette); text always wears the ink, the colours only mark identity. */
