@@ -9,7 +9,7 @@ type Tool = 'size' | 'spacing' | 'px';
  * The edit tools (Gianni: not a bar fixed at the top): while a page is being edited (the Week board arranged, the
  * Canvas after ✎ Edit) round buttons stack at the bottom right, above the ✓ Finish that takes the round menu's place.
  * From the bottom: Aa (the text size), AV (the space between letters) and px (the minutes' length, the Week board only);
- * the Themes are not here (Gianni: their own button in the round menu, above ✎ Edit). Each opens a small − value + pill
+ * the Themes are not here (Gianni: their own button in the round menu). Each opens a small − value + pill
  * to its left; one at a time.
  * Drawn by the App, outside the page, so a grey theme's filter never moves it.
  */
