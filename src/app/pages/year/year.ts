@@ -98,7 +98,7 @@ function readLastCalendar(): string | null {
         <button type="button" class="yr-cell" [class.past]="date < today()" [class.today]="date === today()" [class.astro]="astroDays.has(date)"
                 [class.named]="!!name" [class.picked]="date === editing()" [class.deleting]="undo.isPending('date:' + date)"
                 [attr.aria-label]="cellLabel(date, name)" [title]="cellLabel(date, name)" [attr.data-date]="date"
-                (click)="cellClick($event, date)" (keydown)="cellKey($event)"></button>
+                (click)="cellClick($event, date)" (keydown)="cellKey($event)"><span class="yr-num" aria-hidden="true">{{ +date.slice(8) }}</span></button>
       </ng-template>
       <p class="muted year-legend">{{ i18n.t('year.legend') }}</p>
       <!-- the important dates of the year, in order: a tap opens the same window as the day -->
