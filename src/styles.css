@@ -1353,12 +1353,25 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
    the list scroll), and the week leaves that much room under its last block (--tray-h, measured) */
 .overdue-tray { --folder: var(--navy-card); position: fixed; z-index: 15; left: max(12px, env(safe-area-inset-left));
   right: calc(max(16px, env(safe-area-inset-right)) + 72px); bottom: 0; max-width: 560px; max-height: calc(100dvh - 12px); display: flex; flex-direction: column;
-  --tray-edge: #dc2626;
-  /* a thin red line around the whole folder (Gianni: so it is noticed): up the tab, over it, down, along the flare and
-     the folder's top edge to its far right. Three 3px shadows of the folder's own shape (thicker, Gianni) draw it, curves included;
-     the bottom edge is the screen's, so it shows no line there */
-  filter: drop-shadow(3px 0 0 var(--tray-edge)) drop-shadow(-3px 0 0 var(--tray-edge)) drop-shadow(0 -3px 0 var(--tray-edge))
+  /* a red line around the whole folder (Gianni: so it is noticed, never hidden): up the tab, over it, down, along the
+     flare and the folder's top edge to its far right. Three shadows of the folder's own shape draw it, curves
+     included; the bottom edge is the screen's, so it shows no line there. A panel (visual design, contrast, UX) set
+     it per theme (below): 4px wide, a red that keeps at least 3:1 against the page, the day column, the blocks and the
+     folder behind it, and on the dark themes a 2px dark halo outside it, so it also stands off a yellow block or a
+     plum day (Epic's old #dc2626 nearly vanished on the plum days, 1.7:1) */
+  --tray-edge: #ff6b6b; --tray-w: 4px; --tray-halo: rgba(4, 7, 22, .85); --tray-halo-w: 2px; --tray-pre: grayscale(0);
+  filter: var(--tray-pre) drop-shadow(var(--tray-w) 0 0 var(--tray-edge)) drop-shadow(calc(-1 * var(--tray-w)) 0 0 var(--tray-edge)) drop-shadow(0 calc(-1 * var(--tray-w)) 0 var(--tray-edge))
+    drop-shadow(var(--tray-halo-w) 0 0 var(--tray-halo)) drop-shadow(calc(-1 * var(--tray-halo-w)) 0 0 var(--tray-halo)) drop-shadow(0 calc(-1 * var(--tray-halo-w)) 0 var(--tray-halo))
     drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
+/* the folder's red per theme: the light themes take a deep red (no halo needed on their light pages), the dark ones a
+   bright red with the dark halo; each stays a true red, apart from the theme's pink or orange accent */
+html[data-theme='pinkpop'] .overdue-tray { --tray-edge: #be123c; --tray-halo-w: 0px; }       /* its own crimson: 4.6:1 or more */
+html[data-theme='squeezeme'] .overdue-tray { --tray-edge: #b91c1c; --tray-halo-w: 0px; }     /* Clear Sky: 5:1 or more */
+html[data-theme='sunburnt'] .overdue-tray { --tray-edge: #b91c1c; --tray-halo-w: 0px; }      /* 4.8:1 or more */
+html[data-theme='goepiclight'] .overdue-tray { --tray-edge: #b91c1c; --tray-halo-w: 0px; }   /* 4.7:1 or more */
+html[data-theme='petalpunk'] .overdue-tray { --tray-edge: #ff6b6b; --tray-halo: rgba(10, 4, 12, .85); }   /* a true red, not the theme's rose */
+html[data-theme='smokedcitrus'] .overdue-tray { --tray-edge: #ff5f57; --tray-halo: rgba(8, 6, 4, .85); }  /* a cooler red, apart from the orange */
+html[data-theme='goepicdark'] .overdue-tray { --tray-edge: #ff6b6b; }
 /* The tab is a button (Gianni): it folds the folder down to its lip, leaving only the tab, and back */
 .overdue-head { position: relative; flex: none; align-self: flex-start; display: flex; align-items: center; gap: 10px; max-width: calc(100% - 22px);
   min-height: 40px; margin: 0; padding: 9px 16px 5px; border: 0; border-radius: 14px 14px 0 0; background: var(--folder);
@@ -1383,9 +1396,17 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
 .board.has-tray.tray-folded { padding-bottom: calc(var(--tray-h, 56px) + 16px); }
 @media (prefers-reduced-motion: reduce) { .overdue-body, .overdue-body > ul, .overdue-chev { transition: none; } }
 html.tilt .overdue-head { rotate: none; translate: none; }   /* the tab is part of its folder: it never leans off it */
-/* Office and Graphite: the line takes the theme's grey edge instead of red, so it stays quiet there (Gianni) */
-html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray { --tray-edge: var(--g-edge); filter: grayscale(1) drop-shadow(3px 0 0 var(--tray-edge))
-  drop-shadow(-3px 0 0 var(--tray-edge)) drop-shadow(0 -3px 0 var(--tray-edge)) drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
+/* Office and Graphite: the folder is drawn in greys like the rest of the page, but its line stays a red (Gianni: super
+   visible, never hidden), a muted brick that suits the quiet greys: Office a deep brick (4.2:1 or more), Graphite a
+   dusty one (3.4:1 or more) with the dark halo */
+/* the filter is declared again here: the grey themes' `.board > :not(.week)` grayscale rule is more specific than the
+   base tray rule and would otherwise drop the line */
+html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray { --tray-pre: grayscale(1);
+  filter: var(--tray-pre) drop-shadow(var(--tray-w) 0 0 var(--tray-edge)) drop-shadow(calc(-1 * var(--tray-w)) 0 0 var(--tray-edge)) drop-shadow(0 calc(-1 * var(--tray-w)) 0 var(--tray-edge))
+    drop-shadow(var(--tray-halo-w) 0 0 var(--tray-halo)) drop-shadow(calc(-1 * var(--tray-halo-w)) 0 0 var(--tray-halo)) drop-shadow(0 calc(-1 * var(--tray-halo-w)) 0 var(--tray-halo))
+    drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
+html[data-theme='office'] .board > .overdue-tray { --tray-edge: #7f3434; --tray-halo-w: 0px; }
+html[data-theme='graphite'] .board > .overdue-tray { --tray-edge: #d27870; --tray-halo: rgba(10, 11, 13, .8); }
 @media (min-width: 821px) { .overdue-tray { left: 50%; right: auto; width: min(560px, calc(100vw - 180px)); translate: -50% 0; } }
 
 /* Edit tools (LookStack, Gianni): while editing, round buttons stack at the bottom right above the ✓ Finish: Aa, AV,
@@ -1462,7 +1483,20 @@ html[data-theme='goepiclight'] .capture-fab:not(.finish-fab):not(.open) { box-sh
 .seg button { min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: transparent; color: var(--ink-soft); font-weight: 700; font-size: calc(14px * var(--esc, 1)); }
 .seg button:hover:not(.on) { color: var(--ink); }
 .seg button.on { background: var(--pink); color: var(--g-on-ink, #1b2757); }
-.progress-tabs { margin-bottom: 16px; }
+/* Progress's two views are tabs, not pills (Gianni): one line under both, the open one in full ink with a thick
+   accent bar on that line, the other quieter; the bar never leans with the phone, it belongs to the line */
+.seg.progress-tabs { display: flex; gap: 0; width: 100%; max-width: 560px; margin: 0 auto 16px; padding: 0; border-radius: 0; background: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 22%, transparent); }
+.progress-tabs button { position: relative; flex: 1 1 0; min-height: 46px; padding: 8px 10px 10px; border-radius: 10px 10px 0 0;
+  font-size: calc(15px * var(--esc, 1)); transition: color .2s, background-color .2s; }
+.progress-tabs button::after { content: ''; position: absolute; left: 10px; right: 10px; bottom: -1px; height: 4px; border-radius: 4px 4px 0 0;
+  background: var(--pink); transform: scaleX(0); transition: transform .25s cubic-bezier(.22, 1, .36, 1); }
+.progress-tabs button:hover:not(.on) { background: color-mix(in srgb, var(--ink) 7%, transparent); }
+.seg.progress-tabs button.on { background: none; color: var(--ink); }
+.progress-tabs button.on::after { transform: scaleX(1); }
+.progress-tabs button:focus-visible { outline-offset: -3px; }
+html.tilt .progress-tabs button { rotate: none; translate: none; }
+@media (prefers-reduced-motion: reduce) { .progress-tabs button, .progress-tabs button::after { transition: none; } }
 
 /* Areas of life: the radar (balance-view). Area colours in a fixed order, stepped for dark and light surfaces
    (validated categorical palette); text always wears the ink, the colours only mark identity. */
