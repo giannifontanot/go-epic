@@ -1674,3 +1674,7 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='grap
 /* paper notes as light as their day column (Pink Pop, Clear Sky, Sunburnt) and Office's pinned notes get a faint edge */
 html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt']) .todo-strip .todo-note { outline: 1px solid rgba(0, 0, 0, .14); outline-offset: -1px; }
 html[data-theme='office'] .todo-note:not(.own) { outline: 1px solid #9fa4aa; outline-offset: -1px; }
+/* a finished card is a light surface again (gold on the board, grey in Focus): its own ink goes back to dark there, so
+   the dark themes' light card ink never lands on it (Graphite keeps its dark pressed Done) */
+html:not([data-theme='graphite']) .task.done { --act-ink: #4d3a0c; }
+html:not([data-theme='graphite']) :is(.now-card.done, .today-task.done) { --act-ink: #302746; }
