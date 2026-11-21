@@ -8,5 +8,6 @@
   { "id": 7, "date": "2026-11-21", "es": "Cada pantalla tiene un botón «Why?» que explica qué parte de tu vida ordena.", "en": "Every screen has a “Why?” button that explains which part of your life it orders." },
   { "id": 8, "date": "2026-11-21", "es": "El 💡 tiene su propio botón bajo el menú, y Capture ocupa toda la pantalla con una × redonda.", "en": "The 💡 has its own button under the menu, and Capture fills the whole screen with a round ×." },
   { "id": 9, "date": "2026-11-21", "es": "Esta ventana muestra qué hay de nuevo en cada versión.", "en": "This window shows what is new in each version." },
-  { "id": 10, "date": "2026-11-21", "es": "Cada tema tiene colores inspirados en su nombre; en Go Epic las tarjetas son blancas con un filo de color.", "en": "Every theme has colours inspired by its name; in Go Epic the cards are white with a coloured edge." }
+  { "id": 10, "date": "2026-11-21", "es": "Capture vuelve a ser una ventana flotante, casi hasta los bordes, con una × roja discreta.", "en": "Capture is a floating window again, almost to the edges, with a discreet red ×." },
+  { "id": 11, "date": "2026-11-21", "es": "Cada tema tiene colores inspirados en su nombre; en Go Epic las tarjetas son blancas con un filo de color.", "en": "Every theme has colours inspired by its name; in Go Epic the cards are white with a coloured edge." }
 ]

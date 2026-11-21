@@ -28,7 +28,8 @@ import { TodoDialog, TodoSave } from './todo-dialog';
       <header>
         <h2 id="capture-title" tabindex="-1">{{ i18n.t('capture.title') }}</h2>
         <app-why screen="capture" />
-        <button type="button" class="drawer-close" [attr.aria-label]="i18n.t('nav.close')" (click)="close()">×</button>
+        <!-- one discreet close, like the blocks' ✕ while arranging: a red × in a thin red circle (Gianni) -->
+        <button type="button" class="round danger-x capture-x" [attr.aria-label]="i18n.t('nav.close')" [title]="i18n.t('nav.close')" (click)="close()">✕</button>
       </header>
       <!-- One window (Gianni): the new task with its repeat days, day and hour on top, the lists under them. Enter or
            Add saves it; the day starts on today, the hour empty (any time that day), no repeat -->
@@ -109,14 +110,6 @@ import { TodoDialog, TodoSave } from './todo-dialog';
       }
       </div>
       <!-- inside the panel: the App's note would sit under this modal window, out of reach (Undo) -->
-      <!-- a round × that floats at the foot of the window, where the 💡 that opened it sits, and closes it (Gianni) -->
-      <div class="capture-dock">
-        <button type="button" class="capture-fab dock-close" [attr.aria-label]="i18n.t('nav.close')" [title]="i18n.t('nav.close')" (click)="close()">
-          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-            <path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>
-          </svg>
-        </button>
-      </div>
     </dialog>
     @if (editingTodo(); as todo) {
       <app-todo-dialog [todo]="todo" (save)="saveTodo($event)" (closed)="editingTodo.set(null)" />
