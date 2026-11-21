@@ -1747,6 +1747,13 @@ html[data-edge]:is([data-theme='goepiclight'], [data-theme='goepicdark']) .color
 @supports (color: oklch(from red l c h)) {
   html[data-auto-ink] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity, .color-btn.picked) {
     --act-ink: oklch(from var(--tone) clamp(.22, (.7 - l) * 1000, .97) .015 300); --card-ink: var(--act-ink); }
+  /* Graphite forces its soft light ink on every card and its contents: a filled card in a foreign palette takes its
+     worked-out ink instead (the state circle keeps its own) */
+  html[data-auto-ink][data-theme='graphite'] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity),
+  html[data-auto-ink][data-theme='graphite'] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity) :not(.t-state, .t-state *, .danger-x) { color: var(--act-ink) !important; }
+  /* the grey themes draw Canvas activities on a fixed grey: in a foreign palette it wears its own colour, so the ink
+     worked out from that colour reads on it */
+  html[data-auto-ink]:is([data-theme='office'], [data-theme='graphite']) .object.task { background: var(--tone, var(--g-card)) !important; }
 }
 /* the dark cards (Petal Punk, Smoked Citrus, Graphite, Go Epic Dark): light ink everywhere on them, a deeper lip, light
    grip and buttons, an empty To do ring drawn in the card's ink; Done keeps its glorious gold */
