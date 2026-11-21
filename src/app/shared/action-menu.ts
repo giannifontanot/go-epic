@@ -14,8 +14,8 @@ export type { MenuAction };
  * the ☰ menu): the lowest is 💡 Capture (one window: a new task with its repeat days, day and hour over the Current and
  * Finished lists; Gianni merged New task into it and took the pages' 💡 away), and right above it the menu (four
  * squares; a panel ordered its actions by how often each is used). A tap on the menu stacks its actions above it, each
- * sliding up out of it, the nearest first, as the themes fan out: the day overview, ✎ Edit (the page's own: the Week board arranges the week, the Canvas opens its edit bar; a page with
- * nothing to edit shows the Themes in its place, Gianni: what the edit tools hold that applies there), the
+ * sliding up out of it, the nearest first, as the themes fan out: the day overview, ✎ Edit (the page's own: the Week board arranges the week, the Canvas opens its edit tools; only
+ * where the page has something to edit), the Themes right above it (Gianni: their own button, out of the edit tools), the
  * pages and ⚙ Ajustes on top; on a short screen they go on in a second column. A tap on an action closes the menu and runs it (the
  * pages keep it open while their list is out); the button again, a tap outside or Esc draw them back in. Under reduced
  * motion they simply appear and go.
@@ -39,19 +39,18 @@ export type { MenuAction };
       @if (edit(); as action) {
         <button type="button" class="capture-fab act-fab edit-fab" [style.--i]="index().edit" [attr.aria-label]="action.label" [title]="action.label"
                 (click)="run(action.run)">✎</button>
-      } @else {
-        <!-- a page with nothing to edit (Progress…) offers in Edit's place what the edit tools hold that applies there:
-             for now only the Themes (Gianni); they fan out to its left and the menu stays open behind them -->
-        <button #themeBtn type="button" class="capture-fab act-fab theme-act" [class.open]="themeOpen()" [attr.aria-expanded]="themeOpen()"
-                [style.--i]="index().edit" [attr.aria-label]="i18n.t('settings.theme')" [title]="i18n.t('settings.theme')"
-                (click)="toggleThemes($event.currentTarget)">
-          <svg viewBox="0 0 24 24" width="27" height="27" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
-            <path d="M12 3.5a8.5 8.5 0 0 0 0 17c1 0 1.6-.7 1.6-1.5 0-.5-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.1 0-.9.7-1.6 1.6-1.6H16a4.6 4.6 0 0 0 4.5-4.6C20.5 6.7 16.7 3.5 12 3.5Z"/>
-            <g fill="currentColor" stroke="none"><circle cx="7.6" cy="11" r="1.3"/><circle cx="10" cy="7.5" r="1.3"/>
-            <circle cx="14.4" cy="7.5" r="1.3"/><circle cx="16.8" cy="11" r="1.3"/></g>
-          </svg>
-        </button>
       }
+      <!-- the Themes, their own button right above ✎ Edit on every page (Gianni: out of the edit tools; where a page has
+           nothing to edit it sits in that place); they fan out to its left and the menu stays open behind them -->
+      <button #themeBtn type="button" class="capture-fab act-fab theme-act" [class.open]="themeOpen()" [attr.aria-expanded]="themeOpen()"
+              [style.--i]="index().theme" [attr.aria-label]="i18n.t('settings.theme')" [title]="i18n.t('settings.theme')"
+              (click)="toggleThemes($event.currentTarget)">
+        <svg viewBox="0 0 24 24" width="27" height="27" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+          <path d="M12 3.5a8.5 8.5 0 0 0 0 17c1 0 1.6-.7 1.6-1.5 0-.5-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.1 0-.9.7-1.6 1.6-1.6H16a4.6 4.6 0 0 0 4.5-4.6C20.5 6.7 16.7 3.5 12 3.5Z"/>
+          <g fill="currentColor" stroke="none"><circle cx="7.6" cy="11" r="1.3"/><circle cx="10" cy="7.5" r="1.3"/>
+          <circle cx="14.4" cy="7.5" r="1.3"/><circle cx="16.8" cy="11" r="1.3"/></g>
+        </svg>
+      </button>
       <app-page-fan [style.--i]="index().pages" (went)="close()" />
       <!-- Ajustes, its own button on top (Gianni): language, weighted buttons, red time line -->
       <button type="button" class="capture-fab act-fab" [style.--i]="index().settings" [attr.aria-label]="i18n.t('settings.title')" [title]="i18n.t('settings.title')"
@@ -101,9 +100,10 @@ export class ActionMenu {
   protected readonly index = computed(() => {
     let i = 0;
     const overview = this.ready() ? i++ : -1;
-    const edit = i++;   // ✎ Edit, or the Themes where the page has nothing to edit
+    const edit = this.edit() ? i++ : -1;   // ✎ Edit, where the page has something to edit
+    const theme = i++;                      // the Themes, right above it
     const pages = i++;
-    return { overview, edit, pages, settings: i };
+    return { overview, edit, theme, pages, settings: i };
   });
 
   protected toggle(): void {

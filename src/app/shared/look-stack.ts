@@ -1,16 +1,16 @@
-import { Component, ElementRef, HostListener, computed, effect, inject, signal, untracked, viewChildren } from '@angular/core';
+import { Component, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
 import { I18n } from '../core/i18n';
 import { TextSettings } from '../core/text-settings';
 import { CaptureUi } from '../pages/capture/capture-ui';
-import { ThemePicker } from './theme-fan';
 
-type Tool = 'size' | 'spacing' | 'theme' | 'px';
+type Tool = 'size' | 'spacing' | 'px';
 
 /**
  * The edit tools (Gianni: not a bar fixed at the top): while a page is being edited (the Week board arranged, the
  * Canvas after ✎ Edit) round buttons stack at the bottom right, above the ✓ Finish that takes the round menu's place.
- * From the bottom: Aa (the text size), AV (the space between letters), px (the minutes' length, the Week board only)
- * and the Themes on top (Gianni; they fan out to its left). Aa, AV and px each open a small − value + pill to their left; one at a time.
+ * From the bottom: Aa (the text size), AV (the space between letters) and px (the minutes' length, the Week board only);
+ * the Themes are not here (Gianni: their own button in the round menu, above ✎ Edit). Each opens a small − value + pill
+ * to its left; one at a time.
  * Drawn by the App, outside the page, so a grey theme's filter never moves it.
  */
 @Component({
@@ -20,26 +20,19 @@ type Tool = 'size' | 'spacing' | 'theme' | 'px';
       <div class="look-stack" role="toolbar" [attr.aria-label]="i18n.t('look.tools')">
         @for (tool of tools(); track tool; let i = $index) {
           <div class="look-row" [style.--i]="i">
-            @if (shown() === tool && tool !== 'theme') {
+            @if (shown() === tool) {
               <div class="look-pill" role="group" [class.closing]="closing()" [attr.aria-label]="label(tool)">
                 <button type="button" [disabled]="!text.canStep(tool, -1)" [attr.aria-label]="less(tool)" (click)="step(tool, -1)">−</button>
                 <span class="look-value">{{ value(tool) }}</span>
                 <button type="button" [disabled]="!text.canStep(tool, 1)" [attr.aria-label]="more(tool)" (click)="step(tool, 1)">+</button>
               </div>
             }
-            <button #toolBtn type="button" class="capture-fab look-fab" [class.open]="isOpen(tool)" [attr.aria-expanded]="isOpen(tool)"
-                    [attr.aria-label]="label(tool)" [title]="label(tool)" (click)="toggle(tool, $event.currentTarget)">
+            <button type="button" class="capture-fab look-fab" [class.open]="isOpen(tool)" [attr.aria-expanded]="isOpen(tool)"
+                    [attr.aria-label]="label(tool)" [title]="label(tool)" (click)="toggle(tool)">
               @switch (tool) {
                 @case ('size') { <span class="look-icon">Aa</span> }
                 @case ('spacing') { <span class="look-icon">AV</span> }
                 @case ('px') { <span class="look-icon px">px</span> }
-                @case ('theme') {
-                  <svg viewBox="0 0 24 24" width="29" height="29" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
-                    <path d="M12 3.5a8.5 8.5 0 0 0 0 17c1 0 1.6-.7 1.6-1.5 0-.5-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.1 0-.9.7-1.6 1.6-1.6H16a4.6 4.6 0 0 0 4.5-4.6C20.5 6.7 16.7 3.5 12 3.5Z"/>
-                    <g fill="currentColor" stroke="none"><circle cx="7.6" cy="11" r="1.3"/><circle cx="10" cy="7.5" r="1.3"/>
-                    <circle cx="14.4" cy="7.5" r="1.3"/><circle cx="16.8" cy="11" r="1.3"/></g>
-                  </svg>
-                }
               }
             </button>
           </div>
@@ -54,40 +47,27 @@ export class LookStack {
   protected readonly i18n = inject(I18n);
   protected readonly text = inject(TextSettings);
   protected readonly ui = inject(CaptureUi);
-  private readonly picker = inject(ThemePicker);
-  private readonly buttons = viewChildren<ElementRef<HTMLButtonElement>>('toolBtn');
   /** The open pill (Aa, AV or px), if any; `closing` while it slides back into its button. */
   protected readonly shown = signal<Tool | null>(null);
   protected readonly closing = signal(false);
   private timer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly tools = computed<Tool[]>(() =>
-    this.ui.lookTools()?.px ? ['size', 'spacing', 'px', 'theme'] : ['size', 'spacing', 'theme']);   // Themes on top (Gianni)
+    this.ui.lookTools()?.px ? ['size', 'spacing', 'px'] : ['size', 'spacing']);
 
   constructor() {
     // leaving edit mode puts everything away
     effect(() => {
       if (this.ui.lookTools()) return;
-      untracked(() => { this.shown.set(null); this.closing.set(false); if (this.themeOpen()) this.picker.anchor.set(null); });
+      untracked(() => { this.shown.set(null); this.closing.set(false); });
     });
   }
 
-  private themeOpen(): boolean {
-    const a = this.picker.anchor();
-    return !!a && this.buttons().some((b) => b.nativeElement === a);
-  }
-
   protected isOpen(tool: Tool): boolean {
-    return tool === 'theme' ? this.themeOpen() : this.shown() === tool && !this.closing();
+    return this.shown() === tool && !this.closing();
   }
 
-  protected toggle(tool: Tool, button: EventTarget | null): void {
-    if (tool === 'theme') {
-      this.closePill();
-      if (button instanceof HTMLElement) this.picker.toggle(button);
-      return;
-    }
-    if (this.themeOpen()) this.picker.anchor.set(null);
+  protected toggle(tool: Tool): void {
     if (this.shown() === tool && !this.closing()) { this.closePill(); return; }
     if (this.timer) { clearTimeout(this.timer); this.timer = null; }
     this.closing.set(false);
@@ -119,7 +99,7 @@ export class LookStack {
   }
 
   protected label(tool: Tool): string {
-    return this.i18n.t(tool === 'size' ? 'settings.size' : tool === 'spacing' ? 'settings.spacing' : tool === 'px' ? 'settings.pxPerMin' : 'settings.theme');
+    return this.i18n.t(tool === 'size' ? 'settings.size' : tool === 'spacing' ? 'settings.spacing' : 'settings.pxPerMin');
   }
   protected less(tool: Tool): string {
     return this.i18n.t(tool === 'size' ? 'settings.smaller' : tool === 'spacing' ? 'settings.tighter' : 'settings.shorter');
