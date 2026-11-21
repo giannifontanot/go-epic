@@ -1,5 +1,5 @@
 import { TitleFan } from './shared/title-fan';
-import { Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/auth.service';
@@ -10,6 +10,7 @@ import { ThemeFan } from './shared/theme-fan';
 import { LookStack } from './shared/look-stack';
 import { AskWindow } from './shared/ask';
 import { Settings } from './pages/settings/settings';
+import { Change, lastChangeId, newChanges, sanitizeChanges } from './core/changes.model';
 import { openDialog, warmUpWindows } from './core/dialog';
 import { I18n } from './core/i18n';
 import { LibraryStore } from './core/library.store';
@@ -51,11 +52,19 @@ import { WeekStore } from './core/week.store';
       }
     }
     <main><router-outlet /></main>
-    <!-- A new version: a native modal window over everything (other windows included) with one big glowing button,
-         so it is pressed (Gianni). It waits while a Canvas draft is unsaved or another window is open, since the reload would lose them. -->
+    <!-- A new version: a native modal window over everything (other windows included) with one big, sober button
+         and the list of what changed since the running version (Gianni: so he knows what to look for). It waits while a Canvas draft is unsaved or another window is open, since the reload would lose them. -->
     <dialog #updateDialog class="update-overlay" aria-labelledby="update-text" (cancel)="$event.preventDefault()">
       <div class="update-card">
         <p id="update-text">{{ i18n.t('pwa.update') }}</p>
+        @if (changes().length) {
+          <section class="update-changes" aria-labelledby="update-new">
+            <h2 id="update-new">{{ i18n.t('pwa.whatsNew') }}</h2>
+            <ul>
+              @for (line of changes(); track $index) { <li>{{ line }}</li> }
+            </ul>
+          </section>
+        }
         <button type="button" class="update-button" (click)="reload()">{{ i18n.t('pwa.reload') }}</button>
       </div>
     </dialog>
@@ -84,6 +93,9 @@ export class App {
    * holds, it looks again every second.
    */
   protected readonly showUpdate = signal(false);
+  /** What the waiting version brings, newer than this build's last change, in the chosen language. */
+  private readonly waitingChanges = signal<Change[]>([]);
+  protected readonly changes = computed(() => newChanges(this.waitingChanges(), lastChangeId(), this.i18n.lang()));
 
   constructor() {
     this.tilt.start();   // buttons lean when the phone leans (a visual detail)
@@ -95,7 +107,9 @@ export class App {
     const updates = inject(SwUpdate, { optional: true });
     if (updates?.isEnabled) {
       updates.versionUpdates.subscribe((event) => {
-        if (event.type === 'VERSION_READY') this.updateReady.set(true);
+        if (event.type !== 'VERSION_READY') return;
+        this.updateReady.set(true);
+        this.loadChanges();
       });
       updates.unrecoverable.subscribe(() => location.reload());   // the cached version is broken: load a fresh one
       setInterval(() => updates.checkForUpdate().catch(() => undefined), 30 * 60_000);   // a long-open app still hears of new versions
@@ -129,6 +143,14 @@ export class App {
   }
 
   protected onCanvas(): boolean { return this.router.url.startsWith('/canvas'); }
+
+  /** Reads the newest `/changes.json` from the server, past the service worker and every cache; no list if it fails. */
+  private loadChanges(): void {
+    fetch(`/changes.json?ngsw-bypass=true&t=${Date.now()}`, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((raw: unknown) => this.waitingChanges.set(sanitizeChanges(raw)))
+      .catch(() => undefined);
+  }
 
   protected reload(): void {
     location.reload();
