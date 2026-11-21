@@ -1829,13 +1829,14 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
   background: #fff; box-shadow: inset 5px 0 0 var(--pink), inset 0 0 0 1px rgba(0, 0, 0, .2); }
 
 /* The Year (Gianni): 2027 as four seasons, each 4 sprints of 3 weeks (one line of 21 days each) and a rest and review
-   week. Above all visual: each season has its own soft tint (--season), past days are green, today a ring with a dot
-   under it, the day the season really begins a dot inside, an important date a border in the theme's accent.
+   week. Above all visual: each season has its own soft tint (--season); every day is a grey-edged square with its
+   number, grey once it has passed, today a neon green edge, an important date a bright red one.
    The day cells never lean with the phone (tilt.ts): a grid must stay aligned. */
 .year-page { max-width: 760px; margin: 0 auto; }
 .year-top > .why { margin-left: auto; }
 .year-status { margin: -4px 0 14px; color: var(--ink-soft); font-size: calc(14px * var(--esc, 1)); font-weight: 600; }
 .year-seasons { display: grid; gap: 14px; }
+@media (max-width: 520px) { .year-seasons { margin-inline: -8px; } .season { padding: 10px 7px 12px; } }
 .season { --season: #9cc9ee; padding: 12px 12px 14px; border-radius: 20px;
   background: color-mix(in srgb, var(--season) 9%, transparent); border: 1px solid color-mix(in srgb, var(--season) 32%, transparent);
   animation: season-in .55s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
@@ -1855,34 +1856,32 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
 /* a sprint is one line of 21 days (Gianni), its weeks a little apart; the rest week's line its 7 days and a striped band.
    The line itself is the touch target: a finger held on it (or sliding along it) opens the day's window and moves it
    day by day, stopping at the sprint's ends; scrolling up and down still works (pan-y). */
-.yr-line { --wk: clamp(4px, 1.6vw, 12px); list-style: none; margin: 0; padding: 10px 0 12px; display: grid; align-items: center;
+.yr-line { --wk: clamp(4px, 1.4vw, 12px); list-style: none; margin: 0; padding: 8px 0 10px; display: grid; align-items: center;
   grid-template-columns: repeat(7, minmax(0, 1fr)) var(--wk) repeat(7, minmax(0, 1fr)) var(--wk) repeat(7, minmax(0, 1fr));
-  column-gap: clamp(2px, .6vw, 5px); touch-action: pan-y; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+  column-gap: clamp(1.5px, .45vw, 5px); touch-action: pan-y; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .yr-line li { display: grid; min-width: 0; }
-.year-page { --yr-done: #c9ccd2; --yr-future: #3d4047; --yr-edge: #000; --yr-red: #ff1f3d; --yr-today: #22e06b; }
-/* every square holds its day of the month (Gianni): a light, faded grey once it has passed, dark grey while it is
-   to come, a black edge; a bright green ring marks today and a bright red ring an important day */
-.yr-cell { position: relative; display: grid; place-items: center; aspect-ratio: 1; min-width: 0; padding: 0; border: 0; border-radius: 22%;
-  background: var(--yr-future); box-shadow: inset 0 0 0 1.5px var(--yr-edge); color: #eceef2; overflow: visible;
-  transition: scale .18s cubic-bezier(.2, .8, .2, 1), background-color .3s ease; }
-.yr-num { font: 700 clamp(7.5px, 2.35vw, 12.5px)/1 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  font-variant-numeric: tabular-nums; letter-spacing: -.04em; pointer-events: none; }
-@media (hover: hover) { .yr-cell:hover { box-shadow: inset 0 0 0 1.5px var(--yr-edge), inset 0 0 0 3px rgba(255, 255, 255, .55); } }
+.year-page { --yr-edge: #8a8f98; --yr-red: #ff1f3d; --yr-today: #39ff14; }
+/* every square is only a grey edge round its day of the month (Gianni: legible first): the number in the page's ink
+   (black on the light themes, the light ink on the dark ones), grey like the edge once the day has passed; today's
+   edge is neon green and an important day's bright red (both: the green edge inside a red ring) */
+.yr-cell { position: relative; display: grid; place-items: center; aspect-ratio: 1; min-width: 0; padding: 0; box-sizing: border-box;
+  border: 1.5px solid var(--yr-edge); border-radius: 22%; background: transparent; color: var(--ink); overflow: visible;
+  transition: scale .18s cubic-bezier(.2, .8, .2, 1), border-color .3s ease, color .3s ease; }
+.yr-num { font: 800 clamp(9.5px, 2.8vw, 13.5px)/1 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-variant-numeric: tabular-nums; letter-spacing: -.06em; pointer-events: none; }
+@media (hover: hover) { .yr-cell:hover { border-color: var(--ink); } }
 .yr-cell:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
-.yr-cell.past { background: var(--yr-done); color: #5d6068; }
-/* today: a bright green ring around the square */
-.yr-cell.today { outline: 2.5px solid var(--yr-today); outline-offset: 1px; }
-/* an important date: a bright red ring around the square; when it is also today, the green ring goes inside it */
-.yr-cell.named { outline: 2.5px solid var(--yr-red); outline-offset: 1px; }
-.yr-cell.named.today { box-shadow: inset 0 0 0 1.5px var(--yr-edge), inset 0 0 0 3.5px var(--yr-today); }
+.yr-cell.past { color: var(--yr-edge); }
+.yr-cell.today { border: 2.5px solid var(--yr-today); }
+.yr-cell.named { border: 2.5px solid var(--yr-red); }
+.yr-cell.named.today { border-color: var(--yr-today); outline: 2.5px solid var(--yr-red); outline-offset: 1px; }
 /* the day the season really begins: a small dot in the corner, clear of the number */
-.yr-cell.astro::after { content: ''; position: absolute; top: 12%; right: 12%; width: 18%; aspect-ratio: 1; border-radius: 50%; background: #fff; }
-.yr-cell.past.astro::after { background: #5d6068; }
-/* the day the window shows grows a little out of the line */
-.yr-cell.picked { z-index: 2; scale: 1.55; box-shadow: inset 0 0 0 1.5px var(--yr-edge), 0 3px 10px rgba(0, 0, 0, .35); }
-.yr-cell.picked.named.today { box-shadow: inset 0 0 0 1.5px var(--yr-edge), inset 0 0 0 3.5px var(--yr-today), 0 3px 10px rgba(0, 0, 0, .35); }
-/* the rest and review week: its days to come striped, as the free time of a block, then a soft striped band */
-.yr-row.rest .yr-cell:not(.past) { background: repeating-linear-gradient(135deg, rgba(255, 255, 255, .12) 0 2px, transparent 2px 4px), var(--yr-future); }
+.yr-cell.astro::after { content: ''; position: absolute; top: 10%; right: 10%; width: 16%; aspect-ratio: 1; border-radius: 50%; background: currentColor; }
+/* the day the window shows grows a little out of the line, on the page's colour so it covers its neighbours */
+.yr-cell.picked { z-index: 2; scale: 1.55; background: var(--page); box-shadow: 0 3px 10px rgba(0, 0, 0, .35); }
+/* the rest and review week: its days to come faintly striped, as the free time of a block, then a soft striped band */
+.yr-row.rest .yr-cell:not(.past) { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--season) 22%, transparent) 0 2px, transparent 2px 4px); }
+.yr-row.rest .yr-cell.picked { background: var(--page); }
 .rest-mark { grid-column: 9 / -1; align-self: stretch; border-radius: 8px; border: 1.5px dashed color-mix(in srgb, var(--season) 45%, transparent);
   background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--season) 12%, transparent) 0 4px, transparent 4px 9px); }
 .yr-row + .yr-row { margin-top: 2px; }
