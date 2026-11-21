@@ -3,7 +3,7 @@ import { Unsubscribe, collection, deleteDoc, doc, onSnapshot, setDoc } from 'fir
 import { AuthService } from './auth.service';
 import { firebase } from './firebase';
 import { Todo, checkTodo, doneTodos, openTodos, sanitizeTodo } from './todo.model';
-import { Day, Task, blockColors, newId } from './week.model';
+import { Day, Task, blockColors, newId, noteVar } from './week.model';
 
 /**
  * The signed-in user's Capture tasks (todo.model), one document each: users/{uid}/todos/{id}.
@@ -24,7 +24,7 @@ export class TodoStore {
   readonly tones = computed(() => {
     const open = this.open();
     const colors = blockColors(open.map((t) => ({ title: t.title, color: null })) as unknown as Task[]);
-    return new Map(open.map((t, i) => [t.id, colors[i]]));
+    return new Map(open.map((t, i) => [t.id, noteVar(colors[i])!]));   // the theme's paper tints (styles.css --note-N)
   });
   private sub: Unsubscribe | null = null;
 

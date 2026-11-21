@@ -8,7 +8,7 @@ import { flip, flipNow } from '../../core/flip';
 import { TextSettings } from '../../core/text-settings';
 import { I18n } from '../../core/i18n';
 import {
-  addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, countdown, Task, blockColors, cloneBlock, fits, formatClock, freeMinutes, moveItem, stepTask, newId, resizedMinutes,
+  addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, countdown, Task, blockColors, toneVar, cloneBlock, fits, formatClock, freeMinutes, moveItem, stepTask, newId, resizedMinutes,
   moveToHour, snapDelta, nowPosition, parseClock, placeBlock, taskStarts, taskTotal, uniqueName, validMinutes, windowError, windowLength,
 } from '../../core/week.model';
 import { Library, fileTask, followLibrary, nodeById, paperAge, pathOf, setTracked, updateNode } from '../../core/library.model';
@@ -504,7 +504,7 @@ export class WeekBoard {
   protected colors(block: Block): string[] {
     const colors = blockColors(block.tasks, this.autoColors.map);
     this.autoColors.saveIfGrown();
-    return colors;
+    return colors.map((c) => toneVar(c)!);   // drawn in the theme's own palette (styles.css --act-N)
   }
 
   protected startLabel(block: Block, index: number): string {

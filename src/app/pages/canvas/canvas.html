@@ -154,7 +154,7 @@
           <span>{{ i18n.t('task.color') }}</span>
           <button type="button" class="swatch auto" [class.on]="!colorOf(m.node)" [attr.aria-pressed]="!colorOf(m.node)" (click)="setColor(null)">{{ i18n.t('task.auto') }}</button>
           @for (choice of colorChoices; track choice.color) {
-            <button type="button" class="swatch" [style.background]="choice.color" [class.on]="colorOf(m.node) === choice.color"
+            <button type="button" class="swatch" [style.background]="toneVar(choice.color)" [class.on]="colorOf(m.node) === choice.color"
               [attr.aria-pressed]="colorOf(m.node) === choice.color" [attr.aria-label]="i18n.t(choice.label)" [title]="i18n.t(choice.label)" (click)="setColor(choice.color)"></button>
           }
         </div>
