@@ -198,9 +198,11 @@ export class Progress {
     const key = this.gridKey();
     if (key === null) return null;
     const span = Math.max(1, daysBetween(TRACK_START, this.todayKey()) + 1);
+    // the whole history read decides each habit's first mark (as in the 14-day view); only the period is drawn
+    const read = Math.max(span, daysBetween(this.fromKey(), this.todayKey()) + 1);
     const found = key.startsWith('todo:')
-      ? taskHabits(this.todos.todos(), this.store.now(), span, span)
-      : habits(this.store.week(), this.history(), this.store.now(), span, span);
+      ? taskHabits(this.todos.todos(), this.store.now(), span, read)
+      : habits(this.store.week(), this.history(), this.store.now(), span, read);
     return found.find((h) => h.key === key) ?? null;
   });
   private readonly gridResults = computed(() => new Map((this.gridHabit()?.days ?? []).map((d) => [d.date, d.result])));

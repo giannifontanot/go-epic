@@ -544,7 +544,7 @@ dialog.info-card.track-grid[open] { display: flex; flex-direction: column; overf
 .tg-range { margin: 0 0 5px; font-size: calc(12px * var(--esc, 1)); font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: .04em; }
 .tg-weeks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(6px, 2vw, 16px); }
 .tg-week { container-type: inline-size; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: clamp(2px, .7vw, 5px); }
-.dot.tg-cell { border-radius: 28%; font-size: min(14px, 7.5cqw); background: color-mix(in srgb, var(--ink) 7%, transparent); }
+.dot.tg-cell { border-radius: 28%; font-size: min(14px, 7.5cqw); }
 .dot.tg-cell[data-result='none'] { background: color-mix(in srgb, var(--ink) 5%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 16%, transparent); }
 .dot.tg-cell[data-result='skipped'] { background: color-mix(in srgb, var(--ink) 22%, transparent); }
 .dot.tg-cell.future { background: transparent; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 9%, transparent); }
