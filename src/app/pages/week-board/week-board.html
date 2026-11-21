@@ -324,7 +324,7 @@
     </div>
     @if (!p.story) { <p class="hint where-hint">{{ i18n.t('task.freeHint') }}</p> }
     <ng-template #infoActivity>
-      <span class="pc-activity" [style.background]="open.tone"><small>{{ i18n.t('canvas.task') }}</small><strong>{{ open.task.title || i18n.t('week.newTask') }}</strong></span>
+      <span class="pc-activity" [style.background]="open.tone" [style.--tone]="open.tone"><small>{{ i18n.t('canvas.task') }}</small><strong>{{ open.task.title || i18n.t('week.newTask') }}</strong></span>
     </ng-template>
     <div class="info-foot"><button type="button" class="primary" (click)="closeInfo()">{{ i18n.t('week.infoClose') }}</button></div>
   }
