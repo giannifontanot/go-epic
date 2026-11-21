@@ -17,7 +17,7 @@ import { TodoDialog, TodoSave } from './todo-dialog';
  * New task into it) without putting the cursor in the box (you may only want to look): on top the new task's box, its
  * repeat days, day and hour (today, any hour, no repeat to start with); tap the box, type and press Enter, as many as
  * you like. Under them the panel
- * lists the open tasks soonest first, on aged paper tinted with their colour, under the Current tab; ☐ checks one (it moves to
+ * lists the open tasks newest first, on aged paper tinted with their colour, under the Current tab; ☐ checks one (it moves to
  * the Finished tab, where ☑ opens it again), ✎ sets its name, day and hour, ✕ deletes it (asks first). In the Week a task
  * shows over the activity running at its hour (todo.model `pinTodos`).
  */
@@ -25,7 +25,7 @@ import { TodoDialog, TodoSave } from './todo-dialog';
   selector: 'app-capture-panel',
   template: `
     <dialog #panel class="capture-panel" aria-labelledby="capture-title" (click)="onBackdrop($event)" (close)="unfollow?.(); ui.open.set(false)">
-      <!-- the contents scroll inside; the window itself stays still so the thumb's × keeps its corner -->
+      <!-- the contents scroll inside; the window itself stays still so the thumb's Close keeps its corner -->
       <div class="capture-scroll">
       <header>
         <h2 id="capture-title" tabindex="-1">{{ i18n.t('capture.title') }}</h2>
@@ -113,8 +113,9 @@ import { TodoDialog, TodoSave } from './todo-dialog';
       </div>
       <!-- inside the panel: the App's note would sit under this modal window, out of reach (Undo) -->
       </div>
-      <!-- a second ×, for the thumb (Gianni): it floats in the window's bottom-right corner, never scrolling with the list -->
-      <button type="button" class="round danger-x capture-x capture-x-foot" [attr.aria-label]="i18n.t('nav.close')" [title]="i18n.t('nav.close')" (click)="close()">✕</button>
+      <!-- a Close button for the thumb (Gianni), like the other windows' Close: it floats in the window's bottom-right
+           corner, never scrolling with the list -->
+      <button type="button" class="primary capture-close-foot" (click)="close()">{{ i18n.t('week.infoClose') }}</button>
     </dialog>
     @if (editingTodo(); as todo) {
       <app-todo-dialog [todo]="todo" (save)="saveTodo($event)" (closed)="editingTodo.set(null)" />
