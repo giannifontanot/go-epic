@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://go-epic.web.app/sitemap.xml
+Sitemap: https://getgoepic.com/sitemap.xml
