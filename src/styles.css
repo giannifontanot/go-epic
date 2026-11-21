@@ -207,29 +207,21 @@ dialog.info-card::backdrop { background: rgba(4, 9, 30, .55); }
 .info-where .pc-epic { padding-right: 6px; }
 .info-where .pc-story strong { font-size: 15px; line-height: 1.4; }
 .info-foot { display: flex; justify-content: flex-end; margin-top: 14px; }
-/* "Why?" (Gianni): a small, cute pill at the top right of every screen; its window says which part of your life the
-   screen orders and why you need it (shared/why.ts, texts in core/why.ts). It wears the theme: the theme's own accent
-   (--pink) tints the pill and colours the "?", the word in the theme's ink, Georgia italic; a little ✦ twinkles at its
-   corner, it says hello with one small bounce when the screen opens and squishes when pressed. */
+/* "Why?" (Gianni): a quiet word at the top right of every screen; its window says which part of your life the screen
+   orders and why you need it (shared/why.ts, texts in core/why.ts). It must not draw the eye (Gianni: the first, cute
+   pill was far too loud; a panel chose): just the letters, Georgia italic, in the theme's soft grey ink, inside a very
+   faint grey hairline, no fill, no shadow, no colour of the theme, no animation; the hairline is drawn smaller than the
+   button so the tap area stays 40px tall. A gentle press is its only motion. */
 .why { display: inline-flex; flex: none; }
-.why-btn { --why: var(--pink); position: relative; display: inline-flex; align-items: baseline; justify-content: center; gap: 1px;
-  min-height: 40px; padding: 0 15px 0 14px; border: 1.5px solid color-mix(in srgb, var(--why) 75%, transparent); border-radius: 999px;
-  background: linear-gradient(160deg, color-mix(in srgb, var(--why) 34%, transparent), color-mix(in srgb, var(--why) 12%, transparent));
-  color: var(--ink); font: italic 700 calc(17px * var(--esc, 1))/40px Georgia, 'Times New Roman', serif; letter-spacing: .01em; white-space: nowrap;
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--why) 45%, transparent), 0 6px 14px rgba(0, 0, 0, .16); cursor: pointer;
-  transition: scale .18s cubic-bezier(.3, 1.6, .5, 1), box-shadow .18s ease, background .2s ease;
-  animation: why-hello .9s cubic-bezier(.3, 1.5, .5, 1) .7s 1 both; }
-.why-q { display: inline-block; color: var(--why); font-size: 1.3em; rotate: 12deg; translate: 0 1px; text-shadow: 0 1px 0 rgba(0, 0, 0, .12); }
-.why-spark { position: absolute; top: -7px; right: -3px; color: var(--jelly-b); font: normal 12px/1 system-ui, sans-serif;
-  animation: why-twinkle 3.6s ease-in-out 1.6s infinite both; pointer-events: none; }
-@media (hover: hover) { .why-btn:hover { background: linear-gradient(160deg, color-mix(in srgb, var(--why) 46%, transparent), color-mix(in srgb, var(--why) 20%, transparent)); }
-  .why-btn:hover .why-q { animation: why-wiggle .6s ease-in-out; } }
-.why-btn:active { scale: .92; box-shadow: 0 1px 0 color-mix(in srgb, var(--why) 45%, transparent), 0 2px 6px rgba(0, 0, 0, .14); }
-.why-btn:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
-@keyframes why-hello { 0% { transform: scale(.6); opacity: 0; } 55% { transform: scale(1.12); opacity: 1; } 75% { transform: scale(.95); } 100% { transform: none; opacity: 1; } }
-@keyframes why-twinkle { 0%, 70%, 100% { opacity: .25; transform: scale(.7) rotate(0deg); } 82% { opacity: 1; transform: scale(1.25) rotate(25deg); } }
-@keyframes why-wiggle { 0%, 100% { rotate: 12deg; } 30% { rotate: -8deg; } 60% { rotate: 20deg; } }
-/* where it sits: the right end of each screen's top row */
+.why-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 11px;
+  border: 0; background: none; color: color-mix(in srgb, var(--ink-soft) 80%, transparent); cursor: pointer;
+  font: italic 600 14px/1 Georgia, 'Times New Roman', serif; letter-spacing: .01em; transition: color .2s ease, scale .15s ease; }
+.why-btn::before { content: ''; position: absolute; inset: 8px 0; border: 1px solid color-mix(in srgb, var(--ink-soft) 22%, transparent);
+  border-radius: 999px; transition: border-color .2s ease; pointer-events: none; }
+.why-q { margin-left: 1px; }
+@media (hover: hover) { .why-btn:hover { color: var(--ink-soft); } .why-btn:hover::before { border-color: color-mix(in srgb, var(--ink-soft) 40%, transparent); } }
+.why-btn:active { scale: .94; }
+.why-btn:focus-visible { outline: 2px solid var(--teal); outline-offset: 0; border-radius: 999px; }
 .week-top > .why { grid-column: 3; justify-self: end; }
 .progress-top > .why { margin-left: auto; }
 .focus-top-end { display: inline-flex; align-items: center; gap: 12px; margin-left: auto; }
@@ -262,13 +254,10 @@ dialog.why-window .info-head h2 { margin: 2px 0 0; font: 700 calc(24px * var(--e
 dialog.why-window[open] :is(.why-lead, .why-more, .why-sec) { animation: why-rise .5s cubic-bezier(.25, 1.35, .5, 1) both; animation-delay: calc(260ms + min(var(--i, 0), 6) * 55ms); }
 @keyframes why-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 /* the light themes keep the accent readable as text; the grey ones keep the "?" in their soft ink */
-html:is([data-theme='office'], [data-theme='graphite']) .why-btn { --why: var(--ink-soft); }
 html:is([data-theme='office'], [data-theme='graphite']) :is(.why-eyebrow, .why-lead h3) { color: var(--ink-soft); }
-html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .why-q { color: transparent; background: var(--title-gold); -webkit-background-clip: text; background-clip: text; text-shadow: none; }
-html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .why-btn { --why: #c9a227; }
 @media (prefers-reduced-motion: reduce) {
-  .why-btn, .why-spark, .why-btn:hover .why-q, dialog.why-window[open] :is(.why-lead, .why-more, .why-sec) { animation: none; }
-  .why-btn { transition: none; } .why-spark { opacity: .8; }
+  dialog.why-window[open] :is(.why-lead, .why-more, .why-sec) { animation: none; }
+  .why-btn, .why-btn::before { transition: none; }
 }
 /* the day overview (Gianni): a nested bullet list, blocks › activities › tasks, all-day tasks first */
 /* the overview's weekday chips (Gianni): any day of this week, one tap; a sideways swipe steps them too */

@@ -4,7 +4,7 @@ import { I18n } from '../core/i18n';
 import { WHY, WhyScreen } from '../core/why';
 
 /**
- * The "Why?" of a screen (Gianni): a small, cute pill with the word "Why?" at the top right of every screen; a tap opens
+ * The "Why?" of a screen (Gianni): a quiet grey word "Why?" at the top right of every screen; a tap opens
  * a window, growing out of the button like every window (core/dialog), that explains which part of your life the screen
  * orders and why you need it. First a brief but complete reason ("In short"), then fuller sections for whoever wants to
  * know more. The texts live in core/why.ts. The word stays "Why?" in both languages (Gianni); its accessible name is
@@ -15,7 +15,7 @@ import { WHY, WhyScreen } from '../core/why';
   host: { class: 'why' },
   template: `
     <button type="button" class="why-btn" [attr.aria-label]="i18n.t('why.button')" [title]="i18n.t('why.button')" (click)="open()">
-      <span class="why-word">Why</span><span class="why-q" aria-hidden="true">?</span><span class="why-spark" aria-hidden="true">✦</span>
+      <span class="why-word">Why</span><span class="why-q" aria-hidden="true">?</span>
     </button>
     <dialog #dialog class="info-card why-window" [attr.aria-labelledby]="'why-title-' + screen()" (click)="onBackdrop($event)">
       @let text = content();
