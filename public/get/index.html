@@ -24,16 +24,16 @@
   <link rel="alternate" hreflang="es" href="https://getgoepic.com/?lang=es" />
   <link rel="alternate" hreflang="x-default" href="https://getgoepic.com/" />
   <meta name="robots" content="index, follow" />
-  <!-- At "/": the installed app, and anyone who has already opened the app in this browser (any go-epic-* key but this
-       page's language), go straight on to the app; visitors see this page. -->
+  <!-- At "/": the installed app, and anyone signed in to the app in this browser (go-epic-signed-in, kept by the app's
+       core/auth.service.ts), go straight on to the app; everyone else sees this page, never the sign-in screen. -->
   <script>
     try {
       if (location.pathname === '/') {
         var installed = navigator.standalone === true || ['standalone', 'fullscreen', 'minimal-ui'].some(function (m) {
           return matchMedia('(display-mode: ' + m + ')').matches;
         });
-        var used = Object.keys(localStorage).some(function (k) { return k.indexOf('go-epic-') === 0 && k !== 'go-epic-get-lang'; });
-        if (installed || used) location.replace('/app' + location.search + location.hash);
+        var signedIn = localStorage.getItem('go-epic-signed-in') === '1';
+        if (installed || signedIn) location.replace('/app' + location.search + location.hash);
       }
     } catch (e) {}
   </script>
