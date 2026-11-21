@@ -210,18 +210,17 @@ dialog.info-card::backdrop { background: rgba(4, 9, 30, .55); }
 /* "Why?" (Gianni): a quiet word at the top right of every screen; its window says which part of your life the screen
    orders and why you need it (shared/why.ts, texts in core/why.ts). It must not draw the eye (Gianni: the first, cute
    pill was far too loud; a panel chose): just the letters, Georgia italic, in the theme's soft grey ink, inside a very
-   faint grey hairline, no fill, no shadow, no colour of the theme, no animation; the hairline is drawn smaller than the
-   button so the tap area stays 40px tall. A gentle press is its only motion. */
+   faint grey hairline, no fill, no shadow, no colour of the theme, no animation; the hairline is a circle of 44px (Gianni:
+   in a circle, neither big nor small, like the other round buttons). A gentle press is its only motion. */
 .why { display: inline-flex; flex: none; }
-.why-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 11px;
-  border: 0; background: none; color: color-mix(in srgb, var(--ink-soft) 80%, transparent); cursor: pointer;
-  font: italic 600 14px/1 Georgia, 'Times New Roman', serif; letter-spacing: .01em; transition: color .2s ease, scale .15s ease; }
-.why-btn::before { content: ''; position: absolute; inset: 8px 0; border: 1px solid color-mix(in srgb, var(--ink-soft) 38%, transparent);
-  border-radius: 999px; transition: border-color .2s ease; pointer-events: none; }
+.why-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; flex: none; width: 44px; height: 44px;
+  padding: 0; border: 1px solid color-mix(in srgb, var(--ink-soft) 38%, transparent); border-radius: 50%; background: none;
+  color: color-mix(in srgb, var(--ink-soft) 80%, transparent); cursor: pointer; font: italic 600 13px/1 Georgia, 'Times New Roman', serif;
+  letter-spacing: 0; transition: color .2s ease, border-color .2s ease, scale .15s ease; }
 .why-q { margin-left: 1px; }
-@media (hover: hover) { .why-btn:hover { color: var(--ink-soft); } .why-btn:hover::before { border-color: color-mix(in srgb, var(--ink-soft) 55%, transparent); } }
+@media (hover: hover) { .why-btn:hover { color: var(--ink-soft); border-color: color-mix(in srgb, var(--ink-soft) 55%, transparent); } }
 .why-btn:active { scale: .94; }
-.why-btn:focus-visible { outline: 2px solid var(--teal); outline-offset: 0; border-radius: 999px; }
+.why-btn:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 .week-top > .why { grid-column: 3; justify-self: end; }
 .progress-top > .why { margin-left: auto; }
 .focus-top-end { display: inline-flex; align-items: center; gap: 12px; margin-left: auto; }
@@ -257,7 +256,7 @@ dialog.why-window[open] :is(.why-lead, .why-more, .why-sec) { animation: why-ris
 html:is([data-theme='office'], [data-theme='graphite']) :is(.why-eyebrow, .why-lead h3) { color: var(--ink-soft); }
 @media (prefers-reduced-motion: reduce) {
   dialog.why-window[open] :is(.why-lead, .why-more, .why-sec) { animation: none; }
-  .why-btn, .why-btn::before { transition: none; }
+  .why-btn { transition: none; }
 }
 /* the day overview (Gianni): a nested bullet list, blocks › activities › tasks, all-day tasks first */
 /* the overview's weekday chips (Gianni): any day of this week, one tap; a sideways swipe steps them too */
