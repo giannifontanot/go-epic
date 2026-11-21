@@ -6,5 +6,6 @@
   { "id": 5, "date": "2026-11-21", "es": "Las actividades y las tareas tienen colores propios en cada tema; en los temas oscuros, tarjetas oscuras.", "en": "Activities and tasks have their own colours in every theme; dark cards in the dark themes." },
   { "id": 6, "date": "2026-11-21", "es": "El botón de actualizar es sobrio: sin halo ni destello.", "en": "The update button is plain: no halo, no flashing." },
   { "id": 7, "date": "2026-11-21", "es": "Cada pantalla tiene un botón «Why?» que explica qué parte de tu vida ordena.", "en": "Every screen has a “Why?” button that explains which part of your life it orders." },
-  { "id": 8, "date": "2026-11-21", "es": "Esta ventana muestra qué hay de nuevo en cada versión.", "en": "This window shows what is new in each version." }
+  { "id": 8, "date": "2026-11-21", "es": "El 💡 tiene su propio botón bajo el menú, y Capture ocupa toda la pantalla con una × redonda.", "en": "The 💡 has its own button under the menu, and Capture fills the whole screen with a round ×." },
+  { "id": 9, "date": "2026-11-21", "es": "Esta ventana muestra qué hay de nuevo en cada versión.", "en": "This window shows what is new in each version." }
 ]
