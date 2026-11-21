@@ -1,6 +1,8 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, ElementRef, Injector, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
+import { eventDates, importPlan } from '../../core/calendar-import';
 import { DatesStore } from '../../core/dates.store';
+import { CalendarError, GoogleCalendar, GoogleCalendarService } from '../../core/google-calendar';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { daysBetween } from '../../core/period.model';
@@ -12,12 +14,19 @@ import { PageMenu } from '../../shared/title-fan';
 import { Undo } from '../../shared/undo';
 import { Why } from '../../shared/why';
 
+/** The calendar imported last, offered first next time (this device only). */
+const LAST_CALENDAR_KEY = 'go-epic-calendar-import';
+function readLastCalendar(): string | null {
+  try { return localStorage.getItem(LAST_CALENDAR_KEY); } catch { return null; }
+}
+
 /**
  * The Year (Gianni): an informational screen, above all visual. 2027 as its 4 seasons, winter first, each a quarter
  * from the Monday nearest its solstice or equinox: 4 sprints of 3 weeks, one row each (3 weeks × 7 days, like Progress's
  * tracking grid), and a striped rest and review week. Today is ringed, past days fade, the day each season really begins
  * has a dot. Important dates live in Go Epic (DatesStore, users/{uid}/dates): a tap on any day names it, rewrites or
  * removes it; a named day carries a ★ and its name shows in the same window and in the list under the year.
+ * Optionally the dates of one Google calendar can be brought in (Import from Google Calendar, read only).
  */
 @Component({
   selector: 'app-year',
@@ -83,12 +92,19 @@ import { Why } from '../../shared/why';
       <p class="muted year-legend">{{ i18n.t('year.legend') }}</p>
       <!-- the important dates of the year, in order: a tap opens the same window as the day -->
       <section class="year-dates" aria-labelledby="year-dates-title">
-        <h2 id="year-dates-title">{{ i18n.t('year.dates') }}</h2>
+        <div class="year-dates-head">
+          <h2 id="year-dates-title">{{ i18n.t('year.dates') }}</h2>
+          <!-- optional (Gianni): bring the dates of one of your Google calendars -->
+          <button type="button" class="chip quiet gcal-btn" (click)="openImport()">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>
+            {{ i18n.t('gcal.button') }}
+          </button>
+        </div>
         @if (named().length) {
           <ul>
             @for (d of named(); track d.date) {
               <li [attr.data-season]="d.season" [class.past]="d.date < today()" [class.deleting]="undo.isPending('date:' + d.date)">
-                <button type="button" (click)="openDay(d.date)"><span class="yd-star" aria-hidden="true">★</span><span class="yd-name">{{ d.name }}</span><span class="yd-date">{{ longDate(d.date) }}</span></button>
+                <button type="button" (click)="openDay(d.date)"><span class="yd-star" aria-hidden="true">★</span><span class="yd-name">{{ d.name }}@if (d.imported) { <span class="yd-tag">Google</span> }</span><span class="yd-date">{{ longDate(d.date) }}</span></button>
               </li>
             }
           </ul>
@@ -105,6 +121,7 @@ import { Why } from '../../shared/why';
               <button type="button" class="round" [attr.aria-label]="i18n.t('week.infoClose')" [title]="i18n.t('week.infoClose')" (click)="close()">✕</button>
             </div>
             <p class="info-when yd-place" [attr.data-season]="placeSeason(key)">{{ placeLabel(key) }}</p>
+            @if (dates.kept().get(key)?.calendar) { <p class="muted yd-imported">{{ i18n.t('gcal.importedNote') }}</p> }
             <label class="field yd-field">
               <span>{{ i18n.t('year.name') }}</span>
               <input #nameBox type="text" maxlength="80" [value]="draft()" (input)="draft.set(nameBox.value)" [placeholder]="i18n.t('year.namePlaceholder')" enterkeyhint="done" />
@@ -115,6 +132,38 @@ import { Why } from '../../shared/why';
               <button type="submit" class="ask-ok">{{ i18n.t('year.save') }}</button>
             </div>
           </form>
+        }
+      </dialog>
+      <dialog #importer class="info-card year-import" aria-labelledby="gcal-title" (click)="onImportBackdrop($event)">
+        <div class="info-head">
+          <h2 id="gcal-title">{{ i18n.t('gcal.title') }}</h2>
+          <button type="button" class="round" [attr.aria-label]="i18n.t('week.infoClose')" [title]="i18n.t('week.infoClose')" (click)="closeImport()">✕</button>
+        </div>
+        @switch (step()) {
+          @case ('start') {
+            <p>{{ i18n.t('gcal.intro', { year: year.year }) }}</p>
+            <p class="muted gcal-small">{{ i18n.t('gcal.warning') }}</p>
+            @if (problem()) { <p class="gcal-problem" role="alert">{{ i18n.t('gcal.problem.' + problem()) }}</p> }
+            <div class="ask-actions"><button type="button" class="ask-cancel" (click)="closeImport()">{{ i18n.t('year.cancel') }}</button>
+              <button type="button" class="ask-ok" [disabled]="busy()" (click)="connect()">{{ i18n.t(busy() ? 'gcal.connecting' : 'gcal.connect') }}</button></div>
+          }
+          @case ('pick') {
+            <fieldset class="gcal-list">
+              <legend>{{ i18n.t('gcal.pick') }}</legend>
+              @for (c of calendars(); track c.id) {
+                <label class="gcal-cal"><input type="radio" name="gcal" [value]="c.id" [checked]="c.id === chosen()" (change)="chosen.set(c.id)" />
+                  <span class="gcal-dot" [style.background]="c.color" aria-hidden="true"></span><span>{{ c.name }}</span></label>
+              } @empty { <p class="muted">{{ i18n.t('gcal.noCalendars') }}</p> }
+            </fieldset>
+            <p class="muted gcal-small">{{ i18n.t('gcal.rules') }}</p>
+            @if (problem()) { <p class="gcal-problem" role="alert">{{ i18n.t('gcal.problem.' + problem()) }}</p> }
+            <div class="ask-actions"><button type="button" class="ask-cancel" (click)="closeImport()">{{ i18n.t('year.cancel') }}</button>
+              <button type="button" class="ask-ok" [disabled]="busy() || !chosen() || !dates.ready()" (click)="runImport()">{{ i18n.t(busy() ? 'gcal.importing' : 'gcal.import') }}</button></div>
+          }
+          @case ('done') {
+            <p class="gcal-result">{{ result() }}</p>
+            <div class="ask-actions"><button type="button" class="ask-ok" (click)="closeImport()">{{ i18n.t('ask.ok') }}</button></div>
+          }
         }
       </dialog>
     </section>
@@ -154,11 +203,80 @@ export class Year {
   protected readonly named = computed(() => [...this.dates.dates()]
     .filter(([date]) => date >= this.first && date <= this.last)
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, name]) => ({ date, name, season: placeOf(this.plan, date)?.season ?? null })));
+    .map(([date, name]) => ({ date, name, season: placeOf(this.plan, date)?.season ?? null, imported: !!this.dates.kept().get(date)?.calendar })));
 
   private readonly editor = viewChild.required<ElementRef<HTMLDialogElement>>('editor');
   protected readonly editing = signal<string | null>(null);
   protected readonly draft = signal('');
+
+  // Importing from Google Calendar (optional): connect (a Google pop-up, read only), pick one calendar, import.
+  private readonly gcal = inject(GoogleCalendarService);
+  private readonly importer = viewChild.required<ElementRef<HTMLDialogElement>>('importer');
+  protected readonly step = signal<'start' | 'pick' | 'done'>('start');
+  protected readonly busy = signal(false);
+  protected readonly problem = signal<string | null>(null);
+  protected readonly calendars = signal<GoogleCalendar[]>([]);
+  protected readonly chosen = signal<string | null>(null);
+  protected readonly result = signal('');
+
+  protected openImport(): void {
+    this.step.set('start');
+    this.problem.set(null);
+    const d = this.importer().nativeElement;
+    if (!d.open) openDialog(d);
+  }
+  protected closeImport(): void {
+    void closeDialog(this.importer().nativeElement);
+  }
+  protected onImportBackdrop(event: MouseEvent): void {
+    if (isBackdropClick(event, this.importer().nativeElement)) this.closeImport();
+  }
+  private fail(error: unknown): void {
+    const problem = error instanceof CalendarError ? error.problem : 'failed';
+    if (problem === 'expired' || problem === 'denied') this.step.set('start');
+    this.problem.set(problem === 'cancelled' ? null : problem);
+  }
+  protected async connect(): Promise<void> {
+    if (this.busy()) return;
+    this.busy.set(true);
+    this.problem.set(null);
+    try {
+      await this.gcal.connect();
+      const list = await this.gcal.calendars();
+      this.calendars.set(list);
+      const last = readLastCalendar();
+      this.chosen.set(list.find((c) => c.id === last)?.id ?? list[0]?.id ?? null);
+      this.step.set('pick');
+    } catch (error) {
+      this.fail(error);
+    } finally {
+      this.busy.set(false);
+    }
+  }
+  protected async runImport(): Promise<void> {
+    const calendar = this.chosen();
+    if (!calendar || this.busy()) return;
+    this.busy.set(true);
+    this.problem.set(null);
+    try {
+      // the days already kept must be known first, or an import could overwrite a day named by hand
+      if (!this.dates.ready()) throw new CalendarError('loading');
+      const events = await this.gcal.events(calendar, this.first, this.last);
+      if (!this.dates.ready()) throw new CalendarError('loading');
+      const plan = importPlan(this.dates.kept(), eventDates(events, this.first, this.last), calendar, this.first, this.last);
+      this.dates.applyImport(calendar, plan.write, plan.remove);
+      try { localStorage.setItem(LAST_CALENDAR_KEY, calendar); } catch { /* a convenience only */ }
+      const parts = [this.i18n.t('gcal.added', { n: plan.write.size })];
+      if (plan.remove.length) parts.push(this.i18n.t('gcal.removed', { n: plan.remove.length }));
+      if (plan.skipped) parts.push(this.i18n.t('gcal.kept', { n: plan.skipped }));
+      this.result.set(parts.join(' '));
+      this.step.set('done');
+    } catch (error) {
+      this.fail(error);
+    } finally {
+      this.busy.set(false);
+    }
+  }
 
   constructor() {
     // opened during the year: today's row in the middle of the screen, at once (no motion)
