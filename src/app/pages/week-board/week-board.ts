@@ -1,3 +1,4 @@
+import { Why } from '../../shared/why';
 import { PageMenu } from '../../shared/title-fan';
 import { Ask } from '../../shared/ask';
 import { AutoColors } from '../../core/auto-colors';
@@ -91,7 +92,7 @@ function readFolded(): Set<string> {
 
 @Component({
   selector: 'app-week-board',
-  imports: [TaskDialog, TransferDialog, TodoDialog, NgTemplateOutlet],
+  imports: [TaskDialog, TransferDialog, TodoDialog, NgTemplateOutlet, Why],
   templateUrl: './week-board.html',
 })
 export class WeekBoard {

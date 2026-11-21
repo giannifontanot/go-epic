@@ -1,3 +1,4 @@
+import { Why } from '../../shared/why';
 import { PageMenu } from '../../shared/title-fan';
 import { Ask } from '../../shared/ask';
 import { Component, DestroyRef, DoCheck, ElementRef, HostListener, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
@@ -35,7 +36,7 @@ const LEAVE_SAVE_WAIT_MS = 6000;
 
 @Component({
   selector: 'app-canvas',
-  imports: [CanvasNode],
+  imports: [CanvasNode, Why],
   templateUrl: './canvas.html',
   styleUrl: './canvas.css',
 })

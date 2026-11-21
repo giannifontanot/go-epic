@@ -1,3 +1,4 @@
+import { Why } from '../../shared/why';
 import { Ask } from '../../shared/ask';
 import { Undo } from '../../shared/undo';
 import { Component, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
@@ -26,6 +27,7 @@ import { TodoDialog, TodoSave } from './todo-dialog';
     <dialog #panel class="capture-panel" aria-labelledby="capture-title" (click)="onBackdrop($event)" (close)="unfollow?.(); ui.open.set(false)">
       <header>
         <h2 id="capture-title" tabindex="-1">{{ i18n.t('capture.title') }}</h2>
+        <app-why screen="capture" />
         <button type="button" class="drawer-close" [attr.aria-label]="i18n.t('nav.close')" (click)="close()">×</button>
       </header>
       <!-- One window (Gianni): the new task with its repeat days, day and hour on top, the lists under them. Enter or
@@ -112,7 +114,7 @@ import { TodoDialog, TodoSave } from './todo-dialog';
       <app-todo-dialog [todo]="todo" (save)="saveTodo($event)" (closed)="editingTodo.set(null)" />
     }
   `,
-  imports: [TodoDialog],
+  imports: [TodoDialog, Why],
 })
 export class CapturePanel {
   protected readonly i18n = inject(I18n);

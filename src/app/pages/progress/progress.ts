@@ -1,3 +1,4 @@
+import { Why } from '../../shared/why';
 import { PageMenu } from '../../shared/title-fan';
 import { NgTemplateOutlet } from '@angular/common';
 import { BalanceView } from './balance-view';
@@ -30,10 +31,10 @@ function readTab(): 'streaks' | 'balance' {
  */
 @Component({
   selector: 'app-progress',
-  imports: [NgTemplateOutlet, BalanceView],
+  imports: [NgTemplateOutlet, BalanceView, Why],
   template: `
     <section class="progress-page">
-      <header class="board-top progress-top"><h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')" (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('progress.title') }}<span class="title-chev" aria-hidden="true">⌄</span></button></h1></header>
+      <header class="board-top progress-top"><h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')" (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('progress.title') }}<span class="title-chev" aria-hidden="true">⌄</span></button></h1><app-why screen="progress" /></header>
       <!-- two views (Gianni): Consistency (the streaks) and Areas of life (the radar) -->
       <!-- changing tab is soft (Gianni): the bar glides with a small bounce and the view slides in from that side -->
       <div class="seg progress-tabs" role="tablist" [attr.aria-label]="i18n.t('progress.tabs')" [style.--tab-i]="tab() === 'balance' ? 1 : 0">
