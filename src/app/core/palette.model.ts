@@ -1,7 +1,7 @@
 import { THEMES, Theme } from './theme';
 
 /**
- * Ajustes › Palettes (Gianni: he chooses the activity colours of each theme himself). A palette is a named list of
+ * The palette window a theme tile opens (Gianni: he chooses the activity colours of each theme himself). A palette is a named list of
  * colours; the theme it is chosen for draws its 8 activity slots (--act-0…7, week.model toneVar) from it, a shorter
  * palette going round its own colours (slot 7 of a 7-colour palette is its first). Each theme's own palette (the one it
  * had before, mirrored from styles.css) is its default, so nothing changes until he picks; Petal Punk's is "Pinks"

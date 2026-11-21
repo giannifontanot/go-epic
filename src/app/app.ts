@@ -98,7 +98,7 @@ export class App {
   protected readonly text = inject(TextSettings);
   /** The chosen theme (Ajustes) stays applied on every page. */
   protected readonly theme = inject(ThemeService);
-  /** Each theme's chosen activity palette (Ajustes › Palettes) stays applied too. */
+  /** Each theme's chosen activity palette (its palette window, from a theme tile) stays applied too. */
   protected readonly palette = inject(PaletteService);
   private readonly router = inject(Router);
   /** The installed app (service worker) has downloaded a newer version: offer to switch to it. */
