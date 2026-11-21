@@ -3,7 +3,9 @@ import { PageMenu } from '../../shared/title-fan';
 import { NgTemplateOutlet } from '@angular/common';
 import { BalanceView } from './balance-view';
 import { balanceFromKey } from '../../core/balance.model';
-import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Component, DestroyRef, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
+import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
+import { PERIOD_DAYS, TRACK_START, daysBetween, periodDay, periodEnd, periodGrid } from '../../core/period.model';
 import { AuthService } from '../../core/auth.service';
 import { I18n } from '../../core/i18n';
 import { paperAge, trackedIds } from '../../core/library.model';
@@ -37,15 +39,18 @@ function readTab(): 'streaks' | 'balance' {
         <button type="button" class="round idea" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')" (click)="captureUi.open.set(true)">💡</button>
       </header>
       <!-- two views (Gianni): Consistency (the streaks) and Areas of life (the radar) -->
-      <div class="seg progress-tabs" role="tablist" [attr.aria-label]="i18n.t('progress.tabs')">
+      <!-- changing tab is soft (Gianni): the bar glides with a small bounce and the view slides in from that side -->
+      <div class="seg progress-tabs" role="tablist" [attr.aria-label]="i18n.t('progress.tabs')" [style.--tab-i]="tab() === 'balance' ? 1 : 0">
         <button type="button" role="tab" id="tab-streaks" [attr.aria-selected]="tab() === 'streaks'" [class.on]="tab() === 'streaks'" (click)="setTab('streaks')">{{ i18n.t('progress.tabStreaks') }}</button>
         <button type="button" role="tab" id="tab-balance" [attr.aria-selected]="tab() === 'balance'" [class.on]="tab() === 'balance'" (click)="setTab('balance')">{{ i18n.t('progress.tabBalance') }}</button>
       </div>
       @if (!store.loaded() || !library.ready()) {
         <p class="muted">{{ i18n.t('loading') }}</p>
       } @else if (tab() === 'balance') {
-        <div role="tabpanel" aria-labelledby="tab-balance"><app-balance-view [history]="history()" [olderFirstKey]="olderFirstKey()" /></div>
-      } @else if (!list().length && !taskList().length) {
+        <div class="tab-pane" role="tabpanel" aria-labelledby="tab-balance" [attr.data-dir]="dir()"><app-balance-view [history]="history()" [olderFirstKey]="olderFirstKey()" /></div>
+      } @else {
+      <div class="tab-pane" role="tabpanel" aria-labelledby="tab-streaks" [attr.data-dir]="dir()">
+      @if (!list().length && !taskList().length) {
         <p class="muted center">{{ i18n.t(noneTracked() ? 'progress.pickHint' : 'progress.empty') }}</p>
       } @else {
         <p class="muted legend">{{ i18n.t('progress.legend') }}</p>
@@ -73,7 +78,12 @@ function readTab(): 'streaks' | 'balance' {
         <ng-template #row let-habit>
           <div class="h-head">
             <strong>{{ habit.title }}</strong>
-            <span class="streak" [class.zero]="!habit.streak">{{ streakLabel(habit.streak, habit.streakCapped) }}</span>
+            <span class="h-side">
+              <span class="streak" [class.zero]="!habit.streak">{{ streakLabel(habit.streak, habit.streakCapped) }}</span>
+              <!-- the whole tracking period (Gianni): 6 rows of 3 weeks of 7 days -->
+              <button type="button" class="round grid-btn" [attr.aria-label]="i18n.t('progress.gridOpen', { title: habit.title })" [title]="i18n.t('progress.gridOpen', { title: habit.title })"
+                      (click)="openGrid(habit.key)"><span aria-hidden="true">▦</span></button>
+            </span>
           </div>
           <ol class="dots" [attr.aria-label]="habit.title">
             @for (day of habit.days; track day.date) {
@@ -84,6 +94,40 @@ function readTab(): 'streaks' | 'balance' {
         </ng-template>
         <p class="muted note">{{ i18n.t('progress.note') }}</p>
       }
+      </div>
+      }
+      <dialog #grid class="info-card track-grid" [attr.aria-label]="gridHabit()?.title ?? i18n.t('progress.gridTitle')" (click)="onGridBackdrop($event)">
+        @let habit = gridHabit();
+        <div class="info-head">
+          <h2>{{ habit?.title }}</h2>
+          <button type="button" class="round" [attr.aria-label]="i18n.t('week.infoClose')" [title]="i18n.t('week.infoClose')" (click)="closeGrid()">✕</button>
+        </div>
+        <dl class="tg-period">
+          <div><dt>{{ i18n.t('progress.gridStart') }}</dt><dd>{{ longDate(start) }}</dd></div>
+          <div><dt>{{ i18n.t('progress.gridEnd') }}</dt><dd>{{ longDate(end) }}</dd></div>
+          @if (dayNumber() >= 1 && dayNumber() <= periodDays) { <div class="tg-today"><dd>{{ i18n.t('progress.gridDay', { n: dayNumber(), total: periodDays }) }}</dd></div> }
+        </dl>
+        <div class="tg-rows">
+          @for (row of rows; track $index) {
+            <section class="tg-row">
+              <h3 class="tg-range">{{ shortDate(row[0][0]) }} – {{ shortDate(row[row.length - 1][6]) }}</h3>
+              <div class="tg-weeks">
+                @for (week of row; track $index) {
+                  <ol class="tg-week">
+                    @for (date of week; track date) {
+                      @let result = resultOn(date);
+                      <li class="dot tg-cell" [attr.data-result]="result" [class.future]="date > todayKey()" [class.today]="date === todayKey()"
+                          [attr.title]="shortDate(date) + ' · ' + resultLabel(result)" [attr.aria-label]="shortDate(date) + ': ' + resultLabel(result)">{{ symbol(result) }}</li>
+                    }
+                  </ol>
+                }
+              </div>
+            </section>
+          }
+        </div>
+        <p class="muted tg-legend">{{ i18n.t('progress.gridLegend') }}</p>
+        <div class="info-foot"><button type="button" class="primary" (click)="closeGrid()">{{ i18n.t('week.infoClose') }}</button></div>
+      </dialog>
     </section>
   `,
 })
@@ -101,7 +145,11 @@ export class Progress {
     return first !== null && first < this.fromKey() ? first : null;
   });
   protected readonly tab = signal<'streaks' | 'balance'>(readTab());
+  /** The side the new view comes in from; null until a tab is chosen, so the page opens still. */
+  protected readonly dir = signal<'left' | 'right' | null>(null);
   protected setTab(tab: 'streaks' | 'balance'): void {
+    if (tab === this.tab()) return;
+    this.dir.set(tab === 'balance' ? 'right' : 'left');
     this.tab.set(tab);
     try { localStorage.setItem(TAB_KEY, tab); } catch { /* a view preference only */ }
   }
@@ -111,7 +159,7 @@ export class Progress {
     const now = this.store.now();
     const streaks = dateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - (HISTORY_DAYS - 1)));
     const radar = balanceFromKey(now);                                     // the radar also needs the previous quarter
-    return radar < streaks ? radar : streaks;
+    return [radar, streaks, TRACK_START].sort()[0];                       // and the tracking grid its whole period
   });
   protected readonly library = inject(LibraryStore);
   /** Every Activity of the week as a habit; only those ticked "Track in Progress" show (Gianni: too many to follow all). */
@@ -134,6 +182,49 @@ export class Progress {
   }
   protected paper(habit: Habit): 0 | 1 | 2 {
     return paperAge(this.todoOf(habit), this.store.now().getTime()) ?? 0;
+  }
+
+  // The tracking grid (Gianni): the whole period, 6 rows × 3 weeks × 7 days, opened from each habit's streak.
+  private readonly gridDialog = viewChild.required<ElementRef<HTMLDialogElement>>('grid');
+  protected readonly start = TRACK_START;
+  protected readonly end = periodEnd(TRACK_START);
+  protected readonly periodDays = PERIOD_DAYS;
+  protected readonly rows = periodGrid(TRACK_START);
+  protected readonly todayKey = computed(() => dateKey(this.store.now()));
+  protected readonly dayNumber = computed(() => periodDay(TRACK_START, this.todayKey()));
+  private readonly gridKey = signal<string | null>(null);
+  /** The open habit over the whole period so far (days not yet read or before its first mark are blank). */
+  protected readonly gridHabit = computed<Habit | null>(() => {
+    const key = this.gridKey();
+    if (key === null) return null;
+    const span = Math.max(1, daysBetween(TRACK_START, this.todayKey()) + 1);
+    const found = key.startsWith('todo:')
+      ? taskHabits(this.todos.todos(), this.store.now(), span, span)
+      : habits(this.store.week(), this.history(), this.store.now(), span, span);
+    return found.find((h) => h.key === key) ?? null;
+  });
+  private readonly gridResults = computed(() => new Map((this.gridHabit()?.days ?? []).map((d) => [d.date, d.result])));
+  protected resultOn(date: string): DayResult {
+    return date > this.todayKey() ? 'none' : this.gridResults().get(date) ?? 'none';
+  }
+  protected openGrid(key: string): void {
+    this.gridKey.set(key);
+    const d = this.gridDialog().nativeElement;
+    if (!d.open) openDialog(d);
+  }
+  protected closeGrid(): void {
+    void closeDialog(this.gridDialog().nativeElement);
+  }
+  protected onGridBackdrop(event: MouseEvent): void {
+    if (isBackdropClick(event, this.gridDialog().nativeElement)) this.closeGrid();
+  }
+  protected longDate(key: string): string {
+    const [y, m, d] = key.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString(this.i18n.lang(), { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  protected shortDate(key: string): string {
+    const [y, m, d] = key.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString(this.i18n.lang(), { day: 'numeric', month: 'short' });
   }
 
   constructor() {
