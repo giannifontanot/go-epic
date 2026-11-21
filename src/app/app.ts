@@ -17,6 +17,7 @@ import { LibraryStore } from './core/library.store';
 import { Tilt } from './core/tilt';
 import { TextSettings } from './core/text-settings';
 import { ThemeService } from './core/theme';
+import { PaletteService } from './core/palette';
 import { UnsavedWork } from './core/unsaved';
 import { WeekStore } from './core/week.store';
 
@@ -80,6 +81,8 @@ export class App {
   protected readonly text = inject(TextSettings);
   /** The chosen theme (Ajustes) stays applied on every page. */
   protected readonly theme = inject(ThemeService);
+  /** Each theme's chosen activity palette (Ajustes › Palettes) stays applied too. */
+  protected readonly palette = inject(PaletteService);
   private readonly router = inject(Router);
   /** The installed app (service worker) has downloaded a newer version: offer to switch to it. */
   protected readonly updateReady = signal(false);
