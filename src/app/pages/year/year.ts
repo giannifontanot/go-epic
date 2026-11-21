@@ -6,7 +6,7 @@ import { I18n } from '../../core/i18n';
 import { daysBetween } from '../../core/period.model';
 import { dateKey } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
-import { Quarter, Season, YEAR_2027, placeOf, yearPlan } from '../../core/year.model';
+import { Quarter, Season, YEAR_2027, cleanDateName, placeOf, yearPlan } from '../../core/year.model';
 import { Ask } from '../../shared/ask';
 import { PageMenu } from '../../shared/title-fan';
 import { Undo } from '../../shared/undo';
@@ -182,6 +182,8 @@ export class Year {
   }
   protected save(): void {
     const key = this.editing();
+    // a name left blank on a named day goes through Remove (its question and countdown), never silently
+    if (key && !cleanDateName(this.draft()) && this.dates.dates().has(key)) { void this.remove(); return; }
     if (key) this.dates.set(key, this.draft());
     this.close();
   }

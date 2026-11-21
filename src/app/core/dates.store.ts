@@ -40,10 +40,10 @@ export class DatesStore {
     });
   }
 
-  /** Names a day (or renames it); a blank name removes it. */
+  /** Names a day (or renames it); a blank name changes nothing (removing goes through remove, after asking). */
   set(key: string, name: string): void {
     const clean = cleanDateName(name);
-    if (!clean) { this.remove(key); return; }
+    if (!clean) return;
     this.dates.update((map) => new Map(map).set(key, clean));
     const fb = firebase();
     const uid = this.auth.user()?.uid;
