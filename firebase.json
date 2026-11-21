@@ -8,13 +8,26 @@
     ],
     "rewrites": [
       {
+        "source": "/",
+        "destination": "/get/index.html"
+      },
+      {
         "source": "**",
-        "destination": "/index.html"
+        "destination": "/app.html"
       }
     ],
     "headers": [
       {
-        "source": "/index.html",
+        "source": "/app.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      },
+      {
+        "source": "/",
         "headers": [
           {
             "key": "Cache-Control",

@@ -9,6 +9,21 @@
     <!-- Each theme has its manifest (manifest-<theme>.webmanifest, core/theme.ts manifestFor): its colours become the
          installed app's, including Android's bottom bar, when Chrome next updates the app -->
     <link rel="manifest" href="manifest.webmanifest" />
+    <!-- The root "/" is the Get Go Epic page (firebase.json serves public/get/index.html there). This shell reaches
+         "/" only through the service worker; then a visitor who has never opened the app (not installed, no go-epic-*
+         key but the page's own language) goes to that page, and everyone else stays in the app. -->
+    <script>
+      try {
+        var installed = navigator.standalone === true || ['standalone', 'fullscreen', 'minimal-ui'].some(function (m) {
+          return matchMedia('(display-mode: ' + m + ')').matches;
+        });
+        var used = Object.keys(localStorage).some(function (k) { return k.indexOf('go-epic-') === 0 && k !== 'go-epic-get-lang'; });
+        if (location.pathname === '/' && !installed && !used && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
+          window.goEpicLeaving = true;
+          location.replace('/get/' + location.search + location.hash);
+        } else localStorage.setItem('go-epic-app', '1');
+      } catch (e) {}
+    </script>
     <!-- The theme chosen in Ajustes (core/theme.ts), set before the app starts so the page never flashes the other look -->
     <script>
       try {

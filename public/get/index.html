@@ -1,6 +1,7 @@
 <!doctype html>
 <!--
-  Get Go Epic: the promotional landing page (go-epic.web.app/get/), separate from the app itself (index.html).
+  Get Go Epic: the promotional landing page, served at the root "/" (firebase.json) and at /get/, separate from the
+  app itself (app.html, opened at /app). getgoepic.com/ is this page.
   A plain static page: no Angular, no Firebase, so it loads fast and search engines read it as it is.
   One screen, a carousel: Next / Back (or swipe, or ← →) steps through eight slides, and each one plays
   its own small motion on the phone. English in the HTML (for search engines); Spanish comes from the
@@ -18,11 +19,24 @@
   <title>Get Go Epic · Plan your week in blocks, live each day one step at a time</title>
   <meta name="description" content="Go Epic is a free planner app for your phone and computer: plan your week in time blocks, capture tasks in a second, grow streaks, and turn who you want to be into small daily steps. Works offline." />
   <meta name="keywords" content="Go Epic, weekly planner, time blocking app, habit tracker, streaks, task capture, life planner, daily routine, planner app free" />
-  <link rel="canonical" href="https://go-epic.web.app/get/" />
-  <link rel="alternate" hreflang="en" href="https://go-epic.web.app/get/" />
-  <link rel="alternate" hreflang="es" href="https://go-epic.web.app/get/?lang=es" />
-  <link rel="alternate" hreflang="x-default" href="https://go-epic.web.app/get/" />
+  <link rel="canonical" href="https://getgoepic.com/" />
+  <link rel="alternate" hreflang="en" href="https://getgoepic.com/" />
+  <link rel="alternate" hreflang="es" href="https://getgoepic.com/?lang=es" />
+  <link rel="alternate" hreflang="x-default" href="https://getgoepic.com/" />
   <meta name="robots" content="index, follow" />
+  <!-- At "/": the installed app, and anyone who has already opened the app in this browser (any go-epic-* key but this
+       page's language), go straight on to the app; visitors see this page. -->
+  <script>
+    try {
+      if (location.pathname === '/') {
+        var installed = navigator.standalone === true || ['standalone', 'fullscreen', 'minimal-ui'].some(function (m) {
+          return matchMedia('(display-mode: ' + m + ')').matches;
+        });
+        var used = Object.keys(localStorage).some(function (k) { return k.indexOf('go-epic-') === 0 && k !== 'go-epic-get-lang'; });
+        if (installed || used) location.replace('/app' + location.search + location.hash);
+      }
+    } catch (e) {}
+  </script>
   <meta name="theme-color" content="#fbfbfd" />
   <!-- the app's own manifest: installing from here installs the Go Epic app itself (start "/") -->
   <link rel="manifest" href="/manifest.webmanifest" />
@@ -35,8 +49,8 @@
   <meta property="og:site_name" content="Go Epic" />
   <meta property="og:title" content="Get Go Epic · Your week, in blocks you can live" />
   <meta property="og:description" content="Plan your week in time blocks, capture tasks in a second and watch your streaks grow. Free, on phone and desktop, works offline." />
-  <meta property="og:url" content="https://go-epic.web.app/get/" />
-  <meta property="og:image" content="https://go-epic.web.app/get/og-image.png" />
+  <meta property="og:url" content="https://getgoepic.com/" />
+  <meta property="og:image" content="https://getgoepic.com/get/og-image.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="The Go Epic emblem, a winged sword with a gold GO EPIC! ribbon, beside the name Go Epic!" />
@@ -45,7 +59,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Get Go Epic · Your week, in blocks you can live" />
   <meta name="twitter:description" content="Plan your week in time blocks, capture tasks in a second and watch your streaks grow. Free, on phone and desktop." />
-  <meta name="twitter:image" content="https://go-epic.web.app/get/og-image.png" />
+  <meta name="twitter:image" content="https://getgoepic.com/get/og-image.png" />
 
   <script type="application/ld+json">
   {
@@ -55,8 +69,8 @@
     "applicationCategory": "ProductivityApplication",
     "operatingSystem": "Android, iOS, Windows, macOS, ChromeOS, Linux (web app)",
     "description": "Plan your week in time blocks, capture tasks, track habits with streaks and organise your life from who you want to be down to today's small steps.",
-    "url": "https://go-epic.web.app/get/",
-    "image": "https://go-epic.web.app/get/og-image.png",
+    "url": "https://getgoepic.com/",
+    "image": "https://getgoepic.com/get/og-image.png",
     "inLanguage": ["en", "es"],
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
   }
@@ -623,7 +637,7 @@
         <option value="es" lang="es">Español</option>
       </select>
     </label>
-    <a class="dl-top js-get" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg><span class="sr" data-i="get_short">Download</span></a>
+    <a class="dl-top js-get" href="/app"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg><span class="sr" data-i="get_short">Download</span></a>
   </header>
 
   <main class="stage" id="tour" aria-roledescription="carousel" aria-label="Go Epic tour">
@@ -666,7 +680,7 @@
           <p class="kicker gold" data-i="k7">Ready?</p>
           <h2 data-i="h7">Your epic week starts now.</h2>
           <p class="lead" data-i="l7">Sign in with Google and add it to your home screen. Free, and it works offline.</p>
-          <a class="pill big js-get" href="/" data-i="get_long2">Download Go Epic, it's free</a>
+          <a class="pill big js-get" href="/app" data-i="get_long2">Download Go Epic, it's free</a>
           <p class="steps" data-i="steps"><b>iPhone:</b> Safari → Share → Add to Home Screen · <b>Android and computer:</b> Chrome → Install app</p>
         </section>
       </div>
@@ -865,7 +879,7 @@
     <ol class="install-steps"></ol>
     <div class="row">
       <button type="button" class="quiet install-close"></button>
-      <a class="pill install-open" href="/"></a>
+      <a class="pill install-open" href="/app"></a>
     </div>
   </dialog>
 
@@ -1258,7 +1272,7 @@
       sheet.querySelector('.install-steps').innerHTML = t[kind + 'S'].map(function (x) { return '<li>' + x + '</li>'; }).join('');
       sheet.querySelector('.install-open').textContent = t.open;
       sheet.querySelector('.install-close').textContent = t.close;
-      if (!sheet.showModal) { location.href = '/'; return; }
+      if (!sheet.showModal) { location.href = '/app'; return; }
       from = point; closing = false;
       sheet.getAnimations({ subtree: true }).forEach(function (a) { a.cancel(); });
       sheet.showModal();
