@@ -310,7 +310,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'year.begins.spring': { en: 'Spring begins', es: 'Empieza la primavera' },
   'year.begins.summer': { en: 'Summer begins', es: 'Empieza el verano' },
   'year.begins.autumn': { en: 'Autumn begins', es: 'Empieza el otoño' },
-  'year.legend': { en: 'Each row is a sprint of 3 weeks. Striped: rest and review week. ★ important date · ring: today · faded: days gone by · dot: the day the season begins.', es: 'Cada fila es un sprint de 3 semanas. Rayado: semana de descanso y revisión. ★ fecha importante · anillo: hoy · tenue: días que ya pasaron · punto: el día en que empieza la estación.' },
+  'year.legend': { en: 'Each line is a sprint of 3 weeks; the last one is the rest and review week. Green: days gone by · ring and dot: today · coloured border: important date · dot inside: the day the season begins. Hold a day and slide along the line to go from day to day.', es: 'Cada línea es un sprint de 3 semanas; la última es la semana de descanso y revisión. Verde: días que ya pasaron · anillo y punto: hoy · borde de color: fecha importante · punto adentro: el día en que empieza la estación. Mantén el dedo en un día y deslízalo por la línea para ir de día en día.' },
   'year.dates': { en: 'Important dates', es: 'Fechas importantes' },
   'year.noDates': { en: 'Tap any day to mark an important date.', es: 'Toca cualquier día para marcar una fecha importante.' },
   'year.name': { en: 'Important date', es: 'Fecha importante' },

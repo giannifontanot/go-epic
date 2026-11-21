@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, ElementRef, Injector, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
 import { eventDates, importPlan } from '../../core/calendar-import';
 import { DatesStore } from '../../core/dates.store';
 import { CalendarError, GoogleCalendar, GoogleCalendarService } from '../../core/google-calendar';
@@ -14,6 +14,14 @@ import { PageMenu } from '../../shared/title-fan';
 import { Undo } from '../../shared/undo';
 import { Why } from '../../shared/why';
 
+/** how long a finger rests on a line before the day's window comes (sliding along it brings it at once) */
+const HOLD_MS = 260;
+/** the window's date fading out as the next one fades in */
+const FADE_MS = 240;
+function reducedMotion(): boolean {
+  return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 /** The calendar imported last, offered first next time (this device only). */
 const LAST_CALENDAR_KEY = 'go-epic-calendar-import';
 function readLastCalendar(): string | null {
@@ -22,10 +30,11 @@ function readLastCalendar(): string | null {
 
 /**
  * The Year (Gianni): an informational screen, above all visual. 2027 as its 4 seasons, winter first, each a quarter
- * from the Monday nearest its solstice or equinox: 4 sprints of 3 weeks, one row each (3 weeks × 7 days, like Progress's
- * tracking grid), and a striped rest and review week. Today is ringed, past days fade, the day each season really begins
- * has a dot. Important dates live in Go Epic (DatesStore, users/{uid}/dates): a tap on any day names it, rewrites or
- * removes it; a named day carries a ★ and its name shows in the same window and in the list under the year.
+ * from the Monday nearest its solstice or equinox: 4 sprints of 3 weeks, each one line of 21 small days, and a rest and
+ * review week. Past days are green, today has a ring and a dot under it, the day each season really begins a dot inside.
+ * Important dates live in Go Epic (DatesStore, users/{uid}/dates): a finger held on a line (or sliding along it) opens a
+ * small window above the day and moves it from day to day, never past the sprint; there the day is named, renamed or
+ * removed. A named day has a border in the theme's accent and is listed under the year.
  * Optionally the dates of one Google calendar can be brought in (Import from Google Calendar, read only).
  */
 @Component({
@@ -58,24 +67,27 @@ function readLastCalendar(): string | null {
             @for (sprint of q.sprints; track sprint.n) {
               <div class="yr-row">
                 <h3 class="yr-label">{{ i18n.t('year.sprint', { n: sprint.n }) }} <span>{{ shortDate(sprint.weeks[0][0]) }}</span></h3>
-                <div class="yr-weeks">
-                  @for (week of sprint.weeks; track week[0]) {
-                    <ol class="yr-week">
-                      @for (date of week; track date) { <li><ng-container *ngTemplateOutlet="cell; context: { $implicit: date }" /></li> }
-                    </ol>
+                <!-- the sprint's 21 days on one line: touch a day and slide along it, the window follows (never past the sprint) -->
+                <ol class="yr-line" (pointerdown)="press($event)" (pointermove)="drag($event)" (pointerup)="lift($event)"
+                    (pointercancel)="drop($event)" (touchmove)="holdScroll($event)" (contextmenu)="$event.preventDefault()">
+                  @for (week of sprint.weeks; track week[0]; let wi = $index) {
+                    @for (date of week; track date; let di = $index) {
+                      <li [style.grid-column]="wi * 8 + di + 1"><ng-container *ngTemplateOutlet="cell; context: { $implicit: date }" /></li>
+                    }
                   }
-                </div>
+                </ol>
               </div>
             }
             @for (week of q.rest; track week[0]) {
               <div class="yr-row rest">
                 <h3 class="yr-label">{{ i18n.t('year.rest') }} <span>{{ shortDate(week[0]) }}</span></h3>
-                <div class="yr-weeks">
-                  <ol class="yr-week">
-                    @for (date of week; track date) { <li><ng-container *ngTemplateOutlet="cell; context: { $implicit: date }" /></li> }
-                  </ol>
-                  <span class="rest-mark" aria-hidden="true"></span>
-                </div>
+                <ol class="yr-line" (pointerdown)="press($event)" (pointermove)="drag($event)" (pointerup)="lift($event)"
+                    (pointercancel)="drop($event)" (touchmove)="holdScroll($event)" (contextmenu)="$event.preventDefault()">
+                  @for (date of week; track date; let di = $index) {
+                    <li [style.grid-column]="di + 1"><ng-container *ngTemplateOutlet="cell; context: { $implicit: date }" /></li>
+                  }
+                  <li class="rest-mark" aria-hidden="true"></li>
+                </ol>
               </div>
             }
           </section>
@@ -84,10 +96,9 @@ function readLastCalendar(): string | null {
       <ng-template #cell let-date>
         @let name = dates.dates().get(date);
         <button type="button" class="yr-cell" [class.past]="date < today()" [class.today]="date === today()" [class.astro]="astroDays.has(date)"
-                [class.named]="!!name" [class.month-start]="date.endsWith('-01')" [class.deleting]="undo.isPending('date:' + date)"
-                [attr.aria-label]="cellLabel(date, name)" [title]="cellLabel(date, name)" [attr.data-date]="date" (click)="openDay(date)">
-          @if (name) { <span aria-hidden="true">★</span> }
-        </button>
+                [class.named]="!!name" [class.picked]="date === editing()" [class.deleting]="undo.isPending('date:' + date)"
+                [attr.aria-label]="cellLabel(date, name)" [title]="cellLabel(date, name)" [attr.data-date]="date"
+                (click)="cellClick($event, date)" (keydown)="cellKey($event)"></button>
       </ng-template>
       <p class="muted year-legend">{{ i18n.t('year.legend') }}</p>
       <!-- the important dates of the year, in order: a tap opens the same window as the day -->
@@ -104,7 +115,7 @@ function readLastCalendar(): string | null {
           <ul>
             @for (d of named(); track d.date) {
               <li [attr.data-season]="d.season" [class.past]="d.date < today()" [class.deleting]="undo.isPending('date:' + d.date)">
-                <button type="button" (click)="openDay(d.date)"><span class="yd-star" aria-hidden="true">★</span><span class="yd-name">{{ d.name }}@if (d.imported) { <span class="yd-tag">Google</span> }</span><span class="yd-date">{{ longDate(d.date) }}</span></button>
+                <button type="button" (click)="openFromList(d.date)"><span class="yd-star" aria-hidden="true">★</span><span class="yd-name">{{ d.name }}@if (d.imported) { <span class="yd-tag">Google</span> }</span><span class="yd-date">{{ longDate(d.date) }}</span></button>
               </li>
             }
           </ul>
@@ -112,28 +123,35 @@ function readLastCalendar(): string | null {
           <p class="muted">{{ i18n.t('year.noDates') }}</p>
         }
       </section>
-      <dialog #editor class="info-card year-date" [attr.aria-labelledby]="'yd-title'" (click)="onBackdrop($event)">
+      <!-- the day's small window, above the day touched (top layer, not modal: the finger keeps sliding the line) -->
+      <div #pop popover="manual" class="yr-pop pop-window" [class.on]="!!editing()" role="dialog" aria-labelledby="yd-title"
+           [attr.data-season]="editing() ? placeSeason(editing()!) : null">
         @let key = editing();
         @if (key) {
           <form (submit)="$event.preventDefault(); save()">
-            <div class="info-head">
-              <h2 id="yd-title">{{ longDate(key) }}</h2>
+            <div class="yrp-head">
+              <div class="yrp-faces">
+                @for (f of faces(); track f.id) {
+                  <div class="yrp-face" [class.out]="f.out" [attr.aria-hidden]="f.out ? 'true' : null">
+                    <h2 [attr.id]="f.out ? null : 'yd-title'" tabindex="-1">{{ longDate(f.key) }}</h2>
+                    <p class="info-when yd-place" [attr.data-season]="placeSeason(f.key)">{{ placeLabel(f.key) }}</p>
+                    @if (dates.kept().get(f.key)?.calendar) { <p class="muted yd-imported">{{ i18n.t('gcal.importedNote') }}</p> }
+                  </div>
+                }
+              </div>
               <button type="button" class="round" [attr.aria-label]="i18n.t('week.infoClose')" [title]="i18n.t('week.infoClose')" (click)="close()">✕</button>
             </div>
-            <p class="info-when yd-place" [attr.data-season]="placeSeason(key)">{{ placeLabel(key) }}</p>
-            @if (dates.kept().get(key)?.calendar) { <p class="muted yd-imported">{{ i18n.t('gcal.importedNote') }}</p> }
             <label class="field yd-field">
               <span>{{ i18n.t('year.name') }}</span>
               <input #nameBox type="text" maxlength="80" [value]="draft()" (input)="draft.set(nameBox.value)" [placeholder]="i18n.t('year.namePlaceholder')" enterkeyhint="done" />
             </label>
             <div class="ask-actions yd-foot">
               @if (dates.dates().has(key)) { <button type="button" class="ask-cancel yd-remove" (click)="remove()">{{ i18n.t('year.remove') }}</button> }
-              <button type="button" class="ask-cancel" (click)="close()">{{ i18n.t('year.cancel') }}</button>
               <button type="submit" class="ask-ok">{{ i18n.t('year.save') }}</button>
             </div>
           </form>
         }
-      </dialog>
+      </div>
       <dialog #importer class="info-card year-import" aria-labelledby="gcal-title" (click)="onImportBackdrop($event)">
         <div class="info-head">
           <h2 id="gcal-title">{{ i18n.t('gcal.title') }}</h2>
@@ -205,9 +223,20 @@ export class Year {
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([date, name]) => ({ date, name, season: placeOf(this.plan, date)?.season ?? null, imported: !!this.dates.kept().get(date)?.calendar })));
 
-  private readonly editor = viewChild.required<ElementRef<HTMLDialogElement>>('editor');
+  private readonly popRef = viewChild.required<ElementRef<HTMLElement>>('pop');
+  /** the day the small window shows, null while it is closed */
   protected readonly editing = signal<string | null>(null);
   protected readonly draft = signal('');
+  /** the window's date as it changes while sliding: the old one fades out as the new one fades in (Gianni) */
+  protected readonly faces = signal<{ id: number; key: string; out: boolean }[]>([]);
+  private faceId = 0;
+  /** the finger (or mouse) on a sprint's line: it opens the window after a short hold, or at once when it slides along */
+  private touch: { id: number; line: HTMLElement; x0: number; y0: number; live: boolean; timer: number } | null = null;
+  private closing: Promise<void> | null = null;
+  /** the window is drawn and in place (false from the start of its closing) */
+  private shown = false;
+  private placing = 0;
+  private readonly destroyRef = inject(DestroyRef);
 
   // Importing from Google Calendar (optional): connect (a Google pop-up, read only), pick one calendar, import.
   private readonly gcal = inject(GoogleCalendarService);
@@ -284,34 +313,225 @@ export class Year {
       const cell = document.querySelector<HTMLElement>(`.yr-cell[data-date="${this.today()}"]`);
       cell?.closest('.yr-row')?.scrollIntoView({ block: 'center' });
     }, { injector: this.injector });
+    this.destroyRef.onDestroy(() => { this.listen(false); this.endTouch(); cancelAnimationFrame(this.placing); });
   }
 
-  protected openDay(date: string): void {
+  // ---- the day's window: touch a day, slide along the sprint, name it --------------------------------------------
+
+  /** A finger, pen or mouse goes down on a sprint's line. */
+  protected press(event: PointerEvent): void {
+    if (this.touch || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    const line = event.currentTarget as HTMLElement;
+    const touch = { id: event.pointerId, line, x0: event.clientX, y0: event.clientY, live: false, timer: 0 };
+    this.touch = touch;
+    if (event.pointerType === 'mouse') { event.preventDefault(); this.goLive(touch, event.clientX); return; }
+    // a finger holds a moment before the window comes, so a scroll that starts on a line stays a scroll
+    touch.timer = window.setTimeout(() => { if (this.touch === touch) { this.goLive(touch, touch.x0); this.buzz(); } }, HOLD_MS);
+  }
+  protected drag(event: PointerEvent): void {
+    const touch = this.touch;
+    if (!touch || event.pointerId !== touch.id) return;
+    if (!touch.live) {
+      const dx = Math.abs(event.clientX - touch.x0);
+      const dy = Math.abs(event.clientY - touch.y0);
+      if (dy > 10 && dy > dx) { this.endTouch(); return; }   // scrolling the page
+      if (dx > 8) this.goLive(touch, event.clientX);           // sliding along the line: the window comes at once
+      return;
+    }
+    this.pickAt(touch.line, event.clientX);
+  }
+  protected lift(event: PointerEvent): void {
+    const touch = this.touch;
+    if (!touch || event.pointerId !== touch.id) return;
+    if (!touch.live) this.pickAt(touch.line, event.clientX);   // a plain tap opens the day too
+    this.endTouch();
+  }
+  protected drop(event: PointerEvent): void {
+    if (this.touch?.id === event.pointerId) this.endTouch();
+  }
+  /** Once the window follows the finger, the page does not scroll under it. */
+  protected holdScroll(event: TouchEvent): void {
+    if (this.touch?.live && event.cancelable) event.preventDefault();
+  }
+  private goLive(touch: NonNullable<Year['touch']>, x: number): void {
+    clearTimeout(touch.timer);
+    touch.live = true;
+    try { touch.line.setPointerCapture(touch.id); } catch { /* the pointer may be gone already */ }
+    this.pickAt(touch.line, x);
+  }
+  private endTouch(): void {
+    if (this.touch) clearTimeout(this.touch.timer);
+    this.touch = null;
+  }
+  private buzz(): void {
+    try { navigator.vibrate?.(8); } catch { /* not every phone */ }
+  }
+  /** The day of this line nearest to x (the first or the last past its ends: sliding stops at the sprint). */
+  private pickAt(line: HTMLElement, x: number): void {
+    const cells = [...line.querySelectorAll<HTMLElement>('.yr-cell[data-date]')];
+    let best: HTMLElement | null = null;
+    let gap = Infinity;
+    for (const cell of cells) {
+      const r = cell.getBoundingClientRect();
+      const d = Math.abs(r.left + r.width / 2 - x);
+      if (d < gap) { gap = d; best = cell; }
+    }
+    const date = best?.dataset['date'];
+    if (!date) return;
+    if (date !== this.editing() && this.editing()) this.buzz();
+    this.show(date);
+  }
+
+  /** Keyboard (Enter, Space): the same window; a pointer's click was already handled by the line. */
+  protected cellClick(event: MouseEvent, date: string): void {
+    if (event.detail !== 0) return;
+    this.show(date);
+    afterNextRender(() => this.popRef().nativeElement.querySelector<HTMLElement>('#yd-title')?.focus(), { injector: this.injector });
+  }
+  /** ← → move along the sprint's line (and the window with them, when it is open). */
+  protected cellKey(event: KeyboardEvent): void {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    const cell = event.currentTarget as HTMLElement;
+    const cells = [...(cell.closest('.yr-line')?.querySelectorAll<HTMLElement>('.yr-cell') ?? [])];
+    const next = cells[cells.indexOf(cell) + (event.key === 'ArrowRight' ? 1 : -1)];
+    if (!next) return;
+    event.preventDefault();
+    next.focus();
+    if (this.editing() && next.dataset['date']) this.show(next.dataset['date']);
+  }
+  /** A date of the list: its line comes to the middle of the screen and the window opens on it. */
+  protected openFromList(date: string): void {
+    const cell = this.cellOf(date);
+    cell?.closest('.yr-row')?.scrollIntoView({ block: 'center', behavior: reducedMotion() ? 'auto' : 'smooth' });
+    this.show(date);
+  }
+
+  private cellOf(date: string): HTMLElement | null {
+    return document.querySelector<HTMLElement>(`.yr-cell[data-date="${date}"]`);
+  }
+
+  /** Opens the window on a day, or moves it there: its date fades out and the new one fades in. */
+  private show(date: string): void {
+    const was = this.editing();
+    const wasClosing = !!this.closing;
+    if (was === date && !wasClosing) return;
+    this.closing = null;
     this.editing.set(date);
     this.draft.set(this.dates.dates().get(date) ?? '');
-    const d = this.editor().nativeElement;
-    if (!d.open) openDialog(d);
+    const id = ++this.faceId;
+    this.faces.update((list) => [...list.filter((f) => !f.out).map((f) => ({ ...f, out: true })), { id, key: date, out: false }]);
+    setTimeout(() => this.faces.update((list) => list.filter((f) => !f.out || f.id > id)), FADE_MS);
+    const pop = this.popRef().nativeElement;
+    if (wasClosing) this.shown = false;
+    afterNextRender(() => {
+      if (this.editing() !== date) return;
+      // decided here, not when the day was picked: a quick slide can pick several days before the first render
+      if (!this.shown) {
+        this.shown = true;
+        pop.getAnimations().forEach((a) => a.cancel());
+        pop.classList.add('still');
+        if (!pop.matches(':popover-open')) try { pop.showPopover(); } catch { /* no popover: drawn fixed anyway */ }
+        this.place();
+        this.listen();
+        void pop.offsetWidth;
+        pop.classList.remove('still');
+        if (!reducedMotion() && typeof pop.animate === 'function') {
+          pop.animate([{ opacity: 0, scale: '.86', translate: '0 10px' }, { opacity: 1, scale: '1', translate: '0 0' }],
+            { duration: 240, easing: 'cubic-bezier(0, 0, .6, 1)' });
+        }
+      } else {
+        this.place();
+      }
+    }, { injector: this.injector });
   }
-  protected close(): void {
-    void closeDialog(this.editor().nativeElement).then(() => this.editing.set(null));
+
+  /** Above the day (below it when there is no room), inside the visible screen, the keyboard included. */
+  private place(): void {
+    const key = this.editing();
+    const pop = this.popRef().nativeElement;
+    const cell = key ? this.cellOf(key) : null;
+    if (!cell) return;
+    const r = cell.getBoundingClientRect();
+    const vv = window.visualViewport;
+    const top0 = vv?.offsetTop ?? 0;
+    const height = vv?.height ?? window.innerHeight;
+    const width = document.documentElement.clientWidth;
+    const w = pop.offsetWidth;
+    const h = pop.offsetHeight;
+    const cx = r.left + r.width / 2;
+    const left = Math.min(Math.max(8, cx - w / 2), Math.max(8, width - w - 8));
+    let top = r.top - h - 16;
+    let side = 'above';
+    if (top < top0 + 8) { top = r.bottom + 16; side = 'below'; }
+    top = Math.max(top0 + 8, Math.min(top, top0 + height - h - 8));
+    pop.style.left = `${left}px`;
+    pop.style.top = `${top}px`;
+    pop.style.setProperty('--tail-x', `${Math.min(Math.max(22, cx - left), w - 22)}px`);
+    pop.dataset['side'] = side;
   }
-  protected onBackdrop(event: MouseEvent): void {
-    if (isBackdropClick(event, this.editor().nativeElement)) this.close();
+  private schedulePlace = (): void => {
+    if (this.placing) return;
+    this.placing = requestAnimationFrame(() => { this.placing = 0; this.place(); });
+  };
+  /** A tap outside the window and the lines, or Esc, closes it; scrolling and the keyboard move it. */
+  private outside = (event: PointerEvent): void => {
+    const target = event.target as Element | null;
+    if (target?.closest('.yr-pop, .yr-line')) return;
+    this.close();
+  };
+  private escape = (event: KeyboardEvent): void => {
+    if (event.key === 'Escape' && this.editing()) { event.preventDefault(); this.close(); }
+  };
+  private listening = false;
+  private listen(on = true): void {
+    if (on === this.listening) return;
+    this.listening = on;
+    const method = on ? 'addEventListener' : 'removeEventListener';
+    document[method]('pointerdown', this.outside as EventListener, true);
+    document[method]('keydown', this.escape as EventListener);
+    window[method]('scroll', this.schedulePlace, true);
+    window[method]('resize', this.schedulePlace);
+    window.visualViewport?.[method]('resize', this.schedulePlace);
+    window.visualViewport?.[method]('scroll', this.schedulePlace);
+  }
+
+  protected close(): Promise<void> {
+    if (!this.editing()) return Promise.resolve();
+    if (this.closing) return this.closing;
+    const pop = this.popRef().nativeElement;
+    const key = this.editing();
+    this.shown = false;
+    const done = () => {
+      if (this.closing !== run || this.editing() !== key) return;
+      this.closing = null;
+      this.listen(false);
+      try { if (pop.matches(':popover-open')) pop.hidePopover(); } catch { /* no popover */ }
+      this.editing.set(null);
+      this.faces.set([]);
+    };
+    const back = pop.contains(document.activeElement) ? this.cellOf(key!) : null;
+    back?.focus({ preventScroll: true });
+    const run: Promise<void> = reducedMotion() || typeof pop.animate !== 'function'
+      ? Promise.resolve().then(done)
+      : pop.animate([{ opacity: 1, scale: '1', translate: '0 0' }, { opacity: 0, scale: '.86', translate: '0 10px' }],
+          { duration: 200, easing: 'cubic-bezier(.4, 0, 1, 1)', fill: 'forwards' }).finished.then(done, done)
+        .then(() => pop.getAnimations().forEach((a) => a.cancel()));
+    this.closing = run;
+    return run;
   }
   protected save(): void {
     const key = this.editing();
     // a name left blank on a named day goes through Remove (its question and countdown), never silently
     if (key && !cleanDateName(this.draft()) && this.dates.dates().has(key)) { void this.remove(); return; }
     if (key) this.dates.set(key, this.draft());
-    this.close();
+    void this.close();
   }
   /** A second chance, as every delete (Undo): the question window counts down before the date goes. */
   protected async remove(): Promise<void> {
     const key = this.editing();
     const name = key ? this.dates.dates().get(key) : undefined;
     if (!key || !name) return;
-    await closeDialog(this.editor().nativeElement);
-    this.editing.set(null);
+    await this.close();
     await this.ask.ask({
       message: this.i18n.t('year.removeAsk', { name }),
       ok: this.i18n.t('year.remove'),
