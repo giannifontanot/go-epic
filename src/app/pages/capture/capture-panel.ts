@@ -109,6 +109,14 @@ import { TodoDialog, TodoSave } from './todo-dialog';
       }
       </div>
       <!-- inside the panel: the App's note would sit under this modal window, out of reach (Undo) -->
+      <!-- a round × that floats at the foot of the window, where the 💡 that opened it sits, and closes it (Gianni) -->
+      <div class="capture-dock">
+        <button type="button" class="capture-fab dock-close" [attr.aria-label]="i18n.t('nav.close')" [title]="i18n.t('nav.close')" (click)="close()">
+          <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>
+          </svg>
+        </button>
+      </div>
     </dialog>
     @if (editingTodo(); as todo) {
       <app-todo-dialog [todo]="todo" (save)="saveTodo($event)" (closed)="editingTodo.set(null)" />

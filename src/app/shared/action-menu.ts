@@ -10,11 +10,11 @@ import { ThemePicker } from './theme-fan';
 export type { MenuAction };
 
 /**
- * One round button at the bottom right of every page (Gianni: so the screen is not full of buttons; it also replaced
- * the ☰ menu; a panel ordered the actions by how often each is used). A tap stacks the actions above it, each sliding
- * up out of it, the nearest first, as the themes fan out: 💡 Capture (one window: a new task with its repeat days, day
- * and hour over the Current and Finished lists; Gianni merged New task into it and took the pages' 💡 away),
- * the day overview, ✎ Edit (the page's own: the Week board arranges the week, the Canvas opens its edit bar; a page with
+ * Two round buttons at the bottom right of every page (Gianni: so the screen is not full of buttons; they also replaced
+ * the ☰ menu): the lowest is 💡 Capture (one window: a new task with its repeat days, day and hour over the Current and
+ * Finished lists; Gianni merged New task into it and took the pages' 💡 away), and right above it the menu (four
+ * squares; a panel ordered its actions by how often each is used). A tap on the menu stacks its actions above it, each
+ * sliding up out of it, the nearest first, as the themes fan out: the day overview, ✎ Edit (the page's own: the Week board arranges the week, the Canvas opens its edit bar; a page with
  * nothing to edit shows the Themes in its place, Gianni: what the edit tools hold that applies there), the
  * pages and ⚙ Ajustes on top; on a short screen they go on in a second column. A tap on an action closes the menu and runs it (the
  * pages keep it open while their list is out); the button again, a tap outside or Esc draw them back in. Under reduced
@@ -26,10 +26,6 @@ export type { MenuAction };
   template: `
     @if (open()) { <div class="action-veil" aria-hidden="true" (click)="close()"></div> }
     <div id="action-stack" class="action-stack" [class.open]="open()" role="group" [attr.aria-label]="i18n.t('nav.actions')">
-      <!-- 💡 Capture (Gianni): one window with the new task (its repeat days, day and hour) over the Current and Finished
-           lists; first from the bottom, no words beside it -->
-      <button type="button" class="capture-fab act-fab idea-fab" [style.--i]="index().capture" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')"
-              (click)="run(openCapture)"><span aria-hidden="true">💡</span></button>
       @if (ready()) {
         <button type="button" class="capture-fab act-fab" [style.--i]="index().overview" [attr.aria-label]="i18n.t('week.overview')" [title]="i18n.t('week.overview')"
                 (click)="run(showOverview)">
@@ -81,6 +77,10 @@ export type { MenuAction };
         </svg>
       }
     </button>
+    <!-- 💡 Capture, its own round button under the menu's (Gianni: two buttons at the foot, the bulb the lowest): one
+         window with the new task (its repeat days, day and hour) over the Current and Finished lists; no words -->
+    <button type="button" class="capture-fab idea-fab" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')"
+            (click)="run(openCapture)"><span aria-hidden="true">💡</span></button>
     <app-day-overview />
   `,
   host: { '(document:keydown.escape)': 'onEscape()' },
@@ -100,11 +100,10 @@ export class ActionMenu {
   /** Each action's place from the bottom (0 = just above the round button), for its slide and its delay. */
   protected readonly index = computed(() => {
     let i = 0;
-    const capture = i++;
     const overview = this.ready() ? i++ : -1;
     const edit = i++;   // ✎ Edit, or the Themes where the page has nothing to edit
     const pages = i++;
-    return { capture, overview, edit, pages, settings: i };
+    return { overview, edit, pages, settings: i };
   });
 
   protected toggle(): void {
