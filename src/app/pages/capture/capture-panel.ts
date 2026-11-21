@@ -6,14 +6,16 @@ import { I18n } from '../../core/i18n';
 import { paperAge } from '../../core/library.model';
 import { Todo, doneOnDate, repeats } from '../../core/todo.model';
 import { TodoStore } from '../../core/todo.store';
-import { dateKey } from '../../core/week.model';
+import { DAYS, Day, dateKey, parseClock } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
 import { CaptureUi } from './capture-ui';
 import { TodoDialog, TodoSave } from './todo-dialog';
 
 /**
- * Capture = tasks (Gianni): one-off to-dos, not Activities. The action menu's 💡 (or a page's 💡) opens the panel
- * without putting the cursor in the box (you may only want to look); tap the box, type and press Enter, as many as you like; each new task is for today, any hour. The panel
+ * Capture = tasks (Gianni): one-off to-dos, not Activities. The action menu's 💡 opens this one window (Gianni merged
+ * New task into it) without putting the cursor in the box (you may only want to look): on top the new task's box, its
+ * repeat days, day and hour (today, any hour, no repeat to start with); tap the box, type and press Enter, as many as
+ * you like. Under them the panel
  * lists the open tasks soonest first, on aged paper tinted with their colour, under the Current tab; ☐ checks one (it moves to
  * the Finished tab, where ☑ opens it again), ✎ sets its name, day and hour, ✕ deletes it (asks first). In the Week a task
  * shows over the activity running at its hour (todo.model `pinTodos`).
@@ -26,12 +28,29 @@ import { TodoDialog, TodoSave } from './todo-dialog';
         <h2 id="capture-title" tabindex="-1">{{ i18n.t('capture.title') }}</h2>
         <button type="button" class="drawer-close" [attr.aria-label]="i18n.t('nav.close')" (click)="close()">×</button>
       </header>
+      <!-- One window (Gianni): the new task with its repeat days, day and hour on top, the lists under them. Enter or
+           Add saves it; the day starts on today, the hour empty (any time that day), no repeat -->
       <form class="capture-add" (submit)="$event.preventDefault(); add(input)">
-        <input #input type="text" enterkeyhint="send" autocomplete="off" [placeholder]="i18n.t('capture.placeholder')"
-          [attr.aria-label]="i18n.t('capture.placeholder')" [disabled]="!todos.ready()" />
-        <button type="submit" class="primary" [disabled]="!todos.ready()">{{ i18n.t('capture.add') }}</button>
+        <div class="capture-line">
+          <input #input type="text" enterkeyhint="send" autocomplete="off" [placeholder]="i18n.t('capture.placeholder')"
+            [attr.aria-label]="i18n.t('capture.placeholder')" [disabled]="!todos.ready()" />
+          <button type="submit" class="primary" [disabled]="!todos.ready()">{{ i18n.t('capture.add') }}</button>
+        </div>
+        <div class="repeat-days" role="group" [attr.aria-label]="i18n.t('capture.repeat')">
+          @for (d of days; track d) {
+            <button type="button" class="repeat-day" [class.on]="repeat().includes(d)" [attr.aria-pressed]="repeat().includes(d)"
+                    [attr.aria-label]="i18n.t('capture.repeat') + ': ' + i18n.t('day.' + d)" [title]="i18n.t('day.' + d)" (click)="toggleDay(d)">{{ i18n.t('dayMini.' + d) }}</button>
+          }
+        </div>
+        <div class="row2 capture-when">
+          @if (!repeat().length) {
+            <label class="field">{{ i18n.t('capture.day') }}
+              <input type="date" [value]="date()" (input)="date.set($any($event.target).value)" /></label>
+          }
+          <label class="field">{{ i18n.t('capture.hour') }}
+            <input type="time" step="60" [value]="time()" (input)="time.set($any($event.target).value)" /></label>
+        </div>
       </form>
-      <p class="hint">{{ i18n.t('capture.inboxHint') }}</p>
       @if (todos.error()) { <p class="app-error" role="alert">{{ i18n.t('saveFailed') }}: {{ todos.error() }}</p> }
       <!-- Two tabs (Gianni): the current tasks and the finished ones, one tap apart; Current by default -->
       <div class="capture-tabs" role="tablist" [attr.aria-label]="i18n.t('capture.title')">
@@ -119,6 +138,23 @@ export class CapturePanel {
     this.tab.set(to);
     (event.currentTarget as HTMLElement).parentElement?.querySelector<HTMLElement>(to === 'open' ? '#c-tab-open' : '#c-tab-finished')?.focus();
   }
+  /** The new task's repeat days (Mo…Su), day and hour; back to today, any hour and no repeat on opening and after each one. */
+  protected readonly days = DAYS;
+  protected readonly repeat = signal<Day[]>([]);
+  protected readonly date = signal('');
+  protected readonly time = signal('');
+  /** A day on or off; kept in week order. */
+  protected toggleDay(day: Day): void {
+    const on = new Set(this.repeat());
+    if (!on.delete(day)) on.add(day);
+    this.repeat.set(DAYS.filter((d) => on.has(d)));
+  }
+  private resetNew(): void {
+    this.repeat.set([]);
+    this.date.set(dateKey(this.week.now()));
+    this.time.set('');
+  }
+
   /** The task whose day and hour are being set (✎). */
   protected readonly editingTodo = signal<Todo | null>(null);
 
@@ -129,6 +165,7 @@ export class CapturePanel {
       untracked(() => {
         const d = this.panel().nativeElement;
         if (open && !d.open) {
+          this.resetNew();
           this.followViewport(d);
           openDialog(d);
           // No cursor in the box on opening (Gianni): you may only want to look at the tasks; a tap on the box writes.
@@ -208,11 +245,20 @@ export class CapturePanel {
     if (isBackdropClick(event, this.panel().nativeElement)) this.close();
   }
 
-  /** Enter: a new task for today (any hour); the box empties and keeps the cursor for the next one. */
+  /**
+   * Enter or Add: the new task with the repeat days, day and hour chosen above it (a repeating one has no date; no day
+   * = today, an empty hour = any time that day). The box empties and keeps the cursor for the next one, the choices go
+   * back to today, any hour, no repeat, and the Current tab shows it.
+   */
   protected add(input: HTMLInputElement): void {
     if (!input.value.trim()) return;
-    this.todos.add(input.value, dateKey(this.week.now()));
+    const repeat = this.repeat();
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(this.date()) ? this.date() : dateKey(this.week.now());
+    const time = parseClock(this.time()) !== null ? this.time() : null;
+    this.todos.add(input.value, repeat.length ? null : date, time, repeat);
     input.value = '';
+    this.resetNew();
+    this.tab.set('open');
     input.focus();
   }
 

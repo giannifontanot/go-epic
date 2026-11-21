@@ -3,8 +3,6 @@ import { I18n } from '../core/i18n';
 import { TodoStore } from '../core/todo.store';
 import { WeekStore } from '../core/week.store';
 import { CaptureUi, MenuAction } from '../pages/capture/capture-ui';
-import { TodoDialog, TodoSave } from '../pages/capture/todo-dialog';
-import { Todo } from '../core/todo.model';
 import { DayOverview } from './day-overview';
 import { PageFan } from './page-fan';
 import { ThemePicker } from './theme-fan';
@@ -14,8 +12,8 @@ export type { MenuAction };
 /**
  * One round button at the bottom right of every page (Gianni: so the screen is not full of buttons; it also replaced
  * the ☰ menu; a panel ordered the actions by how often each is used). A tap stacks the actions above it, each sliding
- * up out of it, the nearest first, as the themes fan out: New task (a square with a plus: one task with its day, hour and
- * repeat days; the pages' 💡 opens Capture's lists, Gianni),
+ * up out of it, the nearest first, as the themes fan out: 💡 Capture (one window: a new task with its repeat days, day
+ * and hour over the Current and Finished lists; Gianni merged New task into it and took the pages' 💡 away),
  * the day overview, ✎ Edit (the page's own: the Week board arranges the week, the Canvas opens its edit bar; a page with
  * nothing to edit shows the Themes in its place, Gianni: what the edit tools hold that applies there), the
  * pages and ⚙ Ajustes on top; on a short screen they go on in a second column. A tap on an action closes the menu and runs it (the
@@ -24,17 +22,14 @@ export type { MenuAction };
  */
 @Component({
   selector: 'app-action-menu',
-  imports: [PageFan, DayOverview, TodoDialog],
+  imports: [PageFan, DayOverview],
   template: `
     @if (open()) { <div class="action-veil" aria-hidden="true" (click)="close()"></div> }
     <div id="action-stack" class="action-stack" [class.open]="open()" role="group" [attr.aria-label]="i18n.t('nav.actions')">
-      <!-- New task (Gianni): one task with its day, hour and repeat days; Capture's lists open from the pages' 💡 -->
-      <button type="button" class="capture-fab act-fab" [style.--i]="index().capture" [attr.aria-label]="i18n.t('capture.new')" [title]="i18n.t('capture.new')"
-              [disabled]="!ready()" (click)="run(newTask)">
-        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8.5v7M8.5 12h7"/>
-        </svg>
-      </button>
+      <!-- 💡 Capture (Gianni): one window with the new task (its repeat days, day and hour) over the Current and Finished
+           lists; first from the bottom, no words beside it -->
+      <button type="button" class="capture-fab act-fab idea-fab" [style.--i]="index().capture" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')"
+              (click)="run(openCapture)"><span aria-hidden="true">💡</span></button>
       @if (ready()) {
         <button type="button" class="capture-fab act-fab" [style.--i]="index().overview" [attr.aria-label]="i18n.t('week.overview')" [title]="i18n.t('week.overview')"
                 (click)="run(showOverview)">
@@ -87,9 +82,6 @@ export type { MenuAction };
       }
     </button>
     <app-day-overview />
-    @if (adding(); as todo) {
-      <app-todo-dialog [todo]="todo" [isNew]="true" (save)="save($event)" (closed)="adding.set(null)" />
-    }
   `,
   host: { '(document:keydown.escape)': 'onEscape()' },
 })
@@ -145,11 +137,7 @@ export class ActionMenu {
     action();
   }
   protected readonly showOverview = () => this.overviewWindow().open();
-  protected readonly adding = signal<Todo | null>(null);
-  protected readonly newTask = () =>
-    this.adding.set({ id: '', title: '', date: this.week.todayKey(), time: null, done: null, created: Date.now(), repeat: [], doneOn: {} });
-  protected save(change: TodoSave): void {
-    this.todos.add(change.title, change.repeat.length ? null : change.date, change.time, change.repeat);
-  }
+  /** 💡: Capture's one window (a new task with its repeat days, day and hour, over the Current and Finished lists). */
+  protected readonly openCapture = () => this.capture.open.set(true);
   protected readonly openSettings = () => this.capture.settings.set(true);
 }

@@ -1,4 +1,3 @@
-import { CaptureUi } from '../capture/capture-ui';
 import { PageMenu } from '../../shared/title-fan';
 import { NgTemplateOutlet } from '@angular/common';
 import { BalanceView } from './balance-view';
@@ -34,10 +33,7 @@ function readTab(): 'streaks' | 'balance' {
   imports: [NgTemplateOutlet, BalanceView],
   template: `
     <section class="progress-page">
-      <header class="board-top progress-top"><h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')" (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('progress.title') }}<span class="title-chev" aria-hidden="true">⌄</span></button></h1>
-        <!-- 💡 Capture's lists, at the top right as on the other pages (Gianni) -->
-        <button type="button" class="round idea" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')" (click)="captureUi.open.set(true)">💡</button>
-      </header>
+      <header class="board-top progress-top"><h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')" (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('progress.title') }}<span class="title-chev" aria-hidden="true">⌄</span></button></h1></header>
       <!-- two views (Gianni): Consistency (the streaks) and Areas of life (the radar) -->
       <!-- changing tab is soft (Gianni): the bar glides with a small bounce and the view slides in from that side -->
       <div class="seg progress-tabs" role="tablist" [attr.aria-label]="i18n.t('progress.tabs')" [style.--tab-i]="tab() === 'balance' ? 1 : 0">
@@ -134,7 +130,6 @@ function readTab(): 'streaks' | 'balance' {
 export class Progress {
   protected readonly i18n = inject(I18n);
   protected readonly pageMenu = inject(PageMenu);
-  protected readonly captureUi = inject(CaptureUi);
   protected readonly store = inject(WeekStore);
   private readonly auth = inject(AuthService);
   protected readonly history = signal<Record<string, DayMarks>>({});

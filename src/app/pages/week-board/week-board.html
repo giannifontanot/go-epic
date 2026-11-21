@@ -1,9 +1,8 @@
 <section #board class="board" (touchstart)="swipeStart($event)" (touchend)="swipeEnd($event)" (touchcancel)="swipeCancel()" [class.locked]="!arranging()" [class.spot]="spotlight()" [class.has-tray]="trayItems().length > 0" [class.tray-folded]="trayFolded()">
   <!-- why a move or a drop was refused (no room in that block): a short note that fades by itself -->
   @if (notice()) { <p class="board-notice" role="status">{{ notice() }}</p> }
-  <!-- Title and 💡 Capture at the right; while arranging ✓ Finish takes the 💡's place (Capture's tasks are hidden then
-       anyway, and the menu still opens Capture), so edit mode costs no extra row (Gianni: the top took too much room).
-       The floating ✎ arranges the week. -->
+  <!-- The title; while arranging ✓ Finish sits at its right, so edit mode costs no extra row (Gianni: the top took too
+       much room). Capture opens from the round menu's 💡; the floating ✎ arranges the week. -->
   <!-- The title and the day chips stay at the top (Gianni): only the blocks scroll under them; while arranging the edit bar stays with them -->
   <div class="board-head">
   <header class="board-top week-top">
@@ -11,8 +10,6 @@
     <span></span>
     @if (arranging()) {
       <button type="button" class="chip quiet on finish" (click)="toggleArrange()">✓ {{ i18n.t('week.finish') }}</button>
-    } @else {
-      <button type="button" class="round idea" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')" (click)="capture.open.set(true)">💡</button>
     }
   </header>
 

@@ -10,7 +10,6 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'capture.title': { en: 'Capture', es: 'Capturar' },
   'capture.open': { en: 'Capture a task', es: 'Capturar una tarea' },
   'capture.placeholder': { en: 'A task… (Enter)', es: 'Una tarea… (Enter)' },
-  'capture.inboxHint': { en: 'Each task has a day and, if you like, an hour: in the Week it shows over the activity at that hour.', es: 'Cada tarea tiene un día y, si quieres, una hora: en la Semana se muestra sobre la actividad de esa hora.' },
   'capture.empty': { en: 'No tasks pending. Write one above.', es: 'No hay tareas pendientes. Escribe una arriba.' },
   'capture.current': { en: 'Current', es: 'Actuales' },
   'capture.finished': { en: 'Finished', es: 'Finalizadas' },
