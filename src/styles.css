@@ -420,6 +420,13 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 .update-card p { margin: 0; font-family: Georgia, serif; font-size: 24px; line-height: 1.25; }
 .update-changes { text-align: start; max-height: min(40vh, 300px); overflow-y: auto; overscroll-behavior: contain; }
 .update-changes h2 { margin: 0 0 8px; font-size: 14px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: inherit; opacity: .8; }
+.update-nav { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; gap: 8px; margin: 0 0 10px; }
+.update-step { width: 44px; height: 44px; padding: 0; border: 1px solid var(--win-edge); border-radius: 50%; background: transparent;
+  color: inherit; font-size: 24px; line-height: 1; cursor: pointer; }
+.update-step:disabled { opacity: .3; cursor: default; }
+.update-version { margin: 0; font-size: 15px; font-weight: 700; line-height: 1.3; text-align: center; }
+.update-new-tag { display: inline-block; margin-inline-start: 6px; padding: 1px 8px; border: 1px solid currentColor; border-radius: 999px;
+  font-size: 12px; font-weight: 700; opacity: .85; }
 .update-changes ul { margin: 0; padding-inline-start: 22px; display: grid; gap: 8px; }
 .update-changes li { font-size: 16px; line-height: 1.35; }
 .update-button { min-height: 96px; padding: 0 20px; border: 0; border-radius: 24px; background: var(--pink);
@@ -536,21 +543,23 @@ dialog.capture-panel { margin: calc(var(--vv-top, 0px) + max(12px, env(safe-area
   height: calc(var(--vv-h, 100dvh) - max(12px, env(safe-area-inset-top)) - max(12px, env(safe-area-inset-bottom)));
   padding: 0; border: 0; border-radius: 22px;
   background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; overflow: hidden; }
-/* its contents scroll inside the still window; the room at the foot keeps the corner × off the last task */
+/* its contents scroll inside the still window; the room at the foot keeps the corner Close off the last task */
 dialog.capture-panel .capture-scroll { height: 100%; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain;
   padding: 18px 18px calc(18px + 56px); }
 dialog.capture-panel .capture-x { --tap: 40px; flex: none; }
-/* the thumb's × (Gianni): always in the window's bottom-right corner, over the list as it scrolls */
-dialog.capture-panel .capture-x-foot { position: absolute; right: 14px; bottom: 14px; z-index: 2; box-shadow: 0 4px 14px #0006; }
+/* the thumb's Close (Gianni): the other windows' Close button, always in the window's bottom-right corner, over the list */
+dialog.capture-panel .capture-close-foot { position: absolute; right: 14px; bottom: 14px; z-index: 2; box-shadow: 0 4px 14px #0006; }
 dialog.capture-panel::backdrop, dialog.editor::backdrop, dialog.transfer::backdrop { background: rgba(4, 9, 30, .55); }
 dialog.capture-panel header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 dialog.capture-panel h2 { margin: 0; font-size: 22px; }
 /* One window (Gianni): the new task's box and Add, its repeat days, then day and hour, over the Current / Finished tabs */
-.capture-add { margin-bottom: 12px; }
+/* everything about adding a task is one group with a thin line around it, like the activity's two ways (Gianni) */
+.capture-add { margin-bottom: 14px; padding: 12px; border: 1.5px solid color-mix(in srgb, var(--ink) 30%, transparent); border-radius: 20px; }
 .capture-line { display: flex; gap: 8px; margin-bottom: 10px; }
 /* the seven repeat days keep their 40px taps: one row from a 360px phone (a narrower panel padding and 3px gaps), two on the narrowest */
 .capture-add .repeat-days { justify-content: space-between; gap: 3px; margin: 0 0 10px; }
-@media (max-width: 400px) { dialog.capture-panel .capture-scroll { padding-inline: 12px; } }
+/* the seven repeat days still fit one row inside the group on a 360px phone */
+@media (max-width: 400px) { dialog.capture-panel .capture-scroll { padding-inline: 8px; } .capture-add { padding: 10px 8px; } }
 .capture-add .capture-when .field { margin-bottom: 0; }
 .capture-line input, .c-edit { flex: 1; min-width: 0; min-height: 44px; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px; background: var(--page); color: var(--ink); font-size: 16px; }
 /* The box for a new task always shows its blue border, so it reads as a box at a glance; tapped, it turns stronger with a ring (Gianni) */
@@ -652,7 +661,7 @@ dialog.info-card.track-grid[open] { display: flex; flex-direction: column; overf
 @property --tilt-r { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
 @property --tilt-k { syntax: '<number>'; inherits: true; initial-value: 0; }
 html.tilt { transition: --tilt-r .55s cubic-bezier(.34, 1.4, .64, 1), --tilt-k .55s cubic-bezier(.34, 1.4, .64, 1); }
-html.tilt button { rotate: var(--tilt-r);
+html.tilt button:not(.yr-cell) { rotate: var(--tilt-r);
   translate: calc((max(var(--tilt-k), 0) * var(--tilt-rr, 0px) + min(var(--tilt-k), 0) * var(--tilt-rl, 0px)) * .55) 0; }
 /* Everything has weight (Gianni): blocks, day columns, cards, titles and texts, fields, notes, habits and Canvas
    objects lean and slide too, less than the buttons since they nest (a title leans inside its leaning card, inside its
@@ -1719,20 +1728,43 @@ html[data-theme='graphite'] {
   --note-0: #d0d0d0; --note-1: #c4c4c4; --note-2: #b9b9b9; --note-3: #aeaeae;
   --act-ink: #f4f5f6; --act-off: #4c4c4c;
 }
-/* Go Epic: a white (navy) card with a hairline and its colour as a left edge, everywhere an activity is drawn; Done,
-   Late and inactive cards keep their own looks */
-html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity) {
+/* Ajustes › Palettes › Only the edge (<html data-edge>, core/palette.ts; on by default in the Go Epic themes): a plain card
+   with a hairline and its colour as a left edge, everywhere an activity is drawn; Done, Late and inactive cards keep
+   their own looks. The plain card is each theme's own (--ge-card); its ink is the theme's usual card ink. */
+:root { --ge-card: #fffaf2; --ge-hair: rgba(48, 39, 70, .16); --ge-drop: rgba(0, 0, 0, .18); }
+html[data-theme='pinkpop'] { --ge-card: #ffffff; --ge-hair: #ead3df; --ge-drop: rgba(122, 42, 82, .08); }
+html[data-theme='squeezeme'] { --ge-card: #ffffff; --ge-hair: #d4e0f0; --ge-drop: rgba(30, 63, 122, .08); }
+html[data-theme='sunburnt'] { --ge-card: #fffbf5; --ge-hair: #ecd8c0; --ge-drop: rgba(116, 63, 20, .08); }
+html[data-theme='office'] { --ge-card: #f9f9fa; --ge-hair: #c3c7cc; --ge-drop: rgba(0, 0, 0, .06); }
+html[data-theme='petalpunk'] { --ge-card: #2c2232; --ge-hair: rgba(255, 255, 255, .14); --ge-drop: rgba(0, 0, 0, .35); }
+html[data-theme='smokedcitrus'] { --ge-card: #2e2b28; --ge-hair: rgba(255, 255, 255, .14); --ge-drop: rgba(0, 0, 0, .35); }
+html[data-theme='graphite'] { --ge-card: #3c4046; --ge-hair: rgba(255, 255, 255, .14); --ge-drop: rgba(0, 0, 0, .3); }
+html[data-edge] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity) {
   background: var(--ge-card) !important; background-image: none !important;
   box-shadow: inset 6px 0 0 var(--tone, var(--ge-hair)), inset 0 0 0 1px var(--ge-hair), 0 2px 6px var(--ge-drop) !important; }
-html[data-theme='goepicdark'] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity) {
+html[data-edge][data-theme='goepicdark'] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity) {
   box-shadow: inset 6px 0 0 var(--tone, var(--ge-hair)), inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 0 0 1px var(--ge-hair), 0 2px 6px var(--ge-drop) !important; }
-html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(.task, .pc-activity:not(.pc-pickable)) { padding-left: 16px; }
-html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .today-task { padding-left: 18px; }
+html[data-edge] :is(.task, .pc-activity:not(.pc-pickable)) { padding-left: 16px; }
+html[data-edge] .today-task { padding-left: 18px; }
 html[data-theme='goepicdark'] .task:not(.done) .round:not(.danger-x) { background-color: rgba(255, 255, 255, .08); }
 /* The details' Color button: the picked colour is an edge there too, so its word keeps the theme's ink */
-html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .color-btn.picked {
-  background: var(--ge-card) !important; color: var(--ink);
+html[data-edge] .color-btn.picked {
+  background: var(--ge-card) !important; color: var(--act-ink, var(--card-ink));
   box-shadow: inset 6px 0 0 var(--tone, var(--ge-hair)), inset 0 0 0 1px var(--ge-hair); padding-left: 18px; }
+html[data-edge]:is([data-theme='goepiclight'], [data-theme='goepicdark']) .color-btn.picked { color: var(--ink); }
+/* A filled card in a palette its theme's inks were not made for (<html data-auto-ink>): its ink is worked out from its
+   own colour, near-white on a dark colour and near-black on a light one */
+@supports (color: oklch(from red l c h)) {
+  html[data-auto-ink] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity, .color-btn.picked) {
+    --act-ink: oklch(from var(--tone) clamp(.22, (.7 - l) * 1000, .97) .015 300); --card-ink: var(--act-ink); }
+  /* Graphite forces its soft light ink on every card and its contents: a filled card in a foreign palette takes its
+     worked-out ink instead (the state circle keeps its own) */
+  html[data-auto-ink][data-theme='graphite'] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity),
+  html[data-auto-ink][data-theme='graphite'] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity) :not(.t-state, .t-state *, .danger-x) { color: var(--act-ink) !important; }
+  /* the grey themes draw Canvas activities on a fixed grey: in a foreign palette it wears its own colour, so the ink
+     worked out from that colour reads on it */
+  html[data-auto-ink]:is([data-theme='office'], [data-theme='graphite']) .object.task { background: var(--tone, var(--g-card)) !important; }
+}
 /* the dark cards (Petal Punk, Smoked Citrus, Graphite, Go Epic Dark): light ink everywhere on them, a deeper lip, light
    grip and buttons, an empty To do ring drawn in the card's ink; Done keeps its glorious gold */
 html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='graphite'], [data-theme='goepicdark']) { --act-lip: rgba(0, 0, 0, .42); }
@@ -1763,3 +1795,114 @@ html[data-theme='office'] .todo-note:not(.own) { outline: 1px solid #9fa4aa; out
    the dark themes' light card ink never lands on it (Graphite keeps its dark pressed Done; Epic and the light themes set no card ink) */
 html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepicdark']) .task.done { --act-ink: #4d3a0c; }
 html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepicdark']) :is(.now-card.done, .today-task.done) { --act-ink: #302746; }
+
+/* Ajustes › Palettes: a theme's chips, then one row per palette (its name over its colours), then Only the edge */
+.palette-toggle { width: 100%; align-items: center; border: 0; color: inherit; text-align: left; }
+.palette-toggle .setting-text { flex: 1; }
+.palette-mini { flex: none; display: grid; grid-template-columns: repeat(2, 13px); gap: 2px; }
+.palette-mini i { width: 13px; height: 13px; border-radius: 4px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .15); }
+.palette-chev { flex: none; font-size: 22px; line-height: 1; color: var(--ink-soft); transition: rotate .25s ease; }
+.palette-toggle[aria-expanded='true'] .palette-chev { rotate: 180deg; }
+.palette-panel { padding: 4px 2px 0; }
+.palette-label { margin: 14px 0 8px; font-size: 13px; font-weight: 700; color: var(--ink-soft); }
+.palette-list { display: grid; gap: 8px; }
+.palette-row { display: grid; grid-template-columns: 1fr auto; grid-template-areas: 'name tick' 'swatches tick'; align-items: center; gap: 6px 10px;
+  width: 100%; min-height: 56px; padding: 10px 12px; border: 2px solid transparent; border-radius: 16px; background: color-mix(in srgb, var(--ink) 7%, transparent); color: inherit; text-align: left; }
+.palette-row.on { border-color: var(--pink); background: color-mix(in srgb, var(--pink) 14%, transparent); }
+.palette-name { grid-area: name; font-weight: 700; }
+.palette-name small { font-weight: 500; color: var(--ink-soft); }
+.palette-swatches { grid-area: swatches; display: flex; gap: 3px; }
+.palette-swatches i { flex: 1; height: 22px; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .15); }
+.palette-tick { grid-area: tick; width: 24px; text-align: center; font-size: 20px; font-weight: 900; color: var(--pink); }
+.edge-sample { display: inline-block; width: 22px; height: 16px; margin: 0 8px 2px 0; border-radius: 4px; vertical-align: middle;
+  background: #fff; box-shadow: inset 5px 0 0 var(--pink), inset 0 0 0 1px rgba(0, 0, 0, .2); }
+
+/* The Year (Gianni): 2027 as four seasons, each 4 sprints of 3 weeks (one row each, 3 weeks × 7 days, like the
+   tracking grid) and a striped rest and review week. Above all visual: each season has its own soft tint (--season),
+   today a ring, past days fade, the day the season really begins a dot, an important date a ★ on the theme's accent.
+   The day cells never lean with the phone (tilt.ts): a grid must stay aligned. */
+.year-page { max-width: 760px; margin: 0 auto; }
+.year-top > .why { margin-left: auto; }
+.year-status { margin: -4px 0 14px; color: var(--ink-soft); font-size: calc(14px * var(--esc, 1)); font-weight: 600; }
+.year-seasons { display: grid; gap: 14px; }
+.season { --season: #9cc9ee; padding: 12px 12px 14px; border-radius: 20px;
+  background: color-mix(in srgb, var(--season) 9%, transparent); border: 1px solid color-mix(in srgb, var(--season) 32%, transparent);
+  animation: season-in .55s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
+.season[data-season='spring'], [data-season='spring'] { --season: #93dc9c; }
+.season[data-season='summer'], [data-season='summer'] { --season: #f5c945; }
+.season[data-season='autumn'], [data-season='autumn'] { --season: #f0975c; }
+[data-season='winter'] { --season: #9cc9ee; }
+@keyframes season-in { from { opacity: 0; translate: 0 14px; } }
+.season-head { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
+.season-ico { display: inline-grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 50%;
+  background: color-mix(in srgb, var(--season) 26%, transparent); color: color-mix(in srgb, var(--season) 62%, var(--ink)); }
+.season-head h2 { margin: 0; font-size: calc(20px * var(--esc, 1)); }
+.season-range { margin-left: auto; color: var(--ink-soft); font-size: calc(13px * var(--esc, 1)); font-weight: 700; white-space: nowrap; }
+.yr-row + .yr-row { margin-top: 8px; }
+.yr-label { margin: 0 0 4px; font: 700 calc(11.5px * var(--esc, 1))/1.2 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: .05em; text-transform: uppercase; color: var(--ink-soft); }
+.yr-label span { margin-left: 4px; font-weight: 600; opacity: .8; text-transform: none; letter-spacing: 0; }
+.yr-weeks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(6px, 2vw, 14px); }
+.yr-week { container-type: inline-size; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: clamp(2px, .7vw, 5px); }
+.yr-week li { display: grid; }
+.yr-cell { position: relative; aspect-ratio: 1; min-width: 0; padding: 0; display: grid; place-items: center; border: 0; border-radius: 28%;
+  background: color-mix(in srgb, var(--season) 44%, transparent); color: var(--g-on-ink, var(--card-ink));
+  font-size: min(13px, 9cqw); font-weight: 900; line-height: 1; transition: opacity .3s ease, scale .15s ease; }
+.yr-cell:active { scale: .9; }
+@media (hover: hover) { .yr-cell:hover { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink) 55%, transparent); } }
+.yr-cell.month-start { box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ink) 55%, transparent); }
+.yr-cell.past { opacity: .32; }
+.yr-cell.astro::after { content: ''; position: absolute; width: 26%; aspect-ratio: 1; border-radius: 50%; background: var(--ink); opacity: .85; }
+.yr-cell.named { background: var(--pink); opacity: 1; }
+.yr-cell.named.astro::after { display: none; }
+.yr-cell.named.past { opacity: .55; }
+.yr-cell.today { opacity: 1; box-shadow: 0 0 0 2px var(--page), 0 0 0 4px var(--pink); z-index: 1; }
+.yr-cell.named.today { box-shadow: 0 0 0 2px var(--page), 0 0 0 4px var(--ink); }
+/* the rest and review week: striped, as the free time of a block; the rest of its row a soft striped band */
+.yr-row.rest .yr-cell:not(.named) { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--season) 50%, transparent) 0 3px, color-mix(in srgb, var(--season) 14%, transparent) 3px 6px); }
+.rest-mark { grid-column: 2 / 4; border-radius: 10px; border: 1.5px dashed color-mix(in srgb, var(--season) 45%, transparent);
+  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--season) 12%, transparent) 0 4px, transparent 4px 9px); }
+/* phones and touch screens: one week per row, so every day is a tap target of at least 40px; the three weeks of a
+   sprint stay close together under its label, and the rest week's band is not needed */
+@media (max-width: 700px), (pointer: coarse) {
+  .yr-weeks { grid-template-columns: minmax(0, 460px); gap: 4px; }
+  .yr-week { gap: 4px; }
+  .yr-cell { min-height: 40px; }
+  .rest-mark { display: none; }
+  .yr-row + .yr-row { margin-top: 12px; }
+}
+.year-legend { margin: 14px 2px 0; font-size: calc(13px * var(--esc, 1)); }
+.year-dates { margin-top: 18px; }
+.year-dates h2 { margin: 0 0 8px; font-size: calc(20px * var(--esc, 1)); }
+.year-dates ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.year-dates li button { width: 100%; min-height: 46px; display: flex; align-items: center; gap: 10px; padding: 8px 12px; border: 0; border-radius: 14px;
+  border-left: 4px solid var(--season, var(--pink)); background: color-mix(in srgb, var(--season, var(--pink)) 13%, transparent); color: var(--ink); text-align: left; }
+.year-dates li.past button { opacity: .55; }
+.yd-star { color: var(--pink); }
+.yd-name { flex: 1 1 auto; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
+.yd-date { flex: none; color: var(--ink-soft); font-size: 13px; text-align: right; }
+@media (max-width: 420px) { .year-dates li button { flex-wrap: wrap; } .yd-date { flex-basis: 100%; text-align: left; padding-left: 24px; } }
+dialog.info-card.year-date { width: min(420px, calc(100vw - 32px)); border: 1px solid var(--win-edge); }
+.yd-place { display: flex; align-items: center; gap: 8px; }
+.yd-place::before { content: ''; width: 10px; height: 10px; flex: none; border-radius: 50%; background: var(--season, transparent); }
+.yd-field { margin-top: 6px; }
+.yd-foot { margin-top: 4px; }
+.ask-actions .yd-remove { color: var(--red); }
+.year-date .info-head h2::first-letter, .yd-date::first-letter { text-transform: uppercase; }
+@media (prefers-reduced-motion: reduce) { .season { animation: none; } .yr-cell { transition: none; } }
+/* Import from Google Calendar (optional): a quiet chip beside "Important dates", and a small window */
+.year-dates-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 0 0 8px; }
+.year-dates-head h2 { margin: 0; }
+.gcal-btn { min-height: 42px; }
+.yd-tag { margin-left: 8px; padding: 1px 7px; border-radius: 999px; background: color-mix(in srgb, var(--ink) 12%, transparent); color: var(--ink-soft); font-size: 11px; font-weight: 700; vertical-align: 2px; }
+.yd-imported { margin: -4px 0 10px; font-size: 13px; }
+dialog.info-card.year-import { width: min(440px, calc(100vw - 32px)); border: 1px solid var(--win-edge); }
+.year-import p { margin: 10px 0; line-height: 1.45; }
+.gcal-small { font-size: 13px; }
+.gcal-problem { padding: 8px 12px; border-radius: 12px; background: color-mix(in srgb, var(--red) 18%, transparent); font-weight: 600; }
+.gcal-list { margin: 10px 0; padding: 0; border: 0; display: grid; gap: 6px; max-height: 40dvh; overflow-y: auto; }
+.gcal-list legend { margin-bottom: 6px; font-weight: 700; }
+.gcal-cal { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 12px; border-radius: 12px; background: color-mix(in srgb, var(--ink) 7%, transparent); cursor: pointer; }
+.gcal-cal input { width: 20px; height: 20px; accent-color: var(--pink); flex: none; }
+.gcal-dot { width: 12px; height: 12px; flex: none; border-radius: 50%; background: var(--ink-soft); }
+.gcal-result { font-weight: 600; }

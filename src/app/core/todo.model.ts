@@ -64,12 +64,11 @@ export function sanitizeTodo(id: string, raw: unknown): Todo | null {
 }
 
 /**
- * The open todos: the repeating ones first (they never finish: each date has its own check), by hour, then the single
- * ones soonest first (by day, then hour; no hour after the hours, no day last), then newest captured.
+ * The open todos, newest captured at the top down to the oldest (Gianni: always), repeating ones among them; equal
+ * capture times keep a steady order by id.
  */
 export function openTodos(todos: Todo[]): Todo[] {
-  const at = (t: Todo) => `${repeats(t) ? '0000-00-00' : t.date ?? '9999-99-99'} ${t.time ?? '99:99'}`;
-  return todos.filter((t) => repeats(t) || t.done === null).sort((a, b) => at(a).localeCompare(at(b)) || b.created - a.created);
+  return todos.filter((t) => repeats(t) || t.done === null).sort((a, b) => b.created - a.created || a.id.localeCompare(b.id));
 }
 
 /** The finished single todos, last checked first (a repeating task is never finished). */
