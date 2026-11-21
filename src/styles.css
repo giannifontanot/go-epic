@@ -1840,7 +1840,6 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
 .yr-row + .yr-row { margin-top: 8px; }
 .yr-label { margin: 0 0 4px; font: 700 calc(11.5px * var(--esc, 1))/1.2 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   letter-spacing: .05em; text-transform: uppercase; color: var(--ink-soft); }
-.yr-label span { margin-left: 4px; font-weight: 600; opacity: .8; text-transform: none; letter-spacing: 0; }
 /* a sprint is one line of 21 days (Gianni), its weeks a little apart; the rest week's line its 7 days and a striped band.
    The line itself is the touch target: a finger held on it (or sliding along it) opens the day's window and moves it
    day by day, stopping at the sprint's ends; scrolling up and down still works (pan-y). */
