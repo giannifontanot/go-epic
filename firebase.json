@@ -45,7 +45,7 @@
         ]
       },
       {
-        "source": "/@(ngsw-worker.js|ngsw.json|safety-worker.js|worker-basic.min.js|manifest*.webmanifest)",
+        "source": "/@(ngsw-worker.js|ngsw.json|safety-worker.js|worker-basic.min.js|manifest*.webmanifest|changes.json)",
         "headers": [
           {
             "key": "Cache-Control",

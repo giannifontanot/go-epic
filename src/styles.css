@@ -427,6 +427,10 @@ dialog.update-overlay::backdrop { background: rgba(4, 9, 30, .82); backdrop-filt
 .update-card { width: 100%; display: grid; gap: 22px; padding: 28px 22px; border: 1px solid var(--win-edge); border-radius: 26px;
   background: var(--navy-card); color: var(--ink); text-align: center; box-shadow: 0 25px 80px rgba(0, 0, 0, .4); }
 .update-card p { margin: 0; font-family: Georgia, serif; font-size: 24px; line-height: 1.25; }
+.update-changes { text-align: start; max-height: min(40vh, 300px); overflow-y: auto; overscroll-behavior: contain; }
+.update-changes h2 { margin: 0 0 8px; font-size: 14px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: inherit; opacity: .8; }
+.update-changes ul { margin: 0; padding-inline-start: 22px; display: grid; gap: 8px; }
+.update-changes li { font-size: 16px; line-height: 1.35; }
 .update-button { min-height: 96px; padding: 0 20px; border: 0; border-radius: 24px; background: var(--pink);
   color: var(--card-ink); font-size: 24px; font-weight: 900; }
 /* in the other themes it wears the theme (Gianni: it looked out of place): the theme's primary button */
