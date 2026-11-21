@@ -27,7 +27,8 @@ button:disabled { opacity:.4; cursor:default; }.grip { touch-action:none; cursor
 .feature { color:#362643; background:linear-gradient(150deg,#ffdf77,#f5c945); border-radius:22px 26px 18px 30px;
   box-shadow:inset 0 5px 0 rgba(255,255,255,.36), inset 0 -8px 0 rgba(211,157,37,.23), 0 9px 0 rgba(41,10,40,.23), 0 15px 20px rgba(23,8,35,.24); }
 .story { background:#fff4e9; border-radius:14px 18px 13px 18px; }   /* cream, so the coloured tasks inside stand out */
-.task { background:#ffd5bd; border-radius:14px 18px 13px 18px; }
+.task { background:#ffd5bd; border-radius:14px 18px 13px 18px; color:var(--act-ink,#302746); }   /* light ink on the dark themes' dark cards */
+.task button:focus-visible { outline-color:var(--act-ink,#302746); }
 .feature>header strong { font-family:Georgia,serif; font-size:16px; }
 button:hover { background:rgba(255,255,255,.45); }button:focus-visible { outline-color:#302746; }
 .add { border-color:rgba(54,38,67,.4); }

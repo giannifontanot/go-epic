@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { STATUSES, Status } from '../../core/status.model';
-import { TimedTask, blockColors, formatClock, timeline, validMinutes } from '../../core/week.model';
+import { TimedTask, blockColors, toneVar, formatClock, timeline, validMinutes } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
 
 /**
@@ -131,7 +131,7 @@ export class Focus {
   protected readonly clock = computed(() => formatClock(this.store.nowMinutes()));
 
   protected tone(item: TimedTask): string {
-    return this.tones().get(item.task.id) ?? '#ffd5bd';
+    return toneVar(this.tones().get(item.task.id) ?? '#ffd5bd')!;
   }
 
   protected clockOf(minutes: number): string {

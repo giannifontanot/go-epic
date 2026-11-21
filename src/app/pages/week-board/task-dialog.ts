@@ -4,7 +4,7 @@ import { I18n } from '../../core/i18n';
 import { LibNode, Library, Where, WhereLevel, emptyWhere, nodeById, pathOf, pickWhere, taskByTitle, tasksWithin, twinTask, whereOf } from '../../core/library.model';
 import { ColorWindow } from '../../shared/color-window';
 import { WhereCard } from '../../shared/where-card';
-import { Block, DAYS, Day, Task, Week, fits, freeMinutes, validMinutes } from '../../core/week.model';
+import { Block, DAYS, Day, Task, Week, fits, freeMinutes, toneVar, validMinutes } from '../../core/week.model';
 
 
 export interface TaskEdit {
@@ -96,7 +96,7 @@ export interface TaskSave {
           <input #name type="text" [value]="title()" [readOnly]="!!linkedNode()" [class.locked]="!!linkedNode()"
             (input)="title.set($any($event.target).value)" (keydown.enter)="done()" />
           @if (libraryReady()) {
-            <button type="button" class="color-btn" aria-haspopup="dialog" [style.background]="color() || null" [class.picked]="!!color()"
+            <button type="button" class="color-btn" aria-haspopup="dialog" [style.background]="toneVar(color())" [class.picked]="!!color()"
                     [disabled]="choice() === 'existing'"
                     [attr.aria-label]="i18n.t('task.color')" [title]="i18n.t('task.color')"
                     (click)="$event.preventDefault(); $event.stopPropagation(); colorWindow.open()">{{ i18n.t('task.color') }}</button>
@@ -180,6 +180,7 @@ export interface TaskSave {
   imports: [WhereCard, ColorWindow],
 })
 export class TaskDialog implements AfterViewInit {
+  protected readonly toneVar = toneVar;   // the colour button shows the colour as the theme draws it
   protected readonly i18n = inject(I18n);
   readonly edit = input.required<TaskEdit>();
   readonly week = input.required<Week>();
@@ -257,7 +258,7 @@ export class TaskDialog implements AfterViewInit {
       const of = (kind: string) => path.find((n) => n.kind === kind);
       const epic = of('epic');
       return { node, epicId: epic?.id ?? this.FREE, epic: epic?.title ?? '', feature: of('feature')?.title ?? '', story: of('story')?.title ?? '',
-        tone: node.color || '#ffd5bd' };   // activities never age (Gianni: only loose tasks do)
+        tone: toneVar(node.color || '#ffd5bd')! };   // activities never age (Gianni: only loose tasks do)
     });
   });
   /** The Epic tabs: each Epic that holds some of these activities (by name), Free Space last, with their counts. */

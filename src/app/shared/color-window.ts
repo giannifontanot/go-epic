@@ -1,7 +1,7 @@
 import { Component, ElementRef, inject, input, output, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog } from '../core/dialog';
 import { I18n } from '../core/i18n';
-import { COLOR_CHOICES } from '../core/week.model';
+import { COLOR_CHOICES, toneVar } from '../core/week.model';
 
 /**
  * The colour window: a small card with eight colours in two rows and Automatic (chosen when nothing is picked) across
@@ -17,7 +17,7 @@ import { COLOR_CHOICES } from '../core/week.model';
       </header>
       <div class="color-pick" role="group" [attr.aria-label]="i18n.t('task.color')">
         @for (choice of colors; track choice.color) {
-          <button type="button" class="swatch" [style.background]="choice.color" [class.on]="color() === choice.color"
+          <button type="button" class="swatch" [style.background]="toneVar(choice.color)" [class.on]="color() === choice.color"
                   [attr.aria-pressed]="color() === choice.color" [attr.aria-label]="i18n.t(choice.label)" [title]="i18n.t(choice.label)"
                   (click)="choose(choice.color)"></button>
         }
@@ -29,6 +29,7 @@ import { COLOR_CHOICES } from '../core/week.model';
 export class ColorWindow {
   protected readonly i18n = inject(I18n);
   protected readonly colors = COLOR_CHOICES;
+  protected readonly toneVar = toneVar;   // each swatch as the current theme draws it
   readonly color = input<string | null>(null);
   readonly picked = output<string | null>();
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');

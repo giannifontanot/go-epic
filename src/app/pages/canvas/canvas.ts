@@ -6,7 +6,7 @@ import { I18n } from '../../core/i18n';
 import { AuthService } from '../../core/auth.service';
 import { Kind, LibNode, PARENT_KIND, STARTER_TEMPLATE, TemplateRename, emptyLibrary, followDay, planTemplateChanges, rebaseLibrary } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
-import { COLOR_CHOICES, DAYS } from '../../core/week.model';
+import { COLOR_CHOICES, DAYS, toneVar } from '../../core/week.model';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { UnsavedWork } from '../../core/unsaved';
 import { CaptureUi } from '../capture/capture-ui';
@@ -63,6 +63,7 @@ export class Canvas implements DoCheck {
   protected readonly version = signal(0);
   protected readonly ready = computed(() => this.libraryStore.ready() && this.week.loaded());
   protected readonly colorChoices = COLOR_CHOICES;
+  protected readonly toneVar = toneVar;
   protected readonly FREE = '__free';
 
   activeId = '';

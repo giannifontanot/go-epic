@@ -1,5 +1,5 @@
 import {
-  Block, PASTELS, Task, blockColors, cloneBlock, dateKey, dayOf, fits, formatClock, freeMinutes, moveItem, stepTask, nowPosition, countdown,
+  Block, PASTELS, Task, blockColors, noteVar, toneVar, cloneBlock, dateKey, dayOf, fits, formatClock, freeMinutes, moveItem, stepTask, nowPosition, countdown,
   parseClock, placeBlock, stretchedEnd, resizedMinutes, taskStarts, taskTotal, timeline, uniqueName, validMinutes, windowError, moveToHour, addDayBlocks, snapDelta,
 } from './week.model';
 
@@ -88,6 +88,16 @@ describe('week model', () => {
     const before = blockColors(tasks, memo);
     expect(blockColors([...tasks].reverse(), memo)).toEqual([...before].reverse());
     expect(memo.size).toBe(tasks.filter((t) => !t.color).length);
+  });
+
+  it('draws a stored colour through the theme, keeping the stored value as the fallback (Epic)', () => {
+    expect(toneVar('#a7e7e3')).toBe('var(--act-0, #a7e7e3)');
+    expect(toneVar('#EADCC8')).toBe('var(--act-7, #eadcc8)');      // sand, the last of the 8 choices
+    expect(toneVar('#ffcad7')).toBe('var(--act-4, #ffcad7)');      // an unknown colour: the nearest choice (rose), shown as itself in Epic
+    expect(toneVar(null)).toBeNull();
+    expect(toneVar('var(--x)')).toBe('var(--x)');
+    expect(noteVar('#ffd5bd')).toBe('var(--note-3, #ffd5bd)');
+    expect(noteVar('#fff0a6')).toMatch(/^var\(--note-[0-3], #fff0a6\)$/);   // a task's tone is one of the 4 paper tints
   });
 
   it('counts down only the activity running now, by the minutes still left', () => {

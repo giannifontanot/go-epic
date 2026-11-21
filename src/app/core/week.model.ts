@@ -47,6 +47,42 @@ export const COLOR_CHOICES: { color: string; label: string }[] = [
   { color: '#eadcc8', label: 'color.sand' },
 ];
 
+/**
+ * A stored colour as the current theme draws it (Gianni: each theme its own palette; Epic stays as it is). The stored
+ * value never changes: an activity's colour becomes `var(--act-N, #stored)`, N being its place in COLOR_CHOICES (the
+ * nearest one for any other colour), and each theme sets its own --act-0…7 in styles.css; Epic sets none, so the
+ * fallback, the stored colour itself, is what it shows. A task's (Capture) paper tone does the same with --note-0…3
+ * (PASTELS), so tasks keep a palette of their own that tells them from the activities.
+ */
+export function toneVar(color: string | null | undefined): string | null {
+  return themed(color, 'act', COLOR_CHOICES.map((c) => c.color));
+}
+export function noteVar(color: string | null | undefined): string | null {
+  return themed(color, 'note', PASTELS);
+}
+function themed(color: string | null | undefined, prefix: string, palette: string[]): string | null {
+  if (!color) return null;
+  const rgb = hexRgb(color);
+  if (!rgb) return color;   // not a #rrggbb (already a var(), a name…): left as it is
+  const lower = color.toLowerCase();
+  let index = palette.indexOf(lower);
+  if (index < 0) {
+    let best = Infinity;
+    palette.forEach((hex, i) => {
+      const [r, g, b] = hexRgb(hex)!;
+      const d = (r - rgb[0]) ** 2 + (g - rgb[1]) ** 2 + (b - rgb[2]) ** 2;
+      if (d < best) { best = d; index = i; }
+    });
+  }
+  return `var(--${prefix}-${index}, ${lower})`;
+}
+function hexRgb(color: string): [number, number, number] | null {
+  const m = /^#([0-9a-f]{6})$/i.exec(color.trim());
+  if (!m) return null;
+  const n = parseInt(m[1], 16);
+  return [n >> 16, (n >> 8) & 255, n & 255];
+}
+
 export const NEW_TASK_MINUTES = 60;   // a new activity's minutes (Gianni: an hour, not 15)
 
 export function emptyWeek(): Week {

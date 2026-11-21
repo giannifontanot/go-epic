@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, ElementRef, inject, input, output } from '@angular/core';
 import { I18n } from '../../core/i18n';
 import { LibNode } from '../../core/library.model';
-import { Task, blockColors } from '../../core/week.model';
+import { Task, blockColors, toneVar } from '../../core/week.model';
 import { CanvasState } from './canvas-state';
 
 /**
@@ -90,7 +90,7 @@ export class CanvasNode {
     if (node.kind !== 'task') return null;
     const siblings = this.state().children(node.parentId, 'task');
     const colors = blockColors(siblings as unknown as Task[]);
-    return colors[siblings.findIndex((n) => n.id === node.id)] ?? null;
+    return toneVar(colors[siblings.findIndex((n) => n.id === node.id)]);
   }
 
   /** Where the object sits on this device, as --ox / --oy (the CSS adds the tilt slide to them: core/tilt.ts). */

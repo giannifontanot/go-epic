@@ -1,6 +1,7 @@
 import { Component, inject, input, output } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { I18n } from '../core/i18n';
+import { toneVar } from '../core/week.model';
 import { Library, Where, WhereLevel, nodeById, whereOptions } from '../core/library.model';
 
 /**
@@ -46,7 +47,7 @@ import { Library, Where, WhereLevel, nodeById, whereOptions } from '../core/libr
       @if (pickCount() || linked()) {
         <!-- The Activity line is also the way to pick an existing one (Gianni: one card, no separate button): a tap opens
              the list; once one is picked it shows here, with a × that lets it go -->
-        <span class="pc-activity pc-pickable" [class.chosen]="chosen()" [style.background]="color() || '#ffd5bd'">
+        <span class="pc-activity pc-pickable" [class.chosen]="chosen()" [style.background]="tone()">
           <!-- Drawn like the other levels (a panel: the same «Choose ›» and ⌄ say "tap to choose" everywhere on the card) -->
           <button type="button" class="pc-act-open" [class.pc-tap]="!linked()" aria-haspopup="dialog" (click)="activityTap.emit()">
             <small>{{ i18n.t('canvas.task') }}</small>
@@ -58,7 +59,7 @@ import { Library, Where, WhereLevel, nodeById, whereOptions } from '../core/libr
           }
         </span>
       } @else {
-        <span class="pc-activity" [style.background]="color() || '#ffd5bd'"><small>{{ i18n.t('canvas.task') }}</small><strong>{{ title() || i18n.t('task.newTitle') }}</strong></span>
+        <span class="pc-activity" [style.background]="tone()"><small>{{ i18n.t('canvas.task') }}</small><strong>{{ title() || i18n.t('task.newTitle') }}</strong></span>
       }
     </ng-template>
   `,
@@ -70,6 +71,8 @@ export class WhereCard {
   readonly where = input.required<Where>();
   readonly title = input('');
   readonly color = input<string | null>(null);
+  /** The activity's colour in the theme's palette (peach when it has none). */
+  protected tone(): string | null { return toneVar(this.color() || '#ffd5bd'); }
   readonly pick = output<{ level: WhereLevel; id: string }>();
   /** How many existing activities can be picked (0: the Activity line is plain); a tap emits activityTap. */
   readonly pickCount = input(0);
