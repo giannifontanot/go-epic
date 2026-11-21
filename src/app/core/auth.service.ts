@@ -2,6 +2,19 @@ import { Injectable, signal } from '@angular/core';
 import { GoogleAuthProvider, User, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from 'firebase/auth';
 import { firebase } from './firebase';
 
+/** Kept on this device while someone is signed in, so the Get Go Epic page at "/" and the app shell know, before
+ *  Firebase starts, whether to open the app at once or show the page (public/get/index.html, src/index.html). */
+export const SIGNED_IN_KEY = 'go-epic-signed-in';
+
+function rememberSignedIn(on: boolean): void {
+  try {
+    if (on) localStorage.setItem(SIGNED_IN_KEY, '1');
+    else localStorage.removeItem(SIGNED_IN_KEY);
+  } catch {
+    // storage blocked: the page at "/" is simply shown
+  }
+}
+
 /** Google sign-in. `user` is undefined while Firebase is still checking, null when signed out. */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -12,9 +25,13 @@ export class AuthService {
     const fb = firebase();
     if (!fb) {
       this.user.set(null);
+      rememberSignedIn(false);
       return;
     }
-    onAuthStateChanged(fb.auth, (user) => this.user.set(user));
+    onAuthStateChanged(fb.auth, (user) => {
+      this.user.set(user);
+      rememberSignedIn(!!user);
+    });
   }
 
   async signIn(): Promise<void> {

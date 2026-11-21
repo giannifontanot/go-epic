@@ -10,18 +10,56 @@
          installed app's, including Android's bottom bar, when Chrome next updates the app -->
     <link rel="manifest" href="manifest.webmanifest" />
     <!-- The root "/" is the Get Go Epic page (firebase.json serves public/get/index.html there). This shell reaches
-         "/" only through the service worker; then a visitor who has never opened the app (not installed, no go-epic-*
-         key but the page's own language) goes to that page, and everyone else stays in the app. -->
+         "/" only through the service worker; then anyone who is neither in the installed app nor signed in on this
+         device (go-epic-signed-in, kept by core/auth.service.ts, or a Firebase session saved by an older version) goes to
+         that page, never to the sign-in screen. -->
     <script>
+      // A Firebase session saved before go-epic-signed-in existed (older versions never wrote it): Firebase keeps the
+      // signed-in user under firebase:authUser:* in IndexedDB (or localStorage). answer(true/false), or null when the
+      // browser does not say within 1.5 s.
+      function goEpicSavedSession(answer) {
+        var said = false;
+        function say(v) { if (!said) { said = true; answer(v); } }
+        setTimeout(function () { say(null); }, 1500);
+        try {
+          if (Object.keys(localStorage).some(function (k) { return k.indexOf('firebase:authUser:') === 0; })) return say(true);
+          var open = indexedDB.open('firebaseLocalStorageDb');
+          open.onupgradeneeded = function () { open.transaction.abort(); }; // never create the database just to look
+          open.onerror = function () { say(false); };
+          open.onsuccess = function () {
+            var db = open.result;
+            try {
+              if (!db.objectStoreNames.contains('firebaseLocalStorage')) { db.close(); return say(false); }
+              var all = db.transaction('firebaseLocalStorage', 'readonly').objectStore('firebaseLocalStorage').getAllKeys();
+              all.onsuccess = function () {
+                db.close();
+                say(all.result.some(function (k) { return String(k).indexOf('firebase:authUser:') === 0; }));
+              };
+              all.onerror = function () { db.close(); say(false); };
+            } catch (e) { db.close(); say(false); }
+          };
+        } catch (e) { say(false); }
+      }
       try {
         var installed = navigator.standalone === true || ['standalone', 'fullscreen', 'minimal-ui'].some(function (m) {
           return matchMedia('(display-mode: ' + m + ')').matches;
         });
-        var used = Object.keys(localStorage).some(function (k) { return k.indexOf('go-epic-') === 0 && k !== 'go-epic-get-lang'; });
-        if (location.pathname === '/' && !installed && !used && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
-          window.goEpicLeaving = true;
-          location.replace('/get/' + location.search + location.hash);
-        } else localStorage.setItem('go-epic-app', '1');
+        var signedIn = localStorage.getItem('go-epic-signed-in') === '1';
+        if (location.pathname === '/' && !installed && !signedIn && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
+          // main.ts waits for this answer: a saved session opens the app (and is remembered), none goes to the page;
+          // no answer opens the app, since this shell may be all there is offline.
+          window.goEpicGate = new Promise(function (start) {
+            goEpicSavedSession(function (has) {
+              if (has === false) {
+                window.goEpicLeaving = true;
+                location.replace('/get/' + location.search + location.hash);
+                return start(false);
+              }
+              try { if (has) localStorage.setItem('go-epic-signed-in', '1'); } catch (e) {}
+              start(true);
+            });
+          });
+        }
       } catch (e) {}
     </script>
     <!-- The theme chosen in Ajustes (core/theme.ts), set before the app starts so the page never flashes the other look -->
