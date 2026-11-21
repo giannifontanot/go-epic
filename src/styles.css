@@ -554,7 +554,7 @@ dialog.capture-panel h2 { margin: 0; font-size: 22px; }
 .capture-line { display: flex; gap: 8px; margin-bottom: 10px; }
 /* the seven repeat days keep their 40px taps: one row from a 360px phone (a narrower panel padding and 3px gaps), two on the narrowest */
 .capture-add .repeat-days { justify-content: space-between; gap: 3px; margin: 0 0 10px; }
-@media (max-width: 400px) { dialog.capture-panel { padding-inline: 12px; } }
+@media (max-width: 400px) { dialog.capture-panel { padding-inline: max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-right)); } }
 .capture-add .capture-when .field { margin-bottom: 0; }
 .capture-line input, .c-edit { flex: 1; min-width: 0; min-height: 44px; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, .2); border-radius: 12px; background: var(--page); color: var(--ink); font-size: 16px; }
 /* The box for a new task always shows its blue border, so it reads as a box at a glance; tapped, it turns stronger with a ring (Gianni) */
