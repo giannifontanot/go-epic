@@ -52,7 +52,7 @@ import { Why } from '../../shared/why';
                 <div class="yr-weeks">
                   @for (week of sprint.weeks; track week[0]) {
                     <ol class="yr-week">
-                      @for (date of week; track date) { <li><ng-container *ngTemplateOutlet="cell; context: { $implicit: date, q: q }" /></li> }
+                      @for (date of week; track date) { <li><ng-container *ngTemplateOutlet="cell; context: { $implicit: date }" /></li> }
                     </ol>
                   }
                 </div>
@@ -63,7 +63,7 @@ import { Why } from '../../shared/why';
                 <h3 class="yr-label">{{ i18n.t('year.rest') }} <span>{{ shortDate(week[0]) }}</span></h3>
                 <div class="yr-weeks">
                   <ol class="yr-week">
-                    @for (date of week; track date) { <li><ng-container *ngTemplateOutlet="cell; context: { $implicit: date, q: q }" /></li> }
+                    @for (date of week; track date) { <li><ng-container *ngTemplateOutlet="cell; context: { $implicit: date }" /></li> }
                   </ol>
                   <span class="rest-mark" aria-hidden="true"></span>
                 </div>
@@ -72,9 +72,9 @@ import { Why } from '../../shared/why';
           </section>
         }
       </div>
-      <ng-template #cell let-date let-q="q">
+      <ng-template #cell let-date>
         @let name = dates.dates().get(date);
-        <button type="button" class="yr-cell" [class.past]="date < today()" [class.today]="date === today()" [class.astro]="date === q.astro"
+        <button type="button" class="yr-cell" [class.past]="date < today()" [class.today]="date === today()" [class.astro]="astroDays.has(date)"
                 [class.named]="!!name" [class.month-start]="date.endsWith('-01')" [class.deleting]="undo.isPending('date:' + date)"
                 [attr.aria-label]="cellLabel(date, name)" [title]="cellLabel(date, name)" [attr.data-date]="date" (click)="openDay(date)">
           @if (name) { <span aria-hidden="true">★</span> }
@@ -130,6 +130,8 @@ export class Year {
   private readonly injector = inject(Injector);
   protected readonly year = YEAR_2027;
   protected readonly plan: Quarter[] = yearPlan(YEAR_2027.seasons, YEAR_2027.next);
+  /** the days the seasons really begin, wherever their quarter's Monday falls (Mar 20 lies in winter's rest week) */
+  protected readonly astroDays = new Map(this.plan.map((q) => [q.astro, q.season]));
   private readonly first = this.plan[0].start;
   private readonly last = this.plan[this.plan.length - 1].end;
   private readonly total = daysBetween(this.first, this.last) + 1;
@@ -207,7 +209,8 @@ export class Year {
     if (!place) return '';
     const season = this.i18n.t('year.' + place.season);
     const part = place.sprint === null ? this.i18n.t('year.rest') : `${this.i18n.t('year.sprint', { n: place.sprint })}, ${this.i18n.t('year.week', { n: place.week })}`;
-    const astro = this.plan[place.quarter].astro === key ? ` · ${this.i18n.t('year.begins.' + place.season)}` : '';
+    const begins = this.astroDays.get(key);
+    const astro = begins ? ` · ${this.i18n.t('year.begins.' + begins)}` : '';
     return `${season} · ${part}${astro}`;
   }
   protected cellLabel(date: string, name: string | undefined): string {

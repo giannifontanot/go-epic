@@ -1806,6 +1806,15 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
 .yr-row.rest .yr-cell:not(.named) { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--season) 50%, transparent) 0 3px, color-mix(in srgb, var(--season) 14%, transparent) 3px 6px); }
 .rest-mark { grid-column: 2 / 4; border-radius: 10px; border: 1.5px dashed color-mix(in srgb, var(--season) 45%, transparent);
   background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--season) 12%, transparent) 0 4px, transparent 4px 9px); }
+/* phones and touch screens: one week per row, so every day is a tap target of at least 40px; the three weeks of a
+   sprint stay close together under its label, and the rest week's band is not needed */
+@media (max-width: 700px), (pointer: coarse) {
+  .yr-weeks { grid-template-columns: minmax(0, 460px); gap: 4px; }
+  .yr-week { gap: 4px; }
+  .yr-cell { min-height: 40px; }
+  .rest-mark { display: none; }
+  .yr-row + .yr-row { margin-top: 12px; }
+}
 .year-legend { margin: 14px 2px 0; font-size: calc(13px * var(--esc, 1)); }
 .year-dates { margin-top: 18px; }
 .year-dates h2 { margin: 0 0 8px; font-size: calc(20px * var(--esc, 1)); }
