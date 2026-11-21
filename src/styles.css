@@ -1816,9 +1816,9 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
 .edge-sample { display: inline-block; width: 22px; height: 16px; margin: 0 8px 2px 0; border-radius: 4px; vertical-align: middle;
   background: #fff; box-shadow: inset 5px 0 0 var(--pink), inset 0 0 0 1px rgba(0, 0, 0, .2); }
 
-/* The Year (Gianni): 2027 as four seasons, each 4 sprints of 3 weeks (one row each, 3 weeks × 7 days, like the
-   tracking grid) and a striped rest and review week. Above all visual: each season has its own soft tint (--season),
-   today a ring, past days fade, the day the season really begins a dot, an important date a ★ on the theme's accent.
+/* The Year (Gianni): 2027 as four seasons, each 4 sprints of 3 weeks (one line of 21 days each) and a rest and review
+   week. Above all visual: each season has its own soft tint (--season), past days are green, today a ring with a dot
+   under it, the day the season really begins a dot inside, an important date a border in the theme's accent.
    The day cells never lean with the phone (tilt.ts): a grid must stay aligned. */
 .year-page { max-width: 760px; margin: 0 auto; }
 .year-top > .why { margin-left: auto; }
@@ -1841,35 +1841,62 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
 .yr-label { margin: 0 0 4px; font: 700 calc(11.5px * var(--esc, 1))/1.2 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   letter-spacing: .05em; text-transform: uppercase; color: var(--ink-soft); }
 .yr-label span { margin-left: 4px; font-weight: 600; opacity: .8; text-transform: none; letter-spacing: 0; }
-.yr-weeks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(6px, 2vw, 14px); }
-.yr-week { container-type: inline-size; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: clamp(2px, .7vw, 5px); }
-.yr-week li { display: grid; }
-.yr-cell { position: relative; aspect-ratio: 1; min-width: 0; padding: 0; display: grid; place-items: center; border: 0; border-radius: 28%;
-  background: color-mix(in srgb, var(--season) 44%, transparent); color: var(--g-on-ink, var(--card-ink));
-  font-size: min(13px, 9cqw); font-weight: 900; line-height: 1; transition: opacity .3s ease, scale .15s ease; }
-.yr-cell:active { scale: .9; }
-@media (hover: hover) { .yr-cell:hover { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--ink) 55%, transparent); } }
-.yr-cell.month-start { box-shadow: inset 2px 0 0 color-mix(in srgb, var(--ink) 55%, transparent); }
-.yr-cell.past { opacity: .32; }
-.yr-cell.astro::after { content: ''; position: absolute; width: 26%; aspect-ratio: 1; border-radius: 50%; background: var(--ink); opacity: .85; }
-.yr-cell.named { background: var(--pink); opacity: 1; }
-.yr-cell.named.astro::after { display: none; }
-.yr-cell.named.past { opacity: .55; }
-.yr-cell.today { opacity: 1; box-shadow: 0 0 0 2px var(--page), 0 0 0 4px var(--pink); z-index: 1; }
-.yr-cell.named.today { box-shadow: 0 0 0 2px var(--page), 0 0 0 4px var(--ink); }
-/* the rest and review week: striped, as the free time of a block; the rest of its row a soft striped band */
-.yr-row.rest .yr-cell:not(.named) { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--season) 50%, transparent) 0 3px, color-mix(in srgb, var(--season) 14%, transparent) 3px 6px); }
-.rest-mark { grid-column: 2 / 4; border-radius: 10px; border: 1.5px dashed color-mix(in srgb, var(--season) 45%, transparent);
+/* a sprint is one line of 21 days (Gianni), its weeks a little apart; the rest week's line its 7 days and a striped band.
+   The line itself is the touch target: a finger held on it (or sliding along it) opens the day's window and moves it
+   day by day, stopping at the sprint's ends; scrolling up and down still works (pan-y). */
+.yr-line { --wk: clamp(4px, 1.6vw, 12px); list-style: none; margin: 0; padding: 10px 0 12px; display: grid; align-items: center;
+  grid-template-columns: repeat(7, minmax(0, 1fr)) var(--wk) repeat(7, minmax(0, 1fr)) var(--wk) repeat(7, minmax(0, 1fr));
+  column-gap: clamp(2px, .6vw, 5px); touch-action: pan-y; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.yr-line li { display: grid; min-width: 0; }
+.year-page { --yr-done: #2fa864; }
+.yr-cell { position: relative; aspect-ratio: 1; min-width: 0; padding: 0; border: 0; border-radius: 30%; background: transparent;
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--season) 55%, var(--ink) 35%); color: inherit;
+  transition: scale .18s cubic-bezier(.2, .8, .2, 1), background-color .3s ease; }
+@media (hover: hover) { .yr-cell:hover { box-shadow: inset 0 0 0 2px var(--ink); } }
+.yr-cell:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+/* every day gone by is green (Gianni); the days to come stay empty */
+.yr-cell.past { background: var(--yr-done); box-shadow: none; }
+/* today: a ring in the ink and a dot under it */
+.yr-cell.today { box-shadow: inset 0 0 0 2.5px var(--ink); }
+.yr-cell.today::before { content: ''; position: absolute; left: 50%; top: calc(100% + 3px); width: 5px; height: 5px; translate: -50% 0;
+  border-radius: 50%; background: var(--ink); }
+/* an important date keeps its fill and gets a border in the theme's accent (Gianni) */
+.yr-cell.named { outline: 2.5px solid var(--pink); outline-offset: 1px; }
+/* the day the season really begins: a small dot inside */
+.yr-cell.astro::after { content: ''; position: absolute; inset: 0; margin: auto; width: 30%; aspect-ratio: 1; border-radius: 50%; background: var(--ink); opacity: .85; }
+.yr-cell.past.astro::after { background: #fff; }
+/* the day the window shows grows a little out of the line */
+.yr-cell.picked { z-index: 2; scale: 1.55; box-shadow: inset 0 0 0 2px var(--ink), 0 3px 10px rgba(0, 0, 0, .35); }
+.yr-cell.picked.past { box-shadow: 0 0 0 2px var(--ink), 0 3px 10px rgba(0, 0, 0, .35); }
+/* the rest and review week: its days to come striped, as the free time of a block, then a soft striped band */
+.yr-row.rest .yr-cell:not(.past) { background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--season) 45%, transparent) 0 2px, transparent 2px 4px); }
+.rest-mark { grid-column: 9 / -1; align-self: stretch; border-radius: 8px; border: 1.5px dashed color-mix(in srgb, var(--season) 45%, transparent);
   background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--season) 12%, transparent) 0 4px, transparent 4px 9px); }
-/* phones and touch screens: one week per row, so every day is a tap target of at least 40px; the three weeks of a
-   sprint stay close together under its label, and the rest week's band is not needed */
-@media (max-width: 700px), (pointer: coarse) {
-  .yr-weeks { grid-template-columns: minmax(0, 460px); gap: 4px; }
-  .yr-week { gap: 4px; }
-  .yr-cell { min-height: 40px; }
-  .rest-mark { display: none; }
-  .yr-row + .yr-row { margin-top: 12px; }
-}
+.yr-row + .yr-row { margin-top: 2px; }
+/* the day's window: in the top layer, above the day touched (below it when there is no room), its tail on the day;
+   it glides along with the finger and its date fades out as the next one fades in */
+.yr-pop { --yr-done: #2fa864; position: fixed; inset: auto; left: 0; top: 0; margin: 0; width: min(340px, calc(100vw - 16px)); height: auto;
+  padding: 14px 14px 12px; overflow: visible; border: 1px solid var(--win-edge); border-radius: 20px; background: var(--navy-card); color: var(--ink);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .5); transform-origin: var(--tail-x, 50%) 100%; transition: left .2s ease, top .2s ease; }
+.yr-pop:not(.on) { display: none; }
+.yr-pop.still { transition: none; }
+.yr-pop[data-side='below'] { transform-origin: var(--tail-x, 50%) 0; }
+.yr-pop::after { content: ''; position: absolute; left: calc(var(--tail-x, 50%) - 8px); bottom: -8px; width: 15px; height: 15px; rotate: 45deg;
+  background: var(--navy-card); border: solid var(--win-edge); border-width: 0 1px 1px 0; transition: left .2s ease; }
+.yr-pop[data-side='below']::after { top: -8px; bottom: auto; border-width: 1px 0 0 1px; }
+.yr-pop.still::after { transition: none; }
+.yrp-head { display: flex; align-items: flex-start; gap: 10px; }
+.yrp-faces { flex: 1; min-width: 0; display: grid; }
+.yrp-face { grid-area: 1 / 1; animation: yrp-in .24s ease both; }
+.yrp-face.out { animation: yrp-out .24s ease both; pointer-events: none; }
+@keyframes yrp-in { from { opacity: 0; translate: 0 5px; } }
+@keyframes yrp-out { to { opacity: 0; translate: 0 -5px; } }
+.yrp-face h2 { margin: 0 0 4px; font-size: calc(18px * var(--esc, 1)); line-height: 1.25; }
+.yrp-face h2:focus { outline: none; }
+.yrp-face h2::first-letter { text-transform: uppercase; }
+.yr-pop .yd-place { margin: 0; font-size: calc(14px * var(--esc, 1)); color: var(--ink-soft); }
+.yr-pop .yd-imported { margin: 4px 0 0; }
+html:is([data-theme='office'], [data-theme='graphite']) .yr-pop { filter: grayscale(1); }
 .year-legend { margin: 14px 2px 0; font-size: calc(13px * var(--esc, 1)); }
 .year-dates { margin-top: 18px; }
 .year-dates h2 { margin: 0 0 8px; font-size: calc(20px * var(--esc, 1)); }
@@ -1881,14 +1908,13 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
 .yd-name { flex: 1 1 auto; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
 .yd-date { flex: none; color: var(--ink-soft); font-size: 13px; text-align: right; }
 @media (max-width: 420px) { .year-dates li button { flex-wrap: wrap; } .yd-date { flex-basis: 100%; text-align: left; padding-left: 24px; } }
-dialog.info-card.year-date { width: min(420px, calc(100vw - 32px)); border: 1px solid var(--win-edge); }
 .yd-place { display: flex; align-items: center; gap: 8px; }
 .yd-place::before { content: ''; width: 10px; height: 10px; flex: none; border-radius: 50%; background: var(--season, transparent); }
 .yd-field { margin-top: 6px; }
 .yd-foot { margin-top: 4px; }
 .ask-actions .yd-remove { color: var(--red); }
-.year-date .info-head h2::first-letter, .yd-date::first-letter { text-transform: uppercase; }
-@media (prefers-reduced-motion: reduce) { .season { animation: none; } .yr-cell { transition: none; } }
+.yd-date::first-letter { text-transform: uppercase; }
+@media (prefers-reduced-motion: reduce) { .season, .yrp-face, .yrp-face.out { animation: none; } .yrp-face.out { display: none; } .yr-cell, .yr-pop, .yr-pop::after { transition: none; } }
 /* Import from Google Calendar (optional): a quiet chip beside "Important dates", and a small window */
 .year-dates-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 0 0 8px; }
 .year-dates-head h2 { margin: 0; }
