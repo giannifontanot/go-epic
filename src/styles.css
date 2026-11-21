@@ -1802,9 +1802,6 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
 .palette-toggle[aria-expanded='true'] .palette-chev { rotate: 180deg; }
 .palette-panel { padding: 4px 2px 0; }
 .palette-label { margin: 14px 0 8px; font-size: 13px; font-weight: 700; color: var(--ink-soft); }
-.palette-themes { display: flex; flex-wrap: wrap; gap: 6px; }
-.palette-themes .chip { min-height: 40px; padding: 0 12px; background: color-mix(in srgb, var(--ink) 10%, transparent); color: var(--ink); font-weight: 600; }
-.palette-themes .chip.on { background: var(--pink); color: var(--g-on-ink, #1b2757); }
 .palette-list { display: grid; gap: 8px; }
 .palette-row { display: grid; grid-template-columns: 1fr auto; grid-template-areas: 'name tick' 'swatches tick'; align-items: center; gap: 6px 10px;
   width: 100%; min-height: 56px; padding: 10px 12px; border: 2px solid transparent; border-radius: 16px; background: color-mix(in srgb, var(--ink) 7%, transparent); color: inherit; text-align: left; }
