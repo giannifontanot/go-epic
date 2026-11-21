@@ -1357,7 +1357,7 @@ html[data-theme='graphite'] .now-badge { color: #1f2226 !important; }   /* dark 
 /* ...except the activity cards, which take their own brighter ink (--act-ink, 5.4:1 on the tinted greys), and the tasks'
    manila paper, which takes a dark ink so a task never looks like an activity (the panel) */
 html[data-theme='graphite'] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done)) :is(.t-title, .t-time, .t-dur, .t-link, .t-track span, h2, .eyebrow) { color: var(--act-ink) !important; }
-html[data-theme='graphite'] :is(.todo-note, .capture-list:not(.finished) li, .habit.todo-habit) :is(.todo-title, .todo-title *, .todo-time, .c-text, .c-text *, .h-head, .h-head *):not(.t-state, .grid-btn, .todo-edit, .c-icon) { color: #26292d !important; }
+html[data-theme='graphite'] :is(.todo-note, .capture-list:not(.finished) li, .habit.todo-habit) :is(.todo-title, .todo-title *, .todo-time, .c-text, .c-text *, .h-head, .h-head *):not(.t-state, .grid-btn, .todo-edit, .c-icon, .streak:not(.zero)) { color: #26292d !important; }
 html[data-theme='graphite'] :is(.todo-note, .capture-list li) .t-state[data-status='todo'] { background: rgba(255, 255, 255, .3); box-shadow: inset 0 0 0 2px rgba(38, 41, 45, .55); }
 html[data-theme='graphite'] .block-window input { color-scheme: dark; }
 
