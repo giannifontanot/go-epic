@@ -11,6 +11,7 @@
     @if (arranging()) {
       <button type="button" class="chip quiet on finish" (click)="toggleArrange()">✓ {{ i18n.t('week.finish') }}</button>
     }
+    <app-why screen="week" />
   </header>
 
   <nav class="day-tabs" role="tablist">

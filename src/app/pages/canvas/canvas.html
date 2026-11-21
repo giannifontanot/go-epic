@@ -12,6 +12,7 @@
       <button type="button" class="free-toggle" role="switch" [attr.aria-checked]="showFree" [class.on]="showFree" (click)="toggleFree()" [title]="i18n.t('canvas.showFree')">
         <span class="switch" aria-hidden="true"></span><span class="free-label">{{ i18n.t('canvas.freeSpace') }}</span></button>
     </div>
+    <app-why screen="canvas" />
   </header>
   @if (error) { <div class="error" role="alert">{{ error }}</div> }
   @if (libraryStore.rejected()) {

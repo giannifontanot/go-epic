@@ -1,3 +1,4 @@
+import { Why } from '../../shared/why';
 import { AutoColors } from '../../core/auto-colors';
 import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -14,7 +15,7 @@ import { WeekStore } from '../../core/week.store';
  */
 @Component({
   selector: 'app-focus',
-  imports: [RouterLink],
+  imports: [RouterLink, Why],
   template: `
     <section class="focus">
       <header class="focus-top">
@@ -22,9 +23,12 @@ import { WeekStore } from '../../core/week.store';
           <p class="eyebrow">{{ i18n.t('day.' + store.today()) }} · {{ clock() }}</p>
           <h1>{{ i18n.t('focus.title') }}</h1>
         </div>
-        @if (items().length) {
-          <p class="progress-text">{{ i18n.t('focus.progress', { done: doneCount(), total: activeCount() }) }}</p>
-        }
+        <span class="focus-top-end">
+          @if (items().length) {
+            <p class="progress-text">{{ i18n.t('focus.progress', { done: doneCount(), total: activeCount() }) }}</p>
+          }
+          <app-why screen="focus" />
+        </span>
       </header>
       @if (items().length) {
         <div class="progress" role="progressbar" [attr.aria-valuenow]="doneCount()" [attr.aria-valuemax]="activeCount()">

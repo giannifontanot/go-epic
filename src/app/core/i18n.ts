@@ -331,6 +331,10 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'canvas.addStory': { en: 'Story', es: 'Story' },
   'canvas.addTask': { en: 'Activity', es: 'Actividad' },
   'canvas.contained': { en: 'inside', es: 'dentro' },
+  'why.button': { en: 'Why this screen?', es: '¿Por qué esta pantalla?' },
+  'why.inShort': { en: 'In short', es: 'En pocas palabras' },
+  'why.orders': { en: 'It orders', es: 'Ordena' },
+  'why.more': { en: 'If you want to know more', es: 'Si quieres saber más' },
 };
 
 const STORAGE_KEY = 'go-epic-lang';

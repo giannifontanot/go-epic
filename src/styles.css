@@ -206,6 +206,69 @@ dialog.info-card::backdrop { background: rgba(4, 9, 30, .55); }
 .info-where .pc-epic { padding-right: 6px; }
 .info-where .pc-story strong { font-size: 15px; line-height: 1.4; }
 .info-foot { display: flex; justify-content: flex-end; margin-top: 14px; }
+/* "Why?" (Gianni): a small, cute pill at the top right of every screen; its window says which part of your life the
+   screen orders and why you need it (shared/why.ts, texts in core/why.ts). It wears the theme: the theme's own accent
+   (--pink) tints the pill and colours the "?", the word in the theme's ink, Georgia italic; a little ✦ twinkles at its
+   corner, it says hello with one small bounce when the screen opens and squishes when pressed. */
+.why { display: inline-flex; flex: none; }
+.why-btn { --why: var(--pink); position: relative; display: inline-flex; align-items: baseline; justify-content: center; gap: 1px;
+  min-height: 40px; padding: 0 15px 0 14px; border: 1.5px solid color-mix(in srgb, var(--why) 75%, transparent); border-radius: 999px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--why) 34%, transparent), color-mix(in srgb, var(--why) 12%, transparent));
+  color: var(--ink); font: italic 700 calc(17px * var(--esc, 1))/40px Georgia, 'Times New Roman', serif; letter-spacing: .01em; white-space: nowrap;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--why) 45%, transparent), 0 6px 14px rgba(0, 0, 0, .16); cursor: pointer;
+  transition: scale .18s cubic-bezier(.3, 1.6, .5, 1), box-shadow .18s ease, background .2s ease;
+  animation: why-hello .9s cubic-bezier(.3, 1.5, .5, 1) .7s 1 both; }
+.why-q { display: inline-block; color: var(--why); font-size: 1.3em; rotate: 12deg; translate: 0 1px; text-shadow: 0 1px 0 rgba(0, 0, 0, .12); }
+.why-spark { position: absolute; top: -7px; right: -3px; color: var(--jelly-b); font: normal 12px/1 system-ui, sans-serif;
+  animation: why-twinkle 3.6s ease-in-out 1.6s infinite both; pointer-events: none; }
+@media (hover: hover) { .why-btn:hover { background: linear-gradient(160deg, color-mix(in srgb, var(--why) 46%, transparent), color-mix(in srgb, var(--why) 20%, transparent)); }
+  .why-btn:hover .why-q { animation: why-wiggle .6s ease-in-out; } }
+.why-btn:active { scale: .92; box-shadow: 0 1px 0 color-mix(in srgb, var(--why) 45%, transparent), 0 2px 6px rgba(0, 0, 0, .14); }
+.why-btn:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+@keyframes why-hello { 0% { transform: scale(.6); opacity: 0; } 55% { transform: scale(1.12); opacity: 1; } 75% { transform: scale(.95); } 100% { transform: none; opacity: 1; } }
+@keyframes why-twinkle { 0%, 70%, 100% { opacity: .25; transform: scale(.7) rotate(0deg); } 82% { opacity: 1; transform: scale(1.25) rotate(25deg); } }
+@keyframes why-wiggle { 0%, 100% { rotate: 12deg; } 30% { rotate: -8deg; } 60% { rotate: 20deg; } }
+/* where it sits: the right end of each screen's top row */
+.week-top > .why { grid-column: 3; justify-self: end; }
+.progress-top > .why { margin-left: auto; }
+.focus-top-end { display: inline-flex; align-items: center; gap: 12px; margin-left: auto; }
+.canvas-page .page-header > h1 { margin-right: auto; }
+.canvas-page .page-header > .why { order: 3; }
+@media (max-width: 680px) { .canvas-page .page-header > .why { order: 1; } .canvas-page .page-header > .toolbar { order: 2; } }
+dialog.capture-panel header > .why { margin: 0 10px 0 auto; }
+/* the window: the info card, its body scrolling under a fixed head; the first section stands out, the rest follow */
+dialog.info-card.why-window { width: min(560px, calc(100vw - 24px)); max-height: min(88dvh, 820px); padding: 18px 18px 16px; border: 1px solid var(--win-edge); }
+dialog.why-window[open] { display: flex; flex-direction: column; overflow: hidden; }
+dialog.why-window :is(.info-head, .info-foot) { flex: none; }
+.why-titles { flex: 1 1 auto; min-width: 0; }
+.why-eyebrow { margin: 0; color: var(--pink); font: italic 700 15px/1.2 Georgia, 'Times New Roman', serif; letter-spacing: .02em; }
+dialog.why-window .info-head h2 { margin: 2px 0 0; font: 700 calc(24px * var(--esc, 1))/1.2 Georgia, 'Times New Roman', serif; }
+.why-orders { margin: 6px 0 0; color: var(--ink-soft); font-size: calc(14px * var(--esc, 1)); }
+.why-orders strong { color: var(--ink); }
+.why-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 14px -6px 0; padding: 0 6px 4px;
+  font-size: calc(16px * var(--esc, 1)); line-height: 1.55; letter-spacing: var(--app-ls); }
+.why-body h3 { margin: 0 0 6px; font: 700 calc(17px * var(--esc, 1))/1.3 Georgia, 'Times New Roman', serif; }
+.why-body p { margin: 0 0 10px; }
+.why-lead { padding: 14px 16px 6px; border-radius: 16px; border: 1.5px solid color-mix(in srgb, var(--pink) 55%, transparent);
+  background: color-mix(in srgb, var(--pink) 14%, transparent); }
+.why-lead h3 { color: var(--pink); font-size: calc(14px * var(--esc, 1)); font-family: system-ui, sans-serif; text-transform: uppercase; letter-spacing: .08em; }
+.why-lead p { font-size: calc(17.5px * var(--esc, 1)); line-height: 1.5; font-weight: 600; }
+.why-body .why-more { display: flex; align-items: center; gap: 10px; margin: 20px 0 14px; color: var(--ink-soft); font-size: calc(13px * var(--esc, 1));
+  font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.why-more::before, .why-more::after { content: ''; flex: 1 1 0; height: 1px; background: color-mix(in srgb, var(--ink) 22%, transparent); }
+.why-sec { margin: 0 0 14px; padding-left: 12px; border-left: 3px solid color-mix(in srgb, var(--pink) 60%, transparent); }
+/* opening, the sections rise in one after another with a little bounce (Gianni: everything moves smoothly) */
+dialog.why-window[open] :is(.why-lead, .why-more, .why-sec) { animation: why-rise .5s cubic-bezier(.25, 1.35, .5, 1) both; animation-delay: calc(260ms + min(var(--i, 0), 6) * 55ms); }
+@keyframes why-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+/* the light themes keep the accent readable as text; the grey ones keep the "?" in their soft ink */
+html:is([data-theme='office'], [data-theme='graphite']) .why-btn { --why: var(--ink-soft); }
+html:is([data-theme='office'], [data-theme='graphite']) :is(.why-eyebrow, .why-lead h3) { color: var(--ink-soft); }
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .why-q { color: transparent; background: var(--title-gold); -webkit-background-clip: text; background-clip: text; text-shadow: none; }
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .why-btn { --why: #c9a227; }
+@media (prefers-reduced-motion: reduce) {
+  .why-btn, .why-spark, .why-btn:hover .why-q, dialog.why-window[open] :is(.why-lead, .why-more, .why-sec) { animation: none; }
+  .why-btn { transition: none; } .why-spark { opacity: .8; }
+}
 /* the day overview (Gianni): a nested bullet list, blocks › activities › tasks, all-day tasks first */
 /* the overview's weekday chips (Gianni): any day of this week, one tap; a sideways swipe steps them too */
 .ov-days { display: flex; gap: 4px; margin: 0 0 12px; }
@@ -619,7 +682,7 @@ html.tilt .object { translate: calc(var(--ox, 0px) + (max(var(--tilt-k), 0) * va
 /* Week board top: title · 💡 Capture at the right; while arranging ✓ Finish takes the 💡's place, on the same row */
 .week-top { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; row-gap: 8px; }
 .week-top > span { display: none; }
-.week-top .finish { justify-self: end; grid-column: 3; white-space: nowrap; }
+.week-top .finish { justify-self: end; grid-column: 2; white-space: nowrap; }
 .week-top > h1 { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* The details' header carries the level being created, in its Canvas colour, on the usual navy window: a day's + (new
