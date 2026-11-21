@@ -13,7 +13,8 @@ export type { MenuAction };
  * Two round buttons at the bottom right of every page (Gianni: so the screen is not full of buttons; they also replaced
  * the ☰ menu): the lowest is 💡 Capture (one window: a new task with its repeat days, day and hour over the Current and
  * Finished lists; Gianni merged New task into it and took the pages' 💡 away), and right above it the menu (four
- * squares; a panel ordered its actions by how often each is used). A tap on the menu stacks its actions above it, each
+ * squares; a panel ordered its actions by how often each is used). A tap on the menu fades the 💡 away, glides the menu
+ * button down into its place (a × while open; Gianni: the actions sit closer to the thumb) and stacks its actions above it, each
  * sliding up out of it, the nearest first, as the themes fan out, in Gianni's order: the day overview, the pages, the
  * Themes (their own button, out of the edit tools), ✎ Edit (the page's own: the Week board arranges the week, the Canvas
  * opens its edit tools; only where the page has something to edit) and ⚙ Ajustes on top; on a short screen they go on in a second column. A tap on an action closes the menu and runs it (the
@@ -76,8 +77,9 @@ export type { MenuAction };
       }
     </button>
     <!-- 💡 Capture, its own round button under the menu's (Gianni: two buttons at the foot, the bulb the lowest): one
-         window with the new task (its repeat days, day and hour) over the Current and Finished lists; no words -->
-    <button type="button" class="capture-fab idea-fab" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')"
+         window with the new task (its repeat days, day and hour) over the Current and Finished lists; no words.
+         While the menu is open it fades away and the menu button glides down into its place (styles.css) -->
+    <button type="button" class="capture-fab idea-fab" [class.away]="open()" [attr.aria-hidden]="open() || null" [attr.tabindex]="open() ? -1 : null" [attr.aria-label]="i18n.t('capture.open')" [title]="i18n.t('capture.open')"
             (click)="run(openCapture)"><span aria-hidden="true">💡</span></button>
     <app-day-overview />
   `,
