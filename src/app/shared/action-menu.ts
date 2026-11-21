@@ -1,4 +1,4 @@
-import { Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { I18n } from '../core/i18n';
 import { TodoStore } from '../core/todo.store';
 import { WeekStore } from '../core/week.store';
@@ -131,6 +131,10 @@ export class ActionMenu {
     this.pagesFan()?.close();
     this.picker.toggle(button);
   }
+  /** The palette window's OK closes this menu too (Gianni: everything shut, ready to work). */
+  private readonly afterTheme = effect(() => {
+    if (this.picker.finished()) untracked(() => this.close());
+  });
   protected run(action: () => void): void {
     this.close();
     action();
