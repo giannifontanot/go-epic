@@ -14,9 +14,9 @@ export type { MenuAction };
  * the ☰ menu): the lowest is 💡 Capture (one window: a new task with its repeat days, day and hour over the Current and
  * Finished lists; Gianni merged New task into it and took the pages' 💡 away), and right above it the menu (four
  * squares; a panel ordered its actions by how often each is used). A tap on the menu stacks its actions above it, each
- * sliding up out of it, the nearest first, as the themes fan out: the day overview, ✎ Edit (the page's own: the Week board arranges the week, the Canvas opens its edit tools; only
- * where the page has something to edit), the Themes right above it (Gianni: their own button, out of the edit tools), the
- * pages and ⚙ Ajustes on top; on a short screen they go on in a second column. A tap on an action closes the menu and runs it (the
+ * sliding up out of it, the nearest first, as the themes fan out, in Gianni's order: the day overview, the pages, the
+ * Themes (their own button, out of the edit tools), ✎ Edit (the page's own: the Week board arranges the week, the Canvas
+ * opens its edit tools; only where the page has something to edit) and ⚙ Ajustes on top; on a short screen they go on in a second column. A tap on an action closes the menu and runs it (the
  * pages keep it open while their list is out); the button again, a tap outside or Esc draw them back in. Under reduced
  * motion they simply appear and go.
  */
@@ -26,22 +26,18 @@ export type { MenuAction };
   template: `
     @if (open()) { <div class="action-veil" aria-hidden="true" (click)="close()"></div> }
     <div id="action-stack" class="action-stack" [class.open]="open()" role="group" [attr.aria-label]="i18n.t('nav.actions')">
-      @if (ready()) {
-        <button type="button" class="capture-fab act-fab" [style.--i]="index().overview" [attr.aria-label]="i18n.t('week.overview')" [title]="i18n.t('week.overview')"
-                (click)="run(showOverview)">
+      <!-- always first, so the order never shifts; it waits (disabled) until today's plan and Capture's tasks have loaded -->
+      <button type="button" class="capture-fab act-fab" [style.--i]="index().overview" [attr.aria-label]="i18n.t('week.overview')" [title]="i18n.t('week.overview')"
+              [disabled]="!ready()" (click)="run(showOverview)">
           <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="currentColor">
             <circle cx="5" cy="6" r="1.8"/><rect x="9" y="5" width="12" height="2" rx="1"/>
             <circle cx="9" cy="12" r="1.6"/><rect x="13" y="11" width="8" height="2" rx="1"/>
             <circle cx="9" cy="18" r="1.6"/><rect x="13" y="17" width="8" height="2" rx="1"/>
           </svg>
         </button>
-      }
-      @if (edit(); as action) {
-        <button type="button" class="capture-fab act-fab edit-fab" [style.--i]="index().edit" [attr.aria-label]="action.label" [title]="action.label"
-                (click)="run(action.run)">✎</button>
-      }
-      <!-- the Themes, their own button right above ✎ Edit on every page (Gianni: out of the edit tools; where a page has
-           nothing to edit it sits in that place); they fan out to its left and the menu stays open behind them -->
+      <app-page-fan [style.--i]="index().pages" (went)="close()" />
+      <!-- the Themes, their own button on every page (Gianni: out of the edit tools), between the pages and ✎ Edit;
+           they fan out to its left and the menu stays open behind them -->
       <button #themeBtn type="button" class="capture-fab act-fab theme-act" [class.open]="themeOpen()" [attr.aria-expanded]="themeOpen()"
               [style.--i]="index().theme" [attr.aria-label]="i18n.t('settings.theme')" [title]="i18n.t('settings.theme')"
               (click)="toggleThemes($event.currentTarget)">
@@ -51,7 +47,10 @@ export type { MenuAction };
           <circle cx="14.4" cy="7.5" r="1.3"/><circle cx="16.8" cy="11" r="1.3"/></g>
         </svg>
       </button>
-      <app-page-fan [style.--i]="index().pages" (went)="close()" />
+      @if (edit(); as action) {
+        <button type="button" class="capture-fab act-fab edit-fab" [style.--i]="index().edit" [attr.aria-label]="action.label" [title]="action.label"
+                (click)="run(action.run)">✎</button>
+      }
       <!-- Ajustes, its own button on top (Gianni): language, weighted buttons, red time line -->
       <button type="button" class="capture-fab act-fab" [style.--i]="index().settings" [attr.aria-label]="i18n.t('settings.title')" [title]="i18n.t('settings.title')"
               (click)="run(openSettings)">
@@ -98,12 +97,13 @@ export class ActionMenu {
   protected readonly ready = computed(() => this.week.loaded() && this.todos.ready());
   /** Each action's place from the bottom (0 = just above the round button), for its slide and its delay. */
   protected readonly index = computed(() => {
+    // from the bottom (Gianni): the day overview, the pages, the Themes, ✎ Edit (only where the page has one), ⚙ Ajustes
     let i = 0;
-    const overview = this.ready() ? i++ : -1;
-    const edit = this.edit() ? i++ : -1;   // ✎ Edit, where the page has something to edit
-    const theme = i++;                      // the Themes, right above it
+    const overview = i++;
     const pages = i++;
-    return { overview, edit, theme, pages, settings: i };
+    const theme = i++;
+    const edit = this.edit() ? i++ : -1;
+    return { overview, pages, theme, edit, settings: i };
   });
 
   protected toggle(): void {
