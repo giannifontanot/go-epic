@@ -454,13 +454,15 @@ export class Canvas implements DoCheck {
       this.followPlace(kind, place, node.id);
       if (ghost) void this.motion.land(ghost, this.nodeElement(node.id), this.destinationElement(parentId ?? null));
     } else {
+      let createdId: string | undefined;
       this.mutate(() => this.state.group(() => {
         parentId = this.resolveParent();
         if (parentId === undefined) return;
         const created = this.state.create(kind, title, parentId);
+        createdId = created?.id;
         if (created?.kind === 'epic') { this.areaFilter = this.epicArea || this.areaFilter; this.activeId = created.id; }
       }));
-      if (kind !== 'epic') this.followPlace(kind, place);
+      if (kind !== 'epic' && createdId) this.followPlace(kind, place, createdId);   // its own ancestry names the Epic to show
     }
     this.announcement = this.i18n.t('canvas.draftUpdated');
     this.close();
@@ -482,7 +484,7 @@ export class Canvas implements DoCheck {
   /** The Epic above a node (after it moved), for a place made with a new Epic. */
   private pathEpic(id?: string): string {
     for (let n = this.state.node(id), guard = 0; n && guard < 10; guard++, n = this.state.node(n.parentId)) if (n.kind === 'epic') return n.id;
-    return this.epics[this.epics.length - 1]?.id ?? '';
+    return '';
   }
 
   setColor(color: string | null): void {
