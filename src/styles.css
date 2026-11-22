@@ -1905,13 +1905,20 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
   background: color-mix(in srgb, var(--season) 26%, transparent); color: color-mix(in srgb, var(--season) 62%, var(--ink)); }
 .season-head h2 { margin: 0; font-size: calc(20px * var(--esc, 1)); }
 .season-range { margin-left: auto; color: var(--ink-soft); font-size: calc(13px * var(--esc, 1)); font-weight: 700; white-space: nowrap; }
-.yr-row + .yr-row { margin-top: 8px; }
-.yr-label { margin: 0 0 4px; font: 700 calc(11.5px * var(--esc, 1))/1.2 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  letter-spacing: .05em; text-transform: uppercase; color: var(--ink-soft); }
+/* a sprint's label sits right on its line (Gianni: so it reads as the line's own), legible: its name in a deep tone of
+   the season's ink, its range ("05 Oct - 18 Oct") a lighter tone of the same, both in straight columns down the
+   season; a quarter already past greys its title and its labels (two greys), as its past days */
+.yr-label { display: grid; grid-template-columns: 5.4em auto; column-gap: .5em; align-items: baseline; margin: 0;
+  font: 800 calc(15px * var(--esc, 1))/1.2 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; letter-spacing: .01em;
+  color: color-mix(in srgb, var(--season) 22%, var(--ink)); }
+.yr-range { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; color: color-mix(in srgb, var(--season) 25%, #4a4e57); }
+.yr-row.rest .yr-name { grid-column: 1 / -1; }
+.season.past h2, .season.past .yr-label { color: var(--yr-edge); }
+.season.past .yr-range { color: #a9adb4; }
 /* a sprint is one line of 21 days (Gianni), its weeks a little apart; the rest week's line its 7 days and a striped band.
    The line itself is the touch target: a finger held on it (or sliding along it) opens the day's window and moves it
    day by day, stopping at the sprint's ends; scrolling up and down still works (pan-y). */
-.yr-line { --wk: clamp(4px, 1.4vw, 12px); list-style: none; margin: 0; padding: 8px 0 10px; display: grid; align-items: center;
+.yr-line { --wk: clamp(4px, 1.4vw, 12px); list-style: none; margin: 0; padding: 4px 0 6px; display: grid; align-items: center;
   grid-template-columns: repeat(7, minmax(0, 1fr)) var(--wk) repeat(7, minmax(0, 1fr)) var(--wk) repeat(7, minmax(0, 1fr));
   column-gap: clamp(1.5px, .45vw, 5px); touch-action: pan-y; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .yr-line li { display: grid; min-width: 0; }
@@ -1939,7 +1946,7 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
 .yr-row.rest .yr-cell.picked { background: var(--page); }
 .rest-mark { grid-column: 9 / -1; align-self: stretch; border-radius: 8px; border: 1.5px dashed color-mix(in srgb, var(--season) 45%, transparent);
   background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--season) 12%, transparent) 0 4px, transparent 4px 9px); }
-.yr-row + .yr-row { margin-top: 2px; }
+.yr-row + .yr-row { margin-top: 10px; }
 /* the day's window: in the top layer, above the day touched (below it when there is no room), its tail on the day;
    it glides along with the finger and its date fades out as the next one fades in */
 .yr-pop { position: fixed; inset: auto; left: 0; top: 0; margin: 0; width: min(340px, calc(100vw - 16px)); height: auto;

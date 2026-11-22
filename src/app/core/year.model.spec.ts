@@ -1,6 +1,15 @@
-import { YEARS, YEAR_2026, YEAR_2027, cleanDateName, currentFirst, nearestMonday, placeOf, weekdayOf, yearFor, yearPlan } from './year.model';
+import { YEARS, YEAR_2026, YEAR_2027, cleanDateName, currentFirst, dayMonth, nearestMonday, placeOf, sprintRange, sprintRangeLabel, weekdayOf, yearFor, yearPlan } from './year.model';
 
 describe('Year model', () => {
+  it('labels a sprint with its range, two-digit day and three-letter month', () => {
+    const autumn = yearPlan(YEAR_2026.seasons, YEAR_2026.next)[3];
+    expect(sprintRange(autumn.sprints[0])).toEqual({ from: '2026-09-21', to: '2026-10-11' });
+    expect(sprintRangeLabel(autumn.sprints[0], 'en')).toBe('21 Sep - 11 Oct');
+    expect(sprintRangeLabel(autumn.sprints[1], 'es')).toBe('12 Oct - 01 Nov');
+    expect(dayMonth('2027-01-05', 'es')).toBe('05 Ene');
+    expect(dayMonth('2027-08-09', 'en')).toBe('09 Aug');
+  });
+
   it('finds the nearest Monday', () => {
     expect(nearestMonday('2026-12-21')).toBe('2026-12-21');   // a Monday
     expect(nearestMonday('2027-03-20')).toBe('2027-03-22');   // Saturday: forward
