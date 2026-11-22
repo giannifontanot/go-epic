@@ -166,6 +166,16 @@
     html[lang="es"] .mission q { quotes: '\00AB' '\00BB'; }
     @media (min-width: 880px) { .slide .mission { margin-top: 30px; } }
     .mission cite { display: block; margin-top: 6px; font-style: normal; font-weight: 600; font-size: .78em; color: var(--mute); }
+    /* Why Epic?: the page that tells why the app has its name (Gianni), under the mission on the first slide and,
+       where there is room, at the top beside the language */
+    .mission .why { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; margin-top: 4px; font-size: max(.78em, 14px); font-weight: 600;
+      color: #9a6a12; text-decoration: none; }
+    .mission .why span { transition: transform .2s var(--spring); }
+    .mission .why:hover span { transform: translateX(3px); }
+    .why-top { display: none; margin-left: auto; align-items: center; min-height: 40px; padding: 0 10px; border-radius: 999px;
+      color: var(--mute); font-size: 14px; font-weight: 500; text-decoration: none; }
+    .why-top:hover { color: #101b42; }
+    @media (min-width: 880px) { .why-top { display: inline-flex; } .why-top + .lang { margin-left: 0; } }
     /* the mission has two copies: in the first slide's words (side by side) and under the emblem (phones) */
     .stage > .mission { display: none; text-align: center; margin: 0 auto; }
     .motto b { color: #b8860b; }
@@ -660,6 +670,7 @@
 <body data-slide="0">
   <header class="top">
     <p class="wm" translate="no"><span class="go">Go</span> <span class="gold">Epic!</span></p>
+    <a class="why-top" href="/why-epic/" data-i="why_top">Why Epic?</a>
     <label class="lang">
       <svg class="globe" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.2"/><path d="M1.8 9h14.4M9 1.8c2 2 3 4.4 3 7.2s-1 5.2-3 7.2c-2-2-3-4.4-3-7.2s1-5.2 3-7.2Z"/></svg>
       <span class="lang-name" aria-hidden="true">English</span><span class="lang-code" aria-hidden="true">EN</span>
@@ -677,7 +688,7 @@
       <div class="slides">
         <section class="slide on" aria-roledescription="slide" aria-label="1 / 7">
           <h1 class="motto" data-i="k0"><span>Plan<b>.</b></span> <span>Focus<b>.</b></span> <span>Grow<b>.</b></span></h1>
-          <p class="lead mission" data-i="l0"><span class="eyebrow">Our mission</span><q>All we have to decide is what to do with the time that is given us.</q> <cite>Gandalf · J.R.R. Tolkien</cite></p>
+          <p class="lead mission" data-i="l0"><span class="eyebrow">Our mission</span><q>All we have to decide is what to do with the time that is given us.</q> <cite>Gandalf · J.R.R. Tolkien</cite><a class="why" href="/why-epic/">Why Epic? <span aria-hidden="true">→</span></a></p>
         </section>
         <section class="slide" aria-roledescription="slide" aria-label="2 / 7">
           <p class="kicker" style="--k:#c4302b" data-i="k1">Week board</p>
@@ -885,7 +896,7 @@
         </div></div>
       </div>
     </div>
-    <p class="lead mission" data-i="l0"><span class="eyebrow">Our mission</span><q>All we have to decide is what to do with the time that is given us.</q> <cite>Gandalf · J.R.R. Tolkien</cite></p>
+    <p class="lead mission" data-i="l0"><span class="eyebrow">Our mission</span><q>All we have to decide is what to do with the time that is given us.</q> <cite>Gandalf · J.R.R. Tolkien</cite><a class="why" href="/why-epic/">Why Epic? <span aria-hidden="true">→</span></a></p>
   </main>
 
   <button type="button" class="edge prev" aria-label="Back">
@@ -918,7 +929,8 @@
   <script>
     var ES = {
       get_short: 'Descargar', get_long2: 'Descarga Go Epic, es gratis',
-      k0: '<span>Planea<b>.</b></span> <span>Enfócate<b>.</b></span> <span>Crece<b>.</b></span>', l0: '<span class="eyebrow">Nuestra misión</span><q>Todo lo que tenemos que decidir es qué hacer con el tiempo que se nos ha dado.</q> <cite>Gandalf · J.R.R. Tolkien</cite>',
+      why_top: '¿Por qué Epic?',
+      k0: '<span>Planea<b>.</b></span> <span>Enfócate<b>.</b></span> <span>Crece<b>.</b></span>', l0: '<span class="eyebrow">Nuestra misión</span><q>Todo lo que tenemos que decidir es qué hacer con el tiempo que se nos ha dado.</q> <cite>Gandalf · J.R.R. Tolkien</cite><a class="why" href="/why-epic/">¿Por qué Epic? <span aria-hidden="true">→</span></a>',
       k1: 'Tablero semanal', h1: 'Cada hora tiene su lugar.',
       l1: 'Dale a cada parte de tu día su bloque. Una línea roja te dice dónde estás, y un toque lo marca hecho, en oro.',
       k3: 'Canvas', h3: 'Empieza por quién quieres ser.', l3: 'Área, Epic, Feature, Story, Actividad: de quién eres al pequeño paso de hoy.',
@@ -1254,7 +1266,7 @@
     if (!wanted) wanted = (navigator.language || '').toLowerCase().split('-')[0];
     wanted = (wanted || '').toLowerCase();
     setLang(DICTS[wanted] ? wanted : 'en');
-    show(0);
+    show(location.hash === '#download' ? N - 1 : 0);   // #download (the Why Epic? page's buttons) opens on Download
 
     // Download buttons install the real app. The page links the app's manifest, so Chrome and Edge offer it as the
     // Go Epic app: we keep their install event and open the browser's own install window on a tap (Gianni: a real

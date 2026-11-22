@@ -1,0 +1,271 @@
+<!doctype html>
+<!--
+  Why Epic?: a short page that tells why the app is called Go Epic (Gianni: every day of ours, every life, is a story,
+  and with that story we want to make something epic). Served at /why-epic/ and linked from the Get Go Epic page.
+  A plain static page in the landing page's look (no Angular, no Firebase). English in the HTML for search engines,
+  Spanish from the ES dictionary below (the landing page's language choice, ?lang=es or a Spanish browser).
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Why Epic? · Go Epic</title>
+  <meta name="description" content="Every day is a page and every life is a story. Why our planner is called Go Epic: from who you want to be down to today's small step." />
+  <link rel="canonical" href="https://getgoepic.com/why-epic/" />
+  <link rel="alternate" hreflang="en" href="https://getgoepic.com/why-epic/" />
+  <link rel="alternate" hreflang="es" href="https://getgoepic.com/why-epic/?lang=es" />
+  <link rel="alternate" hreflang="x-default" href="https://getgoepic.com/why-epic/" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#fbfbfd" />
+  <link rel="icon" type="image/png" href="/get/emblem-48.png" />
+  <link rel="apple-touch-icon" href="/get/emblem-180.png" />
+  <link rel="preload" as="font" type="font/woff2" href="/get/cinzel-decorative-900.woff2" crossorigin />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Go Epic" />
+  <meta property="og:title" content="Why Epic? · Go Epic" />
+  <meta property="og:description" content="Every day is a page and every life is a story. With that story, we want to make something epic." />
+  <meta property="og:url" content="https://getgoepic.com/why-epic/" />
+  <meta property="og:image" content="https://getgoepic.com/get/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="The Go Epic emblem, a winged sword with a gold GO EPIC! ribbon, beside the name Go Epic!" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="es_ES" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Why Epic? · Go Epic" />
+  <meta name="twitter:description" content="Every day is a page and every life is a story. With that story, we want to make something epic." />
+  <meta name="twitter:image" content="https://getgoepic.com/get/og-image.png" />
+
+  <style>
+    @font-face { font-family: 'Cinzel Decorative'; font-style: normal; font-weight: 900; font-display: swap;
+      src: url('/get/cinzel-decorative-900.woff2') format('woff2'); }
+    :root {
+      --bg: #fbfbfd; --ink: #1d1d1f; --mute: #6e6e73; --navy: #101b42; --gold: #b8860b;
+      --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Inter, 'Segoe UI', Roboto, Arial, sans-serif;
+      --spring: cubic-bezier(.16, 1, .3, 1);
+      --wm: clamp(24px, 7.4vw, 34px);
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    html, body { margin: 0; }
+    body { background: var(--bg); color: var(--ink); font: 18px/1.6 var(--font); -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent; overflow-x: clip; }
+    h1, h2, p, ol { margin: 0; }
+    :focus-visible { outline: 3px solid #0a84ff; outline-offset: 3px; border-radius: 10px; }
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+    /* ── Top: the same as the Get Go Epic page (name, language, download) ── */
+    .top { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 10px; width: 100%; max-width: 1200px; margin: 0 auto;
+      padding: max(10px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) 10px max(18px, env(safe-area-inset-left));
+      background: rgba(251, 251, 253, .86); -webkit-backdrop-filter: saturate(1.6) blur(14px); backdrop-filter: saturate(1.6) blur(14px); }
+    .wm { flex: none; display: inline-flex; align-items: center; min-height: 40px; margin: 0; text-decoration: none;
+      font: 900 var(--wm)/1.08 'Cinzel Decorative', Georgia, serif; letter-spacing: .01em; white-space: nowrap; }
+    .wm .gold { padding-right: .05em; }
+    .go { color: var(--navy); }
+    .gold { background: linear-gradient(100deg, #b8860b, #8a5a12); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .lang { margin-left: auto; position: relative; display: inline-flex; align-items: center; gap: 6px; min-width: 40px; min-height: 40px;
+      padding: 0 12px; border-radius: 999px; background: rgba(255, 255, 255, .7); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .07);
+      color: var(--mute); font-size: 14px; font-weight: 500; cursor: pointer; transition: color .2s, box-shadow .2s; }
+    .lang svg { flex: none; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+    .lang .globe { width: 17px; height: 17px; color: #a1a1a6; }
+    .lang .lang-chev { width: 10px; height: 10px; color: #a1a1a6; stroke-width: 1.6; }
+    .lang-code { display: none; }
+    .lang select { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; border: 0; border-radius: 999px; opacity: 0;
+      cursor: pointer; font-size: 16px; -webkit-appearance: none; appearance: none; }
+    .lang:hover { color: var(--navy); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .14); }
+    .lang:has(select:focus-visible) { outline: 2px solid #c9a227; outline-offset: 2px; }
+    @media (max-width: 879px) {
+      .lang { padding: 0 10px; }
+      .lang .lang-name { display: none; }
+      .lang .lang-code { display: inline; }
+    }
+    .dl-top { position: relative; flex: none; display: grid; place-items: center; width: 40px; height: 40px; margin: 0 6px 0 4px;
+      border-radius: 50%; background: #111; color: #fff; box-shadow: 0 0 0 5px #f5c945; transition: transform .2s var(--spring); }
+    .dl-top svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    .dl-top::after { content: ''; position: absolute; inset: -5px; border-radius: 50%; pointer-events: none;
+      box-shadow: 0 0 0 5px #f5c945, 0 0 20px 6px rgba(245, 201, 69, .8); opacity: 0; animation: ring-flash 1.6s ease-out .9s infinite; }
+    .dl-top:hover { transform: scale(1.06); }
+    .dl-top:active { transform: scale(.94); }
+    .dl-top:focus-visible { outline: 2px solid var(--navy); outline-offset: 8px; }
+    @keyframes ring-flash {
+      0% { opacity: 1; transform: scale(1); }
+      70% { opacity: 0; transform: scale(1.14); }
+      100% { opacity: 0; transform: scale(1.14); }
+    }
+
+    /* ── The story: one calm reading column ─────────────────── */
+    .story { width: 100%; max-width: 680px; margin: 0 auto;
+      padding: 28px max(22px, env(safe-area-inset-right)) max(56px, env(safe-area-inset-bottom)) max(22px, env(safe-area-inset-left)); }
+    .eyebrow { display: block; margin-bottom: 10px; font-size: 12px; font-weight: 700; line-height: 1.2; letter-spacing: .14em;
+      text-transform: uppercase; color: #9a6a12; }
+    h1 { font: 900 clamp(40px, 12vw, 72px)/1.04 'Cinzel Decorative', Georgia, serif; letter-spacing: .01em; color: var(--navy); text-wrap: balance; }
+    h1 b { color: var(--gold); font-weight: inherit; }
+    .lead { margin-top: 18px; font-size: clamp(21px, 5.4vw, 27px); line-height: 1.35; font-weight: 600; letter-spacing: -.01em; text-wrap: pretty; }
+    .rule { width: 36px; height: 2px; margin: 34px 0 30px; border: 0; border-radius: 2px; background: #c9a227; }
+    section + section { margin-top: 38px; }
+    h2 { margin-bottom: 10px; font-size: clamp(22px, 5.6vw, 28px); line-height: 1.2; font-weight: 700; letter-spacing: -.02em; text-wrap: balance; }
+    section p { color: #3a3a3c; text-wrap: pretty; }
+    section p + p { margin-top: 14px; }
+    em { font-style: italic; }
+
+    /* The five levels of the app, drawn in the Canvas's colours, each one step further in */
+    .ladder { list-style: none; margin: 20px 0 18px; padding: 0; display: grid; gap: 10px; }
+    .ladder li { margin-left: calc(var(--n) * min(18px, 4vw)); padding: 12px 16px; border-radius: 16px; background: var(--tone); color: var(--ink2, #302746);
+      box-shadow: 0 3px 0 rgba(0, 0, 0, .08); line-height: 1.4; }
+    .ladder b { display: block; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; opacity: .8; }
+    .ladder span { display: block; font-size: 16px; }
+    .ladder q { display: block; margin-top: 2px; font-size: 15px; font-style: italic; opacity: .85; quotes: '\201C' '\201D'; }
+    html[lang="es"] .ladder q { quotes: '\00AB' '\00BB'; }
+    .ladder .area { --tone: linear-gradient(150deg, #8a2c62, #6a1f4a); --ink2: #fff4e9; }
+    .ladder .epic { --tone: linear-gradient(150deg, #1d2b66, #101b42); --ink2: #fff4e9; }
+    .ladder .feat { --tone: linear-gradient(150deg, #ffdf77, #f5c945); --ink2: #362643; }
+    .ladder .stry { --tone: #fff4e9; box-shadow: inset 0 0 0 1px rgba(54, 38, 67, .12), 0 3px 0 rgba(0, 0, 0, .06); }
+    .ladder .act { --tone: #ffd5bd; }
+
+    /* The end: the name, the offer and the way back */
+    .end { margin-top: 46px; text-align: center; }
+    .end .close { font: 900 clamp(26px, 7vw, 38px)/1.15 'Cinzel Decorative', Georgia, serif; letter-spacing: .01em; }
+    .end .lead { margin: 12px auto 0; max-width: 22em; font-weight: 500; font-size: clamp(18px, 4.6vw, 21px); color: var(--mute); text-wrap: balance; }
+    .pill { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; text-decoration: none;
+      background: #1d1d1f; color: #fff; font-weight: 600; transition: transform .2s var(--spring); }
+    .pill:hover { transform: scale(1.03); }
+    .pill:active { transform: scale(.97); }
+    .pill.big { position: relative; min-height: 52px; margin-top: 26px; padding: 0 28px; font-size: 17px; box-shadow: 0 0 0 6px #f5c945; }
+    .pill.big::after { content: ''; position: absolute; inset: -6px; border-radius: inherit; pointer-events: none;
+      box-shadow: 0 0 0 6px #f5c945, 0 0 26px 8px rgba(245, 201, 69, .8); opacity: 0; animation: ring-flash 1.6s ease-out .9s infinite; }
+    .back { display: inline-flex; align-items: center; min-height: 40px; margin-top: 18px; padding: 0 10px; border-radius: 999px;
+      color: var(--mute); font-size: 15px; font-weight: 500; text-decoration: none; }
+    .back:hover { color: var(--navy); }
+
+    /* The page comes in gently, one part after another */
+    .story > * { animation: rise .9s var(--spring) both; }
+    .story > :nth-child(2) { animation-delay: .07s; }
+    .story > :nth-child(3) { animation-delay: .14s; }
+    .story > :nth-child(n+4) { animation-delay: .21s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(16px); filter: blur(6px); } }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <a class="wm" href="/get/" translate="no"><span class="go">Go</span>&nbsp;<span class="gold">Epic!</span><span class="sr" data-i="home"> · Home</span></a>
+    <label class="lang">
+      <svg class="globe" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="7.2"/><path d="M1.8 9h14.4M9 1.8c2 2 3 4.4 3 7.2s-1 5.2-3 7.2c-2-2-3-4.4-3-7.2s1-5.2 3-7.2Z"/></svg>
+      <span class="lang-name" aria-hidden="true">English</span><span class="lang-code" aria-hidden="true">EN</span>
+      <svg class="lang-chev" viewBox="0 0 10 10" aria-hidden="true"><path d="M2 3.5 5 6.5 8 3.5"/></svg>
+      <select aria-label="Language / Idioma">
+        <option value="en" lang="en">English</option>
+        <option value="es" lang="es">Español</option>
+      </select>
+    </label>
+    <a class="dl-top" href="/get/#download"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg><span class="sr" data-i="get_short">Download</span></a>
+  </header>
+
+  <main class="story">
+    <p class="eyebrow" data-i="eyebrow">The name</p>
+    <h1 data-i="title">Why Epic<b>?</b></h1>
+    <p class="lead" data-i="lead">Because every day is a page, and every life is a story.</p>
+    <hr class="rule" />
+
+    <section>
+      <h2 data-i="h_story">A story, not a list</h2>
+      <p data-i="p_story1">A to-do list tells you what is missing. A story tells you what it is for. Your day is not a pile of loose chores: it has a beginning, hard moments, small decisions and an end. Tomorrow a new page begins.</p>
+      <p data-i="p_story2">Over the years those pages add up to something only you can write: your life. The question is not whether it will be a story. It already is one. The question is what kind.</p>
+    </section>
+
+    <section>
+      <h2 data-i="h_epic">Epic does not mean huge</h2>
+      <p data-i="p_epic1">Epic does not mean famous, or perfect. The great stories are rarely about someone who had it all figured out. They are about ordinary people who decided what to do with the time they were given, and kept walking when it cost them.</p>
+      <p data-i="p_epic2">That is where the epic lives: in faithfulness. Getting up, starting again, taking the next step. A quiet morning of prayer, ten minutes of walking, an hour of honest work, a dinner without phones. Nobody writes songs about them, and yet that is what a life is made of.</p>
+    </section>
+
+    <section>
+      <h2 data-i="h_app">How Go Epic is built</h2>
+      <p data-i="p_app1">In software teams, an epic is a large piece of work that is told in stories and achieved step by step. Go Epic takes that idea and brings it to your life, in five levels:</p>
+      <ol class="ladder">
+        <li class="area" style="--n:0"><b data-i="lv_area">Area</b><span data-i="lv_area_t">Where it plays out: health, family, work, rest.</span><q data-i="lv_area_e">The Temple</q></li>
+        <li class="epic" style="--n:1"><b>Epic</b><span data-i="lv_epic_t">Who you decide to be.</span><q data-i="lv_epic_e">I am strong and healthy</q></li>
+        <li class="feat" style="--n:2"><b>Feature</b><span data-i="lv_feat_t">What you already live when you are.</span><q data-i="lv_feat_e">I move every day and eat well</q></li>
+        <li class="stry" style="--n:3"><b>Story</b><span data-i="lv_stry_t">The road that takes you there.</span><q data-i="lv_stry_e">As an active person, I want to walk every morning after coffee, so that I have energy all day.</q></li>
+        <li class="act" style="--n:4"><b data-i="lv_act">Activity</b><span data-i="lv_act_t">Today's small step.</span><q data-i="lv_act_e">Walk 10 min</q></li>
+      </ol>
+      <p data-i="p_app2">So walking ten minutes stops being one more box to tick. It becomes a line in your story, and it points to who you want to be.</p>
+    </section>
+
+    <section>
+      <h2 data-i="h_write">Write it on purpose</h2>
+      <p data-i="p_write1">You do not control everything that happens in your story. But you do decide what to do with each hour you are given. Go Epic exists for that: so your week has a shape, your days have a meaning, and little by little your life tells something epic.</p>
+    </section>
+
+    <div class="end">
+      <p class="close" translate="no"><span class="go" data-i="end_so">So:</span> <span class="go">Go</span> <span class="gold">Epic!</span></p>
+      <p class="lead" data-i="end_lead">Your story is already being written. Make it epic.</p>
+      <a class="pill big" href="/get/#download" data-i="cta">Start your story with Go Epic</a>
+      <br />
+      <a class="back" href="/get/" data-i="back">← Back to the tour</a>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      var ES = {
+        home: ' · Inicio', get_short: 'Descargar',
+        eyebrow: 'El nombre', title: '¿Por qué Epic<b>?</b>',
+        lead: 'Porque cada día es una página, y cada vida es una historia.',
+        h_story: 'Una historia, no una lista',
+        p_story1: 'Una lista de tareas te dice qué falta. Una historia te dice para qué. Tu día no es un montón de pendientes sueltos: tiene un comienzo, momentos difíciles, decisiones pequeñas y un final. Mañana empieza otra página.',
+        p_story2: 'Con los años, esas páginas forman algo que solo tú puedes escribir: tu vida. La pregunta no es si será una historia. Ya lo es. La pregunta es qué clase de historia.',
+        h_epic: 'Épico no quiere decir enorme',
+        p_epic1: 'Épico no quiere decir famoso, ni perfecto. Las grandes historias casi nunca tratan de alguien que lo tenía todo resuelto. Tratan de gente común que decidió qué hacer con el tiempo que se le dio, y siguió caminando cuando costaba.',
+        p_epic2: 'Ahí vive lo épico: en la fidelidad. Levantarse, volver a empezar, dar el siguiente paso. Una mañana tranquila de oración, diez minutos de caminata, una hora de trabajo honesto, una cena sin teléfonos. Nadie les escribe canciones, y sin embargo de eso está hecha una vida.',
+        h_app: 'Así está hecho Go Epic',
+        p_app1: 'En los equipos de software, una épica es una obra grande que se cuenta en historias y se logra paso a paso. Go Epic toma esa idea y la lleva a tu vida, en cinco niveles:',
+        lv_area: 'Área', lv_area_t: 'Dónde se juega: la salud, la familia, el trabajo, el descanso.', lv_area_e: 'El Templo',
+        lv_epic_t: 'Quién decides ser.', lv_epic_e: 'Soy fuerte y saludable',
+        lv_feat_t: 'Lo que ya vives cuando lo eres.', lv_feat_e: 'Me muevo cada día y como sano',
+        lv_stry_t: 'El camino que te lleva ahí.', lv_stry_e: 'Como persona activa, quiero caminar cada mañana después del café, para tener energía todo el día.',
+        lv_act: 'Actividad', lv_act_t: 'El pequeño paso de hoy.', lv_act_e: 'Caminar 10 min',
+        p_app2: 'Así, caminar diez minutos deja de ser una casilla más. Se vuelve una línea de tu historia, y apunta a quien quieres ser.',
+        h_write: 'Escríbela a propósito',
+        p_write1: 'No controlas todo lo que pasa en tu historia. Pero sí decides qué hacer con cada hora que se te da. Para eso existe Go Epic: para que tu semana tenga forma, tus días tengan sentido y, poco a poco, tu vida cuente algo épico.',
+        end_so: 'Por eso:', end_lead: 'Tu historia ya se está escribiendo. Hazla épica.',
+        cta: 'Empieza tu historia con Go Epic', back: '← Volver a la presentación'
+      };
+      var META = {
+        en: { title: document.title, desc: document.querySelector('meta[name="description"]').content },
+        es: { title: '¿Por qué Epic? · Go Epic',
+              desc: 'Cada día es una página y cada vida es una historia. Por qué nuestra app se llama Go Epic: desde quién quieres ser hasta el pequeño paso de hoy.' }
+      };
+      var nodes = document.querySelectorAll('[data-i]'), EN = {};
+      nodes.forEach(function (el) { EN[el.dataset.i] = el.innerHTML; });
+      // Every language is an <option> of the switch and a dictionary here; English is the page's own text.
+      var DICTS = { en: EN, es: ES }, langSelect = document.querySelector('.lang select');
+      var links = document.querySelectorAll('a[href^="/get/"]'), base = [];
+      links.forEach(function (a) { base.push(a.getAttribute('href')); });
+      function setLang(next) {
+        var lang = DICTS[next] ? next : 'en', dict = DICTS[lang];
+        nodes.forEach(function (el) { var v = dict[el.dataset.i]; if (v == null) v = EN[el.dataset.i]; el.innerHTML = v; });
+        document.documentElement.lang = lang;
+        document.title = META[lang].title;
+        document.querySelector('meta[name="description"]').content = META[lang].desc;
+        langSelect.value = lang;
+        document.querySelector('.lang-name').textContent = langSelect.options[langSelect.selectedIndex].textContent;
+        document.querySelector('.lang-code').textContent = lang.toUpperCase();
+        // the way back keeps the language: the Get Go Epic page reads the same choice
+        links.forEach(function (a, i) { a.setAttribute('href', base[i].replace(/^\/get\/(#.*)?$/, '/get/?lang=' + lang + '$1')); });
+        try { localStorage.setItem('go-epic-get-lang', lang); } catch (e) {}
+      }
+      langSelect.addEventListener('change', function () { setLang(langSelect.value); });
+      var wanted = new URLSearchParams(location.search).get('lang');
+      if (!wanted) { try { wanted = localStorage.getItem('go-epic-get-lang'); } catch (e) {} }
+      if (!wanted) wanted = (navigator.language || '').toLowerCase().split('-')[0];
+      wanted = (wanted || '').toLowerCase();
+      setLang(DICTS[wanted] ? wanted : 'en');
+    })();
+  </script>
+</body>
+</html>
