@@ -235,32 +235,70 @@ dialog.info-card::backdrop { background: rgba(4, 9, 30, .55); }
 .canvas-page .page-header > .why { order: 3; }
 @media (max-width: 680px) { .canvas-page .page-header > .why { order: 1; } .canvas-page .page-header > .toolbar { order: 2; } }
 dialog.capture-panel header > .why { margin: 0 10px 0 auto; }
-/* the window: the info card, its body scrolling under a fixed head; the first section stands out, the rest follow */
-dialog.info-card.why-window { width: min(560px, calc(100vw - 24px)); max-height: min(88dvh, 820px); padding: 18px 18px 16px; border: 1px solid var(--win-edge); }
+/* the window (Gianni: it read like a sheet that did not matter; a panel of experts redrew it): a well-set page.
+   Literata, a serif made for reading on screens (self-hosted, OFL), 17px with 1.7 lines, hyphenated in the window's
+   language; generous margins; a double edge in the theme's accent (the outer line, a hairline 7px inside), a short accent
+   rule under the title, the reason in short in a soft accent panel, then numbered sections like a book's; the body scrolls
+   under a fixed head and foot and fades at its edges. Every colour comes from the theme (--pink is each theme's accent). */
+@font-face { font-family: 'Literata'; font-style: normal; font-weight: 400 700; font-display: swap; src: url('/fonts/literata-var.woff2') format('woff2'); }
+@font-face { font-family: 'Literata'; font-style: italic; font-weight: 400 700; font-display: swap; src: url('/fonts/literata-italic-var.woff2') format('woff2'); }
+html dialog.info-card.why-window { --why-accent: var(--pink); --why-serif: 'Literata', Georgia, 'Times New Roman', serif;
+  width: min(600px, calc(100vw - 24px)); max-height: min(90dvh, 860px); padding: 0; border-radius: 26px;
+  border: 1px solid color-mix(in srgb, var(--why-accent) 55%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--why-accent) 22%, transparent); outline-offset: -8px; }
+html:is([data-theme='office'], [data-theme='graphite']) dialog.why-window { --why-accent: var(--ink-soft); }
+html[data-theme='goepiclight'] dialog.why-window { --why-accent: #94700f; }   /* the wordmark's gold, deep enough to read on white */
+html[data-theme='goepicdark'] dialog.why-window { --why-accent: #e2b84a; }
 dialog.why-window[open] { display: flex; flex-direction: column; overflow: hidden; }
 dialog.why-window :is(.info-head, .info-foot) { flex: none; }
+dialog.why-window .info-head { padding: 30px 26px 4px 32px; gap: 14px; }
+dialog.why-window .info-head .round { margin-top: -4px; }
 .why-titles { flex: 1 1 auto; min-width: 0; }
-.why-eyebrow { margin: 0; color: var(--pink); font: italic 700 15px/1.2 Georgia, 'Times New Roman', serif; letter-spacing: .02em; }
-dialog.why-window .info-head h2 { margin: 2px 0 0; font: 700 calc(24px * var(--esc, 1))/1.2 Georgia, 'Times New Roman', serif; }
-.why-orders { margin: 6px 0 0; color: var(--ink-soft); font-size: calc(14px * var(--esc, 1)); }
-.why-orders strong { color: var(--ink); }
-.why-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 14px -6px 0; padding: 0 6px 4px;
-  font-size: calc(16px * var(--esc, 1)); line-height: 1.55; letter-spacing: var(--app-ls); }
-.why-body h3 { margin: 0 0 6px; font: 700 calc(17px * var(--esc, 1))/1.3 Georgia, 'Times New Roman', serif; }
-.why-body p { margin: 0 0 10px; }
-.why-lead { padding: 14px 16px 6px; border-radius: 16px; border: 1.5px solid color-mix(in srgb, var(--pink) 55%, transparent);
-  background: color-mix(in srgb, var(--pink) 14%, transparent); }
-.why-lead h3 { color: var(--pink); font-size: calc(14px * var(--esc, 1)); font-family: system-ui, sans-serif; text-transform: uppercase; letter-spacing: .08em; }
-.why-lead p { font-size: calc(17.5px * var(--esc, 1)); line-height: 1.5; font-weight: 600; }
-.why-body .why-more { display: flex; align-items: center; gap: 10px; margin: 20px 0 14px; color: var(--ink-soft); font-size: calc(13px * var(--esc, 1));
-  font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
-.why-more::before, .why-more::after { content: ''; flex: 1 1 0; height: 1px; background: color-mix(in srgb, var(--ink) 22%, transparent); }
-.why-sec { margin: 0 0 14px; padding-left: 12px; border-left: 3px solid color-mix(in srgb, var(--pink) 60%, transparent); }
+.why-eyebrow { margin: 0; color: var(--why-accent); font: 700 12px/1.2 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  letter-spacing: .2em; text-transform: uppercase; }
+dialog.why-window .info-head h2 { margin: 8px 0 0; font: 600 calc(29px * var(--esc, 1))/1.15 var(--why-serif); letter-spacing: -.01em;
+  text-wrap: balance; overflow-wrap: normal; }
+.why-rule { display: block; width: 40px; height: 2px; margin: 16px 0 14px; border-radius: 2px; background: var(--why-accent); }
+.why-orders { margin: 0; color: var(--ink-soft); font: italic 400 calc(16.5px * var(--esc, 1))/1.4 var(--why-serif); }
+.why-orders strong { color: var(--ink); font-weight: 600; }
+.why-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 22px 32px 30px;
+  font: 400 calc(17px * var(--esc, 1))/1.7 var(--why-serif); letter-spacing: .003em; color: color-mix(in srgb, var(--ink) 88%, transparent);
+  hyphens: auto; text-wrap: pretty;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 18px, #000 calc(100% - 30px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 18px, #000 calc(100% - 30px), transparent 100%); }
+.why-body p { margin: 0 0 .9em; }
+.why-body p:last-child { margin-bottom: 0; }
+.why-lead { margin: 0; padding: 22px 24px 24px; border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--why-accent) 38%, transparent); background: color-mix(in srgb, var(--why-accent) 9%, transparent); }
+.why-lead h3 { margin: 0 0 10px; color: var(--why-accent); font: 700 calc(11.5px * var(--esc, 1))/1.2 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  letter-spacing: .18em; text-transform: uppercase; }
+.why-lead p { color: var(--ink); font-size: calc(19px * var(--esc, 1)); line-height: 1.6; font-weight: 500; hyphens: manual; }
+.why-body .why-more { display: flex; align-items: center; gap: 14px; margin: 34px 0 28px; color: var(--ink-soft);
+  font: italic 400 calc(15px * var(--esc, 1))/1.3 var(--why-serif); text-align: center; hyphens: manual; }
+.why-more::before, .why-more::after { content: ''; flex: 1 1 0; height: 1px; background: color-mix(in srgb, var(--why-accent) 35%, transparent); }
+.why-more span { flex: 0 1 auto; }
+.why-sec { display: grid; grid-template-columns: 2.6em minmax(0, 1fr); align-items: baseline; margin: 0 0 32px; }
+.why-sec:last-child { margin-bottom: 4px; }
+.why-num { grid-row: 1; color: var(--why-accent); font: 600 calc(15px * var(--esc, 1))/1 var(--why-serif); font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: .04em; }
+.why-sec > :not(.why-num) { grid-column: 2; }
+.why-body .why-sec h3 { grid-row: 1; margin: 0 0 10px; color: var(--ink); font: 650 calc(20px * var(--esc, 1))/1.3 var(--why-serif);
+  letter-spacing: -.005em; text-wrap: balance; hyphens: manual; }
+dialog.why-window .info-foot { margin: 0; padding: 14px 26px 22px; border-top: 1px solid color-mix(in srgb, var(--why-accent) 22%, transparent); }
+dialog.why-window .info-foot .primary { min-width: 120px; }
+@media (max-width: 520px) {
+  dialog.why-window .info-head { padding: 26px 20px 2px 24px; }
+  dialog.why-window .info-head h2 { font-size: calc(25px * var(--esc, 1)); }
+  .why-body { padding: 20px 24px 28px; font-size: calc(16.5px * var(--esc, 1)); }
+  .why-lead { padding: 18px 18px 20px; }
+  .why-lead p { font-size: calc(18px * var(--esc, 1)); }
+  .why-sec { grid-template-columns: 2.2em minmax(0, 1fr); }
+  .why-body .why-sec h3 { font-size: calc(18.5px * var(--esc, 1)); }
+  dialog.why-window .info-foot { padding: 12px 20px 18px; }
+}
 /* opening, the sections rise in one after another with a little bounce (Gianni: everything moves smoothly) */
 dialog.why-window[open] :is(.why-lead, .why-more, .why-sec) { animation: why-rise .5s cubic-bezier(.25, 1.35, .5, 1) both; animation-delay: calc(260ms + min(var(--i, 0), 6) * 55ms); }
 @keyframes why-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-/* the light themes keep the accent readable as text; the grey ones keep the "?" in their soft ink */
-html:is([data-theme='office'], [data-theme='graphite']) :is(.why-eyebrow, .why-lead h3) { color: var(--ink-soft); }
 @media (prefers-reduced-motion: reduce) {
   dialog.why-window[open] :is(.why-lead, .why-more, .why-sec) { animation: none; }
   .why-btn { transition: none; }
