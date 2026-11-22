@@ -17,7 +17,8 @@ export type { MenuAction };
  * button down into its place (a × while open; Gianni: the actions sit closer to the thumb) and stacks its actions above it, each
  * sliding up out of it, the nearest first, as the themes fan out, in Gianni's order: the day overview, the pages, the
  * Themes (their own button, out of the edit tools), ✎ Edit (the page's own: the Week board arranges the week, the Canvas
- * opens its edit tools; only where the page has something to edit) and ⚙ Ajustes on top; on a short screen they go on in a second column. A tap on an action closes the menu and runs it (the
+ * opens its edit tools; only where the page has something to edit) and ⚙ Ajustes on top, and the pages fan out by
+ * themselves as soon as their button is in place (Gianni: one tap shows which pages there are); on a short screen they go on in a second column. A tap on an action closes the menu and runs it (the
  * pages keep it open while their list is out); the button again, a tap outside or Esc draw them back in. Under reduced
  * motion they simply appear and go.
  */
@@ -36,7 +37,7 @@ export type { MenuAction };
             <circle cx="9" cy="18" r="1.6"/><rect x="13" y="17" width="8" height="2" rx="1"/>
           </svg>
         </button>
-      <app-page-fan [style.--i]="index().pages" (went)="close()" />
+      <app-page-fan [style.--i]="index().pages" [veil]="false" (went)="close()" />
       <!-- the Themes, their own button on every page (Gianni: out of the edit tools), between the pages and ✎ Edit;
            they fan out to its left and the menu stays open behind them -->
       <button #themeBtn type="button" class="capture-fab act-fab theme-act" [class.open]="themeOpen()" [attr.aria-expanded]="themeOpen()"
@@ -109,16 +110,18 @@ export class ActionMenu {
   });
 
   protected toggle(): void {
-    if (this.open()) this.close(); else this.open.set(true);
+    if (this.open()) { this.close(); return; }
+    this.open.set(true);
+    this.pagesFan()?.showSoon();   // the pages open with the menu (Gianni: one tap shows them)
   }
   protected close(): void {
     this.pagesFan()?.close();
     if (this.themeOpen()) this.picker.anchor.set(null);
     this.open.set(false);
   }
-  /** Esc draws the actions back, unless the pages are fanned out (they close first, on the same Esc). */
+  /** Esc draws the actions back, the pages with them (they open with the menu); the themes close first. */
   protected onEscape(): void {
-    if (this.open() && !this.pagesFan()?.isOpen() && !this.themeOpen()) this.close();
+    if (this.open() && !this.themeOpen()) this.close();
   }
   private readonly picker = inject(ThemePicker);
   private readonly themeBtn = viewChild<ElementRef<HTMLButtonElement>>('themeBtn');
