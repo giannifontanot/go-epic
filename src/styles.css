@@ -78,6 +78,10 @@ button:disabled { opacity: .4; cursor: default; }
   background: linear-gradient(150deg, var(--jelly-a), var(--jelly-b)); color: var(--jelly-ink);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6), inset 0 -3px 0 rgba(0, 0, 0, .06), 0 9px 0 #c99a1e, 0 14px 22px rgba(0, 0, 0, .25); margin-bottom: 9px; }
 .block.over { outline: 2px solid var(--red); }
+/* while arranging every block sits inside a clear outline (Gianni): black, a light one where the blocks are dark;
+   it follows the block's rounded corners and takes no room; an over-full block keeps its red one */
+.board:not(.locked) .block:not(.over) { outline: 2px solid var(--arrange-edge, #000); outline-offset: 0; }
+html:is([data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepicdark']) { --arrange-edge: var(--ink); }
 .block-head { display: flex; align-items: center; gap: 8px; }
 .block-name { flex: 1 1 0; min-width: 0; margin: 0; font: 700 16px Georgia, serif; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); background: transparent; color: var(--jelly-ink); padding: 4px 2px; }
