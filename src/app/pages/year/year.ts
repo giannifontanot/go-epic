@@ -293,14 +293,17 @@ export class Year {
   protected async runImport(): Promise<void> {
     const calendar = this.chosen();
     if (!calendar || this.busy()) return;
+    // the year's bounds when the import starts: another year picked meanwhile must not change which days it covers
+    const first = this.first;
+    const last = this.last;
     this.busy.set(true);
     this.problem.set(null);
     try {
       // the days already kept must be known first, or an import could overwrite a day named by hand
       if (!this.dates.ready()) throw new CalendarError('loading');
-      const events = await this.gcal.events(calendar, this.first, this.last);
+      const events = await this.gcal.events(calendar, first, last);
       if (!this.dates.ready()) throw new CalendarError('loading');
-      const plan = importPlan(this.dates.kept(), eventDates(events, this.first, this.last), calendar, this.first, this.last);
+      const plan = importPlan(this.dates.kept(), eventDates(events, first, last), calendar, first, last);
       this.dates.applyImport(calendar, plan.write, plan.remove);
       try { localStorage.setItem(LAST_CALENDAR_KEY, calendar); } catch { /* a convenience only */ }
       const parts = [this.i18n.t('gcal.added', { n: plan.write.size })];
