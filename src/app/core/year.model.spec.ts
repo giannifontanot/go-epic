@@ -1,4 +1,4 @@
-import { YEAR_2027, cleanDateName, nearestMonday, placeOf, weekdayOf, yearPlan } from './year.model';
+import { YEARS, YEAR_2026, YEAR_2027, cleanDateName, nearestMonday, placeOf, weekdayOf, yearFor, yearPlan } from './year.model';
 
 describe('Year model', () => {
   it('finds the nearest Monday', () => {
@@ -23,6 +23,27 @@ describe('Year model', () => {
       expect(q.rest[0][6]).toBe(q.end);
     }
     expect(plan[0].rest[0][0]).toBe('2027-03-15');
+  });
+
+  it('lays out 2026 the same way, ending the day before 2027 begins', () => {
+    const plan = yearPlan(YEAR_2026.seasons, YEAR_2026.next);
+    expect(plan.map((q) => [q.start, q.end])).toEqual([
+      ['2025-12-22', '2026-03-22'], ['2026-03-23', '2026-06-21'], ['2026-06-22', '2026-09-20'], ['2026-09-21', '2026-12-20'],
+    ]);
+    for (const q of plan) {
+      expect(q.sprints.map((s) => s.n)).toEqual([1, 2, 3, 4]);
+      expect(q.rest.length).toBe(1);
+    }
+    expect(YEAR_2026.next).toBe(YEAR_2027.seasons[0].date);
+    expect(yearPlan(YEAR_2027.seasons, YEAR_2027.next)[0].start).toBe('2026-12-21');
+  });
+
+  it('opens on the year today falls in', () => {
+    expect(yearFor(YEARS, '2025-06-01').year).toBe(2026);   // before: the next to come
+    expect(yearFor(YEARS, '2026-11-22').year).toBe(2026);
+    expect(yearFor(YEARS, '2026-12-20').year).toBe(2026);
+    expect(yearFor(YEARS, '2026-12-21').year).toBe(2027);
+    expect(yearFor(YEARS, '2028-02-01').year).toBe(2027);   // after: the last one
   });
 
   it('places a day in its quarter, sprint and week', () => {

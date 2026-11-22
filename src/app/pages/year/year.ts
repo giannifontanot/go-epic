@@ -8,7 +8,7 @@ import { I18n } from '../../core/i18n';
 import { daysBetween } from '../../core/period.model';
 import { dateKey } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
-import { Quarter, Season, YEAR_2027, cleanDateName, placeOf, yearPlan } from '../../core/year.model';
+import { GoEpicYear, Season, YEARS, cleanDateName, placeOf, yearFor, yearPlan } from '../../core/year.model';
 import { Ask } from '../../shared/ask';
 import { PageMenu } from '../../shared/title-fan';
 import { Undo } from '../../shared/undo';
@@ -29,9 +29,9 @@ function readLastCalendar(): string | null {
 }
 
 /**
- * The Year (Gianni): an informational screen, above all visual. 2027 as its 4 seasons, winter first, each a quarter
+ * The Year (Gianni): an informational screen, above all visual. A Go Epic year (2026 or 2027) as its 4 seasons, winter first, each a quarter
  * from the Monday nearest its solstice or equinox: 4 sprints of 3 weeks, each one line of 21 small days, and a rest and
- * review week. Past days are green, today has a ring and a dot under it, the day each season really begins a dot inside.
+ * review week. Past days are grey, today has a green edge, the day each season really begins a red edge and a dot.
  * Important dates live in Go Epic (DatesStore, users/{uid}/dates): a finger held on a line (or sliding along it) opens a
  * small window above the day and moves it from day to day, never past the sprint; there the day is named, renamed or
  * removed. A named day has a border in the theme's accent and is listed under the year.
@@ -44,13 +44,19 @@ function readLastCalendar(): string | null {
     <section class="year-page">
       <header class="board-top year-top">
         <h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')"
-                    (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('year.title', { year: year.year }) }}<span class="title-chev" aria-hidden="true">⌄</span></button></h1>
+                    (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('year.title', { year: year().year }) }}<span class="title-chev" aria-hidden="true">⌄</span></button></h1>
         <app-why screen="year" />
       </header>
+      <!-- the years offered (Gianni): 2026, still being lived, and 2027 -->
+      <div class="year-pick" role="group" [attr.aria-label]="i18n.t('year.pick')">
+        @for (y of years; track y.year) {
+          <button type="button" [attr.aria-pressed]="y.year === year().year" (click)="pickYear(y)">{{ y.year }}</button>
+        }
+      </div>
       <p class="year-status">{{ status() }}</p>
       <!-- the year: its four seasons, each with its rows of 3 weeks of 7 days -->
       <div class="year-seasons">
-        @for (q of plan; track q.season; let qi = $index) {
+        @for (q of plan(); track q.season; let qi = $index) {
           <section class="season" [attr.data-season]="q.season" [style.--i]="qi" [attr.aria-labelledby]="'season-' + q.season">
             <header class="season-head">
               <span class="season-ico" aria-hidden="true">
@@ -95,7 +101,7 @@ function readLastCalendar(): string | null {
       </div>
       <ng-template #cell let-date>
         @let name = dates.dates().get(date);
-        <button type="button" class="yr-cell" [class.past]="date < today()" [class.today]="date === today()" [class.astro]="astroDays.has(date)"
+        <button type="button" class="yr-cell" [class.past]="date < today()" [class.today]="date === today()" [class.astro]="astroDays().has(date)"
                 [class.named]="!!name" [class.picked]="date === editing()" [class.deleting]="undo.isPending('date:' + date)"
                 [attr.aria-label]="cellLabel(date, name)" [title]="cellLabel(date, name)" [attr.data-date]="date"
                 (click)="cellClick($event, date)" (keydown)="cellKey($event)"><span class="yr-num" aria-hidden="true">{{ +date.slice(8) }}</span></button>
@@ -159,7 +165,7 @@ function readLastCalendar(): string | null {
         </div>
         @switch (step()) {
           @case ('start') {
-            <p>{{ i18n.t('gcal.intro', { year: year.year }) }}</p>
+            <p>{{ i18n.t('gcal.intro', { year: year().year }) }}</p>
             <p class="muted gcal-small">{{ i18n.t('gcal.warning') }}</p>
             @if (problem()) { <p class="gcal-problem" role="alert">{{ i18n.t('gcal.problem.' + problem()) }}</p> }
             <div class="ask-actions"><button type="button" class="ask-cancel" (click)="closeImport()">{{ i18n.t('year.cancel') }}</button>
@@ -195,14 +201,16 @@ export class Year {
   private readonly ask = inject(Ask);
   private readonly week = inject(WeekStore);
   private readonly injector = inject(Injector);
-  protected readonly year = YEAR_2027;
-  protected readonly plan: Quarter[] = yearPlan(YEAR_2027.seasons, YEAR_2027.next);
-  /** the days the seasons really begin, wherever their quarter's Monday falls (Mar 20 lies in winter's rest week) */
-  protected readonly astroDays = new Map(this.plan.map((q) => [q.astro, q.season]));
-  private readonly first = this.plan[0].start;
-  private readonly last = this.plan[this.plan.length - 1].end;
-  private readonly total = daysBetween(this.first, this.last) + 1;
   protected readonly today = computed(() => dateKey(this.week.now()));
+  /** the years offered (2026, still being lived, and 2027); it opens on the one today falls in */
+  protected readonly years = YEARS;
+  protected readonly year = signal<GoEpicYear>(yearFor(YEARS, dateKey(this.week.now())));
+  protected readonly plan = computed(() => yearPlan(this.year().seasons, this.year().next));
+  /** the days the seasons really begin, wherever their quarter's Monday falls (Mar 20 2027 lies in winter's rest week) */
+  protected readonly astroDays = computed(() => new Map(this.plan().map((q) => [q.astro, q.season])));
+  private get first(): string { return this.plan()[0].start; }
+  private get last(): string { const plan = this.plan(); return plan[plan.length - 1].end; }
+  private get total(): number { return daysBetween(this.first, this.last) + 1; }
 
   /** One short line: how far away the year is, which day of it today is, or that it is over. */
   protected readonly status = computed(() => {
@@ -212,7 +220,7 @@ export class Year {
       return n === 1 ? this.i18n.t('year.startsIn1') : this.i18n.t('year.startsIn', { n });
     }
     if (today > this.last) return this.i18n.t('year.over');
-    const place = placeOf(this.plan, today);
+    const place = placeOf(this.plan(), today);
     const day = this.i18n.t('year.dayOf', { n: daysBetween(this.first, today) + 1, total: this.total });
     return place ? `${day} · ${this.placeLabel(today)}` : day;
   });
@@ -221,7 +229,7 @@ export class Year {
   protected readonly named = computed(() => [...this.dates.dates()]
     .filter(([date]) => date >= this.first && date <= this.last)
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, name]) => ({ date, name, season: placeOf(this.plan, date)?.season ?? null, imported: !!this.dates.kept().get(date)?.calendar })));
+    .map(([date, name]) => ({ date, name, season: placeOf(this.plan(), date)?.season ?? null, imported: !!this.dates.kept().get(date)?.calendar })));
 
   private readonly popRef = viewChild.required<ElementRef<HTMLElement>>('pop');
   /** the day the small window shows, null while it is closed */
@@ -314,6 +322,18 @@ export class Year {
       cell?.closest('.yr-row')?.scrollIntoView({ block: 'center' });
     }, { injector: this.injector });
     this.destroyRef.onDestroy(() => { this.listen(false); this.endTouch(); cancelAnimationFrame(this.placing); });
+  }
+
+  /** Shows another year: the day's window closes, and its line of today (else its top) comes into view. */
+  protected pickYear(y: GoEpicYear): void {
+    if (y.year === this.year().year) return;
+    void this.close();
+    this.year.set(y);
+    afterNextRender(() => {
+      const cell = this.cellOf(this.today());
+      if (cell) cell.closest('.yr-row')?.scrollIntoView({ block: 'center' });
+      else document.querySelector('.year-seasons')?.scrollIntoView({ block: 'start' });
+    }, { injector: this.injector });
   }
 
   // ---- the day's window: touch a day, slide along the sprint, name it --------------------------------------------
@@ -541,15 +561,15 @@ export class Year {
   }
 
   protected placeSeason(key: string): Season | null {
-    return placeOf(this.plan, key)?.season ?? null;
+    return placeOf(this.plan(), key)?.season ?? null;
   }
   /** "Winter · Sprint 2, week 1", "Winter · Rest and review", or "Spring begins" added on that day. */
   protected placeLabel(key: string): string {
-    const place = placeOf(this.plan, key);
+    const place = placeOf(this.plan(), key);
     if (!place) return '';
     const season = this.i18n.t('year.' + place.season);
     const part = place.sprint === null ? this.i18n.t('year.rest') : `${this.i18n.t('year.sprint', { n: place.sprint })}, ${this.i18n.t('year.week', { n: place.week })}`;
-    const begins = this.astroDays.get(key);
+    const begins = this.astroDays().get(key);
     const astro = begins ? ` · ${this.i18n.t('year.begins.' + begins)}` : '';
     return `${season} · ${part}${astro}`;
   }

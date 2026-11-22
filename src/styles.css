@@ -1838,6 +1838,12 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
    The day cells never lean with the phone (tilt.ts): a grid must stay aligned. */
 .year-page { max-width: 760px; margin: 0 auto; }
 .year-top > .why { margin-left: auto; }
+/* the years offered (Gianni: 2026, still being lived, and 2027): two quiet tabs under the title */
+.year-pick { display: flex; gap: 8px; margin: -2px 0 12px; }
+.year-pick button { min-height: 40px; padding: 0 18px; border-radius: 999px; border: 1.5px solid color-mix(in srgb, var(--ink-soft) 55%, transparent);
+  background: transparent; color: var(--ink-soft); font: inherit; font-size: calc(15px * var(--esc, 1)); font-weight: 700; cursor: pointer; }
+.year-pick button[aria-pressed='true'] { background: var(--ink); border-color: var(--ink); color: var(--page); }
+.year-pick button:focus-visible { outline: 2px solid var(--teal, #76e0d0); outline-offset: 2px; }
 .year-status { margin: -4px 0 14px; color: var(--ink-soft); font-size: calc(14px * var(--esc, 1)); font-weight: 600; }
 .year-seasons { display: grid; gap: 14px; }
 @media (max-width: 520px) { .year-seasons { margin-inline: -8px; } .season { padding: 10px 7px 12px; } }
@@ -1878,8 +1884,8 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
 .yr-cell:focus-visible { outline: 2px solid #0b7a6e; outline-offset: 2px; }
 .yr-cell.past { color: var(--yr-edge); }
 .yr-cell.today { border: 2.5px solid var(--yr-today); }
-.yr-cell.named { border: 2.5px solid var(--yr-red); }
-.yr-cell.named.today { border-color: var(--yr-today); outline: 2.5px solid var(--yr-red); outline-offset: 1px; }
+.yr-cell:is(.named, .astro) { border: 2.5px solid var(--yr-red); }
+.yr-cell:is(.named, .astro).today { border-color: var(--yr-today); outline: 2.5px solid var(--yr-red); outline-offset: 1px; }
 /* the day the season really begins: a small dot in the corner, clear of the number */
 .yr-cell.astro::after { content: ''; position: absolute; top: 10%; right: 10%; width: 16%; aspect-ratio: 1; border-radius: 50%; background: currentColor; }
 /* the day the window shows grows a little out of the line, on the page's colour so it covers its neighbours */

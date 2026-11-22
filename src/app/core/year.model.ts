@@ -1,7 +1,7 @@
 import { addDays, daysBetween } from './period.model';
 
 /**
- * The Year screen (Gianni): the year as 4 quarters, one per season, winter first. Each quarter starts on the Monday
+ * The Year screen (Gianni): each year as 4 quarters, one per season, winter first. Each quarter starts on the Monday
  * nearest its season's astronomical start (solstice or equinox, as a local date in Central time) and is made of 4 sprints
  * of 3 weeks (12 weeks) plus the weeks left before the next season, the rest and review week (1 in 2027). Pure rules.
  */
@@ -13,7 +13,25 @@ export interface SeasonStart { season: Season; date: string }
  * and the next winter, which ends it. Dec 21 2026 20:50 UT, Mar 20 2027 20:25 UT, Jun 21 14:11 UT, Sep 23 06:02 UT
  * (1:02 am CDT), Dec 22 02:42 UT (Dec 21, 8:42 pm CST).
  */
-export const YEAR_2027: { year: number; seasons: SeasonStart[]; next: string } = {
+export interface GoEpicYear { year: number; seasons: SeasonStart[]; next: string }
+
+/**
+ * The 2026 Go Epic year (Gianni: there is still work to do in it): Dec 21 2025 15:03 UT (9:03 am CST), Mar 20 2026
+ * 14:46 UT, Jun 21 08:24 UT (3:24 am CDT), Sep 23 00:05 UT (Sep 22, 7:05 pm CDT), and the next winter, Dec 21 2026,
+ * where 2027 begins.
+ */
+export const YEAR_2026: GoEpicYear = {
+  year: 2026,
+  seasons: [
+    { season: 'winter', date: '2025-12-21' },
+    { season: 'spring', date: '2026-03-20' },
+    { season: 'summer', date: '2026-06-21' },
+    { season: 'autumn', date: '2026-09-22' },
+  ],
+  next: '2026-12-21',
+};
+
+export const YEAR_2027: GoEpicYear = {
   year: 2027,
   seasons: [
     { season: 'winter', date: '2026-12-21' },
@@ -23,6 +41,9 @@ export const YEAR_2027: { year: number; seasons: SeasonStart[]; next: string } =
   ],
   next: '2027-12-21',
 };
+
+/** The years the Year screen offers, in order; each one ends the day before the next one begins. */
+export const YEARS: GoEpicYear[] = [YEAR_2026, YEAR_2027];
 
 export const SPRINTS = 4;
 export const SPRINT_WEEKS = 3;
@@ -95,4 +116,13 @@ export function cleanDateName(name: unknown): string | null {
   if (typeof name !== 'string') return null;
   const clean = name.replace(/\s+/g, ' ').trim().slice(0, 80);
   return clean || null;
+}
+
+/** The year to open on: the one today falls in, else the next to come, else the last one. */
+export function yearFor(years: GoEpicYear[], today: string): GoEpicYear {
+  for (const y of years) {
+    const plan = yearPlan(y.seasons, y.next);
+    if (today <= plan[plan.length - 1].end) return y;
+  }
+  return years[years.length - 1];
 }
