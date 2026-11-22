@@ -122,8 +122,8 @@ function readLastCalendar(): string | null {
         </div>
         @if (named().length) {
           <ul>
-            @for (d of named(); track d.id) {
-              <li [attr.data-season]="d.season" [class.past]="d.date < today()" [class.deleting]="undo.isPending('note:' + d.id)">
+            @for (d of named(); track d.date + ':' + d.id) {
+              <li [attr.data-season]="d.season" [class.past]="d.date < today()" [class.deleting]="undo.isPending('note:' + d.date + ':' + d.id)">
                 <button type="button" (click)="openFromList(d.date)"><span class="yd-star" aria-hidden="true">★</span><span class="yd-name">{{ d.name }}@if (d.imported) { <span class="yd-tag">Google</span> }</span><span class="yd-date">{{ longDate(d.date) }}</span></button>
               </li>
             }
@@ -154,7 +154,7 @@ function readLastCalendar(): string | null {
             @if (list.length) {
               <ul class="yd-notes" [attr.aria-label]="i18n.t('year.notes')">
                 @for (n of list; track n.id) {
-                  <li [class.deleting]="undo.isPending('note:' + n.id)">
+                  <li [class.deleting]="undo.isPending('note:' + key + ':' + n.id)">
                     @if (renaming() === n.id) {
                       <input #ren class="yd-rename" type="text" maxlength="80" [value]="n.name" enterkeyhint="done" [attr.aria-label]="i18n.t('year.editNote', { name: n.name })"
                              (keydown.enter)="$event.preventDefault(); finishRename(key, n, ren.value)" (keydown.escape)="$event.stopPropagation(); renaming.set(null)"
@@ -467,9 +467,9 @@ export class Year {
     const wasClosing = !!this.closing;
     if (was === date && !wasClosing) return;
     this.closing = null;
+    this.keepRename();
     this.editing.set(date);
     this.draft.set('');
-    this.renaming.set(null);
     const id = ++this.faceId;
     this.faces.update((list) => [...list.filter((f) => !f.out).map((f) => ({ ...f, out: true })), { id, key: date, out: false }]);
     setTimeout(() => this.faces.update((list) => list.filter((f) => !f.out || f.id > id)), FADE_MS);
@@ -594,6 +594,15 @@ export class Year {
       box?.select();
     }, { injector: this.injector });
   }
+  /** Moving to another day while a note is being renamed: its new name is kept first, on its own day. */
+  private keepRename(): void {
+    const id = this.renaming();
+    const key = this.editing();
+    if (!id || !key) return;
+    const value = this.popRef().nativeElement.querySelector<HTMLInputElement>('.yd-rename')?.value ?? '';
+    this.renaming.set(null);
+    if (cleanDateName(value)) this.dates.rename(key, id, value);   // left blank: the note keeps its name (removing asks first)
+  }
   /** Enter or leaving the box keeps the new name; a name left blank goes through the ✕ (its question and countdown). */
   protected finishRename(key: string, note: DateNote, value: string): void {
     if (this.renaming() !== note.id) return;
@@ -612,7 +621,7 @@ export class Year {
       countdown: {
         message: this.i18n.t('year.removing', { name: note.name }),
         // the day's square dims too when this is its last note (its red edge goes with it)
-        ids: list.length === 1 ? ['note:' + note.id, 'date:' + key] : ['note:' + note.id],
+        ids: list.length === 1 ? ['note:' + key + ':' + note.id, 'date:' + key] : ['note:' + key + ':' + note.id],
         commit: () => this.dates.remove(key, note.id),
       },
     });

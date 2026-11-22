@@ -10,8 +10,11 @@ import { cleanDateName } from './year.model';
  */
 export interface DateNote { id: string; name: string; created: number; calendar: string | null }
 
-/** The day's notes as stored, an old single-name document included; broken entries are left out. */
-export function readNotes(data: Record<string, unknown> | undefined): DateNote[] {
+/**
+ * The day's notes as stored (`key`, its date), an old single-name document included as one note whose id comes from
+ * its date, so it stays the same and unique; broken entries are left out.
+ */
+export function readNotes(data: Record<string, unknown> | undefined, key: string): DateNote[] {
   if (!data) return [];
   const calendarOf = (v: unknown) => typeof v === 'string' && v ? v : null;
   const createdOf = (v: unknown) => typeof v === 'number' && isFinite(v) ? v : 0;
@@ -30,7 +33,7 @@ export function readNotes(data: Record<string, unknown> | undefined): DateNote[]
     return out;
   }
   const name = cleanDateName(data['name']);
-  return name ? [{ id: 'first', name, created: createdOf(data['created']), calendar: calendarOf(data['calendar']) }] : [];
+  return name ? [{ id: `first-${key}`, name, created: createdOf(data['created']), calendar: calendarOf(data['calendar']) }] : [];
 }
 
 /** What a day's document holds for its notes (Firestore refuses undefined, so a note by hand has no `calendar`). */

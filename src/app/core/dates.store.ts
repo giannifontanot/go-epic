@@ -36,7 +36,7 @@ export class DatesStore {
         const notes = new Map<string, DateNote[]>();
         for (const d of snap.docs) {
           if (!/^\d{4}-\d{2}-\d{2}$/.test(d.id)) continue;
-          const list = readNotes(d.data());
+          const list = readNotes(d.data(), d.id);
           if (list.length) notes.set(d.id, list);
         }
         this.notes.set(notes);
