@@ -8,7 +8,7 @@ import { I18n } from '../../core/i18n';
 import { daysBetween } from '../../core/period.model';
 import { dateKey } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
-import { GoEpicYear, Season, YEARS, cleanDateName, placeOf, yearFor, yearPlan } from '../../core/year.model';
+import { GoEpicYear, Season, YEARS, cleanDateName, currentFirst, placeOf, yearFor, yearPlan } from '../../core/year.model';
 import { Ask } from '../../shared/ask';
 import { PageMenu } from '../../shared/title-fan';
 import { Undo } from '../../shared/undo';
@@ -29,7 +29,7 @@ function readLastCalendar(): string | null {
 }
 
 /**
- * The Year (Gianni): an informational screen, above all visual. A Go Epic year (2026 or 2027) as its 4 seasons, winter first, each a quarter
+ * The Year (Gianni): an informational screen, above all visual. A Go Epic year (2026 or 2027) as its 4 seasons, the one we are in at the top (else winter first), each a quarter
  * from the Monday nearest its solstice or equinox: 4 sprints of 3 weeks, each one line of 21 small days, and a rest and
  * review week. Past days are grey, today has a green edge, the day each season really begins a red edge and a dot.
  * Important dates live in Go Epic (DatesStore, users/{uid}/dates): a finger held on a line (or sliding along it) opens a
@@ -56,7 +56,7 @@ function readLastCalendar(): string | null {
       <p class="year-status">{{ status() }}</p>
       <!-- the year: its four seasons, each with its rows of 3 weeks of 7 days -->
       <div class="year-seasons">
-        @for (q of plan(); track q.season; let qi = $index) {
+        @for (q of shown(); track q.season; let qi = $index) {
           <section class="season" [attr.data-season]="q.season" [style.--i]="qi" [attr.aria-labelledby]="'season-' + q.season">
             <header class="season-head">
               <span class="season-ico" aria-hidden="true">
@@ -206,6 +206,8 @@ export class Year {
   protected readonly years = YEARS;
   protected readonly year = signal<GoEpicYear>(yearFor(YEARS, dateKey(this.week.now())));
   protected readonly plan = computed(() => yearPlan(this.year().seasons, this.year().next));
+  /** the seasons as shown (Gianni): the one we are in at the top, the others after it in their order */
+  protected readonly shown = computed(() => currentFirst(this.plan(), this.today()));
   /** the days the seasons really begin, wherever their quarter's Monday falls (Mar 20 2027 lies in winter's rest week) */
   protected readonly astroDays = computed(() => new Map(this.plan().map((q) => [q.astro, q.season])));
   private get first(): string { return this.plan()[0].start; }
