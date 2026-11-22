@@ -1,5 +1,6 @@
 import { addDays } from './period.model';
-import { dateKey } from './week.model';
+import { DateNote } from './date-notes';
+import { dateKey, newId } from './week.model';
 import { cleanDateName } from './year.model';
 
 /**
@@ -19,11 +20,11 @@ export interface CalendarEvent {
 export const MAX_SPAN_DAYS = 14;
 
 /**
- * The year's days with an event, from `from` to `to` (date keys, inclusive): an all-day event marks each of its days
- * (its end date is exclusive in Google), at most MAX_SPAN_DAYS, else only its first; a timed event marks the local day
- * it starts. Cancelled and untitled events are skipped; several events on one day share it ("A · B", at most 80 characters).
+ * The year's days with an event, from `from` to `to` (date keys, inclusive), each with its events' titles in order: an
+ * all-day event marks each of its days (its end date is exclusive in Google), at most MAX_SPAN_DAYS, else only its
+ * first; a timed event marks the local day it starts. Cancelled and untitled events are skipped; each title once a day.
  */
-export function eventDates(events: CalendarEvent[], from: string, to: string): Map<string, string> {
+export function eventDates(events: CalendarEvent[], from: string, to: string): Map<string, string[]> {
   const byDay = new Map<string, string[]>();
   const add = (key: string, title: string) => {
     if (key < from || key > to) return;
@@ -46,28 +47,42 @@ export function eventDates(events: CalendarEvent[], from: string, to: string): M
     const at = event.start?.dateTime ? new Date(event.start.dateTime) : null;
     if (at && !isNaN(at.getTime())) add(dateKey(at), title);
   }
-  const out = new Map<string, string>();
-  for (const [key, titles] of byDay) out.set(key, cleanDateName(titles.join(' · '))!);
-  return out;
+  return byDay;
 }
 
-/** An important date as kept: its name and, when it came from Google, the calendar it was imported from. */
-export interface KeptDate { name: string; calendar: string | null }
+/** What an import changes: each touched day's whole new list of notes, the days left with none, and the counts. */
+export interface ImportPlan { write: Map<string, DateNote[]>; remove: string[]; added: number; dropped: number; skipped: number }
 
 /**
- * What an import writes: the calendar's days that are free or were imported before (a date named by hand is never
- * overwritten), and which earlier imports of that same calendar inside the range are gone from it now (removed).
+ * What an import writes (Gianni: a day holds many notes): every event becomes a note of its day, beside the day's own
+ * notes, which are never touched; an event already written there by hand is not repeated (skipped). Importing the same
+ * calendar again keeps its notes that are still there, adds the new ones and drops those of its events that left it,
+ * inside the range only; a day left with no note is removed.
  */
-export function importPlan(kept: ReadonlyMap<string, KeptDate>, found: ReadonlyMap<string, string>, calendar: string, from: string, to: string):
-  { write: Map<string, string>; remove: string[]; skipped: number } {
-  const write = new Map<string, string>();
-  let skipped = 0;
-  for (const [key, name] of found) {
-    const old = kept.get(key);
-    if (old && old.calendar === null) { skipped++; continue; }
-    if (old && old.calendar === calendar && old.name === name) continue;   // already there: nothing to write
-    write.set(key, name);
+export function importPlan(kept: ReadonlyMap<string, readonly DateNote[]>, found: ReadonlyMap<string, readonly string[]>, calendar: string,
+  from: string, to: string, makeId: () => string = newId, now = Date.now()): ImportPlan {
+  const plan: ImportPlan = { write: new Map(), remove: [], added: 0, dropped: 0, skipped: 0 };
+  const days = new Set(found.keys());
+  for (const [key, notes] of kept) if (key >= from && key <= to && notes.some((n) => n.calendar === calendar)) days.add(key);
+  for (const key of [...days].sort()) {
+    const old = kept.get(key) ?? [];
+    const others = old.filter((n) => n.calendar !== calendar);
+    const mine = old.filter((n) => n.calendar === calendar);
+    const byHand = new Set(others.filter((n) => n.calendar === null).map((n) => n.name.toLowerCase()));
+    const fresh: DateNote[] = [];
+    let added = 0;
+    for (const title of found.get(key) ?? []) {
+      if (byHand.has(title.toLowerCase())) { plan.skipped++; continue; }
+      const same = mine.find((n) => n.name === title && !fresh.includes(n));
+      if (same) fresh.push(same);
+      else { fresh.push({ id: makeId(), name: title, created: now, calendar }); added++; }
+    }
+    const dropped = mine.filter((n) => !fresh.includes(n)).length;
+    const next = [...others, ...fresh];
+    if (!added && !dropped && next.length === old.length && next.every((n, i) => n === old[i])) continue;
+    plan.added += added;
+    plan.dropped += dropped;
+    if (next.length) plan.write.set(key, next); else plan.remove.push(key);
   }
-  const remove = [...kept].filter(([key, d]) => d.calendar === calendar && key >= from && key <= to && !found.has(key)).map(([key]) => key);
-  return { write, remove, skipped };
+  return plan;
 }
