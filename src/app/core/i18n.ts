@@ -294,6 +294,10 @@ const LABELS: Record<string, { en: string; es: string }> = {
 
   'nav.canvas': { en: 'Canvas', es: 'Canvas' },
   'nav.year': { en: 'Year', es: 'Año' },
+  'nav.products': { en: 'Product history', es: 'Historial de productos' },
+  'products.title': { en: 'Product history', es: 'Historial de productos' },
+  'products.empty': { en: 'The products you have viewed will appear here.', es: 'Aquí aparecerán los productos que has visto.' },
+  'products.soon': { en: 'We will connect it soon.', es: 'Pronto lo conectamos.' },
   'year.title': { en: 'Year {year}', es: 'Año {year}' },
   'year.winter': { en: 'Winter', es: 'Invierno' },
   'year.spring': { en: 'Spring', es: 'Primavera' },
