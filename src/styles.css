@@ -1990,6 +1990,7 @@ html:is([data-theme='office'], [data-theme='graphite']) .yr-pop { filter: graysc
   background: color-mix(in srgb, var(--season, var(--pink)) 16%, transparent); color: var(--ink); text-align: left; font: inherit; font-size: calc(15px * var(--esc, 1)); }
 .yd-note-name { flex: 1 1 auto; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
 .yd-x { flex: none; }
+div.yd-note { cursor: default; }
 .ask-actions.yd-add { flex-wrap: nowrap; align-items: center; gap: 8px; margin-top: 10px; }
 .yd-add input, .yd-rename { flex: 1 1 auto; min-width: 0; min-height: 44px; padding: 9px 10px; border: 1px solid color-mix(in srgb, var(--ink) 24%, transparent); border-radius: 12px;
   background: var(--page); color: var(--ink); font: inherit; font-size: 16px; }
