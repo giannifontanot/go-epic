@@ -1,6 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, DestroyRef, ElementRef, Injector, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
 import { eventDates, importPlan } from '../../core/calendar-import';
+import { DateNote, notesLabel } from '../../core/date-notes';
 import { DatesStore } from '../../core/dates.store';
 import { CalendarError, GoogleCalendar, GoogleCalendarService } from '../../core/google-calendar';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
@@ -33,8 +34,9 @@ function readLastCalendar(): string | null {
  * from the Monday nearest its solstice or equinox: 4 sprints of 3 weeks, each one line of 21 small days, and a rest and
  * review week. Past days are grey, today has a green edge, the day each season really begins a red edge and a dot.
  * Important dates live in Go Epic (DatesStore, users/{uid}/dates): a finger held on a line (or sliding along it) opens a
- * small window above the day and moves it from day to day, never past the sprint; there the day is named, renamed or
- * removed. A named day has a border in the theme's accent and is listed under the year.
+ * small window above the day and moves it from day to day, never past the sprint; there the day gets its notes, as many
+ * as it needs (Gianni: a birthday, the start of spring…), each renamed in place and removed with its ✕ (asked, then the
+ * countdown). A day with notes has a red edge and its notes are listed under the year.
  * Optionally the dates of one Google calendar can be brought in (Import from Google Calendar, read only).
  */
 @Component({
@@ -101,7 +103,7 @@ function readLastCalendar(): string | null {
         }
       </div>
       <ng-template #cell let-date>
-        @let name = dates.dates().get(date);
+        @let name = notesLabel(dates.notes().get(date));
         <button type="button" class="yr-cell" [class.past]="date < today()" [class.today]="date === today()" [class.astro]="astroDays().has(date)"
                 [class.named]="!!name" [class.picked]="date === editing()" [class.deleting]="undo.isPending('date:' + date)"
                 [attr.aria-label]="cellLabel(date, name)" [title]="cellLabel(date, name)" [attr.data-date]="date"
@@ -120,8 +122,8 @@ function readLastCalendar(): string | null {
         </div>
         @if (named().length) {
           <ul>
-            @for (d of named(); track d.date) {
-              <li [attr.data-season]="d.season" [class.past]="d.date < today()" [class.deleting]="undo.isPending('date:' + d.date)">
+            @for (d of named(); track d.id) {
+              <li [attr.data-season]="d.season" [class.past]="d.date < today()" [class.deleting]="undo.isPending('note:' + d.id)">
                 <button type="button" (click)="openFromList(d.date)"><span class="yd-star" aria-hidden="true">★</span><span class="yd-name">{{ d.name }}@if (d.imported) { <span class="yd-tag">Google</span> }</span><span class="yd-date">{{ longDate(d.date) }}</span></button>
               </li>
             }
@@ -135,26 +137,42 @@ function readLastCalendar(): string | null {
            [attr.data-season]="editing() ? placeSeason(editing()!) : null">
         @let key = editing();
         @if (key) {
-          <form (submit)="$event.preventDefault(); save()">
+          <form (submit)="$event.preventDefault(); addNote()">
             <div class="yrp-head">
               <div class="yrp-faces">
                 @for (f of faces(); track f.id) {
                   <div class="yrp-face" [class.out]="f.out" [attr.aria-hidden]="f.out ? 'true' : null">
                     <h2 [attr.id]="f.out ? null : 'yd-title'" tabindex="-1">{{ longDate(f.key) }}</h2>
                     <p class="info-when yd-place" [attr.data-season]="placeSeason(f.key)">{{ placeLabel(f.key) }}</p>
-                    @if (dates.kept().get(f.key)?.calendar) { <p class="muted yd-imported">{{ i18n.t('gcal.importedNote') }}</p> }
                   </div>
                 }
               </div>
               <button type="button" class="round" [attr.aria-label]="i18n.t('week.infoClose')" [title]="i18n.t('week.infoClose')" (click)="close()">✕</button>
             </div>
-            <label class="field yd-field">
-              <span>{{ i18n.t('year.name') }}</span>
-              <input #nameBox type="text" maxlength="80" [value]="draft()" (input)="draft.set(nameBox.value)" [placeholder]="i18n.t('year.namePlaceholder')" enterkeyhint="done" />
-            </label>
-            <div class="ask-actions yd-foot">
-              @if (dates.dates().has(key)) { <button type="button" class="ask-cancel yd-remove" (click)="remove()">{{ i18n.t('year.remove') }}</button> }
-              <button type="submit" class="ask-ok">{{ i18n.t('year.save') }}</button>
+            <!-- the day's notes (Gianni: as many as it needs): a tap on one renames it in place, its ✕ removes it after the countdown -->
+            @let list = dates.notes().get(key) ?? [];
+            @if (list.length) {
+              <ul class="yd-notes" [attr.aria-label]="i18n.t('year.notes')">
+                @for (n of list; track n.id) {
+                  <li [class.deleting]="undo.isPending('note:' + n.id)">
+                    @if (renaming() === n.id) {
+                      <input #ren class="yd-rename" type="text" maxlength="80" [value]="n.name" enterkeyhint="done" [attr.aria-label]="i18n.t('year.editNote', { name: n.name })"
+                             (keydown.enter)="$event.preventDefault(); finishRename(key, n, ren.value)" (keydown.escape)="$event.stopPropagation(); renaming.set(null)"
+                             (blur)="finishRename(key, n, ren.value)" />
+                    } @else {
+                      <button type="button" class="yd-note" [attr.aria-label]="i18n.t('year.editNote', { name: n.name })" (click)="startRename(n.id)">
+                        <span class="yd-star" aria-hidden="true">★</span><span class="yd-note-name">{{ n.name }}@if (n.calendar) { <span class="yd-tag">Google</span> }</span></button>
+                    }
+                    <button type="button" class="round danger-x yd-x" [attr.aria-label]="i18n.t('year.removeNote', { name: n.name })" [title]="i18n.t('year.removeNote', { name: n.name })"
+                            (click)="removeNote(key, n)">✕</button>
+                  </li>
+                }
+              </ul>
+            }
+            <div class="ask-actions yd-add">
+              <input #nameBox type="text" maxlength="80" [value]="draft()" (input)="draft.set(nameBox.value)" [placeholder]="i18n.t('year.notePlaceholder')"
+                     [attr.aria-label]="i18n.t('year.noteNew')" enterkeyhint="done" />
+              <button type="submit" class="ask-ok yd-add-btn" [disabled]="!canAdd()">{{ i18n.t('year.add') }}</button>
             </div>
           </form>
         }
@@ -200,6 +218,7 @@ export class Year {
   protected readonly dates = inject(DatesStore);
   protected readonly undo = inject(Undo);
   protected readonly sprintRangeLabel = sprintRangeLabel;
+  protected readonly notesLabel = notesLabel;
   private readonly ask = inject(Ask);
   private readonly week = inject(WeekStore);
   private readonly injector = inject(Injector);
@@ -230,15 +249,20 @@ export class Year {
   });
 
   /** The year's important dates in order (only those inside it). */
-  protected readonly named = computed(() => [...this.dates.dates()]
+  /** The year's important dates in order (only those inside it), one row for each note of a day. */
+  protected readonly named = computed(() => [...this.dates.notes()]
     .filter(([date]) => date >= this.first && date <= this.last)
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, name]) => ({ date, name, season: placeOf(this.plan(), date)?.season ?? null, imported: !!this.dates.kept().get(date)?.calendar })));
+    .flatMap(([date, notes]) => notes.map((n) => ({ id: n.id, date, name: n.name, season: placeOf(this.plan(), date)?.season ?? null, imported: !!n.calendar }))));
 
   private readonly popRef = viewChild.required<ElementRef<HTMLElement>>('pop');
   /** the day the small window shows, null while it is closed */
   protected readonly editing = signal<string | null>(null);
+  /** the new note being typed (it is added with Add or Enter, and the box is free for the next one) */
   protected readonly draft = signal('');
+  protected readonly canAdd = computed(() => !!cleanDateName(this.draft()));
+  /** the note being renamed in place, null while none is */
+  protected readonly renaming = signal<string | null>(null);
   /** the window's date as it changes while sliding: the old one fades out as the new one fades in (Gianni) */
   protected readonly faces = signal<{ id: number; key: string; out: boolean }[]>([]);
   private faceId = 0;
@@ -307,11 +331,11 @@ export class Year {
       if (!this.dates.ready()) throw new CalendarError('loading');
       const events = await this.gcal.events(calendar, first, last);
       if (!this.dates.ready()) throw new CalendarError('loading');
-      const plan = importPlan(this.dates.kept(), eventDates(events, first, last), calendar, first, last);
-      this.dates.applyImport(calendar, plan.write, plan.remove);
+      const plan = importPlan(this.dates.notes(), eventDates(events, first, last), calendar, first, last);
+      this.dates.applyImport(plan.write, plan.remove);
       try { localStorage.setItem(LAST_CALENDAR_KEY, calendar); } catch { /* a convenience only */ }
-      const parts = [this.i18n.t('gcal.added', { n: plan.write.size })];
-      if (plan.remove.length) parts.push(this.i18n.t('gcal.removed', { n: plan.remove.length }));
+      const parts = [this.i18n.t('gcal.added', { n: plan.added })];
+      if (plan.dropped) parts.push(this.i18n.t('gcal.removed', { n: plan.dropped }));
       if (plan.skipped) parts.push(this.i18n.t('gcal.kept', { n: plan.skipped }));
       this.result.set(parts.join(' '));
       this.step.set('done');
@@ -444,7 +468,8 @@ export class Year {
     if (was === date && !wasClosing) return;
     this.closing = null;
     this.editing.set(date);
-    this.draft.set(this.dates.dates().get(date) ?? '');
+    this.draft.set('');
+    this.renaming.set(null);
     const id = ++this.faceId;
     this.faces.update((list) => [...list.filter((f) => !f.out).map((f) => ({ ...f, out: true })), { id, key: date, out: false }]);
     setTimeout(() => this.faces.update((list) => list.filter((f) => !f.out || f.id > id)), FADE_MS);
@@ -503,11 +528,13 @@ export class Year {
   /** A tap outside the window and the lines, or Esc, closes it; scrolling and the keyboard move it. */
   private outside = (event: PointerEvent): void => {
     const target = event.target as Element | null;
-    if (target?.closest('.yr-pop, .yr-line')) return;
+    if (target?.closest('.yr-pop, .yr-line, dialog.ask-window')) return;   // the question of a note's ✕ leaves the window open
     this.close();
   };
   private escape = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape' && this.editing()) { event.preventDefault(); this.close(); }
+    if (event.key !== 'Escape' || !this.editing() || document.querySelector('dialog.ask-window[open]')) return;   // Esc there answers the question
+    event.preventDefault();
+    this.close();
   };
   private listening = false;
   private listen(on = true): void {
@@ -520,7 +547,11 @@ export class Year {
     window[method]('resize', this.schedulePlace);
     window.visualViewport?.[method]('resize', this.schedulePlace);
     window.visualViewport?.[method]('scroll', this.schedulePlace);
+    // a note added or removed makes the window taller or shorter: it keeps its tail on the day
+    if (on && typeof ResizeObserver === 'function') (this.resizing ??= new ResizeObserver(this.schedulePlace)).observe(this.popRef().nativeElement);
+    if (!on) this.resizing?.disconnect();
   }
+  private resizing: ResizeObserver | null = null;
 
   protected close(): Promise<void> {
     if (!this.editing()) return Promise.resolve();
@@ -534,6 +565,7 @@ export class Year {
       this.listen(false);
       try { if (pop.matches(':popover-open')) pop.hidePopover(); } catch { /* no popover */ }
       this.editing.set(null);
+      this.renaming.set(null);
       this.faces.set([]);
     };
     const back = pop.contains(document.activeElement) ? this.cellOf(key!) : null;
@@ -546,24 +578,43 @@ export class Year {
     this.closing = run;
     return run;
   }
-  protected save(): void {
+  /** Add (or Enter): the note joins the day's list and the box is free for the next one (Gianni: the list grows). */
+  protected addNote(): void {
     const key = this.editing();
-    // a name left blank on a named day goes through Remove (its question and countdown), never silently
-    if (key && !cleanDateName(this.draft()) && this.dates.dates().has(key)) { void this.remove(); return; }
-    if (key) this.dates.set(key, this.draft());
-    void this.close();
+    if (!key || !cleanDateName(this.draft())) return;
+    this.dates.add(key, this.draft());
+    this.draft.set('');
   }
-  /** A second chance, as every delete (Undo): the question window counts down before the date goes. */
-  protected async remove(): Promise<void> {
-    const key = this.editing();
-    const name = key ? this.dates.dates().get(key) : undefined;
-    if (!key || !name) return;
-    await this.close();
+  /** A tap on a note: it turns into a box with its text, for renaming in place (the keyboard comes since it was tapped). */
+  protected startRename(id: string): void {
+    this.renaming.set(id);
+    afterNextRender(() => {
+      const box = this.popRef().nativeElement.querySelector<HTMLInputElement>('.yd-rename');
+      box?.focus();
+      box?.select();
+    }, { injector: this.injector });
+  }
+  /** Enter or leaving the box keeps the new name; a name left blank goes through the ✕ (its question and countdown). */
+  protected finishRename(key: string, note: DateNote, value: string): void {
+    if (this.renaming() !== note.id) return;
+    this.renaming.set(null);
+    if (!cleanDateName(value)) { void this.removeNote(key, note); return; }
+    this.dates.rename(key, note.id, value);
+  }
+  /** A note's ✕: a second chance, as every delete in the app (Undo): the question window counts down before it goes. */
+  protected async removeNote(key: string, note: DateNote): Promise<void> {
+    const list = this.dates.notes().get(key) ?? [];
+    if (!list.some((n) => n.id === note.id)) return;
     await this.ask.ask({
-      message: this.i18n.t('year.removeAsk', { name }),
+      message: this.i18n.t('year.removeAsk', { name: note.name }),
       ok: this.i18n.t('year.remove'),
       danger: true,
-      countdown: { message: this.i18n.t('year.removing', { name }), ids: ['date:' + key], commit: () => this.dates.remove(key) },
+      countdown: {
+        message: this.i18n.t('year.removing', { name: note.name }),
+        // the day's square dims too when this is its last note (its red edge goes with it)
+        ids: list.length === 1 ? ['note:' + note.id, 'date:' + key] : ['note:' + note.id],
+        commit: () => this.dates.remove(key, note.id),
+      },
     });
   }
 
