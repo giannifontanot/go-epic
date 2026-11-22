@@ -515,3 +515,49 @@ export function whereOf(lib: Library, id: string): Where {
   for (const n of pathOf(lib, id)) if (n.kind !== 'task') where[n.kind as WhereLevel] = n.id;
   return where;
 }
+
+/**
+ * The four areas of life (Gianni): the only ones the Canvas offers, each shown with what it means and what it holds.
+ * `title` is the name saved in the library (the starter template's), matched without case, spaces or accents.
+ */
+export const LIFE_AREAS = [
+  { key: 'temple', title: 'El Templo' },
+  { key: 'castle', title: 'El Castillo' },
+  { key: 'tower', title: 'La Torre' },
+  { key: 'arena', title: 'La Arena' },
+] as const;
+export type LifeArea = (typeof LIFE_AREAS)[number]['key'];
+
+const plain = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase();
+
+/** The life area an area's title names (El Templo…), or null for any other area (Health, Fun…). */
+export function lifeAreaKey(title: string): LifeArea | null {
+  const key = plain(title);
+  return LIFE_AREAS.find((a) => plain(a.title) === key)?.key ?? null;
+}
+
+/** The library's node for each life area: the first top-level area with that name (none yet: undefined). */
+export function lifeAreaNodes(nodes: LibNode[]): Partial<Record<LifeArea, LibNode>> {
+  const out: Partial<Record<LifeArea, LibNode>> = {};
+  for (const n of nodes) {
+    if (n.kind !== 'area' || n.parentId !== null) continue;
+    const key = lifeAreaKey(n.title);
+    if (key && !out[key]) out[key] = n;
+  }
+  return out;
+}
+
+/**
+ * The Activities not wholly placed (Gianni: an Activity is born with nothing and gets its whole meaning at once): every
+ * task whose path is not one of the four life areas › Epic › Feature › Story. That covers what waited in Free Space, what
+ * sits in a loose Story or Feature, and what lives under any other area, so nothing is ever out of sight.
+ */
+export function undefinedTasks(nodes: LibNode[]): LibNode[] {
+  const lib = { nodes };
+  const areaIds = new Set(Object.values(lifeAreaNodes(nodes)).map((n) => n!.id));
+  return nodes.filter((n) => {
+    if (n.kind !== 'task') return false;
+    const path = pathOf(lib, n.id);
+    return path.length !== 5 || !areaIds.has(path[0].id) || path.some((p, i) => p.kind !== KINDS[i]);
+  });
+}

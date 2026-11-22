@@ -5,7 +5,7 @@ import { Component, DestroyRef, DoCheck, ElementRef, HostListener, computed, eff
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { AuthService } from '../../core/auth.service';
-import { Kind, LibNode, PARENT_KIND, STARTER_TEMPLATE, TemplateRename, emptyLibrary, followDay, planTemplateChanges, rebaseLibrary } from '../../core/library.model';
+import { Kind, LIFE_AREAS, LibNode, LifeArea, PARENT_KIND, emptyLibrary, followDay, lifeAreaKey, lifeAreaNodes, rebaseLibrary, undefinedTasks } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
 import { COLOR_CHOICES, DAYS, toneVar } from '../../core/week.model';
 import { WeekStore, WeekWrite } from '../../core/week.store';
@@ -20,14 +20,17 @@ interface Drag {
   ghost?: HTMLElement; target?: HTMLElement; pointerId: number; handle: HTMLElement;
 }
 type CascadeLevel = 'epic' | 'feature' | 'story';
-interface Modal { kind: Kind; node?: LibNode; parentId: string | null; }
+/** `bare`: a new Activity born with its name only (Gianni), no place at all. */
+interface Modal { kind: Kind; node?: LibNode; parentId: string | null; bare?: boolean; }
 
 const LAYOUT_KEY = 'go-epic-canvas-layout';
-const FREE_KEY = 'go-epic-canvas-free-space';
+/** The life area the Canvas shows (a view preference of this device). */
+const AREA_KEY = 'go-epic-canvas-area';
 
 /**
- * Floating Canvas, as in Epic Manager: Epic tabs (filtered by area) with their Features, User stories and Tasks, and
- * Free Space for what is not filed yet. Objects are dragged by their grip (or moved with the ••• dialog's cascade);
+ * Floating Canvas, as in Epic Manager: Epic tabs of one of the four life areas with their Features, Stories and
+ * Activities, and above them Undefined, the Activities with no place yet (Gianni). Objects are dragged by their grip (or
+ * placed with the ✎ dialog's cascade, all four levels at once);
  * every change is a draft with undo/redo until Save. Saving also updates the week: renamed or recoloured tasks change
  * in every block, deleted ones leave the week.
  */
@@ -55,7 +58,6 @@ export class Canvas implements DoCheck {
   private owner: string | null | undefined;
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly editor = viewChild<ElementRef<HTMLDialogElement>>('editor');
-  private readonly templateDialog = viewChild<ElementRef<HTMLDialogElement>>('templateDialog');
   private readonly leaveDialog = viewChild<ElementRef<HTMLDialogElement>>('leaveDialog');
 
   readonly state = new CanvasState();
@@ -66,12 +68,12 @@ export class Canvas implements DoCheck {
   protected readonly colorChoices = COLOR_CHOICES;
   protected readonly toneVar = toneVar;
   protected readonly FREE = '__free';
+  /** A level named new in the cascade (created on Apply). */
+  protected readonly NEW = '__new';
+  protected readonly lifeAreaKeys: LifeArea[] = LIFE_AREAS.map((a) => a.key);
 
   activeId = '';
-  areaFilter = '';
-  search = '';
-  freeWidth = 33;
-  showFree = this.readFree();
+  areaFilter: LifeArea = this.readArea();
   saving = false;
   error = '';
   announcement = '';
@@ -79,7 +81,6 @@ export class Canvas implements DoCheck {
   title = '';
   parentId = '';
   dragState?: Drag;
-  resizing = false;
   private scrollFrame = 0;
 
   constructor() {
@@ -119,17 +120,27 @@ export class Canvas implements DoCheck {
 
   // --- What the page shows ---
 
+  /** The library's node of each life area (an area not created yet has none: it is made when something goes into it). */
+  get lifeAreas(): Partial<Record<LifeArea, LibNode>> { return lifeAreaNodes(this.state.nodes); }
   get epics(): LibNode[] {
-    return this.state.nodes.filter((n) => n.kind === 'epic' && (!this.areaFilter || n.parentId === this.areaFilter));
+    const area = this.lifeAreas[this.areaFilter];
+    return area ? this.state.children(area.id, 'epic') : [];
   }
   get active(): LibNode | undefined { return this.state.node(this.activeId); }
   get roots(): LibNode[] { return this.activeId ? this.state.children(this.activeId, 'feature') : []; }
-  get freeRoots(): LibNode[] { return this.state.children(null).filter((n) => n.kind !== 'area' && this.matches(n)); }
-  areaName(id: string | null): string { return this.state.node(id)?.title || ''; }
-
-  private matches(node: LibNode): boolean {
-    const term = this.search.trim().toLocaleLowerCase();
-    return !term || node.title.toLocaleLowerCase().includes(term) || this.state.children(node.id).some((child) => this.matches(child));
+  /** Every Activity with no whole place (Free Space, a loose Story, another area): shown in Undefined. */
+  get undefinedList(): LibNode[] {
+    if (this.undefinedFor !== this.state.nodes) { this.undefinedFor = this.state.nodes; this.undefinedCache = undefinedTasks(this.state.nodes); }
+    return this.undefinedCache;
+  }
+  private undefinedFor?: LibNode[];
+  private undefinedCache: LibNode[] = [];
+  isUndefined(node: LibNode): boolean { return this.undefinedList.some((n) => n.id === node.id); }
+  /** "El Templo - Salud" for a life area, else the area's own title. */
+  areaLabel(id: string | null): string {
+    const node = this.state.node(id);
+    const key = node ? lifeAreaKey(node.title) : null;
+    return key ? this.i18n.t('area.' + key) : node?.title || '';
   }
 
   private bump(): void { this.version.update((v) => v + 1); }
@@ -256,27 +267,6 @@ export class Canvas implements DoCheck {
     if (d && isBackdropClick(event, d)) void this.answerLeave('stay');
   }
 
-  toggleFree(): void {
-    this.showFree = !this.showFree;
-    try { localStorage.setItem(FREE_KEY, this.showFree ? '1' : '0'); } catch { /* a view preference */ }
-    if (this.showFree) this.revealFree();
-  }
-
-  /**
-   * Switched on, Free Space opens (on phones it grows under the Epic workspace), then the page glides down until it is
-   * wholly on screen (Gianni). Nothing moves when it is already visible (side by side on wide screens).
-   */
-  private revealFree(): void {
-    const reduced = this.motion.reduced();
-    setTimeout(() => {
-      const free = this.host.nativeElement.querySelector<HTMLElement>('.free-space');
-      if (!free || !this.showFree) return;
-      const r = free.getBoundingClientRect();
-      if (r.top >= 0 && r.bottom <= innerHeight) return;
-      free.scrollIntoView({ block: r.height > innerHeight ? 'start' : 'end', behavior: reduced ? 'auto' : 'smooth' });
-    }, reduced ? 0 : 420);                                                 // after the 400 ms opening
-  }
-
   selectEpic(id: string): void {
     this.activeId = id;
     const panel = this.host.nativeElement.querySelector<HTMLElement>('.epic-objects');
@@ -291,52 +281,12 @@ export class Canvas implements DoCheck {
     this.selectEpic(this.epics[next].id);
     this.host.nativeElement.querySelector<HTMLElement>(`[data-tab="${CSS.escape(this.activeId)}"]`)?.focus();
   }
-  setAreaFilter(id: string): void { this.areaFilter = id; this.ensureActive(); this.bump(); }
-
-  // --- Starter template: the structure Gianni chose (4 areas, 8 epics, 13 features), added to the draft ---
-
-  protected readonly template = STARTER_TEMPLATE;
-  /** What the template would change now: Epics, Features and Stories of an old name renamed, then whatever is still missing. */
-  get templateChanges(): { renames: TemplateRename[]; add: LibNode[] } {
-    let i = 0;
-    return planTemplateChanges(this.state.nodes, STARTER_TEMPLATE, () => `preview-${i++}`);
-  }
-  get templateCount(): number { const c = this.templateChanges; return c.renames.length + c.add.length; }
-  /** True when this template node already exists under its current name (✓ in the preview). */
-  templateHas(kind: Kind, title: string): boolean {
-    const c = this.templateChanges;
-    return !c.add.some((n) => n.kind === kind && n.title === title) && !c.renames.some((r) => r.kind === kind && r.title === title);
-  }
-  /** The old name an Epic, Feature or Story will be renamed from (↻ in the preview), if any. */
-  templateRenamedFrom(kind: TemplateRename['kind'], title: string): string {
-    return this.templateChanges.renames.find((r) => r.kind === kind && r.title === title)?.from ?? '';
-  }
-  openTemplate(): void {
-    const d = this.templateDialog()?.nativeElement;
-    if (d) openDialog(d);
-  }
-  closeTemplate(): void { void closeDialog(this.templateDialog()?.nativeElement); }
-  /** True from the Add press until the window has closed: a double click adds the template only once. */
-  applyingTemplate = false;
-  applyTemplate(): void {
-    if (this.applyingTemplate) return;
-    this.applyingTemplate = true;
-    void closeDialog(this.templateDialog()?.nativeElement).then(() => {
-      this.applyingTemplate = false;
-      const { renames, add } = planTemplateChanges(this.state.nodes, STARTER_TEMPLATE);   // planned now, on the current draft
-      if (!renames.length && !add.length) return;
-      this.mutate(() => this.state.group(() => {
-        for (const r of renames) this.state.edit(r.id, r.title);
-        this.state.addNodes(add);
-      }));
-      this.areaFilter = '';
-      this.ensureActive();
-      this.announcement = this.i18n.t('canvas.draftUpdated');
-    });
-  }
-  onTemplateBackdrop(event: MouseEvent): void {
-    const d = this.templateDialog()?.nativeElement;
-    if (d && isBackdropClick(event, d)) this.closeTemplate();
+  setAreaFilter(key: string): void {
+    if (!this.lifeAreaKeys.includes(key as LifeArea)) return;
+    this.areaFilter = key as LifeArea;
+    try { localStorage.setItem(AREA_KEY, key); } catch { /* a view preference */ }
+    this.ensureActive();
+    this.bump();
   }
 
   // --- The action dialog (create / edit / move / colour / delete) ---
@@ -344,15 +294,18 @@ export class Canvas implements DoCheck {
   /** The editor is shrinking away: nothing more is applied (a double click on Apply must not create twice). */
   editorClosing = false;
 
-  open(kind: Kind, parentId: string | null = null, node?: LibNode): void {
+  open(kind: Kind, parentId: string | null = null, node?: LibNode, bare = false): void {
     this.editorClosing = false;
-    this.modal = { kind, parentId, node };
+    this.modal = { kind, parentId, node, bare };
     this.title = node?.title || '';
-    this.parentId = node?.parentId || parentId || (kind === 'epic' ? this.areaFilter || this.state.areas[0]?.id || '' : '');
-    this.fillCascade(this.parentId || null);
+    const parent = node?.parentId ?? parentId;
+    this.epicArea = kind === 'epic' ? (this.keyOf(parent) || this.areaFilter) : '';
+    this.fillCascade(parent);
     const from = pressPoint();                                              // read now: the dialog opens a tick later
     queueMicrotask(() => { const d = this.editor()?.nativeElement; if (d) openDialog(d, { from }); });
   }
+  /** New activity (Gianni): just its name; it waits in Undefined until it gets its whole place. */
+  newActivity(): void { this.open('task', null, undefined, true); }
   addChild(node: LibNode): void { this.open(node.kind === 'feature' ? 'story' : 'task', node.id); }
   close(): void {
     const d = this.editor()?.nativeElement;
@@ -368,67 +321,66 @@ export class Canvas implements DoCheck {
     if (d && isBackdropClick(event, d)) this.close();
   }
 
-  /** Epics pick their area from a list; areas sit at the top. */
-  get areaOptions(): LibNode[] { return this.state.areas; }
+  /** The life area an area node stands for (another area, or none: ''). */
+  private keyOf(areaId: string | null): LifeArea | '' {
+    const node = this.state.node(areaId);
+    if (!node || node.kind !== 'area') return '';
+    const key = lifeAreaKey(node.title);
+    return key && this.lifeAreas[key]?.id === node.id ? key : '';
+  }
+  /** An Epic's area, chosen among the four. */
+  epicArea: LifeArea | '' = '';
 
-  // "Move to": a cascade of combos (Area → Epic → Feature → Story), each listing only the children of the one above.
-  cascade: Record<'area' | CascadeLevel, string> = { area: '', epic: '', feature: '', story: '' };
-  freeParent = '';
+  // The place: a cascade of combos (Area → Epic → Feature → Story), each listing the children of the one above, or a new one
+  // named right there (created on Apply). An Activity's area may also be Undefined.
+  cascade: { area: LifeArea | '' | '__free'; epic: string; feature: string; story: string } = { area: '', epic: '', feature: '', story: '' };
+  newName: Record<CascadeLevel, string> = { epic: '', feature: '', story: '' };
   get cascadeLevels(): CascadeLevel[] {
     const target = this.modal ? PARENT_KIND[this.modal.kind] : null;
     const levels: CascadeLevel[] = ['epic', 'feature', 'story'];
     return target && target !== 'area' ? levels.slice(0, levels.indexOf(target as CascadeLevel) + 1) : [];
   }
-  cascadeOptions(level: CascadeLevel): LibNode[] {
+  /** The parent the level lists the children of: the area's node, or the level above (none when it is new or unset). */
+  private cascadeParent(level: CascadeLevel): string {
     const levels = this.cascadeLevels;
     const index = levels.indexOf(level);
-    const parent = index === 0 ? this.cascade.area : this.cascade[levels[index - 1]];
-    return parent ? this.state.children(parent, level) : [];
+    if (index === 0) return this.cascade.area && this.cascade.area !== this.FREE ? this.lifeAreas[this.cascade.area]?.id ?? '' : '';
+    const above = this.cascade[levels[index - 1]];
+    return above === this.NEW ? '' : above;
   }
-  get freeOptions(): { id: string; title: string }[] {
-    const kind = this.modal ? PARENT_KIND[this.modal.kind] : null;
-    if (!kind) return [];
-    const inFree = (node: LibNode): boolean => {
-      for (let n: LibNode | undefined = node, guard = 0; n && guard < 10; guard++) {
-        if (n.parentId === null) return n.kind !== 'area';
-        n = this.state.node(n.parentId);
-      }
-      return false;
-    };
-    return this.state.nodes.filter((n) => n.kind === kind && n.id !== this.modal?.node?.id && inFree(n)).map((n) => ({ id: n.id, title: this.freePath(n) }));
+  cascadeOptions(level: CascadeLevel): LibNode[] {
+    const parent = this.cascadeParent(level);
+    return parent ? this.state.children(parent, level).filter((n) => n.id !== this.modal?.node?.id) : [];
   }
-  private freePath(node: LibNode): string {
-    const parent = this.state.node(node.parentId);
-    return parent ? `${this.freePath(parent)} / ${node.title}` : node.title;
-  }
-  /** Chosen an area but not yet the last level: Apply waits (an unfinished choice never means Free Space). */
+  /** Apply waits until every level is chosen or named: a place is never half given (Gianni). */
   get cascadeIncomplete(): boolean {
-    if (!this.modal || this.modal.kind === 'epic' || this.modal.kind === 'area' || this.cascade.area === this.FREE) return false;
-    const last = this.cascadeLevels[this.cascadeLevels.length - 1];
-    return !last || !this.cascade[last];
+    const m = this.modal;
+    if (!m || m.bare || m.kind === 'area') return false;
+    if (m.kind === 'epic') return !this.epicArea;
+    if (m.kind === 'task' && this.cascade.area === this.FREE) return false;
+    if (!this.cascade.area) return true;
+    return this.cascadeLevels.some((level) => !this.cascade[level] || (this.cascade[level] === this.NEW && !this.newName[level].trim()));
   }
   pickCascade(level: 'area' | CascadeLevel, id: string): void {
-    this.cascade[level] = id;
     const levels = this.cascadeLevels;
+    if (level === 'area') this.cascade.area = id as LifeArea | '__free';
+    else this.cascade[level] = id;
     const from = level === 'area' ? 0 : levels.indexOf(level) + 1;
-    for (const below of levels.slice(from)) this.cascade[below] = '';
-    if (level === 'area') this.freeParent = '';
-    for (const below of levels.slice(from)) {                    // a level with a single choice is chosen for you
-      const options = this.cascadeOptions(below);
+    for (const below of levels.slice(from)) { this.cascade[below] = ''; this.newName[below] = ''; }
+    if (level === 'area' && id === this.FREE) return;
+    for (const below of levels.slice(from)) {
+      const above = below === levels[0] ? '' : this.cascade[levels[levels.indexOf(below) - 1]];
+      if (above === this.NEW) { this.cascade[below] = this.NEW; continue; }   // nothing exists under a new one yet
+      const options = this.cascadeOptions(below);                             // a level with a single choice is chosen for you
       if (options.length !== 1) break;
       this.cascade[below] = options[0].id;
     }
-    this.syncCascade();
-  }
-  pickFree(id: string): void { this.freeParent = id; this.syncCascade(); }
-  private syncCascade(): void {
-    const last = this.cascadeLevels[this.cascadeLevels.length - 1];
-    this.parentId = this.cascade.area === this.FREE ? this.freeParent : last ? this.cascade[last] : '';
   }
   private fillCascade(parentId: string | null): void {
     this.cascade = { area: '', epic: '', feature: '', story: '' };
-    this.freeParent = '';
-    if (!this.modal || this.modal.kind === 'epic' || this.modal.kind === 'area') return;
+    this.newName = { epic: '', feature: '', story: '' };
+    const m = this.modal;
+    if (!m || m.kind === 'epic' || m.kind === 'area') return;
     const chain: LibNode[] = [];
     for (let id = parentId, guard = 0; id && guard < 10; guard++) {
       const node = this.state.node(id);
@@ -436,42 +388,101 @@ export class Canvas implements DoCheck {
       chain.unshift(node);
       id = node.parentId;
     }
-    const top = chain[0];
-    if (top?.kind === 'area') {
-      this.cascade.area = top.id;
-      for (const node of chain.slice(1)) if (node.kind === 'epic' || node.kind === 'feature' || node.kind === 'story') this.cascade[node.kind] = node.id;
-    } else {
+    const levels = this.cascadeLevels;
+    const key = chain[0] ? this.keyOf(chain[0].id) : '';
+    // Only a whole place under one of the four areas fills the cascade; anything else starts Undefined (an Activity) or empty.
+    const whole = !!key && chain.length === levels.length + 1 && levels.every((level, i) => chain[i + 1].kind === level);
+    if (whole) {
+      this.cascade.area = key;
+      levels.forEach((level, i) => (this.cascade[level] = chain[i + 1].id));
+    } else if (m.kind === 'task') {
       this.cascade.area = this.FREE;
-      this.freeParent = parentId || '';
     }
   }
 
   get canApply(): boolean {
-    if (!this.modal || this.editorClosing || !this.title.trim() || this.saving || this.cascadeIncomplete) return false;
-    return this.modal.kind !== 'epic' || !!this.parentId;
+    return !!this.modal && !this.editorClosing && !!this.title.trim() && !this.saving && !this.cascadeIncomplete;
+  }
+
+  /** The area's node, made now (with its saved name) when the library has none yet. Inside a draft group. */
+  private ensureArea(key: LifeArea): string | null {
+    const found = this.lifeAreas[key];
+    if (found) return found.id;
+    return this.state.create('area', LIFE_AREAS.find((a) => a.key === key)!.title, null)?.id ?? null;
+  }
+  /** Where the dialog puts the object, creating the area and any level named new. Inside a draft group; undefined = failed. */
+  private resolveParent(): string | null | undefined {
+    const m = this.modal!;
+    if (m.kind === 'area') return null;
+    if (m.kind === 'epic') return this.epicArea ? this.ensureArea(this.epicArea) ?? undefined : undefined;
+    if (m.bare || this.cascade.area === this.FREE) return null;
+    if (!this.cascade.area) return undefined;
+    let parent = this.ensureArea(this.cascade.area);
+    for (const level of this.cascadeLevels) {
+      if (!parent) return undefined;
+      const value = this.cascade[level];
+      parent = value === this.NEW ? this.state.create(level, this.newName[level], parent)?.id ?? null : value;
+    }
+    return parent ?? undefined;
+  }
+  /** The parent the dialog would end on, without creating anything ('new' when some level is new). */
+  private plannedParent(): string | null {
+    const m = this.modal!;
+    if (m.kind === 'epic') return this.epicArea ? this.lifeAreas[this.epicArea]?.id ?? this.NEW : null;
+    if (m.bare || this.cascade.area === this.FREE) return null;
+    const levels = this.cascadeLevels;
+    const last = levels.length ? this.cascade[levels[levels.length - 1]] : '';
+    return !last || levels.some((l) => this.cascade[l] === this.NEW) ? this.NEW : last;
   }
 
   submit(): void {
     if (!this.modal || !this.canApply) return;
     const { node, kind } = this.modal;
     const title = this.title;
-    const parentId = kind === 'area' ? null : this.parentId || null;
+    const planned = this.plannedParent();
+    const place = { area: this.cascade.area, epic: this.cascade.epic };
+    let parentId: string | null | undefined;
     if (node) {
       const source = this.nodeElement(node.id);
-      const ghost = source && !this.motion.reduced() && node.parentId !== parentId ? this.motion.ghost(source) : undefined;
+      const ghost = source && !this.motion.reduced() && node.parentId !== planned ? this.motion.ghost(source) : undefined;
       this.mutate(() => this.state.group(() => {
+        parentId = this.resolveParent();
+        if (parentId === undefined) return;
         this.state.edit(node.id, title, kind === 'epic' ? parentId ?? undefined : undefined);
         if (kind !== 'epic' && kind !== 'area' && node.parentId !== parentId) this.state.move(node.id, parentId);
       }));
-      if (ghost) void this.motion.land(ghost, this.nodeElement(node.id), this.destinationElement(parentId));
+      this.followPlace(kind, place, node.id);
+      if (ghost) void this.motion.land(ghost, this.nodeElement(node.id), this.destinationElement(parentId ?? null));
     } else {
-      this.mutate(() => {
+      this.mutate(() => this.state.group(() => {
+        parentId = this.resolveParent();
+        if (parentId === undefined) return;
         const created = this.state.create(kind, title, parentId);
-        if (created?.kind === 'epic') { this.areaFilter = ''; this.activeId = created.id; }
-      });
+        if (created?.kind === 'epic') { this.areaFilter = this.epicArea || this.areaFilter; this.activeId = created.id; }
+      }));
+      if (kind !== 'epic') this.followPlace(kind, place);
     }
     this.announcement = this.i18n.t('canvas.draftUpdated');
     this.close();
+  }
+
+  /** Once something gets its place in another area or Epic, the Canvas shows it there (an Epic, its area). */
+  private followPlace(kind: Kind, place: { area: string; epic: string }, id?: string): void {
+    if (kind === 'epic' && id) {
+      const key = this.keyOf(this.state.node(id)?.parentId ?? null);
+      if (key) { this.setAreaFilter(key); this.activeId = id; }
+      return;
+    }
+    if (!place.area || place.area === this.FREE || kind === 'area') return;
+    const key = place.area as LifeArea;
+    const epicId = place.epic === this.NEW || !place.epic ? this.pathEpic(id) : place.epic;
+    if (key !== this.areaFilter) this.setAreaFilter(key);
+    if (epicId && this.state.node(epicId)) this.activeId = epicId;
+  }
+  /** The Epic above a node (after it moved), for a place made with a new Epic. */
+  private pathEpic(id?: string): string {
+    for (let n = this.state.node(id), guard = 0; n && guard < 10; guard++, n = this.state.node(n.parentId)) if (n.kind === 'epic') return n.id;
+    return this.epics[this.epics.length - 1]?.id ?? '';
   }
 
   setColor(color: string | null): void {
@@ -533,7 +544,7 @@ export class Canvas implements DoCheck {
       if (node?.kind === 'epic') return this.host.nativeElement.querySelector('.epic-tabs');
       id = node?.parentId || null;
     }
-    return this.host.nativeElement.querySelector('.free-space');
+    return this.host.nativeElement.querySelector('.undefined-box');
   }
 
   startDrag({ event, node }: { event: PointerEvent; node: LibNode }): void {
@@ -549,11 +560,6 @@ export class Canvas implements DoCheck {
 
   @HostListener('window:pointermove', ['$event'])
   pointerMove(event: PointerEvent): void {
-    if (this.resizing) {
-      const bounds = this.host.nativeElement.querySelector('.split')!.getBoundingClientRect();
-      this.freeWidth = Math.max(20, Math.min(50, (100 * (bounds.right - event.clientX)) / bounds.width));
-      return;
-    }
     const d = this.dragState;
     if (!d || event.pointerId !== d.pointerId) return;
     d.currentX = event.clientX;
@@ -571,7 +577,7 @@ export class Canvas implements DoCheck {
     let target: HTMLElement | undefined;
     while (el && this.host.nativeElement.contains(el)) {
       const kind = el.dataset['dropKind'];
-      if (kind === PARENT_KIND[d.node.kind] || kind === 'FREE') { target = el; break; }
+      if (kind === PARENT_KIND[d.node.kind] || (kind === 'FREE' && d.node.kind === 'task')) { target = el; break; }   // only an Activity waits in Undefined
       el = el.parentElement;
     }
     d.target?.classList.remove('drop-hot');
@@ -597,7 +603,6 @@ export class Canvas implements DoCheck {
 
   @HostListener('window:pointerup', ['$event'])
   endDrag(event: PointerEvent): void {
-    this.resizing = false;
     const d = this.dragState;
     if (!d || d.pointerId !== event.pointerId) return;
     if (!d.ghost) { this.cancelDrag(); return; }
@@ -609,7 +614,7 @@ export class Canvas implements DoCheck {
       const same = parentId === d.node.parentId;
       const old = this.state.layout[d.node.id] || { x: 0, y: 0 };
       // Coordinates only affect this device's arrangement, never the hierarchy.
-      const spatial = d.node.kind === 'feature' || parentId === null;
+      const spatial = d.node.kind === 'feature';
       let position: { x: number; y: number } | undefined;
       if (same && spatial) {
         const rect = d.source.getBoundingClientRect();
@@ -638,7 +643,6 @@ export class Canvas implements DoCheck {
   cancelDrag(): void {
     const d = this.dragState;
     if (d) { d.source.classList.remove('is-carried'); d.target?.classList.remove('drop-hot'); d.ghost?.remove(); }
-    this.resizing = false;
     this.releaseDrag();
   }
 
@@ -652,22 +656,12 @@ export class Canvas implements DoCheck {
   @HostListener('window:keydown.escape')
   escape(): void { this.cancelDrag(); }
 
-  resizeStart(event: PointerEvent): void {
-    event.preventDefault();
-    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
-    this.resizing = true;
-  }
-  resizeKey(event: KeyboardEvent): void {
-    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-      event.preventDefault();
-      this.freeWidth = Math.max(20, Math.min(50, this.freeWidth + (event.key === 'ArrowLeft' ? 2 : -2)));
-    }
-  }
-
   // --- Device preferences ---
 
-  private readFree(): boolean {
-    try { return localStorage.getItem(FREE_KEY) !== '0'; } catch { return true; }
+  private readArea(): LifeArea {
+    let stored = '';
+    try { stored = localStorage.getItem(AREA_KEY) || ''; } catch { /* optional */ }
+    return LIFE_AREAS.some((a) => a.key === stored) ? (stored as LifeArea) : 'temple';
   }
   private readLayout(): CanvasLayout {
     const layout: CanvasLayout = {};
