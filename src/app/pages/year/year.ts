@@ -56,7 +56,7 @@ function readLastCalendar(): string | null {
       <p class="year-status">{{ status() }}</p>
       <!-- the year: its four seasons, each with its rows of 3 weeks of 7 days -->
       <div class="year-seasons">
-        @for (q of shown(); track q.season; let qi = $index) {
+        @for (q of order(); track q.season; let qi = $index) {
           <section class="season" [attr.data-season]="q.season" [style.--i]="qi" [attr.aria-labelledby]="'season-' + q.season">
             <header class="season-head">
               <span class="season-ico" aria-hidden="true">
@@ -207,7 +207,7 @@ export class Year {
   protected readonly year = signal<GoEpicYear>(yearFor(YEARS, dateKey(this.week.now())));
   protected readonly plan = computed(() => yearPlan(this.year().seasons, this.year().next));
   /** the seasons as shown (Gianni): the one we are in at the top, the others after it in their order */
-  protected readonly shown = computed(() => currentFirst(this.plan(), this.today()));
+  protected readonly order = computed(() => currentFirst(this.plan(), this.today()));
   /** the days the seasons really begin, wherever their quarter's Monday falls (Mar 20 2027 lies in winter's rest week) */
   protected readonly astroDays = computed(() => new Map(this.plan().map((q) => [q.astro, q.season])));
   private get first(): string { return this.plan()[0].start; }
