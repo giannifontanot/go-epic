@@ -143,7 +143,7 @@ function readLastCalendar(): string | null {
                 @for (f of faces(); track f.id) {
                   <div class="yrp-face" [class.out]="f.out" [attr.aria-hidden]="f.out ? 'true' : null">
                     <h2 [attr.id]="f.out ? null : 'yd-title'" tabindex="-1">{{ longDate(f.key) }}</h2>
-                    <p class="info-when yd-place" [attr.data-season]="placeSeason(f.key)">{{ placeLabel(f.key) }}</p>
+                    <p class="info-when yd-place" [attr.data-season]="placeSeason(f.key)">{{ placeLabel(f.key, false) }}</p>
                   </div>
                 }
               </div>
@@ -151,8 +151,13 @@ function readLastCalendar(): string | null {
             </div>
             <!-- the day's notes (Gianni: as many as it needs): a tap on one renames it in place, its ✕ removes it after the countdown -->
             @let list = dates.notes().get(key) ?? [];
-            @if (list.length) {
+            @let begins = astroDays().get(key);
+            @if (list.length || begins) {
               <ul class="yd-notes" [attr.aria-label]="i18n.t('year.notes')">
+                <!-- the day the season begins is a note of its own, drawn like the ones written (Gianni: the same weight), with no ✕ -->
+                @if (begins) {
+                  <li class="yd-auto"><div class="yd-note"><span class="yd-star" aria-hidden="true">★</span><span class="yd-note-name">{{ i18n.t('year.begins.' + begins) }}</span></div></li>
+                }
                 @for (n of list; track n.id) {
                   <li [class.deleting]="undo.isPending('note:' + key + ':' + n.id)">
                     @if (renaming() === n.id) {
@@ -630,14 +635,14 @@ export class Year {
   protected placeSeason(key: string): Season | null {
     return placeOf(this.plan(), key)?.season ?? null;
   }
-  /** "Winter · Sprint 2, week 1", "Winter · Rest and review", or "Spring begins" added on that day. */
-  protected placeLabel(key: string): string {
+  /** "Winter · Sprint 2, week 1", "Winter · Rest and review", and "Spring begins" added on that day (not in the day's window, which lists it as a note). */
+  protected placeLabel(key: string, withBegins = true): string {
     const place = placeOf(this.plan(), key);
     if (!place) return '';
     const season = this.i18n.t('year.' + place.season);
     const part = place.sprint === null ? this.i18n.t('year.rest') : `${this.i18n.t('year.sprint', { n: place.sprint })}, ${this.i18n.t('year.week', { n: place.week })}`;
     const begins = this.astroDays().get(key);
-    const astro = begins ? ` · ${this.i18n.t('year.begins.' + begins)}` : '';
+    const astro = begins && withBegins ? ` · ${this.i18n.t('year.begins.' + begins)}` : '';
     return `${season} · ${part}${astro}`;
   }
   protected cellLabel(date: string, name: string | undefined): string {
