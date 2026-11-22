@@ -608,6 +608,12 @@ html.tilt .capture-tabs button.on { translate: 0 0; }   /* the tabs belong to th
 /* Progress: one row per habit, its streak and the last 14 days as dots */
 .progress-page { max-width: 720px; margin: 0 auto; }
 .progress-page .legend, .progress-page .note { font-size: 13px; }
+/* Product history: an empty screen for now, its data is connected later */
+.products-page { max-width: 720px; margin: 0 auto; }
+.products-empty { display: grid; justify-items: center; gap: 6px; margin: 48px auto 0; padding: 32px 20px; max-width: 420px; text-align: center; color: var(--ink-soft); border: 1px dashed color-mix(in srgb, var(--ink-soft) 45%, transparent); border-radius: 22px; }
+.products-empty svg { margin-bottom: 8px; opacity: .8; }
+.products-lead { margin: 0; color: var(--ink); font-size: calc(17px * var(--esc, 1)); font-weight: 600; }
+.products-empty .muted { margin: 0; font-size: calc(14px * var(--esc, 1)); }
 .habits { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .habit { padding: 12px 14px; border-radius: 18px; background: linear-gradient(155deg, var(--plum-a), var(--plum-b) 86%); }
 .h-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
