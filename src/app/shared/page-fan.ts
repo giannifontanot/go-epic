@@ -1,7 +1,15 @@
 import { Component, DestroyRef, ElementRef, Injector, afterNextRender, inject, input, output, signal, viewChild, viewChildren } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { I18n } from '../core/i18n';
-import { FAN_MS, FAN_STEP_MS, flyTiles, placeBeside, reducedMotion } from './fan';
+import { flyTiles, placeBeside, reducedMotion } from './fan';
+
+/**
+ * When the round menu opens, how long until its compass is pressed by itself: its last action has risen into place
+ * (4 × 40 ms stagger + 340 ms slide ≈ 500 ms), then a moment more (Gianni: a little later than at first).
+ */
+export const PAGES_AFTER_MS = 900;
+/** The compass's small press before the pages fan out. */
+export const PRESS_MS = 220;
 
 /** The pages of the menu (Week board, Canvas, Progress, Year, Product history), shared by the round menu's fan and the page titles'. */
 export const PAGES = [
@@ -71,18 +79,24 @@ export class PageFan {
     if (this.open() && this.veil()) this.close(true);   // in the round menu its Esc closes the menu and the pages together
   }
   /**
-   * Opens the pages once their button has risen into its place in the menu (its slide, after its turn: the second
-   * from the bottom), so they fan out of it where it stands; at once under reduced motion.
+   * Opens the pages a moment after the whole menu has settled (Gianni: first the menu opens, then, a moment later, the
+   * compass is pressed): its button gives a small press, as if tapped, and the pages fan out of it where it stands; at
+   * once and without the press under reduced motion. Closing the menu meanwhile cancels it (`close`).
    */
   showSoon(): void {
     this.cancelSoon();
     if (this.open() && !this.closing) return;
-    const wait = reducedMotion() ? 0 : FAN_MS + 2 * FAN_STEP_MS;
+    const still = reducedMotion();
     this.soon = setTimeout(() => {
       this.soon = null;
+      if (!still) this.press();
       if (this.closing) this.reopen = true;   // the menu reopened while the pages were still drawing back: show them once they are in
       else if (!this.open()) this.show();
-    }, wait);
+    }, still ? 0 : PAGES_AFTER_MS);
+  }
+  /** The compass's small press, on its own `scale` (the menu's slide and the tilt use transform, rotate and translate). */
+  private press(): void {
+    this.fab().nativeElement.animate?.({ scale: ['1', '.86', '1'] }, { duration: PRESS_MS, easing: 'cubic-bezier(.4, 0, .2, 1)' });
   }
   private cancelSoon(): void {
     if (this.soon !== null) { clearTimeout(this.soon); this.soon = null; }
