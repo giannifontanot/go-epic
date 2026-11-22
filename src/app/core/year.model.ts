@@ -121,6 +121,26 @@ export function currentFirst(plan: Quarter[], today: string): Quarter[] {
   return i <= 0 ? plan : [...plan.slice(i), ...plan.slice(0, i)];
 }
 
+/** A sprint's first and last day (Monday of its first week, Sunday of its last). */
+export function sprintRange(sprint: Sprint): { from: string; to: string } {
+  const last = sprint.weeks[sprint.weeks.length - 1];
+  return { from: sprint.weeks[0][0], to: last[last.length - 1] };
+}
+
+const MONTHS: Record<'en' | 'es', string[]> = {
+  en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+  es: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+};
+/** A day as a sprint's range shows it (Gianni): two-digit day and three-letter month, "05 Oct". */
+export function dayMonth(key: string, lang: 'en' | 'es'): string {
+  return `${key.slice(8, 10)} ${MONTHS[lang][Number(key.slice(5, 7)) - 1]}`;
+}
+/** A sprint's range as its line shows it after its name (Gianni): "05 Oct - 18 Oct". */
+export function sprintRangeLabel(sprint: Sprint, lang: 'en' | 'es'): string {
+  const { from, to } = sprintRange(sprint);
+  return `${dayMonth(from, lang)} - ${dayMonth(to, lang)}`;
+}
+
 /** An important date's name, cleaned (trimmed, at most 80 characters); null when there is none. */
 export function cleanDateName(name: unknown): string | null {
   if (typeof name !== 'string') return null;

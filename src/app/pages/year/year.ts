@@ -8,7 +8,7 @@ import { I18n } from '../../core/i18n';
 import { daysBetween } from '../../core/period.model';
 import { dateKey } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
-import { GoEpicYear, Season, YEARS, cleanDateName, currentFirst, placeOf, yearFor, yearPlan } from '../../core/year.model';
+import { GoEpicYear, Season, YEARS, cleanDateName, currentFirst, placeOf, sprintRangeLabel, yearFor, yearPlan } from '../../core/year.model';
 import { Ask } from '../../shared/ask';
 import { PageMenu } from '../../shared/title-fan';
 import { Undo } from '../../shared/undo';
@@ -57,7 +57,7 @@ function readLastCalendar(): string | null {
       <!-- the year: its four seasons, each with its rows of 3 weeks of 7 days -->
       <div class="year-seasons">
         @for (q of order(); track q.season; let qi = $index) {
-          <section class="season" [attr.data-season]="q.season" [style.--i]="qi" [attr.aria-labelledby]="'season-' + q.season">
+          <section class="season" [class.past]="q.end < today()" [attr.data-season]="q.season" [style.--i]="qi" [attr.aria-labelledby]="'season-' + q.season">
             <header class="season-head">
               <span class="season-ico" aria-hidden="true">
                 @switch (q.season) {
@@ -72,7 +72,8 @@ function readLastCalendar(): string | null {
             </header>
             @for (sprint of q.sprints; track sprint.n) {
               <div class="yr-row">
-                <h3 class="yr-label">{{ i18n.t('year.sprint', { n: sprint.n }) }}</h3>
+                <!-- its name, then its range in a lighter tone of the same ink, both in straight columns (Gianni) -->
+                <h3 class="yr-label"><span class="yr-name">{{ i18n.t('year.sprint', { n: sprint.n }) }}</span><span class="yr-range">{{ sprintRangeLabel(sprint, i18n.lang()) }}</span></h3>
                 <!-- the sprint's 21 days on one line: touch a day and slide along it, the window follows (never past the sprint) -->
                 <ol class="yr-line" (pointerdown)="press($event)" (pointermove)="drag($event)" (pointerup)="lift($event)"
                     (pointercancel)="drop($event)" (touchmove)="holdScroll($event)" (contextmenu)="$event.preventDefault()">
@@ -86,7 +87,7 @@ function readLastCalendar(): string | null {
             }
             @for (week of q.rest; track week[0]) {
               <div class="yr-row rest">
-                <h3 class="yr-label">{{ i18n.t('year.rest') }}</h3>
+                <h3 class="yr-label"><span class="yr-name">{{ i18n.t('year.rest') }}</span></h3>
                 <ol class="yr-line" (pointerdown)="press($event)" (pointermove)="drag($event)" (pointerup)="lift($event)"
                     (pointercancel)="drop($event)" (touchmove)="holdScroll($event)" (contextmenu)="$event.preventDefault()">
                   @for (date of week; track date; let di = $index) {
@@ -198,6 +199,7 @@ export class Year {
   protected readonly pageMenu = inject(PageMenu);
   protected readonly dates = inject(DatesStore);
   protected readonly undo = inject(Undo);
+  protected readonly sprintRangeLabel = sprintRangeLabel;
   private readonly ask = inject(Ask);
   private readonly week = inject(WeekStore);
   private readonly injector = inject(Injector);
