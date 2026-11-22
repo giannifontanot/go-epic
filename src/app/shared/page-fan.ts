@@ -58,6 +58,7 @@ export class PageFan {
   private readonly tiles = viewChildren<ElementRef<HTMLElement>>('tile');
   private closing = false;
   private soon: ReturnType<typeof setTimeout> | null = null;
+  private reopen = false;
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.cancelSoon());
@@ -75,12 +76,17 @@ export class PageFan {
    */
   showSoon(): void {
     this.cancelSoon();
-    if (this.open()) return;
+    if (this.open() && !this.closing) return;
     const wait = reducedMotion() ? 0 : FAN_MS + 2 * FAN_STEP_MS;
-    this.soon = setTimeout(() => { this.soon = null; if (!this.open()) this.show(); }, wait);
+    this.soon = setTimeout(() => {
+      this.soon = null;
+      if (this.closing) this.reopen = true;   // the menu reopened while the pages were still drawing back: show them once they are in
+      else if (!this.open()) this.show();
+    }, wait);
   }
   private cancelSoon(): void {
     if (this.soon !== null) { clearTimeout(this.soon); this.soon = null; }
+    this.reopen = false;
   }
   protected toggle(): void {
     this.cancelSoon();
@@ -99,6 +105,7 @@ export class PageFan {
       this.closing = false;
       this.open.set(false);
       if (refocus) this.fab().nativeElement.focus({ preventScroll: true });
+      if (this.reopen) { this.reopen = false; this.show(); }
     };
     const animations = this.fly(false);
     if (!animations.length) { done(); return; }
