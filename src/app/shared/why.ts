@@ -8,7 +8,9 @@ import { WHY, WhyScreen } from '../core/why';
  * a window, growing out of the button like every window (core/dialog), that explains which part of your life the screen
  * orders and why you need it. First a brief but complete reason ("In short"), then fuller sections for whoever wants to
  * know more. The texts live in core/why.ts. The word stays "Why?" in both languages (Gianni); its accessible name is
- * translated. ✕, Close, Esc or the backdrop close it.
+ * translated. ✕, Close, Esc or the backdrop close it. The window reads like a well-set page (Gianni: it looked like a sheet
+ * that did not matter): Literata, a typeface made for reading on screens, generous spacing, numbered sections and a
+ * double edge in the theme's accent.
  */
 @Component({
   selector: 'app-why',
@@ -17,12 +19,13 @@ import { WHY, WhyScreen } from '../core/why';
     <button type="button" class="why-btn" [attr.aria-label]="i18n.t('why.button')" [title]="i18n.t('why.button')" (click)="open()">
       <span class="why-word">Why</span><span class="why-q" aria-hidden="true">?</span>
     </button>
-    <dialog #dialog class="info-card why-window" [attr.aria-labelledby]="'why-title-' + screen()" (click)="onBackdrop($event)">
+    <dialog #dialog class="info-card why-window" [attr.lang]="i18n.lang()" [attr.aria-labelledby]="'why-title-' + screen()" (click)="onBackdrop($event)">
       @let text = content();
       <div class="info-head">
         <div class="why-titles">
           <p class="why-eyebrow">Why?</p>
           <h2 [id]="'why-title-' + screen()">{{ text.title }}</h2>
+          <span class="why-rule" aria-hidden="true"></span>
           <p class="why-orders">{{ i18n.t('why.orders') }}: <strong>{{ text.orders }}</strong></p>
         </div>
         <button type="button" class="round" [attr.aria-label]="i18n.t('week.infoClose')" [title]="i18n.t('week.infoClose')" (click)="close()">✕</button>
@@ -32,9 +35,10 @@ import { WHY, WhyScreen } from '../core/why';
           <h3>{{ i18n.t('why.inShort') }}</h3>
           <p>{{ text.lead }}</p>
         </section>
-        <p class="why-more" style="--i: 1">{{ i18n.t('why.more') }}</p>
+        <p class="why-more" style="--i: 1"><span>{{ i18n.t('why.more') }}</span></p>
         @for (section of text.sections; track section.heading; let i = $index) {
           <section class="why-sec" [style.--i]="i + 2">
+            <span class="why-num" aria-hidden="true">{{ numeral(i) }}</span>
             <h3>{{ section.heading }}</h3>
             @for (p of section.body; track $index) { <p>{{ p }}</p> }
           </section>
@@ -50,6 +54,10 @@ export class Why {
   protected readonly content = computed(() => WHY[this.screen()][this.i18n.lang()]);
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
 
+  /** A section's number, two digits like a book's chapter: 01, 02… */
+  protected numeral(i: number): string {
+    return String(i + 1).padStart(2, '0');
+  }
   protected open(): void {
     const d = this.dialog().nativeElement;
     if (d.open) return;
