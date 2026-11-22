@@ -1,7 +1,7 @@
-import { Component, ElementRef, Injector, afterNextRender, inject, output, signal, viewChild, viewChildren } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, afterNextRender, inject, input, output, signal, viewChild, viewChildren } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { I18n } from '../core/i18n';
-import { flyTiles, placeBeside } from './fan';
+import { FAN_MS, FAN_STEP_MS, flyTiles, placeBeside, reducedMotion } from './fan';
 
 /** The pages of the menu (Week board, Canvas, Progress, Year, Product history), shared by the round menu's fan and the page titles'. */
 export const PAGES = [
@@ -16,7 +16,9 @@ export const PAGES = [
  * The pages, one tap away (Gianni: the ☰ menu left, and scrolling up to navigate was not wanted): an action of the
  * floating buttons' menu (ActionMenu). A tap slides the pages out of it to the left, exactly as the themes do, the page
  * you are on marked; a tap on one goes there (and the menu closes); a tap outside, Esc or the button again draw them
- * back. Under reduced motion they simply appear and go.
+ * back. Opening the round menu also opens them by itself (Gianni: one tap shows which pages there are), once their
+ * button has slid into its place (`showSoon`); then the menu's own veil takes the taps outside (`veil` false), so the
+ * other actions stay one tap away. Under reduced motion they simply appear and go.
  */
 @Component({
   selector: 'app-page-fan',
@@ -30,7 +32,7 @@ export const PAGES = [
       </svg>
     </button>
     @if (open()) {
-      <div class="theme-fan-veil" aria-hidden="true" (click)="close()"></div>
+      @if (veil()) { <div class="theme-fan-veil" aria-hidden="true" (click)="close()"></div> }
       <nav #fanBox id="page-fan" class="page-fan" [attr.aria-label]="i18n.t('nav.pages')">
         @for (page of pages; track page.link) {
           <a #tile class="page-tile" [routerLink]="page.link" routerLinkActive="on" #rla="routerLinkActive"
@@ -47,25 +49,50 @@ export class PageFan {
   protected readonly pages = PAGES;
   /** A page was tapped: the menu closes. */
   readonly went = output<void>();
+  /** A veil of its own that a tap outside closes; off in the round menu, whose veil closes everything. */
+  readonly veil = input(true);
   protected readonly open = signal(false);
   private readonly injector = inject(Injector);
   private readonly fab = viewChild.required<ElementRef<HTMLButtonElement>>('fab');
   private readonly fanBox = viewChild<ElementRef<HTMLElement>>('fanBox');
   private readonly tiles = viewChildren<ElementRef<HTMLElement>>('tile');
   private closing = false;
+  private soon: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.cancelSoon());
+  }
 
   isOpen(): boolean {
     return this.open();
   }
   protected onEscape(): void {
-    if (this.open()) this.close(true);
+    if (this.open() && this.veil()) this.close(true);   // in the round menu its Esc closes the menu and the pages together
+  }
+  /**
+   * Opens the pages once their button has risen into its place in the menu (its slide, after its turn: the second
+   * from the bottom), so they fan out of it where it stands; at once under reduced motion.
+   */
+  showSoon(): void {
+    this.cancelSoon();
+    if (this.open()) return;
+    const wait = reducedMotion() ? 0 : FAN_MS + 2 * FAN_STEP_MS;
+    this.soon = setTimeout(() => { this.soon = null; if (!this.open()) this.show(); }, wait);
+  }
+  private cancelSoon(): void {
+    if (this.soon !== null) { clearTimeout(this.soon); this.soon = null; }
   }
   protected toggle(): void {
+    this.cancelSoon();
     if (this.open()) { this.close(); return; }
+    this.show();
+  }
+  private show(): void {
     this.open.set(true);
     afterNextRender(() => { placeBeside(this.fab().nativeElement, this.fanBox()?.nativeElement); this.fly(true); }, { injector: this.injector });
   }
   close(refocus = false): void {
+    this.cancelSoon();
     if (!this.open() || this.closing) return;
     this.closing = true;
     const done = () => {
