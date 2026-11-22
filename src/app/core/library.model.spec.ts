@@ -1,6 +1,6 @@
 import {
   LibNode, Library, STARTER_TEMPLATE, activityFromTodo, paperAge, canParent, planTemplateChanges, followDay, inboxTasks, planTemplate, storyOptions, fileTask, followLibrary, placeLabel, rebaseLibrary, sanitizeLibrary, setTracked, trackedIds, tasksWithin, twinTask,
-  emptyWhere, pickWhere, whereOf, whereOptions,
+  emptyWhere, pickWhere, whereOf, whereOptions, lifeAreaKey, lifeAreaNodes, undefinedTasks,
 } from './library.model';
 
 const n = (id: string, kind: LibNode['kind'], parentId: string | null, title = id): LibNode => ({ id, kind, title, parentId, color: null });
@@ -225,5 +225,34 @@ describe('Track in Progress', () => {
     expect(setTracked(lib(), 's', true).nodes.find((x) => x.id === 's')?.track).toBeUndefined();
     const clean = sanitizeLibrary({ nodes: [{ ...n('t', 'task', null), track: true }, { ...n('u', 'task', null), track: 'yes' as unknown as true }, { ...n('s', 'story', null), track: true }] });
     expect(clean.nodes.map((x) => 'track' in x)).toEqual([true, false, false]);
+  });
+});
+
+describe('life areas and undefined activities', () => {
+  it('knows the four areas by name, without case or accents, and no other', () => {
+    expect(lifeAreaKey('El Templo')).toBe('temple');
+    expect(lifeAreaKey(' el castillo ')).toBe('castle');
+    expect(lifeAreaKey('LA TORRE')).toBe('tower');
+    expect(lifeAreaKey('La Arena')).toBe('arena');
+    expect(lifeAreaKey('Health')).toBeNull();
+    expect(lifeAreaKey('Fun')).toBeNull();
+  });
+
+  it('takes the first area of each name', () => {
+    const nodes = [n('h', 'area', null, 'Health'), n('t1', 'area', null, 'El Templo'), n('t2', 'area', null, 'El templo')];
+    const found = lifeAreaNodes(nodes);
+    expect(found.temple?.id).toBe('t1');
+    expect(found.castle).toBeUndefined();
+  });
+
+  it('lists every activity not placed under a life area, Epic, Feature and Story', () => {
+    const nodes = [
+      n('A', 'area', null, 'El Templo'), n('E', 'epic', 'A'), n('F', 'feature', 'E'), n('S', 'story', 'F'),
+      n('placed', 'task', 'S'),
+      n('free', 'task', null),
+      n('looseS', 'story', null), n('inLoose', 'task', 'looseS'),
+      n('H', 'area', null, 'Health'), n('HE', 'epic', 'H'), n('HF', 'feature', 'HE'), n('HS', 'story', 'HF'), n('inHealth', 'task', 'HS'),
+    ];
+    expect(undefinedTasks(nodes).map((x) => x.id)).toEqual(['free', 'inLoose', 'inHealth']);
   });
 });

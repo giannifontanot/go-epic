@@ -110,7 +110,7 @@ export const WHY: Record<WhyScreen, Record<Lang, WhyText>> = {
           'No hace falta que todo esté lleno. Hace falta que lo que está vacío lo esté porque lo elegiste.',
         ] },
         { heading: 'Un lugar para lo que aún no tiene lugar', body: [
-          'No todo nace sabiendo a dónde pertenece. El Espacio libre guarda lo que todavía no encuentra su sitio, sin culpa y sin perderlo.',
+          'No todo nace sabiendo a dónde pertenece. Sin definir guarda lo que todavía no encuentra su sitio, sin culpa y sin perderlo.',
           'Ordenar la vida no es meter todo a la fuerza en cajas; es darle a cada cosa el tiempo de mostrarte a qué parte de ti pertenece.',
         ] },
         { heading: 'Diseñar con borradores', body: [
@@ -140,7 +140,7 @@ export const WHY: Record<WhyScreen, Record<Lang, WhyText>> = {
           'Not everything has to be full. What is empty should be empty because you chose it.',
         ] },
         { heading: 'A place for what has no place yet', body: [
-          'Not everything is born knowing where it belongs. Free Space keeps what has not found its place yet, without guilt and without losing it.',
+          'Not everything is born knowing where it belongs. Undefined keeps what has not found its place yet, without guilt and without losing it.',
           'Ordering your life is not forcing everything into boxes; it is giving each thing time to show you which part of you it belongs to.',
         ] },
         { heading: 'Designing in drafts', body: [
