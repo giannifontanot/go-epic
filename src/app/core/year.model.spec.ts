@@ -1,4 +1,4 @@
-import { YEARS, YEAR_2026, YEAR_2027, cleanDateName, nearestMonday, placeOf, weekdayOf, yearFor, yearPlan } from './year.model';
+import { YEARS, YEAR_2026, YEAR_2027, cleanDateName, currentFirst, nearestMonday, placeOf, weekdayOf, yearFor, yearPlan } from './year.model';
 
 describe('Year model', () => {
   it('finds the nearest Monday', () => {
@@ -23,6 +23,19 @@ describe('Year model', () => {
       expect(q.rest[0][6]).toBe(q.end);
     }
     expect(plan[0].rest[0][0]).toBe('2027-03-15');
+  });
+
+  it('puts the season we are in at the top', () => {
+    const plan26 = yearPlan(YEAR_2026.seasons, YEAR_2026.next);
+    const plan27 = yearPlan(YEAR_2027.seasons, YEAR_2027.next);
+    expect(currentFirst(plan26, '2026-11-22').map((q) => q.season)).toEqual(['autumn', 'winter', 'spring', 'summer']);
+    expect(currentFirst(plan26, '2026-09-21').map((q) => q.season)).toEqual(['autumn', 'winter', 'spring', 'summer']);
+    expect(currentFirst(plan26, '2026-09-20').map((q) => q.season)).toEqual(['summer', 'autumn', 'winter', 'spring']);
+    expect(currentFirst(plan27, '2027-04-10').map((q) => q.season)).toEqual(['spring', 'summer', 'autumn', 'winter']);
+    expect(currentFirst(plan27, '2027-01-05')).toBe(plan27);
+    // a year today is not in keeps winter first
+    expect(currentFirst(plan27, '2026-11-22')).toBe(plan27);
+    expect(currentFirst(plan26, '2027-05-01')).toBe(plan26);
   });
 
   it('lays out 2026 the same way, ending the day before 2027 begins', () => {

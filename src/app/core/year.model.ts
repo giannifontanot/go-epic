@@ -111,6 +111,16 @@ export function placeOf(plan: Quarter[], key: string): YearPlace | null {
   return null;
 }
 
+/**
+ * The quarters in the order the screen shows them (Gianni: the season we are in goes at the top): when today falls in
+ * the year, its quarter comes first and the others follow in their order, the earlier ones of the year after them; a
+ * year today is not in keeps winter first.
+ */
+export function currentFirst(plan: Quarter[], today: string): Quarter[] {
+  const i = plan.findIndex((q) => today >= q.start && today <= q.end);
+  return i <= 0 ? plan : [...plan.slice(i), ...plan.slice(0, i)];
+}
+
 /** An important date's name, cleaned (trimmed, at most 80 characters); null when there is none. */
 export function cleanDateName(name: unknown): string | null {
   if (typeof name !== 'string') return null;
