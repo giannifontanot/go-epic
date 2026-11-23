@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { readGuideCard, writeGuideCard } from '../../core/guide-card';
 import { I18n } from '../../core/i18n';
 import { SwipeTracker, stepDay } from '../../core/swipe';
 import { DARK_THEMES, LIGHT_THEMES, THEME_BAR, Theme, ThemeService } from '../../core/theme';
@@ -20,7 +21,8 @@ const THEME_ACCENT: Record<Theme, string> = {
  * short explanation and a drawing of the real screen. The drawings are inline SVG painted with the theme's own tokens,
  * so they wear whatever theme the user has on (Gianni: never the Epic look on purpose); the Year's keep its fixed
  * colours, as the Year screen does. Arrows, a sideways swipe or ← → step through it, stopping at the first and the
- * last card; the new card slides in from its side (nothing under reduced motion). Nothing is read or stored.
+ * last card; the new card slides in from its side (nothing under reduced motion). It opens, still, on the card you were
+ * last on, remembered on this device (`go-epic-instructions-card`, Gianni); nothing else is read or stored.
  */
 @Component({
   selector: 'app-guide',
@@ -35,7 +37,7 @@ export class Guide {
   protected readonly slides = GUIDE_SLIDES;
   protected readonly count = GUIDE_SLIDES.length;
   protected readonly swipe = new SwipeTracker();
-  protected readonly index = signal(0);
+  protected readonly index = signal(readGuideCard(GUIDE_SLIDES.length));
   /** The side the shown card came in from: none on opening, so the page opens still. */
   protected readonly dir = signal<'left' | 'right' | null>(null);
   /** The shown card, as a one-item list so a new card is a new element and its slide-in plays. */
@@ -49,6 +51,7 @@ export class Guide {
     if (to === from || to < 0 || to >= this.count) return;
     this.dir.set(to > from ? 'right' : 'left');
     this.index.set(to);
+    writeGuideCard(to);
   }
   protected step(by: -1 | 1): void {
     const next = stepDay(GUIDE_SLIDES.map((_, i) => i), this.index(), by);
