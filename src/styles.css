@@ -688,34 +688,40 @@ dialog.info-card.track-grid[open] { display: flex; flex-direction: column; overf
 /* Starter template preview: a Feature renamed from its old name (Canvas) */
 .template-tree .renamed { display: block; color: var(--accent-text, var(--jelly-b)); font-size: 12px; font-style: normal; }
 
-/* Canvas: the Epics are real folder tabs (Gianni). «Epics» names the row above it; the open tab is the folder's own
-   colour (the plum panel's top) and runs into it, a line in the theme's primary colour along its top and its foot
-   flaring into the folder's edge; the others sit a little lower and quieter, behind it. Each tab carries its own ✎ in
-   its top-right corner; "+ Epic" ends the row, which scrolls sideways. */
+/* Canvas: the Areas and the Epics are real folder tabs (Gianni). A small title names each row above it; the open tab is
+   its folder's own colour (--fold: the area folder's for the areas, the plum panel's top for the Epics) and runs into it,
+   a line in the theme's primary colour along its top and its foot flaring into the folder's edge; the others sit a
+   little lower and quieter, behind it. Each Epic tab carries its own ✎ in its top-right corner; "+ Epic" ends its row.
+   Both rows scroll sideways. The area folder is a soft band of the page's own ink, so it reads on every theme. */
+.canvas-page { --area-fold: color-mix(in srgb, var(--ink) 9%, transparent); }
+.epic-tab { --fold: var(--plum-a); }
+.area-tab { --fold: var(--area-fold); }
 .epics-title { margin: 2px 4px 6px; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
-.epic-tabs { display: flex; align-items: flex-end; gap: 4px; padding: 0 16px 0 0; overflow-x: auto; overflow-y: hidden; flex-shrink: 0; scrollbar-width: none; }
-.epic-tabs::-webkit-scrollbar { display: none; }
+:is(.epic-tabs, .area-tabs) { display: flex; align-items: flex-end; gap: 4px; padding: 0 16px 0 0; overflow-x: auto; overflow-y: hidden; flex-shrink: 0; scrollbar-width: none; }
+:is(.epic-tabs, .area-tabs)::-webkit-scrollbar { display: none; }
 /* A tab is as wide as its name (Gianni), up to the row's width; a longer name is cut with … and a tap shows it whole */
-.epic-tab { position: relative; flex-shrink: 0; display: flex; min-width: 0; max-width: calc(100% - 14px); border-radius: 16px 16px 0 0;
-  background: color-mix(in srgb, var(--plum-a) 42%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 14%, transparent);
+:is(.epic-tab, .area-tab) { position: relative; flex-shrink: 0; display: flex; min-width: 0; max-width: calc(100% - 14px); border-radius: 16px 16px 0 0;
+  background: color-mix(in srgb, var(--fold) 42%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 14%, transparent);
   translate: 0 4px; transition: background .3s, translate .3s cubic-bezier(.2, 0, 0, 1), box-shadow .3s; }
-.epic-tab.open { z-index: 1; background: var(--plum-a); translate: 0 0; box-shadow: inset 0 3px 0 var(--pink); }
-.epic-tab.open::before, .epic-tab.open::after { content: ''; position: absolute; bottom: 0; width: 14px; height: 14px; pointer-events: none; }
-.epic-tab.open::before { left: -14px; background: radial-gradient(circle at 0 0, transparent 13.5px, var(--plum-a) 14px); }
-.epic-tab.open::after { right: -14px; background: radial-gradient(circle at 100% 0, transparent 13.5px, var(--plum-a) 14px); }
-.epic-tab:not(.open):hover { background: color-mix(in srgb, var(--plum-a) 62%, transparent); }
-.epic-tab > button[role='tab'] { flex: 1; min-width: 0; min-height: 46px; margin: 0; padding: 10px 40px 10px 15px; border-radius: 16px 16px 0 0; background: transparent !important;
+:is(.epic-tab, .area-tab).open { z-index: 1; background: var(--fold); translate: 0 0; box-shadow: inset 0 3px 0 var(--pink); }
+:is(.epic-tab, .area-tab).open::before, :is(.epic-tab, .area-tab).open::after { content: ''; position: absolute; bottom: 0; width: 14px; height: 14px; pointer-events: none; }
+:is(.epic-tab, .area-tab).open::before { left: -14px; background: radial-gradient(circle at 0 0, transparent 13.5px, var(--fold) 14px); }
+:is(.epic-tab, .area-tab).open::after { right: -14px; background: radial-gradient(circle at 100% 0, transparent 13.5px, var(--fold) 14px); }
+:is(.epic-tab, .area-tab):not(.open):hover { background: color-mix(in srgb, var(--fold) 62%, transparent); }
+:is(.epic-tab, .area-tab) > button[role='tab'] { flex: 1; min-width: 0; min-height: 46px; margin: 0; padding: 10px 40px 10px 15px; border-radius: 16px 16px 0 0; background: transparent !important;
   color: var(--ink-soft); text-align: left; transition: color .3s; }
-.epic-tab > button[role='tab'] > span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.epic-tab.open > button[role='tab'] { color: var(--ink); }
-.epic-tab > button[role='tab']:hover:not(:disabled) { color: var(--ink); }
+.area-tab > button[role='tab'] { padding-right: 15px; }   /* the areas are fixed: no ✎ */
+:is(.epic-tab, .area-tab) > button[role='tab'] > span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+:is(.epic-tab, .area-tab).open > button[role='tab'] { color: var(--ink); }
+:is(.epic-tab, .area-tab) > button[role='tab']:hover:not(:disabled) { color: var(--ink); }
 .epic-edit { position: absolute; top: 3px; right: 2px; width: 40px; min-width: 40px !important; max-width: 40px; height: 40px; min-height: 40px !important; padding: 0 !important; border-radius: 50% !important;
   background: transparent !important; color: var(--ink-soft) !important; font-size: 16px; }
 .epic-tab.open > .epic-edit { color: var(--ink) !important; }
 .epic-edit:hover:not(:disabled) { background: color-mix(in srgb, var(--ink) 12%, transparent) !important; }
 .epic-add { flex-shrink: 0; align-self: center; margin-left: 8px !important; border: 1.5px dashed color-mix(in srgb, var(--ink) 35%, transparent) !important; background: transparent !important; white-space: nowrap; }
-/* The folder: square where the first tab runs into it */
+/* The folders: square where the first tab runs into them */
 .epic-tabs:has(> .epic-tab.open:first-child) + .epic-objects { border-top-left-radius: 0; }
+.area-tabs:has(> .area-tab.open:first-child) + .area-folder { border-top-left-radius: 0; }
 .dragging .epic-tab:not(.open) { outline: 1.5px dashed color-mix(in srgb, var(--ink) 40%, transparent); outline-offset: -3px; }
 /* The whole name of a cut tab, in a small bubble under it (in the top layer, so no panel clips it) */
 .tab-bubble { position: fixed; inset: auto; left: 0; top: 0; margin: 0; width: max-content; max-width: min(420px, calc(100vw - 24px)); height: auto;
@@ -728,8 +734,8 @@ dialog.info-card.track-grid[open] { display: flex; flex-direction: column; overf
 .tab-bubble:not(:popover-open):not(.on) { display: none; }
 @media (prefers-reduced-motion: reduce) { .tab-bubble { transition: none; translate: none; } }
 /* The tabs belong to their folder: they never lean off it */
-html.tilt .epic-tabs .epic-tab button { rotate: none; translate: none; }
-@media (prefers-reduced-motion: reduce) { .epic-tab, .epic-tab > button[role='tab'] { transition: none; } }
+html.tilt :is(.epic-tabs .epic-tab, .area-tabs .area-tab) button { rotate: none; translate: none; }
+@media (prefers-reduced-motion: reduce) { :is(.epic-tab, .area-tab), :is(.epic-tab, .area-tab) > button[role='tab'] { transition: none; } }
 
 /* Weighted buttons (core/tilt.ts): the root's --tilt-r / --tilt-k glide (registered, so they can transition, with a
    little bounce when they spring back) and every button follows through rotate/translate, never its own transform. Each
@@ -935,8 +941,9 @@ body { letter-spacing: var(--app-ls); }
 :is(.t-title, .now-card h2, :is(.object.task, .undefined-item) strong, .object.story strong, .pc-activity strong, .pc-story strong, .c-text, .h-head strong, .linked-chip, .text-preview .t-title) {
   font-size: var(--act-fs) !important; letter-spacing: var(--act-ls) !important; }
 .now-card h2 { font-size: calc(var(--act-fs) * 2) !important; }
-:is(.object.feature > header strong, .pc-feature > strong, .pc-epic strong, .epic-tabs button > span) { font-size: calc(var(--act-fs) * 1.07) !important; letter-spacing: var(--act-ls) !important; }
-:is(.object small, .pick-card small, .text-preview small) { font-size: calc(9px * var(--esc)) !important; }
+:is(.object.feature > header strong, .pc-feature > strong, .pc-epic strong, .epic-tabs button > span, .area-tabs button > span) { font-size: calc(var(--act-fs) * 1.07) !important; letter-spacing: var(--act-ls) !important; }
+:is(.pick-card small, .text-preview small) { font-size: calc(9px * var(--esc)) !important; }
+.object small { font-size: calc(11px * var(--esc)) !important; }   /* the Canvas's small-caps labels (Gianni's sample) */
 .eyebrow { font-size: calc(12px * var(--esc)) !important; }
 .t-time, .free { font-size: calc(13px * var(--esc)) !important; }
 .t-dur { font-size: calc(11px * var(--esc)) !important; }

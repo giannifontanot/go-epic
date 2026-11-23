@@ -348,6 +348,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'canvas.story': { en: 'Story', es: 'Story' },
   'canvas.task': { en: 'Activity', es: 'Actividad' },
   'canvas.epics': { en: 'Epics', es: 'Epics' },
+  'canvas.areas': { en: 'Areas', es: 'Áreas' },
   'canvas.workspace': { en: 'Epic workspace', es: 'Espacio del Epic' },
   'canvas.editEpic': { en: 'Edit Epic', es: 'Editar Epic' },
   'canvas.freeSpace': { en: 'Free Space', es: 'Espacio libre' },

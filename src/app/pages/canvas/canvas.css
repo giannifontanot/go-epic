@@ -12,11 +12,11 @@ button.primary { background:var(--pink); color:var(--card-ink); }button.primary:
 .split { height:max(520px,calc(100dvh - 150px)); min-height:0; }
 /* The Epics are a folder (Gianni): the heading and the tabs stand on the page, the folder below them is the plum panel */
 .epic-space { min-width:0; min-height:0; height:100%; display:flex; flex-direction:column; }
-.panel-heading { display:flex; gap:8px; align-items:center; padding:2px 2px 10px; flex-wrap:wrap; }
-/* The four life areas, each with what it holds under it (Gianni) */
-.area-pick { display:flex; flex-direction:column; align-items:flex-end; gap:4px; min-width:0; }
-.area-filter select { max-width:260px; font-weight:700; }
-.area-hint { margin:0 8px 0 0; font-size:12px; color:#e8c4d4; text-align:right; }
+/* The four life areas, «Todas» first, as folder tabs (Gianni: like the Epics); the open area's folder holds what it covers,
+   then its Epics' tabs and their plum folder. Its contents close and open softly on a switch (selectArea). */
+.area-folder { display:flex; flex-direction:column; flex:1; min-height:0; padding:10px 10px 10px; border-radius:22px 22px 24px 24px; background:var(--area-fold); }
+.area-inner { display:flex; flex-direction:column; flex:1; min-height:0; }
+.area-hint { margin:0 6px 10px; font-size:12px; line-height:1.4; color:#e8c4d4; }
 /* Undefined (Gianni): a button beside New activity with how many wait; its window lists them, a tap gives one its place */
 .undefined-btn { display:inline-flex; align-items:center; gap:8px; color:var(--ink); }
 .count-pill { font-size:12px; font-weight:800; padding:2px 9px; border-radius:999px; background:rgba(255,255,255,.14); }
@@ -26,8 +26,7 @@ button.primary { background:var(--pink); color:var(--card-ink); }button.primary:
 .undefined-window .hint { margin:0 0 12px; color:var(--ink-soft); font-size:13px; line-height:1.5; }
 .undefined-list { list-style:none; margin:0; padding:6px 4px; display:grid; gap:10px; max-height:min(62dvh,540px); overflow:auto; overscroll-behavior:contain; }
 .undefined-empty { padding:6px 2px; font-size:13px; color:var(--ink-soft); }
-h2 { margin:0; font-size:20px; }.heading-spacer { flex:1; }
-.panel-heading button { padding:7px 12px; min-height:40px; }
+h2 { margin:0; font-size:20px; }
 select { border:0; border-radius:999px; background:rgba(255,255,255,.1); color:var(--ink); padding:8px 12px; max-width:190px; min-height:40px; }
 select option { color:var(--card-ink); background:var(--light); }
 .scroll-panel { overflow:auto; overscroll-behavior:contain; flex:1; min-height:0; scrollbar-width:thin; scrollbar-color:#ffffff40 transparent; }
@@ -75,8 +74,8 @@ select option { color:var(--card-ink); background:var(--light); }
   .objects>app-canvas-node { width:100%; }.objects>app-canvas-node:nth-child(even) { margin-top:0; } }
 @media (max-width:680px) {
   .split { height:calc(100dvh - 150px); min-height:390px; }
-  .panel-heading { padding:2px 0 8px; }.epic-objects { padding:12px 12px 70px; }
-  .area-pick { align-items:stretch; width:100%; }.area-filter select { max-width:none; width:100%; }.area-hint { text-align:left; margin:0 0 0 12px; }
-  button, .panel-heading button, select { min-height:44px; }
+  .epic-objects { padding:12px 12px 70px; }
+  .area-folder { padding:8px 6px 6px; border-radius:20px 20px 22px 22px; }.area-hint { margin:0 6px 8px; }
+  button, select { min-height:44px; }
   .toolbar { width:100%; flex-wrap:nowrap; }.toolbar button { flex:1 1 0; min-width:0; justify-content:center; } }
 @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }

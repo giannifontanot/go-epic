@@ -49,3 +49,16 @@ header.stacked { display:block; }
 .task.editing { z-index:3; padding:6px 10px 12px; box-shadow:0 0 0 3px color-mix(in srgb,var(--teal,#76e0d0) 75%,transparent), 0 14px 30px rgba(1,6,29,.32); }
 .more.done { font-size:20px; font-weight:800; }
 .editing-name { padding:3px 0; }
+
+/* As the Canvas's own card (Gianni's sample): FEATURE, STORY and ACTIVIDAD in small caps above each title, the titles in a
+   bold serif, a little more room inside each box. The controls (grip, fold, ✎, + Story, + Actividad) stay as they were. */
+small { display:block; font-weight:500; letter-spacing:.12em; opacity:.72; line-height:1.2; }
+.task small { display:block; margin:1px 0 3px; }
+strong, .title strong { font-family:Georgia,'Noto Serif',serif; font-weight:700; line-height:1.32; }
+.feature { padding:14px 14px 16px; }
+.story { padding:12px 12px 14px; }
+.task { padding:8px 8px 8px 7px; }
+.name { padding:4px 0 5px; }
+.title { padding:4px 2px 6px; }
+.node-bar small { padding-left:2px; }
+@media (pointer:coarse) { .feature { padding:12px 11px 13px; }.story { padding:10px 10px 12px; } }

@@ -22,16 +22,24 @@
   } @else {
     <div class="split" [class.dragging]="!!dragState?.ghost">
       <section class="epic-space" aria-labelledby="workspace-title">
-        <div class="panel-heading"><h2 id="workspace-title">{{ i18n.t('canvas.workspace') }}</h2>
-          <span class="heading-spacer"></span>
-          <div class="area-pick">
-            <label class="area-filter"><span class="sr-only">{{ i18n.t('canvas.area') }}</span>
-              <select (change)="setAreaFilter($any($event.target).value)">
-                @for (area of areaViews; track area) { <option [value]="area" [selected]="area === areaFilter">{{ i18n.t('area.' + area) }}</option> }
-              </select></label>
-            <p class="area-hint">{{ i18n.t('area.' + areaFilter + 'Hint') }}</p>
-          </div>
+        <h2 id="workspace-title" class="sr-only">{{ i18n.t('canvas.workspace') }}</h2>
+        <!-- The areas are folder tabs too (Gianni: like the Epics): «Todas» first, then the four life areas; the open one
+             runs into the area's folder, which holds what the area covers, its Epics' tabs and their plum folder. -->
+        <h3 class="epics-title" id="areas-title">{{ i18n.t('canvas.areas') }}</h3>
+        <div class="area-tabs" (scroll)="followBubble()" role="tablist" aria-labelledby="areas-title">
+          @for (area of areaViews; track area; let index = $index) {
+            <div class="area-tab" [class.open]="areaTab === area">
+              <button type="button" role="tab" [attr.id]="'atab-' + area" [attr.data-area-tab]="area"
+                [class.active]="areaTab === area" [attr.aria-selected]="areaTab === area" aria-controls="area-panel"
+                [attr.tabindex]="areaTab === area ? 0 : -1" (keydown)="areaKey($event, index)" (click)="areaTap(area, $any($event.currentTarget))">
+                <span>{{ i18n.t('area.' + area) }}</span>
+              </button>
+            </div>
+          }
         </div>
+        <div class="area-folder" id="area-panel" role="tabpanel" [attr.aria-labelledby]="'atab-' + areaTab">
+        <div class="area-inner">
+        <p class="area-hint">{{ i18n.t('area.' + areaFilter + 'Hint') }}</p>
         <!-- Real folder tabs (Gianni): «Epics» names the row above it; the open tab is the folder's own colour and runs
              into it, the others sit lower and quieter behind it; the content closes and opens softly on a switch -->
         @if (epics.length) { <h3 class="epics-title" id="epics-title">{{ i18n.t('canvas.epics') }}</h3> }
@@ -69,6 +77,8 @@
             </div>
           }
           </div>
+        </div>
+        </div>
         </div>
       </section>
     </div>
