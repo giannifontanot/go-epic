@@ -21,6 +21,7 @@ import { ThemeService } from './core/theme';
 import { PaletteService } from './core/palette';
 import { UnsavedWork } from './core/unsaved';
 import { WeekStore } from './core/week.store';
+import { startSoftKeyboard } from './core/soft-keyboard';
 
 @Component({
   selector: 'app-root',
@@ -126,6 +127,7 @@ export class App {
 
   constructor() {
     this.tilt.start();   // buttons lean when the phone leans (a visual detail)
+    startSoftKeyboard();   // the keyboard comes and goes softly, the page gliding with it (core/soft-keyboard)
     // once the app is idle, what windows need the first time is made ready, so their first opening is smooth too
     if (typeof window !== 'undefined') {
       const idle = (window as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;

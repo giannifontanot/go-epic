@@ -1,5 +1,7 @@
 import { Component, ElementRef, Injector, afterNextRender, inject, input, output, signal, viewChild, viewChildren } from '@angular/core';
 import { flyTiles } from '../../shared/fan';
+import { splitTail } from '../../core/text-tail';
+import { visibleArea } from '../../core/viewport';
 
 /** A choice; `desc` is an area's description («Familia» under «El Castillo»), drawn a shade softer on its own line. */
 export interface PickItem { id: string; label: string; desc?: string }
@@ -8,9 +10,8 @@ export interface PickItem { id: string; label: string; desc?: string }
  *  above it when there is more room there. Shared by the Canvas's Área and Epic and the place card's levels. */
 export function placeFan(button: HTMLElement, fan: HTMLElement | undefined): void {
   if (!fan || typeof innerHeight !== 'number') return;
-  const vv = window.visualViewport;
-  const top0 = vv?.offsetTop ?? 0, left0 = vv?.offsetLeft ?? 0;
-  const vw = vv?.width ?? innerWidth, vh = vv?.height ?? innerHeight;
+  const vv = visibleArea();
+  const top0 = vv.top, left0 = vv.left, vw = vv.width, vh = vv.height;
   const r = button.getBoundingClientRect();
   const below = top0 + vh - r.bottom - 20, above = r.top - top0 - 20;
   fan.style.maxHeight = '';
@@ -23,7 +24,7 @@ export function placeFan(button: HTMLElement, fan: HTMLElement | undefined): voi
 
 /**
  * The Canvas's Área and Epic (Gianni: not tabs any more): a small uppercase label over the current choice, in the
- * cards' serif, with a ⌄ at the far right of the button (Gianni: as on the place card); a tap slides every choice out of it at once as the pages menu's tiles, at the very same speed
+ * cards' serif, with a filled triangle at the far right of the button (Gianni: as on the place card); a tap slides every choice out of it at once as the pages menu's tiles, at the very same speed
  * (`flyTiles`), the chosen one marked; a tap on one picks it, a tap outside, Esc or the button again draw them back
  * into it. The tiles sit in the top layer (a popover), so no panel clips them and no theme filter moves them. An
  * optional last tile adds a new one (+ Epic). Nothing moves under reduced motion.
@@ -37,9 +38,11 @@ export function placeFan(button: HTMLElement, fan: HTMLElement | undefined): voi
       <button #btn type="button" class="pick-hit" aria-haspopup="true" [attr.aria-expanded]="open()" [disabled]="disabled()"
         [attr.aria-label]="label() + ': ' + value() + (valueDesc() ? ' ' + valueDesc() : '')" (click)="toggle()"></button>
       <small aria-hidden="true">{{ label() }}</small>
-      <strong><span class="pick-value" aria-hidden="true">{{ value() }}</span>@if (valueDesc()) { <span class="area-desc" aria-hidden="true">{{ valueDesc() }}</span> }@if (editLabel()) {<button type="button" class="edit-pen"
-          [disabled]="disabled()" [attr.aria-label]="editLabel()" [title]="editLabel()" (click)="edit.emit()"><span aria-hidden="true">✎</span></button>}</strong>
-      <span class="menu-chev" aria-hidden="true">⌄</span>
+      <!-- an Epic's ✎ never stands alone on a line: the last word of the name (or the description) goes with it (Gianni) -->
+      @let t = editLabel() && !valueDesc() ? tail(value()) : { head: value(), tail: '' };
+      <strong><span class="pick-value" aria-hidden="true">{{ t.head }}</span>@if (valueDesc() && !editLabel()) { <span class="area-desc" aria-hidden="true">{{ valueDesc() }}</span> }@if (editLabel()) {<span class="pen-tail">@if (valueDesc()) { <span class="area-desc" aria-hidden="true">{{ valueDesc() }}</span> }<span class="pick-value" aria-hidden="true">{{ t.tail }}</span><button type="button" class="edit-pen"
+          [disabled]="disabled()" [attr.aria-label]="editLabel()" [title]="editLabel()" (click)="edit.emit()"><span class="pen" aria-hidden="true">✎</span></button></span>}</strong>
+      <span class="menu-chev" aria-hidden="true"></span>
     </div>
     <div #pop popover="manual" class="pick-pop" (click)="onVeil($event)">
       @if (open()) {
@@ -71,6 +74,7 @@ export class PickMenu {
   /** The name of the ✎ right after the value ('' = none): an Epic is renamed there. */
   readonly editLabel = input('');
   readonly edit = output<void>();
+  protected readonly tail = splitTail;
   readonly picked = output<string>();
   readonly add = output<void>();
 

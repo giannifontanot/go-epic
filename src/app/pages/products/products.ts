@@ -12,7 +12,7 @@ import { PageMenu } from '../../shared/title-fan';
     <section class="products-page">
       <header class="board-top products-top">
         <h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')"
-                    (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('products.title') }}<span class="title-chev" aria-hidden="true">⌄</span></button></h1>
+                    (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('products.title') }}<span class="title-chev" aria-hidden="true"></span></button></h1>
       </header>
       <div class="products-empty">
         <!-- a clock turning back over a list: the history to come -->

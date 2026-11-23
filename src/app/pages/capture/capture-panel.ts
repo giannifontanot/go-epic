@@ -1,4 +1,6 @@
 import { Why } from '../../shared/why';
+import { focusAtEnd } from '../../core/text-tail';
+import { visibleArea, watchVisibleArea } from '../../core/viewport';
 import { Ask } from '../../shared/ask';
 import { Undo } from '../../shared/undo';
 import { Component, ElementRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
@@ -85,7 +87,7 @@ import { TodoDialog, TodoSave } from './todo-dialog';
                 <small class="c-when" [class.late]="isLate(todo)">{{ when(todo) }}</small></button>
             }
             <button type="button" class="c-icon" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
-              (click)="editingTodo.set(todo)">✎</button>
+              (click)="editingTodo.set(todo)"><span class="pen" aria-hidden="true">✎</span></button>
             <button type="button" class="c-icon" [attr.aria-label]="i18n.t('capture.delete') + ': ' + todo.title" [title]="i18n.t('capture.delete')"
               (click)="remove(todo)">✕</button>
           </li>
@@ -101,7 +103,7 @@ import { TodoDialog, TodoSave } from './todo-dialog';
                 [title]="i18n.t('capture.uncheck')" (click)="todos.setDone(todo.id, false, today())"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="t-check" d="M5 12.5l4.5 4.5L19 7" /></svg></button>
               <span class="c-text">{{ todo.title }} <small class="c-when">{{ when(todo) }}</small></span>
               <button type="button" class="c-icon" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
-                (click)="editingTodo.set(todo)">✎</button>
+                (click)="editingTodo.set(todo)"><span class="pen" aria-hidden="true">✎</span></button>
               <button type="button" class="c-icon" [attr.aria-label]="i18n.t('capture.delete') + ': ' + todo.title" [title]="i18n.t('capture.delete')"
                 (click)="remove(todo)">✕</button>
             </li>
@@ -195,20 +197,14 @@ export class CapturePanel {
    */
   private followViewport(d: HTMLDialogElement): void {
     this.unfollow?.();
-    const vv = typeof window !== 'undefined' ? window.visualViewport : null;
-    if (!vv) return;
+    if (typeof window === 'undefined') return;
     const apply = () => {
-      d.style.setProperty('--vv-h', vv.height + 'px');
-      d.style.setProperty('--vv-top', vv.offsetTop + 'px');
+      const area = visibleArea();   // the keyboard included, also where it lies over the page (core/viewport)
+      d.style.setProperty('--vv-h', area.height + 'px');
+      d.style.setProperty('--vv-top', area.top + 'px');
     };
     apply();
-    vv.addEventListener('resize', apply);
-    vv.addEventListener('scroll', apply);
-    this.unfollow = () => {
-      vv.removeEventListener('resize', apply);
-      vv.removeEventListener('scroll', apply);
-      this.unfollow = null;
-    };
+    this.unfollow = watchVisibleArea(apply);
   }
 
   /** How old the task's paper looks: fresh, then parchment from 5 days, old stained paper from 21. */
@@ -273,7 +269,7 @@ export class CapturePanel {
 
   protected startEdit(todo: Todo): void {
     this.editing.set(todo.id);
-    queueMicrotask(() => this.panel().nativeElement.querySelector<HTMLInputElement>('.c-edit')?.focus());
+    queueMicrotask(() => focusAtEnd(this.panel().nativeElement.querySelector<HTMLInputElement>('.c-edit')));
   }
 
   protected saveEdit(todo: Todo, text: string): void {
