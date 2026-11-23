@@ -113,11 +113,10 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 .task-row { display: flex; align-items: flex-start; gap: 8px; }
 .t-time { flex: none; font-size: 13px; opacity: .75; font-variant-numeric: tabular-nums; padding-top: 2px; }
 .t-title { flex: 1 1 0; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
-.board.locked .t-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }   /* long titles wrap (up to 3 lines), Gianni */
-/* A card is its content plus its minutes, locked or arranging (Gianni, v60: its height follows its duration; its own one-line
-   height is the minimum and there is no cap), so shrinking it hands every pixel to the free band
-   (Gianni: pulling the last card's handle up made the block grow) */
-.t-span { flex: none; height: calc(var(--mins, 0) * var(--px-min, .5px)); }
+/* A card is its whole name (every line, never cut) plus its minutes under the name's bottom edge, locked or arranging
+   (Gianni, v62: counted from the name's foot, or a 1-minute activity looks like a 45-minute one; 1px a minute by default,
+   no cap), so shrinking it hands every pixel to the free band (Gianni: pulling the last card's handle up made the block grow) */
+.t-span { flex: none; height: calc(var(--mins, 0) * var(--px-min, 1px)); }
 .board:not(.locked) .free-band { min-height: 0; }
 .t-dur { align-self: flex-end; font-size: 11px; font-weight: 800; letter-spacing: .04em; opacity: .7; }
 .t-tools { flex: none; display: flex; gap: 4px; }
