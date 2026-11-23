@@ -1796,10 +1796,10 @@ html[data-theme='graphite'] .board > .overdue-tray { --tray-edge: #d27870; --tra
 /* what it pushes up: the folder sits on it, 💡 Capture rises by its height, the four squares fade away */
 .overdue-tray { transition: transform .9s cubic-bezier(.4, 0, .2, 1); }
 html.countdown-up .overdue-tray { transform: translateY(calc(-1 * var(--foot-h))); }
-.idea-fab { translate: 0 0; }
-.menu-fab, .idea-fab { transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .28s ease, visibility 0s, translate .9s cubic-bezier(.4, 0, .2, 1); }
-.idea-fab.away { transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .28s ease, visibility 0s .34s, translate .9s cubic-bezier(.4, 0, .2, 1); }
-html.countdown-up .idea-fab { translate: 0 calc(-1 * var(--foot-h)); }
+/* 💡 rises by a margin (not translate or transform: the weighted buttons' tilt and its .away scale own those) */
+.idea-fab { margin-bottom: 0; transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .28s ease, visibility 0s, margin-bottom .9s cubic-bezier(.4, 0, .2, 1); }
+.idea-fab.away { transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .28s ease, visibility 0s .34s, margin-bottom .9s cubic-bezier(.4, 0, .2, 1); }
+html.countdown-up .idea-fab { margin-bottom: var(--foot-h); }
 html.countdown-up .menu-fab:not(.open) { opacity: 0; visibility: hidden; pointer-events: none;
   transition: opacity .9s ease, visibility 0s linear .9s, transform .34s cubic-bezier(.4, 0, .2, 1); }
 html:not(.countdown-up) .menu-fab:not(.open) { transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .9s ease, visibility 0s; }
