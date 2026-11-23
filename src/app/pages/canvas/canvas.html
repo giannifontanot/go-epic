@@ -27,7 +27,7 @@
           <div class="area-pick">
             <label class="area-filter"><span class="sr-only">{{ i18n.t('canvas.area') }}</span>
               <select (change)="setAreaFilter($any($event.target).value)">
-                @for (area of lifeAreaKeys; track area) { <option [value]="area" [selected]="area === areaFilter">{{ i18n.t('area.' + area) }}</option> }
+                @for (area of areaViews; track area) { <option [value]="area" [selected]="area === areaFilter">{{ i18n.t('area.' + area) }}</option> }
               </select></label>
             <p class="area-hint">{{ i18n.t('area.' + areaFilter + 'Hint') }}</p>
           </div>
@@ -35,12 +35,12 @@
         <!-- Real folder tabs (Gianni): «Epics» names the row above it; the open tab is the folder's own colour and runs
              into it, the others sit lower and quieter behind it; the content closes and opens softly on a switch -->
         @if (epics.length) { <h3 class="epics-title" id="epics-title">{{ i18n.t('canvas.epics') }}</h3> }
-        <div class="epic-tabs" role="tablist" [attr.aria-labelledby]="epics.length ? 'epics-title' : null" [attr.aria-label]="epics.length ? null : i18n.t('canvas.epics')">
+        <div class="epic-tabs" (scroll)="followBubble()" role="tablist" [attr.aria-labelledby]="epics.length ? 'epics-title' : null" [attr.aria-label]="epics.length ? null : i18n.t('canvas.epics')">
           @for (epic of epics; track epic.id; let index = $index) {
             <div class="epic-tab" [class.open]="openTab === epic.id">
               <button type="button" role="tab" [attr.id]="'tab-' + epic.id" [attr.data-tab]="epic.id" data-drop-kind="epic" [attr.data-parent]="epic.id"
                 [class.active]="openTab === epic.id" [attr.aria-selected]="openTab === epic.id" aria-controls="epic-panel"
-                [attr.tabindex]="openTab === epic.id ? 0 : -1" (keydown)="tabKey($event, index)" (click)="selectEpic(epic.id)">
+                [attr.tabindex]="openTab === epic.id ? 0 : -1" (keydown)="tabKey($event, index)" (click)="tabTap(epic.id, $any($event.currentTarget), epic.title)">
                 <span>{{ epic.title }}</span>
               </button>
               <button type="button" class="epic-edit" [disabled]="saving" [attr.aria-label]="i18n.t('canvas.editEpic') + ': ' + epic.title"
@@ -74,6 +74,9 @@
     </div>
   }
   <span class="sr-only" role="status" aria-live="polite">{{ announcement }}</span>
+  <!-- A cut Epic name, whole (Gianni): shown under its tab for a few seconds when it is tapped; the tab itself already
+       carries the whole name for screen readers -->
+  <div #tabBubble popover="manual" class="tab-bubble" aria-hidden="true"></div>
 </section>
 
 <dialog #editor class="editor canvas-editor" aria-labelledby="canvas-editor-title" (click)="onBackdrop($event)" (close)="editorClosed()">

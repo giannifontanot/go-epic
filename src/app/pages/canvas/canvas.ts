@@ -27,6 +27,8 @@ interface Modal { kind: Kind; node?: LibNode; parentId: string | null; bare?: bo
 const LAYOUT_KEY = 'go-epic-canvas-layout';
 /** The life area the Canvas shows (a view preference of this device). */
 const AREA_KEY = 'go-epic-canvas-area';
+/** What the area combo shows: one life area, or «Todas» (every area's Epics). */
+type AreaView = LifeArea | 'all';
 
 /**
  * Floating Canvas, as in Epic Manager: Epic tabs of one of the four life areas with their Features, Stories and
@@ -38,6 +40,8 @@ const AREA_KEY = 'go-epic-canvas-area';
 
 /** The Epic tabs' content: it closes, then the next one opens (ms). */
 const PANE_CLOSE_MS = 180;
+/** How long the bubble with a cut Epic name stays (Gianni: a few seconds). */
+const BUBBLE_MS = 3000;
 const PANE_OPEN_MS = 320;
 
 @Component({
@@ -63,6 +67,7 @@ export class Canvas implements DoCheck {
   private readonly injector = inject(Injector);
   private readonly editor = viewChild<ElementRef<HTMLDialogElement>>('editor');
   private readonly undefinedWindow = viewChild<ElementRef<HTMLDialogElement>>('undefinedWindow');
+  private readonly tabBubble = viewChild<ElementRef<HTMLElement>>('tabBubble');
 
   readonly state = new CanvasState();
   readonly motion = new CanvasMotion();
@@ -75,9 +80,11 @@ export class Canvas implements DoCheck {
   /** A level named new in the cascade (created on Apply). */
   protected readonly NEW = '__new';
   protected readonly lifeAreaKeys: LifeArea[] = LIFE_AREAS.map((a) => a.key);
+  /** The area combo: «Todas» first (Gianni: to see every Epic at once), then the four life areas. */
+  protected readonly areaViews: AreaView[] = ['all', ...this.lifeAreaKeys];
 
   activeId = '';
-  areaFilter: LifeArea = this.readArea();
+  areaFilter: AreaView = this.readArea();
   saving = false;
   error = '';
   announcement = '';
@@ -125,7 +132,7 @@ export class Canvas implements DoCheck {
       this.capture.menuHidden.set(on);
       this.capture.lookTools.set(on ? { px: false, finish: () => this.lookOpen.set(false) } : null);
     });
-    inject(DestroyRef).onDestroy(() => { this.capture.menuHidden.set(false); this.capture.lookTools.set(null); this.capture.menuEdit.set(null); this.cancelDrag(); this.motion.destroy(); this.unsaved.canvasDraft.set(false); });
+    inject(DestroyRef).onDestroy(() => { this.capture.menuHidden.set(false); this.capture.lookTools.set(null); this.capture.menuEdit.set(null); clearTimeout(this.bubbleTimer); this.cancelDrag(); this.motion.destroy(); this.unsaved.canvasDraft.set(false); });
   }
 
   // --- What the page shows ---
@@ -133,8 +140,11 @@ export class Canvas implements DoCheck {
   /** The library's node of each life area (an area not created yet has none: it is made when something goes into it). */
   get lifeAreas(): Partial<Record<LifeArea, LibNode>> { return lifeAreaNodes(this.state.nodes); }
   get epics(): LibNode[] {
-    const area = this.lifeAreas[this.areaFilter];
-    return area ? this.state.children(area.id, 'epic') : [];
+    const keys = this.areaFilter === 'all' ? this.lifeAreaKeys : [this.areaFilter];
+    return keys.flatMap((key) => {
+      const area = this.lifeAreas[key];
+      return area ? this.state.children(area.id, 'epic') : [];
+    });
   }
   get active(): LibNode | undefined { return this.state.node(this.activeId); }
   get roots(): LibNode[] { return this.activeId ? this.state.children(this.activeId, 'feature') : []; }
@@ -293,9 +303,62 @@ export class Canvas implements DoCheck {
     this.selectEpic(this.epics[next].id);
     this.host.nativeElement.querySelector<HTMLElement>(`[data-tab="${CSS.escape(this.openTab)}"]`)?.focus();
   }
+  /** A tap on a tab opens it; when its name is cut (Gianni: a tab is as wide as its name, up to the row's width), the
+   *  same tap also shows the whole name in a small bubble under it for a few seconds. */
+  tabTap(id: string, button: HTMLElement, title: string): void {
+    this.selectEpic(id);
+    const label = button.querySelector('span');
+    if (label && label.scrollWidth > label.clientWidth + 1) this.showBubble(button.closest('.epic-tab') ?? button, title);
+    else this.hideBubble();
+  }
+  private bubbleTimer = 0;
+  /** The tab the bubble points at, so it follows it when the row or the page scrolls. */
+  private bubbleTab: Element | null = null;
+  private showBubble(tab: Element, text: string): void {
+    const el = this.tabBubble()?.nativeElement;
+    if (!el) return;
+    clearTimeout(this.bubbleTimer);
+    el.textContent = text;
+    try { if (!el.matches(':popover-open')) el.showPopover(); } catch { /* no popover: drawn fixed anyway */ }
+    el.classList.remove('on');
+    this.bubbleTab = tab;
+    this.placeBubble();
+    void el.offsetWidth;                                                     // start the fade from hidden
+    el.classList.add('on');
+    this.bubbleTimer = window.setTimeout(() => this.hideBubble(), BUBBLE_MS);
+    window.setTimeout(() => this.followBubble(), 320);                       // the opened tab rises into its folder
+  }
+  /** Under its tab, centred on it, kept 12px inside the screen, its tail on the tab's middle. */
+  private placeBubble(): void {
+    const el = this.tabBubble()?.nativeElement;
+    const tab = this.bubbleTab;
+    if (!el || !tab) return;
+    if (!tab.isConnected) { this.hideBubble(); return; }
+    const r = tab.getBoundingClientRect();
+    const vw = window.visualViewport?.width ?? document.documentElement.clientWidth;
+    const width = el.offsetWidth;
+    const mid = r.left + r.width / 2;
+    const left = Math.max(12, Math.min(vw - 12 - width, mid - width / 2));
+    el.style.left = `${left}px`;
+    el.style.top = `${r.bottom + 10}px`;
+    el.style.setProperty('--tail-x', `${Math.max(16, Math.min(width - 16, mid - left))}px`);
+  }
+  hideBubble(): void {
+    const el = this.tabBubble()?.nativeElement;
+    clearTimeout(this.bubbleTimer);
+    this.bubbleTab = null;
+    if (!el?.classList.contains('on')) return;
+    el.classList.remove('on');
+    this.bubbleTimer = window.setTimeout(() => { try { el.hidePopover(); } catch { /* no popover */ } }, 300);
+  }
+  /** The row or the page scrolled: the bubble stays with its tab. */
+  @HostListener('window:scroll')
+  @HostListener('window:resize')
+  followBubble(): void { if (this.bubbleTab) this.placeBubble(); }
   setAreaFilter(key: string): void {
-    if (!this.lifeAreaKeys.includes(key as LifeArea)) return;
-    this.areaFilter = key as LifeArea;
+    this.hideBubble();
+    if (!this.areaViews.includes(key as AreaView)) return;
+    this.areaFilter = key as AreaView;
     try { localStorage.setItem(AREA_KEY, key); } catch { /* a view preference */ }
     const before = this.activeId;
     const wasSwapping = !!this.pendingId;
@@ -437,7 +500,7 @@ export class Canvas implements DoCheck {
     this.modal = { kind, parentId, node, bare };
     this.title = node?.title || '';
     const parent = node?.parentId ?? parentId;
-    this.epicArea = kind === 'epic' ? (this.keyOf(parent) || this.areaFilter) : '';
+    this.epicArea = kind === 'epic' ? (this.keyOf(parent) || (this.areaFilter === 'all' ? '' : this.areaFilter)) : '';
     this.fillCascade(parent);
     const from = pressPoint();                                              // read now: the dialog opens a tick later
     queueMicrotask(() => { const d = this.editor()?.nativeElement; if (d) openDialog(d, { from }); });
@@ -605,7 +668,7 @@ export class Canvas implements DoCheck {
         if (parentId === undefined) return;
         const created = this.state.create(kind, title, parentId);
         createdId = created?.id;
-        if (created?.kind === 'epic') { this.areaFilter = this.epicArea || this.areaFilter; this.activeId = created.id; }
+        if (created?.kind === 'epic') { if (this.epicArea && this.areaFilter !== 'all') this.areaFilter = this.epicArea; this.activeId = created.id; }
       }));
       if (kind !== 'epic' && createdId) this.followPlace(kind, place, createdId);   // its own ancestry names the Epic to show
     }
@@ -617,14 +680,18 @@ export class Canvas implements DoCheck {
   private followPlace(kind: Kind, place: { area: string; epic: string }, id?: string): void {
     if (kind === 'epic' && id) {
       const key = this.keyOf(this.state.node(id)?.parentId ?? null);
-      if (key) { this.setAreaFilter(key); this.activeId = id; }
+      if (key) { this.showArea(key); this.activeId = id; }
       return;
     }
     if (!place.area || place.area === this.FREE || kind === 'area') return;
     const key = place.area as LifeArea;
     const epicId = place.epic === this.NEW || !place.epic ? this.pathEpic(id) : place.epic;
-    if (key !== this.areaFilter) this.setAreaFilter(key);
+    this.showArea(key);
     if (epicId && this.state.node(epicId)) this.activeId = epicId;
+  }
+  /** Shows a life area's Epics: «Todas» already shows them, so it stays. */
+  private showArea(key: LifeArea): void {
+    if (this.areaFilter !== 'all' && key !== this.areaFilter) this.setAreaFilter(key);
   }
   /** The Epic above a node (after it moved), for a place made with a new Epic. */
   private pathEpic(id?: string): string {
@@ -811,10 +878,10 @@ export class Canvas implements DoCheck {
 
   // --- Device preferences ---
 
-  private readArea(): LifeArea {
+  private readArea(): AreaView {
     let stored = '';
     try { stored = localStorage.getItem(AREA_KEY) || ''; } catch { /* optional */ }
-    return LIFE_AREAS.some((a) => a.key === stored) ? (stored as LifeArea) : 'temple';
+    return stored === 'all' || LIFE_AREAS.some((a) => a.key === stored) ? (stored as AreaView) : 'temple';
   }
   private readLayout(): CanvasLayout {
     const layout: CanvasLayout = {};
