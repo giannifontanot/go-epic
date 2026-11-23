@@ -34,7 +34,7 @@ describe('Letreros (level names)', () => {
   });
 
   it('writes "u" before an o sound in Spanish', () => {
-    expect(levelText('Busca [story.l] o [epic.l]…', 'simple', 'es')).toBe('Busca tarea u objetivo…');
+    expect(levelText('Busca [story.l] o [epic.l]…', 'simple', 'es')).toBe('Busca entrega u objetivo…');
     expect(levelText('Busca [story.l] o [epic.l]…', 'current', 'es')).toBe('Busca story o epic…');
   });
 

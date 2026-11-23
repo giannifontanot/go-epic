@@ -48,8 +48,8 @@ export const LEVEL_SETS: readonly LevelSet[] = [
   {
     id: 'simple', name: { es: 'Sencillo', en: 'Simple' },
     words: {
-      es: { area: AREA_ES, epic: w('Objetivo', 'Objetivos'), feature: w('Proyecto', 'Proyectos'), story: w('Tarea', 'Tareas', true), task: w('Acción', 'Acciones', true) },
-      en: { area: AREA_EN, epic: w('Goal', 'Goals'), feature: w('Project', 'Projects'), story: w('Task', 'Tasks'), task: w('Action', 'Actions') },
+      es: { area: AREA_ES, epic: w('Objetivo', 'Objetivos'), feature: w('Proyecto', 'Proyectos'), story: w('Entrega', 'Entregas', true), task: w('Acción', 'Acciones', true) },
+      en: { area: AREA_EN, epic: w('Goal', 'Goals'), feature: w('Project', 'Projects'), story: w('Deliverable', 'Deliverables'), task: w('Action', 'Actions') },
     },
   },
   {
