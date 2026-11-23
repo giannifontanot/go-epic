@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { CanActivateFn, CanDeactivateFn, Router, Routes } from '@angular/router';
+import { CanActivateFn, Router, Routes } from '@angular/router';
 import { filter, map, take } from 'rxjs';
 import { AuthService } from './core/auth.service';
 
@@ -17,14 +17,11 @@ function signedIn(wanted: boolean): CanActivateFn {
   };
 }
 
-/** A page with an unsaved draft (Floating Canvas) asks before it is left: save and leave, leave without saving, or stay. */
-const draftSaved: CanDeactivateFn<{ canLeave(): boolean | Promise<boolean> }> = (page) => page.canLeave();
-
 export const routes: Routes = [
   { path: 'login', canActivate: [signedIn(false)], loadComponent: () => import('./pages/login').then((m) => m.Login) },
   { path: '', canActivate: [signedIn(true)], loadComponent: () => import('./pages/week-board/week-board').then((m) => m.WeekBoard) },
   { path: 'focus', canActivate: [signedIn(true)], loadComponent: () => import('./pages/focus/focus').then((m) => m.Focus) },
-  { path: 'canvas', canActivate: [signedIn(true)], canDeactivate: [draftSaved], loadComponent: () => import('./pages/canvas/canvas').then((m) => m.Canvas) },
+  { path: 'canvas', canActivate: [signedIn(true)], loadComponent: () => import('./pages/canvas/canvas').then((m) => m.Canvas) },
   { path: 'progress', canActivate: [signedIn(true)], loadComponent: () => import('./pages/progress/progress').then((m) => m.Progress) },
   { path: 'year', canActivate: [signedIn(true)], loadComponent: () => import('./pages/year/year').then((m) => m.Year) },
   { path: 'products', canActivate: [signedIn(true)], loadComponent: () => import('./pages/products/products').then((m) => m.Products) },

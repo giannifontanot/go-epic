@@ -2,13 +2,12 @@
 <section class="canvas-page" [attr.data-v]="v">
   <header class="page-header">
     <h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')" (click)="pageMenu.toggle($event.currentTarget)">Canvas<span class="title-dot">✦</span><span class="title-chev" aria-hidden="true">⌄</span></button></h1>
+    <!-- Everything saves by itself (Gianni): no Undo, Redo, Save or Discard. The activities with no place wait behind
+         «Sin definir (N)», a small window (Gianni: not a box at the top of the Canvas); dropping an Activity on it takes its place away. -->
     <div class="toolbar">
-      <span class="status" [class.dirty]="state.dirty" [title]="i18n.t(state.dirty ? 'canvas.unsaved' : 'canvas.saved')">
-        <span class="status-text">{{ i18n.t(state.dirty ? 'canvas.unsaved' : 'canvas.saved') }}</span></span>
-      <button type="button" [disabled]="!state.canUndo || saving" (click)="undo()" [attr.aria-label]="i18n.t('canvas.undo')" [title]="i18n.t('canvas.undo')">↶<span class="btn-label"> {{ i18n.t('canvas.undo') }}</span></button>
-      <button type="button" [disabled]="!state.canRedo || saving" (click)="redo()" [attr.aria-label]="i18n.t('canvas.redo')" [title]="i18n.t('canvas.redo')">↷<span class="btn-label"> {{ i18n.t('canvas.redo') }}</span></button>
-      <button type="button" [disabled]="!state.dirty || saving" (click)="discard()">{{ i18n.t('canvas.discard') }}</button>
-      <button type="button" class="primary" [disabled]="!ready() || !state.dirty || saving || !!dragState" (click)="save()">{{ i18n.t('canvas.save') }}</button>
+      <button type="button" class="primary" [disabled]="!ready()" (click)="newActivity()">+ {{ i18n.t('canvas.newActivity') }}</button>
+      <button type="button" class="undefined-btn" data-drop-kind="FREE" [disabled]="!ready()" (click)="openUndefined()"
+        [attr.aria-haspopup]="'dialog'">{{ i18n.t('canvas.undefined') }} <span class="count-pill">{{ ready() ? undefinedList.length : '…' }}</span></button>
     </div>
     <app-why screen="canvas" />
   </header>
@@ -21,23 +20,6 @@
   @if (!ready()) {
     <p class="loading" role="status">{{ i18n.t('loading') }}</p>
   } @else {
-    <!-- Activities with no place yet (Gianni): always in sight at the top, whatever area is chosen; they get area, Epic,
-         Feature and Story all at once from their ✎, or by being dragged into a Story. -->
-    <section class="undefined-box" data-drop-kind="FREE" aria-labelledby="undefined-title">
-      <div class="undefined-head">
-        <h2 id="undefined-title">{{ i18n.t('canvas.undefined') }} <span class="count-pill">{{ undefinedList.length }}</span></h2>
-        <button type="button" class="primary" [disabled]="saving" (click)="newActivity()">+ {{ i18n.t('canvas.newActivity') }}</button>
-      </div>
-      <p class="undefined-hint">{{ i18n.t('canvas.undefinedHint') }}</p>
-      <div class="scroll-panel undefined-objects" [attr.aria-label]="i18n.t('canvas.undefined')">
-        @for (node of undefinedList; track node.id) {
-          <app-canvas-node [node]="node" [state]="state" [version]="v" [disabled]="saving"
-            (drag)="startDrag($event)" (action)="open($event.kind, $event.parentId, $event)" (add)="addChild($event)" />
-        } @empty {
-          <p class="undefined-empty">{{ i18n.t('canvas.undefinedEmpty') }}</p>
-        }
-      </div>
-    </section>
     <div class="split" [class.dragging]="!!dragState?.ghost">
       <section class="epic-space" aria-labelledby="workspace-title">
         <div class="panel-heading"><h2 id="workspace-title">{{ i18n.t('canvas.workspace') }}</h2>
@@ -150,7 +132,6 @@
           <button type="button" class="chip quiet" [disabled]="saving" (click)="arrange(1)">↓ {{ i18n.t('canvas.later') }}</button>
         </div>
       }
-      <p class="hint">{{ i18n.t('canvas.draftHint') }}</p>
       <footer>
         <button type="button" (click)="close()">{{ i18n.t('task.cancel') }}</button>
         <button type="submit" class="primary" [disabled]="!canApply">{{ i18n.t('canvas.apply') }}</button>
@@ -159,15 +140,22 @@
   }
 </dialog>
 
-<!-- Leaving with unsaved changes (Gianni: say plainly that it is not saved, and offer to save) -->
-<dialog #leaveDialog class="leave-ask" aria-labelledby="leave-title" aria-describedby="leave-text"
-        (click)="onLeaveBackdrop($event)" (cancel)="$event.preventDefault(); answerLeave('stay')">
-  <h2 id="leave-title" tabindex="-1">{{ i18n.t('canvas.leaveTitle') }}</h2>
-  <p id="leave-text">{{ i18n.t('canvas.leaveAsk') }}</p>
-  @if (leaveError()) { <p class="app-error" role="alert">{{ leaveError() }}</p> }
-  <div class="leave-actions">
-    <button type="button" class="primary" [disabled]="leaveSaving()" (click)="answerLeave('save')">{{ i18n.t(leaveSaving() ? 'canvas.saving' : 'canvas.leaveSave') }}</button>
-    <button type="button" class="leave-discard" [disabled]="leaveSaving()" (click)="answerLeave('discard')">{{ i18n.t('canvas.leaveDiscard') }}</button>
-    <button type="button" class="leave-stay" [disabled]="leaveSaving()" (click)="answerLeave('stay')">{{ i18n.t('canvas.leaveStay') }}</button>
-  </div>
+<!-- Undefined (Gianni): the activities with no place yet, in a small window growing out of its button; a tap on one opens
+     its ✎, where it gets area, Epic, Feature and Story all at once. -->
+<dialog #undefinedWindow class="editor undefined-window" aria-labelledby="undefined-title" (click)="onUndefinedBackdrop($event)">
+  <header>
+    <h2 id="undefined-title" tabindex="-1">{{ i18n.t('canvas.undefined') }} <span class="count-pill">{{ undefinedList.length }}</span></h2>
+    <button type="button" class="round danger-x" [attr.aria-label]="i18n.t('nav.close')" (click)="closeUndefined()">×</button>
+  </header>
+  <p class="hint">{{ i18n.t('canvas.undefinedHint') }}</p>
+  <ul class="undefined-list">
+    @for (node of undefinedList; track node.id; let i = $index) {
+      <li><button type="button" class="undefined-item" [style.background]="undefinedTone(i)" [style.--tone]="undefinedTone(i)"
+        [attr.aria-label]="i18n.t('canvas.defineIt') + ': ' + node.title" (click)="open('task', node.parentId, node)">
+        <strong>{{ node.title }}</strong><span aria-hidden="true">✎</span></button></li>
+    } @empty {
+      <li class="undefined-empty">{{ i18n.t('canvas.undefinedEmpty') }}</li>
+    }
+  </ul>
+  <footer><button type="button" class="primary" (click)="closeUndefined()">{{ i18n.t('nav.close') }}</button></footer>
 </dialog>

@@ -7,7 +7,7 @@ import { I18n } from '../../core/i18n';
 import { AuthService } from '../../core/auth.service';
 import { Kind, LIFE_AREAS, LibNode, LifeArea, PARENT_KIND, emptyLibrary, followDay, lifeAreaKey, lifeAreaNodes, rebaseLibrary, undefinedTasks } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
-import { COLOR_CHOICES, DAYS, toneVar } from '../../core/week.model';
+import { COLOR_CHOICES, DAYS, Task, blockColors, toneVar } from '../../core/week.model';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { UnsavedWork } from '../../core/unsaved';
 import { CaptureUi } from '../capture/capture-ui';
@@ -29,13 +29,10 @@ const AREA_KEY = 'go-epic-canvas-area';
 
 /**
  * Floating Canvas, as in Epic Manager: Epic tabs of one of the four life areas with their Features, Stories and
- * Activities, and above them Undefined, the Activities with no place yet (Gianni). Objects are dragged by their grip (or
- * placed with the ✎ dialog's cascade, all four levels at once);
- * every change is a draft with undo/redo until Save. Saving also updates the week: renamed or recoloured tasks change
- * in every block, deleted ones leave the week.
+ * Activities; the Activities with no place yet wait in the Undefined window (Gianni). Objects are dragged by their grip (or
+ * placed with the ✎ dialog's cascade, all four levels at once). Every change saves by itself (Gianni: no Undo, Redo, Save
+ * or Discard), and the week follows: renamed or recoloured tasks change in every block, deleted ones leave the week.
  */
-/** How long Save and leave waits for the server's answer before leaving (the write stays queued if it is slow). */
-const LEAVE_SAVE_WAIT_MS = 6000;
 
 @Component({
   selector: 'app-canvas',
@@ -58,7 +55,7 @@ export class Canvas implements DoCheck {
   private owner: string | null | undefined;
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly editor = viewChild<ElementRef<HTMLDialogElement>>('editor');
-  private readonly leaveDialog = viewChild<ElementRef<HTMLDialogElement>>('leaveDialog');
+  private readonly undefinedWindow = viewChild<ElementRef<HTMLDialogElement>>('undefinedWindow');
 
   readonly state = new CanvasState();
   readonly motion = new CanvasMotion();
@@ -143,9 +140,29 @@ export class Canvas implements DoCheck {
     return key ? this.i18n.t('area.' + key) : node?.title || '';
   }
 
+  /** A row's colour in the Undefined window: its own, else the automatic pastel, never like the row above. */
+  undefinedTone(index: number): string | null {
+    if (this.tonesFor !== this.undefinedList) { this.tonesFor = this.undefinedList; this.tones = blockColors(this.undefinedList as unknown as Task[]).map(toneVar); }
+    return this.tones[index];
+  }
+  private tonesFor?: LibNode[];
+  private tones: (string | null)[] = [];
+
   private bump(): void { this.version.update((v) => v + 1); }
 
-  // --- Save / discard / undo ---
+  // --- The Undefined window ---
+
+  openUndefined(): void {
+    const d = this.undefinedWindow()?.nativeElement;
+    if (d && !d.open) openDialog(d);
+  }
+  closeUndefined(): void { void closeDialog(this.undefinedWindow()?.nativeElement); }
+  onUndefinedBackdrop(event: MouseEvent): void {
+    const d = this.undefinedWindow()?.nativeElement;
+    if (d && isBackdropClick(event, d)) this.closeUndefined();
+  }
+
+  // --- Saving: every change saves at once ---
 
   save(): void {
     if (this.saving || !this.state.dirty || !this.ready()) return;
@@ -199,72 +216,14 @@ export class Canvas implements DoCheck {
     this.libraryStore.error.set('');
   }
 
-  async discard(): Promise<void> {
-    if (this.saving) return;
-    const yes = await this.asks.ask({ message: this.i18n.t('canvas.confirmDiscard'), ok: this.i18n.t('canvas.discard'), danger: true });
-    if (yes && !this.saving) {
-      this.mutate(() => { this.state.load(this.libraryStore.library(), this.readLayout()); this.ensureActive(); });
-    }
-  }
-  undo(): void { this.mutate(() => { this.state.undo(); this.ensureActive(); }); }
-  redo(): void { this.mutate(() => { this.state.redo(); this.ensureActive(); }); }
-
   @HostListener('window:beforeunload', ['$event'])
   beforeUnload(event: BeforeUnloadEvent): void {
     if (this.state.dirty) { event.preventDefault(); event.returnValue = ''; }
   }
-  /** Leaving the page with an unsaved draft asks first (route guard). */
-  /** The update prompt waits while the draft is unsaved (its reload would lose it): the draft's state, after every check. */
+  /** The update prompt waits while a change is not saved yet (a save refused before the library loaded). */
   private readonly unsaved = inject(UnsavedWork);
   ngDoCheck(): void {
     if (this.unsaved.canvasDraft() !== this.state.dirty) this.unsaved.canvasDraft.set(this.state.dirty);
-  }
-
-  /**
-   * Leaving with an unsaved draft asks in a window of our own (Gianni: a plain "Leave anyway?" was ambiguous): it offers to
-   * save first. Save and leave / Leave without saving / Keep editing; Esc or the backdrop keep editing.
-   */
-  canLeave(): boolean | Promise<boolean> {
-    const dialog = this.leaveDialog()?.nativeElement;
-    if (!this.state.dirty) return true;
-    if (!dialog) return this.asks.ask({ message: this.i18n.t('canvas.leaveAsk'), ok: this.i18n.t('canvas.leaveDiscard'), danger: true });
-    this.leaveAnswer?.(false);                                             // a second navigation replaces the first
-    this.leaveError.set('');
-    return new Promise<boolean>((resolve) => {
-      this.leaveAnswer = resolve;
-      openDialog(dialog, { escape: false });
-    });
-  }
-  private leaveAnswer: ((leave: boolean) => void) | null = null;
-  protected readonly leaveError = signal('');
-  /** Save and leave is waiting for the server's answer. */
-  protected readonly leaveSaving = signal(false);
-
-  /**
-   * The leave window's answer: save first, leave without saving, or keep editing. Saving waits (online, up to
-   * LEAVE_SAVE_WAIT_MS) for the server: a refused save keeps the window open with the error, and the Canvas offers the
-   * refused draft back as usual; offline, or with no answer yet, the save is queued and the page is left.
-   */
-  async answerLeave(choice: 'save' | 'discard' | 'stay'): Promise<void> {
-    if (this.leaveSaving()) return;
-    if (choice === 'save') {
-      this.save();
-      if (this.state.dirty) { this.leaveError.set(this.error || this.i18n.t('canvas.saveError')); return; }
-      const commit = this.libraryStore.lastCommit;
-      if (commit && (typeof navigator === 'undefined' || navigator.onLine)) {
-        this.leaveSaving.set(true);
-        const ok = await Promise.race([commit, new Promise<boolean>((r) => setTimeout(() => r(true), LEAVE_SAVE_WAIT_MS))]);
-        this.leaveSaving.set(false);
-        if (!ok) { this.leaveError.set(`${this.i18n.t('canvas.rejected')} ${this.libraryStore.error()}`.trim()); return; }
-      }
-    }
-    const answer = this.leaveAnswer;
-    this.leaveAnswer = null;
-    void closeDialog(this.leaveDialog()?.nativeElement).then(() => answer?.(choice !== 'stay'));
-  }
-  onLeaveBackdrop(event: MouseEvent): void {
-    const d = this.leaveDialog()?.nativeElement;
-    if (d && isBackdropClick(event, d)) void this.answerLeave('stay');
   }
 
   selectEpic(id: string): void {
@@ -395,9 +354,9 @@ export class Canvas implements DoCheck {
     if (whole) {
       this.cascade.area = key;
       levels.forEach((level, i) => (this.cascade[level] = chain[i + 1].id));
-    } else if (m.kind === 'task') {
+    } else if (m.kind === 'task' && !m.node) {
       this.cascade.area = this.FREE;
-    }
+    }   // an Activity with no place yet starts with nothing chosen: Apply waits for its whole place (Gianni)
   }
 
   get canApply(): boolean {
@@ -464,7 +423,7 @@ export class Canvas implements DoCheck {
       }));
       if (kind !== 'epic' && createdId) this.followPlace(kind, place, createdId);   // its own ancestry names the Epic to show
     }
-    this.announcement = this.i18n.t('canvas.draftUpdated');
+    this.announcement = this.i18n.t('canvas.saved');
     this.close();
   }
 
@@ -505,7 +464,7 @@ export class Canvas implements DoCheck {
     if (destination < 0 || destination >= siblings.length) return;
     const before = delta < 0 ? siblings[destination]?.id : siblings[destination + 1]?.id;
     this.mutate(() => this.state.move(node.id, node.parentId, before));
-    this.announcement = this.i18n.t('canvas.draftUpdated');
+    this.announcement = this.i18n.t('canvas.saved');
   }
 
   /** A week place count for the delete question of a task. */
@@ -513,21 +472,26 @@ export class Canvas implements DoCheck {
     return DAYS.reduce((sum, day) => sum + this.week.week()[day].blocks.reduce((n, b) => n + b.tasks.filter((t) => t.ref === id).length, 0), 0);
   }
 
+  /** Delete asks, then counts down like every delete in the app (Gianni); only when the time is up is it gone (and saved). */
   async remove(): Promise<void> {
     const node = this.modal?.node;
     if (!node || this.saving || this.editorClosing) return;
     if (!this.state.canDelete(node.id)) { void this.asks.tell(this.i18n.t('canvas.deleteHint')); return; }
     const places = node.kind === 'task' ? this.weekPlaces(node.id) : 0;
     const question = places ? this.i18n.t('canvas.confirmDeleteTask', { n: places }) : this.i18n.t('canvas.confirmDelete');
-    if (!(await this.asks.ask({ message: question, ok: this.i18n.t('task.delete'), danger: true }))) return;
-    if (this.modal?.node !== node || this.saving || this.editorClosing || !this.state.canDelete(node.id)) return;   // the draft moved on meanwhile
-    this.mutate(() => { this.state.delete(node.id); this.ensureActive(); });
-    this.close();
+    const commit = () => {
+      if (!this.state.node(node.id) || !this.state.canDelete(node.id)) return;   // gone or filled meanwhile
+      this.mutate(() => { this.state.delete(node.id); this.ensureActive(); });
+    };
+    const yes = await this.asks.ask({ message: question, ok: this.i18n.t('task.delete'), danger: true,
+      countdown: { message: this.i18n.t('undo.deleting', { name: node.title }), ids: [node.id], commit } });
+    if (yes && this.modal?.node === node) this.close();
   }
 
   private mutate(action: () => void, excluded?: string): void {
     const before = this.motion.capture(this.host.nativeElement);
     action();
+    if (this.state.dirty) this.save();                                      // every change saves by itself (Gianni)
     this.ensureActive();
     this.bump();
     queueMicrotask(() => this.motion.layout(this.host.nativeElement, before, excluded));
@@ -546,7 +510,7 @@ export class Canvas implements DoCheck {
       if (node?.kind === 'epic') return this.host.nativeElement.querySelector('.epic-tabs');
       id = node?.parentId || null;
     }
-    return this.host.nativeElement.querySelector('.undefined-box');
+    return this.host.nativeElement.querySelector('.undefined-btn');
   }
 
   startDrag({ event, node }: { event: PointerEvent; node: LibNode }): void {
@@ -634,7 +598,7 @@ export class Canvas implements DoCheck {
       const nodeId = d.node.id;
       this.mutate(() => this.state.move(nodeId, parentId, before, position), nodeId);
       queueMicrotask(() => void this.motion.land(ghost, this.nodeElement(nodeId), target));
-      this.announcement = this.i18n.t('canvas.draftUpdated');
+      this.announcement = this.i18n.t('canvas.saved');
     } else {
       void this.motion.land(d.ghost, d.source, null);
     }
