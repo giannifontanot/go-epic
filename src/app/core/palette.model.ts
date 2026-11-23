@@ -5,7 +5,7 @@ import { THEMES, Theme } from './theme';
  * colours; the theme it is chosen for draws its 8 activity slots (--act-0…7, week.model toneVar) from it, a shorter
  * palette going round its own colours (slot 7 of a 7-colour palette is its first). Each theme's own palette (the one it
  * had before, mirrored from styles.css) is its default, so nothing changes until he picks; Petal Punk's is "Pinks"
- * and Smoked Citrus's "Oranges" (his words). Sunrise, Neon, Orchard, Terra and Sober come from Epic Manager's Settings.
+ * and Smoked Citrus's "Oranges" (his words); "Light Roses" is the same roses in light tones (v57). Sunrise, Neon, Orchard, Terra and Sober come from Epic Manager's Settings.
  */
 export interface Palette { id: string; colors: readonly string[] }
 
@@ -15,6 +15,8 @@ export const PALETTES: readonly Palette[] = [
   { id: 'squeezeme', colors: ['#b2e6e6', '#cbe8c2', '#d6d3f6', '#fcd3bc', '#f7c6d3', '#f1d98a', '#a3c0ea', '#e0c9a0'] },
   { id: 'sunburnt', colors: ['#f2b2ae', '#c8dba0', '#d2cbe6', '#f8c292', '#f7e3a3', '#e8b65c', '#dcc3a8', '#cf9a68'] },
   { id: 'petalpunk', colors: ['#b0336a', '#963238', '#7d3f8c', '#8a5a74', '#9c2f86', '#7f4a48', '#4c1832', '#985468'] },
+  // Light Roses (Gianni, v57): Petal Punk's roses in light tones, for dark ink
+  { id: 'lightroses', colors: ['#f6c4d9', '#f0c3c6', '#ddc6e8', '#ecd2de', '#f3c2e7', '#e9cfcc', '#e6bccd', '#f2d3dc'] },
   { id: 'smokedcitrus', colors: ['#a84a0b', '#9c5200', '#7a1f10', '#a83c48', '#b33f1a', '#8a4a12', '#6e2c06', '#5e1420'] },
   { id: 'office', colors: ['#f4f0eb', '#f1f1f1', '#e5e8ee', '#f6faff', '#ebe8e2', '#fdf9f4', '#edf1f6', '#e8e8e8'] },
   { id: 'graphite', colors: ['#5a5a5a', '#606060', '#242424', '#707070', '#686868', '#1e1e1e', '#2c2c2c', '#161616'] },
