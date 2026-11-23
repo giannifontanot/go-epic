@@ -1,6 +1,9 @@
 /* Floating Canvas, as in Epic Manager: navy page, plum panels, yellow jelly active Epic, cream ink, pink Save, quiet round chips */
 :host { display:block; }
-.canvas-page { color:var(--ink); padding:0 0 8px; }
+/* The page is exactly as tall as the screen inside main's paddings, so the page itself never scrolls: only the Epic's
+   content does, under the Área and the Epic (Gianni) */
+.canvas-page { color:var(--ink); padding:0 0 8px; box-sizing:border-box; display:flex; flex-direction:column;
+  height:calc(100dvh - max(8px, env(safe-area-inset-top)) - max(16px, env(safe-area-inset-bottom))); min-height:480px; }
 .page-header { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:14px; }
 h1 { margin:0; font-size:34px; letter-spacing:-.04em; line-height:1; }
 .title-dot { color:var(--jelly-b); margin-left:10px; font-size:22px; }
@@ -9,7 +12,7 @@ button { border:0; border-radius:999px; padding:9px 12px; min-height:40px; backg
 button:hover:not(:disabled) { background:rgba(255,255,255,.16); color:var(--ink); }
 button.primary { background:var(--pink); color:var(--card-ink); }button.primary:hover:not(:disabled) { background:#f8bfca; color:var(--card-ink); }
 
-.split { height:max(520px,calc(100dvh - 150px)); min-height:0; }
+.split { flex:1 1 auto; min-height:360px; }
 /* One plum panel (Gianni): the Área and the Epic at its top, the Epic's content under them */
 .epic-space { min-width:0; min-height:0; height:100%; display:flex; flex-direction:column; }
 /* The Área and the Epic sit at the top of the Epic's own plum panel (Gianni's picture), its content nested under them */
@@ -27,8 +30,13 @@ h2 { margin:0; font-size:20px; }
 select { border:0; border-radius:999px; background:rgba(255,255,255,.1); color:var(--ink); padding:8px 12px; max-width:190px; min-height:40px; }
 select option { color:var(--card-ink); background:var(--light); }
 .scroll-panel { overflow:auto; overscroll-behavior:contain; flex:1; min-height:0; scrollbar-width:thin; scrollbar-color:#ffffff40 transparent; }
-.epic-objects { padding:12px 20px 90px; border-radius:22px 22px 19px 19px; box-shadow:0 15px 25px rgba(1,6,29,.3);
+/* The panel itself stays still (Gianni): ÁREA and EPIC at its top never move, and only .epic-pane under them scrolls; the
+   panel clips it to its rounded corners, and the pane keeps the side and bottom room so a card's ring is never cut */
+.epic-objects { display:flex; flex-direction:column; flex:1; min-height:0; overflow:hidden; padding:12px 0 0; border-radius:22px 22px 19px 19px; box-shadow:0 15px 25px rgba(1,6,29,.3);
   background:radial-gradient(rgba(255,244,233,.12) 1px,transparent 1px) 0 0/22px 22px, linear-gradient(180deg,var(--plum-a),var(--plum-b) 86%); }
+.epic-objects > .pick-head { flex:none; margin-left:20px; margin-right:20px; }
+.epic-pane { padding:0 20px 90px; }
+.epic-pane:focus-visible { outline:2px solid var(--teal); outline-offset:-2px; }
 .objects { display:flex; flex-wrap:wrap; align-items:flex-start; gap:30px; padding:10px 6px; }
 .objects>app-canvas-node { width:340px; max-width:100%; }.objects>app-canvas-node:nth-child(even) { margin-top:25px; }
 .drop-hot { outline:3px solid var(--teal); outline-offset:-4px; background-color:#7d2a5f!important; }
@@ -69,8 +77,8 @@ select option { color:var(--card-ink); background:var(--light); }
 @media (max-width:900px) { .objects { gap:20px; }
   .objects>app-canvas-node { width:100%; }.objects>app-canvas-node:nth-child(even) { margin-top:0; } }
 @media (max-width:680px) {
-  .split { height:calc(100dvh - 150px); min-height:390px; }
-  .epic-objects { padding:12px 12px 70px; }
+  .epic-objects > .pick-head { margin-left:12px; margin-right:12px; }
+  .epic-pane { padding:0 12px 70px; }
   button, select { min-height:44px; }
   .toolbar { width:100%; flex-wrap:nowrap; }.toolbar button { flex:1 1 0; min-width:0; justify-content:center; } }
 @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
