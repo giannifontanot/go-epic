@@ -4,7 +4,7 @@
   <!-- The title; while arranging ✓ Finish sits at its right, so edit mode costs no extra row (Gianni: the top took too
        much room). Capture opens from its own round 💡 at the bottom right; the floating ✎ arranges the week. -->
   <!-- The title and the day chips stay at the top (Gianni): only the blocks scroll under them; while arranging the edit bar stays with them -->
-  <div class="board-head">
+  <div class="board-head" [class.faded]="headHidden()" [attr.inert]="headHidden() ? '' : null">
   <header class="board-top week-top">
     <h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')" (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('nav.week') }}<span class="title-chev" aria-hidden="true"></span></button></h1>
     <span></span>
