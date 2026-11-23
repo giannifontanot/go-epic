@@ -121,6 +121,10 @@ export class WeekBoard {
       this.capture.menuHidden.set(this.arranging());
       this.capture.lookTools.set(this.arranging() ? { px: true, finish: () => this.toggleArrange() } : null);
     });
+    // The countdown at the foot lifts the overdue folder and 💡 Capture and fades the menu's four squares (App): a class
+    // on <html>, since the round buttons are drawn outside this page.
+    effect(() => { document.documentElement.classList.toggle('countdown-up', this.countdownUp()); });
+    inject(DestroyRef).onDestroy(() => document.documentElement.classList.remove('countdown-up'));
     inject(DestroyRef).onDestroy(() => { this.capture.menuEdit.set(null); this.capture.menuHidden.set(false); this.capture.lookTools.set(null); this.cancelDrag?.(); });
     // On entering the Week board, the view centres on now (the red line in today's column), as in Epic Manager: once
     // the week, the library (card titles) and Capture's notes (the strip at the top) are there, so nothing shifts after.
@@ -399,12 +403,22 @@ export class WeekBoard {
   protected leftLabel(minutes: number): string {
     return this.i18n.t('week.minutesLeft', { n: this.leftMinutes(minutes) });
   }
-  /** Today's running card, still open (not marked finished or skipped), on the locked board. */
-  protected counting(day: Day, task: Task): boolean {
-    if (this.arranging() || day !== this.store.today() || this.left()?.taskId !== task.id) return false;
+  /** Today's running activity, still open (not marked finished or skipped), on the locked board: its countdown. */
+  protected readonly running = computed(() => {
+    const left = this.left();
+    if (!left || this.arranging()) return null;
+    const day = this.store.today();
+    const task = this.store.week()[day].blocks.flatMap((b) => b.tasks).find((t) => t.id === left.taskId);
+    if (!task) return null;
     const st = this.cardStatus(day, task);
-    return st !== 'done' && st !== 'late' && st !== 'skipped';
-  }
+    if (st === 'done' || st === 'late' || st === 'skipped') return null;
+    return { ...left, minutes: task.minutes };
+  });
+  /**
+   * The countdown is up at the foot of the screen exactly while the header is faded (Gianni: at the same time as the
+   * red line centres itself); his own scroll brings both back.
+   */
+  protected readonly countdownUp = computed(() => this.headHidden() && this.running() !== null);
 
   /**
    * Scrolls so today's now-line sits exactly in the middle of the screen (on entering, today's column when it has no
