@@ -1,7 +1,7 @@
 import { Why } from '../../shared/why';
 import { PageMenu } from '../../shared/title-fan';
 import { Ask } from '../../shared/ask';
-import { Component, DestroyRef, DoCheck, ElementRef, HostListener, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
+import { Component, DestroyRef, DoCheck, ElementRef, HostListener, Injector, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { AuthService } from '../../core/auth.service';
@@ -34,6 +34,10 @@ const AREA_KEY = 'go-epic-canvas-area';
  * or Discard), and the week follows: renamed or recoloured tasks change in every block, deleted ones leave the week.
  */
 
+/** The Epic tabs' content: it closes, then the next one opens (ms). */
+const PANE_CLOSE_MS = 180;
+const PANE_OPEN_MS = 320;
+
 @Component({
   selector: 'app-canvas',
   imports: [CanvasNode, Why],
@@ -54,6 +58,7 @@ export class Canvas implements DoCheck {
   /** The account the draft belongs to. */
   private owner: string | null | undefined;
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly injector = inject(Injector);
   private readonly editor = viewChild<ElementRef<HTMLDialogElement>>('editor');
   private readonly undefinedWindow = viewChild<ElementRef<HTMLDialogElement>>('undefinedWindow');
 
@@ -93,6 +98,9 @@ export class Canvas implements DoCheck {
           this.close();
           this.state.load(emptyLibrary(), {});
           this.activeId = '';
+          this.pendingId = '';
+          this.swap++;   // a switch still closing belongs to the other account
+          this.pane()?.getAnimations().forEach((a) => a.cancel());
           this.bump();
         }
       });
@@ -104,6 +112,8 @@ export class Canvas implements DoCheck {
         this.bump();
       });
     });
+    // The first Epic opens softly too, once the Canvas is drawn
+    effect(() => { if (this.ready()) untracked(() => this.openPane()); });
     // The action menu's Edit opens the edit bar here (Aa / AV, Themes); objects can always be moved on the Canvas.
     this.capture.menuEdit.set({ label: this.i18n.t('nav.edit'), run: () => this.lookOpen.update((v) => !v) });
     // Edit (the action menu): Aa, AV and the Themes at the bottom right, above a round ✓ Finish that takes the menu's place
@@ -226,11 +236,45 @@ export class Canvas implements DoCheck {
     if (this.unsaved.canvasDraft() !== this.state.dirty) this.unsaved.canvasDraft.set(this.state.dirty);
   }
 
+  /** The tab being opened while the old Epic's content is still closing (the tab answers at once). */
+  pendingId = '';
+  get openTab(): string { return this.pendingId || this.activeId; }
+  private swap = 0;
+  /** Switching Epic (Gianni): the open one's content closes softly, then the other's opens softly; the last tap wins. */
   selectEpic(id: string): void {
-    this.activeId = id;
-    const panel = this.host.nativeElement.querySelector<HTMLElement>('.epic-objects');
-    if (panel && !this.motion.reduced()) this.motion.animate(panel, [{ opacity: 0.35, transform: 'translateY(7px)' }, { opacity: 1, transform: 'none' }]);
+    if (id === this.openTab) return;
+    const token = ++this.swap;
+    const pane = this.pane();
+    if (!pane || this.motion.reduced() || !this.activeId) { this.pendingId = ''; this.activeId = id; this.bump(); this.openPane(); return; }
+    this.pendingId = id;
+    this.bump();
+    const from = getComputedStyle(pane).opacity;
+    pane.getAnimations().forEach((a) => a.cancel());
+    const out = pane.animate([{ opacity: from, transform: 'none' }, { opacity: 0, transform: 'translateY(6px)' }],
+      { duration: PANE_CLOSE_MS, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' });
+    const show = () => {
+      if (token !== this.swap) return;
+      this.pendingId = '';
+      this.activeId = id;
+      this.bump();
+      this.openPane();
+    };
+    out.finished.then(show, show);
   }
+  /** The Epic's content opens softly: it rises a little and fades in, once the new content is drawn. */
+  private openPane(): void {
+    if (this.motion.reduced()) return;
+    const token = this.swap;
+    afterNextRender(() => {
+      const pane = this.pane();
+      if (!pane || token !== this.swap) return;
+      const held = pane.getAnimations();
+      pane.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }],
+        { duration: PANE_OPEN_MS, easing: 'cubic-bezier(0,0,.2,1)' });
+      held.forEach((a) => a.cancel());   // after the new one starts, so no frame shows it uncovered
+    }, { injector: this.injector });
+  }
+  private pane(): HTMLElement | null { return this.host.nativeElement.querySelector<HTMLElement>('.epic-pane'); }
   ensureActive(): void { if (!this.epics.some((n) => n.id === this.activeId)) this.activeId = this.epics[0]?.id || ''; }
   tabKey(event: KeyboardEvent, index: number): void {
     const delta = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
@@ -238,14 +282,19 @@ export class Canvas implements DoCheck {
     event.preventDefault();
     const next = event.key === 'Home' ? 0 : event.key === 'End' ? this.epics.length - 1 : (index + delta + this.epics.length) % this.epics.length;
     this.selectEpic(this.epics[next].id);
-    this.host.nativeElement.querySelector<HTMLElement>(`[data-tab="${CSS.escape(this.activeId)}"]`)?.focus();
+    this.host.nativeElement.querySelector<HTMLElement>(`[data-tab="${CSS.escape(this.openTab)}"]`)?.focus();
   }
   setAreaFilter(key: string): void {
     if (!this.lifeAreaKeys.includes(key as LifeArea)) return;
     this.areaFilter = key as LifeArea;
     try { localStorage.setItem(AREA_KEY, key); } catch { /* a view preference */ }
+    const before = this.activeId;
+    const wasSwapping = !!this.pendingId;
+    this.swap++;   // a switch still closing gives way to the new area
+    this.pendingId = '';
     this.ensureActive();
     this.bump();
+    if (this.activeId !== before || wasSwapping) this.openPane();
   }
 
   // --- The action dialog (create / edit / move / colour / delete) ---

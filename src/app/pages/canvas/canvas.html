@@ -32,14 +32,15 @@
             <p class="area-hint">{{ i18n.t('area.' + areaFilter + 'Hint') }}</p>
           </div>
         </div>
-        <div class="epic-strip">
-        @if (epics.length) { <span class="epics-label" aria-hidden="true">{{ i18n.t('canvas.epicsLabel') }}</span> }
-        <div class="epic-tabs" role="tablist" [attr.aria-label]="i18n.t('canvas.epics')">
+        <!-- Real folder tabs (Gianni): «Epics» names the row above it; the open tab is the folder's own colour and runs
+             into it, the others sit lower and quieter behind it; the content closes and opens softly on a switch -->
+        @if (epics.length) { <h3 class="epics-title" id="epics-title">{{ i18n.t('canvas.epics') }}</h3> }
+        <div class="epic-tabs" role="tablist" [attr.aria-labelledby]="epics.length ? 'epics-title' : null" [attr.aria-label]="epics.length ? null : i18n.t('canvas.epics')">
           @for (epic of epics; track epic.id; let index = $index) {
-            <div class="epic-tab">
+            <div class="epic-tab" [class.open]="openTab === epic.id">
               <button type="button" role="tab" [attr.id]="'tab-' + epic.id" [attr.data-tab]="epic.id" data-drop-kind="epic" [attr.data-parent]="epic.id"
-                [class.active]="activeId === epic.id" [attr.aria-selected]="activeId === epic.id" aria-controls="epic-panel"
-                [attr.tabindex]="activeId === epic.id ? 0 : -1" (keydown)="tabKey($event, index)" (click)="selectEpic(epic.id)">
+                [class.active]="openTab === epic.id" [attr.aria-selected]="openTab === epic.id" aria-controls="epic-panel"
+                [attr.tabindex]="openTab === epic.id ? 0 : -1" (keydown)="tabKey($event, index)" (click)="selectEpic(epic.id)">
                 <span>{{ epic.title }}</span>
               </button>
               <button type="button" class="epic-edit" [disabled]="saving" [attr.aria-label]="i18n.t('canvas.editEpic') + ': ' + epic.title"
@@ -48,9 +49,9 @@
           }
           <button type="button" class="epic-add" [disabled]="saving" (click)="open('epic')">+ {{ i18n.t('canvas.epic') }}</button>
         </div>
-        </div>
         <div class="scroll-panel epic-objects" id="epic-panel" role="tabpanel" [attr.aria-labelledby]="activeId ? 'tab-' + activeId : 'workspace-title'"
           [attr.data-drop-kind]="activeId ? 'epic' : null" [attr.data-parent]="activeId || null" tabindex="0">
+          <div class="epic-pane">
           @if (active; as a) {
             <div class="workspace-context"><span>{{ areaLabel(a.parentId) }} <span aria-hidden="true">/</span> {{ a.title }}</span></div>
           }
@@ -66,6 +67,7 @@
               <p>{{ i18n.t(active ? 'canvas.emptyEpicHint' : 'canvas.noEpicHint') }}</p>
             </div>
           }
+          </div>
         </div>
       </section>
     </div>
