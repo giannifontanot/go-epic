@@ -83,11 +83,13 @@ const CLOSE_MS = 160;
             }
           </div>
           @if (level !== 'area') {
-            <form class="pm-new" (submit)="$event.preventDefault(); create(level)">
+            <!-- not a form: the card may sit inside a window's form, which a nested submit would apply -->
+            <div class="pm-new">
               <input [value]="draft" (input)="draft = $any($event.target).value" autocomplete="off" enterkeyhint="done"
+                (keydown.enter)="$event.preventDefault(); $event.stopPropagation(); create(level)"
                 [attr.aria-label]="i18n.t('canvas.new.' + level)" [placeholder]="'+ ' + i18n.t('canvas.new.' + level)" />
-              <button type="submit" class="primary" [disabled]="!draft.trim()">{{ i18n.t('place.create') }}</button>
-            </form>
+              <button type="button" class="primary" [disabled]="!draft.trim()" (click)="create(level)">{{ i18n.t('place.create') }}</button>
+            </div>
           }
         }
       }
