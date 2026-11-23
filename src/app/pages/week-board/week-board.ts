@@ -419,7 +419,7 @@ export class WeekBoard {
     if (!target || !shownOnScreen(target)) return;                          // hidden (another day's tab)
     const rect = target.getBoundingClientRect();
     const view = window.visualViewport?.height ?? window.innerHeight;
-    this.hideHead();
+    if (line) this.hideHead();                                              // only a red line being centred hides the header
     if (line && Math.abs(rect.top - view / 2) <= 4) { if (!this.autoScroll) this.light(); return; }   // already in the middle
     const smooth = typeof matchMedia === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.endAutoScroll(400);                                                  // no scroll at all (an edge): it still lights
