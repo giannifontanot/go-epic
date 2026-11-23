@@ -1,8 +1,59 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, computed, effect, signal } from '@angular/core';
 
-export type Lang = 'en' | 'es';
+/**
+ * The app's languages, in the order the language picker shows them. Adding a language is one more entry here plus its
+ * translations: its labels below (and in `why.ts`, `changes.json`, `year.model.ts`), each one optional, since a label a
+ * language does not have yet falls back to English, then Spanish (`inLang`). `name` is the language in its own words,
+ * `locale` what dates and numbers are formatted with.
+ */
+export const LANGS = [
+  { code: 'en', name: 'English', locale: 'en' },
+  { code: 'es', name: 'Español', locale: 'es' },
+] as const;
 
-const LABELS: Record<string, { en: string; es: string }> = {
+export type Lang = (typeof LANGS)[number]['code'];
+export type LangInfo = (typeof LANGS)[number];
+
+/** A text in every language: English and Spanish always, any other language when it has been translated. */
+export type Texts<T = string> = { en: T; es: T } & Partial<Record<Lang, T>>;
+
+/** The order a missing translation is looked for in. */
+const FALLBACK: readonly Lang[] = ['en', 'es'];
+
+export const LANG_CODES: readonly Lang[] = LANGS.map((l) => l.code);
+
+export function isLang(value: unknown): value is Lang {
+  return typeof value === 'string' && (LANG_CODES as readonly string[]).includes(value);
+}
+
+export function langInfo(lang: Lang): LangInfo {
+  return LANGS.find((l) => l.code === lang) ?? LANGS[0];
+}
+
+/** `texts` in `lang`, or in English, then Spanish, when that language has no translation yet. */
+export function inLang<T>(texts: Partial<Record<Lang, T>>, lang: Lang): T | undefined {
+  const own = texts[lang];
+  if (own !== undefined) return own;
+  for (const fallback of FALLBACK) if (texts[fallback] !== undefined) return texts[fallback];
+  return undefined;
+}
+
+/** The first of these language tags the app has, by its main code (`es-MX` is `es`); English when none is. */
+export function langFromBrowser(languages: readonly string[]): Lang {
+  for (const tag of languages) {
+    const code = tag?.toLowerCase().split('-')[0];
+    if (isLang(code)) return code;
+  }
+  return 'en';
+}
+
+/** The language after `lang` in the list, going round (the sign-in screen's one switch). */
+export function nextLang(lang: Lang): Lang {
+  const i = LANG_CODES.indexOf(lang);
+  return LANG_CODES[(i + 1) % LANG_CODES.length];
+}
+
+const LABELS: Record<string, Texts> = {
   'app.title': { en: 'Go Epic', es: 'Go Epic' },
   'nav.week': { en: 'Week board', es: 'Semana' },
   'nav.focus': { en: 'Focus', es: 'Enfoque' },
@@ -449,21 +500,33 @@ const LABELS: Record<string, { en: string; es: string }> = {
 
 const STORAGE_KEY = 'go-epic-lang';
 
-/** English and Spanish labels; the choice is remembered on the device. */
+/** The labels in the chosen language (`LANGS`); the choice is remembered on the device and set on `<html lang>`. */
 @Injectable({ providedIn: 'root' })
 export class I18n {
   readonly lang = signal<Lang>(this.initial());
+  /** What dates and numbers are formatted with in the chosen language. */
+  readonly locale = computed(() => langInfo(this.lang()).locale);
+  readonly langs = LANGS;
+
+  constructor() {
+    effect(() => {
+      const lang = this.lang();
+      if (typeof document !== 'undefined') document.documentElement.lang = lang;
+    });
+  }
 
   t(key: string, params: Record<string, string | number> = {}): string {
-    const label = LABELS[key]?.[this.lang()] ?? key;
+    const label = translate(key, this.lang());
     return Object.entries(params).reduce((text, [name, value]) => text.split(`{${name}}`).join(String(value)), label);
   }
 
+  /** Steps to the next language in the list. */
   toggle(): void {
-    this.setLang(this.lang() === 'en' ? 'es' : 'en');
+    this.setLang(nextLang(this.lang()));
   }
 
   setLang(next: Lang): void {
+    if (!isLang(next)) return;
     this.lang.set(next);
     try { localStorage.setItem(STORAGE_KEY, next); } catch { /* a view preference only */ }
   }
@@ -471,12 +534,20 @@ export class I18n {
   private initial(): Lang {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved === 'en' || saved === 'es') return saved;
+      if (isLang(saved)) return saved;
     } catch { /* private mode */ }
-    return typeof navigator !== 'undefined' && navigator.language?.toLowerCase().startsWith('es') ? 'es' : 'en';
+    if (typeof navigator === 'undefined') return 'en';
+    // The browser's main language only, as before: a later one in its list does not change the app's first look.
+    return langFromBrowser([navigator.language ?? '']);
   }
 }
 
-/** Every label key, for the spec that checks both languages are filled in. */
+/** A label in `lang`, falling back to English, then Spanish, then the key itself. */
+export function translate(key: string, lang: Lang): string {
+  const texts = LABELS[key];
+  return (texts && inLang(texts, lang)) ?? key;
+}
+
+/** Every label key, for the spec that checks English and Spanish are filled in. */
 export const LABEL_KEYS = Object.keys(LABELS);
 export const labelFor = (key: string, lang: Lang): string | undefined => LABELS[key]?.[lang];

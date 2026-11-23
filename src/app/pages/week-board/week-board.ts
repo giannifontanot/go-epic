@@ -356,7 +356,7 @@ export class WeekBoard {
   /** "from Mon 9": the day an overdue task was for. */
   protected fromLabel(todo: Todo): string {
     const [y, m, d] = (todo.date ?? '').split('-').map(Number);
-    const day = new Date(y, m - 1, d).toLocaleDateString(this.i18n.lang(), { weekday: 'short', day: 'numeric' });
+    const day = new Date(y, m - 1, d).toLocaleDateString(this.i18n.locale(), { weekday: 'short', day: 'numeric' });
     return this.i18n.t('week.todoFrom', { day });
   }
   /** Every task on the board keeps its ✎ (Gianni): it opens the same editor as Capture (name, day, hour, repeat). */
