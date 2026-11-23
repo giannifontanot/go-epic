@@ -22,12 +22,45 @@ const MS = 300;
 const EASE_IN = 'cubic-bezier(.4, 0, 1, 1)';
 const EASE_OUT = 'cubic-bezier(0, 0, .6, 1)';
 
-let lastPress: (Point & { at: number }) | null = null;
+let lastPress: (Point & { at: number; el: Element | null }) | null = null;
 if (typeof document !== 'undefined') {
-  document.addEventListener('pointerdown', (e) => (lastPress = { x: e.clientX, y: e.clientY, at: Date.now() }), true);
+  document.addEventListener('pointerdown', (e) => (lastPress = { x: e.clientX, y: e.clientY, at: Date.now(), el: e.target instanceof Element ? e.target : null }), true);
 }
 
-const origins = new WeakMap<HTMLDialogElement, Point>();
+/**
+ * Where a window came from: the point, and the thing that was pressed with the point's place on it. While the window is
+ * open the page under it can move (the keyboard comes up, a list scrolls); then it closes back into where that thing is
+ * NOW, not where it was (Gianni: it shrank to a spot where the button no longer was).
+ */
+export interface Origin { point: Point; el: Element | null; dx: number; dy: number; }
+const origins = new WeakMap<HTMLDialogElement, Origin>();
+
+const OPENER = 'button, a, [role="button"], [role="tab"], [role="radio"], input, select, textarea, label, summary, [tabindex]';
+
+/** The thing under the point that opened a window (the press's own target when it is that press), and the point's place on it. */
+function originOf(from: Point): Origin {
+  let el: Element | null = null;
+  if (lastPress && Date.now() - lastPress.at < 1500 && lastPress.x === from.x && lastPress.y === from.y && lastPress.el?.isConnected) el = lastPress.el;
+  else if (typeof document !== 'undefined' && typeof document.elementFromPoint === 'function') el = document.elementFromPoint(from.x, from.y);
+  if (!el && typeof document !== 'undefined') {
+    const active = document.activeElement;
+    if (active && active !== document.body) el = active;
+  }
+  el = el?.closest(OPENER) ?? el;
+  if (!el || el === document.body || el === document.documentElement) return { point: from, el: null, dx: 0, dy: 0 };
+  const r = el.getBoundingClientRect();
+  if (!r.width && !r.height) return { point: from, el: null, dx: 0, dy: 0 };
+  return { point: from, el, dx: from.x - r.left, dy: from.y - r.top };
+}
+
+/** Where the window goes back to: its opener's place now (the same spot on it), else the point it came from. */
+export function returnPoint(origin: Origin): Point {
+  const el = origin.el;
+  if (!el?.isConnected) return origin.point;
+  const r = el.getBoundingClientRect();
+  if (!r.width && !r.height) return origin.point;                    // hidden meanwhile
+  return { x: r.left + Math.min(origin.dx, r.width), y: r.top + Math.min(origin.dy, r.height) };
+}
 const closing = new WeakMap<HTMLDialogElement, Promise<void>>();
 const escapeHandled = new WeakSet<HTMLDialogElement>();
 
@@ -79,9 +112,10 @@ function animateBackdrop(dialog: HTMLDialogElement, show: boolean, duration: num
 export function openDialog(dialog: HTMLDialogElement, options: { escape?: boolean; from?: Point } = {}): void {
   if (dialog.open) return;
   const from = options.from ?? pressPoint();
+  const origin = originOf(from);                                      // before showModal(), while the opener is on top
   dialog.showModal();
   calmFocus(dialog);
-  origins.set(dialog, from);
+  origins.set(dialog, origin);
   if (options.escape !== false && !escapeHandled.has(dialog)) {
     escapeHandled.add(dialog);
     dialog.addEventListener('cancel', (event) => { event.preventDefault(); void closeDialog(dialog); });
@@ -101,7 +135,7 @@ export function openDialog(dialog: HTMLDialogElement, options: { escape?: boolea
   void ready(dialog).then(() => {
     hold.cancel();
     if (!dialog.open || closing.has(dialog)) { dialog.style.willChange = ''; return; }
-    const grow = dialog.animate(mirrored(closeFrames(dialog, from)), { duration: MS, easing: EASE_OUT });
+    const grow = dialog.animate(mirrored(closeFrames(dialog, returnPoint(origin))), { duration: MS, easing: EASE_OUT });
     const settle = () => { if (!closing.has(dialog)) dialog.style.willChange = ''; };
     grow.finished.then(settle, settle);
   });
@@ -156,7 +190,8 @@ export function closeDialog(dialog: HTMLDialogElement | undefined | null): Promi
   const running = closing.get(dialog);
   if (running) return running;
   if (reducedMotion() || typeof dialog.animate !== 'function') { dialog.close(); return Promise.resolve(); }
-  const from = origins.get(dialog) ?? pressPoint();
+  const origin = origins.get(dialog);
+  const from = origin ? returnPoint(origin) : pressPoint();
   const done = new Promise<void>((resolve) => {
     const animation = dialog.animate(closeFrames(dialog, from), { duration: MS, easing: EASE_IN, fill: 'forwards' });
     const backdrop = animateBackdrop(dialog, false, MS);

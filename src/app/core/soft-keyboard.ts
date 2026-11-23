@@ -11,7 +11,7 @@ import { keyboardOverlay, setKeyboardOverlay } from './viewport';
  * user has scrolled meanwhile). Elsewhere (iPhone, Firefox) the browser keeps its own way and nothing changes.
  * Floating windows that place themselves (popovers, Capture) follow core/viewport.ts instead.
  */
-const MS = 340;
+const MS = 680;                 // twice as slow as v53 (Gianni: slower as it opens and as it closes)
 const MARGIN = 16;
 
 interface Scrolled { el: Element; from: number; to: number; pad: string | null; }
