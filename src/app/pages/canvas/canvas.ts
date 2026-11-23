@@ -1,4 +1,5 @@
 import { Why } from '../../shared/why';
+import { ThemeService } from '../../core/theme';
 import { PageMenu } from '../../shared/title-fan';
 import { Ask } from '../../shared/ask';
 import { Component, DestroyRef, DoCheck, ElementRef, HostListener, Injector, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
@@ -65,6 +66,7 @@ export class Canvas implements DoCheck {
   private owner: string | null | undefined;
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
+  private readonly themes = inject(ThemeService);
   private readonly editor = viewChild<ElementRef<HTMLDialogElement>>('editor');
   private readonly undefinedWindow = viewChild<ElementRef<HTMLDialogElement>>('undefinedWindow');
 
@@ -133,7 +135,9 @@ export class Canvas implements DoCheck {
       this.capture.menuHidden.set(on);
       this.capture.lookTools.set(on ? { px: false, finish: () => this.lookOpen.set(false) } : null);
     });
-    inject(DestroyRef).onDestroy(() => { this.capture.menuHidden.set(false); this.capture.lookTools.set(null); this.capture.menuEdit.set(null); this.cancelDrag(); this.motion.destroy(); this.unsaved.canvasDraft.set(false); });
+    // The Canvas and its windows always wear the original Epic look, whatever theme is chosen (Gianni)
+    this.themes.hold('epic');
+    inject(DestroyRef).onDestroy(() => { this.themes.hold(null); this.capture.menuHidden.set(false); this.capture.lookTools.set(null); this.capture.menuEdit.set(null); this.cancelDrag(); this.motion.destroy(); this.unsaved.canvasDraft.set(false); });
   }
 
   // --- What the page shows ---
