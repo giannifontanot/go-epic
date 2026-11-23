@@ -943,7 +943,8 @@ body { letter-spacing: var(--app-ls); }
 .now-card h2 { font-size: calc(var(--act-fs) * 2) !important; }
 :is(.object.feature > header strong, .pc-feature > strong, .pc-epic strong, .epic-tabs button > span, .area-tabs button > span) { font-size: calc(var(--act-fs) * 1.07) !important; letter-spacing: var(--act-ls) !important; }
 :is(.pick-card small, .text-preview small) { font-size: calc(9px * var(--esc)) !important; }
-.object small { font-size: calc(11px * var(--esc)) !important; }   /* the Canvas's small-caps labels (Gianni's sample) */
+.object small { font-size: calc(11px * var(--esc)) !important; }
+.place-card small { font-size: calc(11px * var(--esc)) !important; }   /* the Canvas's small-caps labels (Gianni's sample) */
 .eyebrow { font-size: calc(12px * var(--esc)) !important; }
 .t-time, .free { font-size: calc(13px * var(--esc)) !important; }
 .t-dur { font-size: calc(11px * var(--esc)) !important; }
@@ -1024,7 +1025,9 @@ dialog.editor.new-block header h2 { font-size: min(24px, 5.3vw); white-space: no
 .pc-feature .place-line[aria-expanded='true'], .pc-story .place-line[aria-expanded='true'] { background: rgba(54, 38, 67, .1); }
 .place-line.pc-wait { opacity: .6; }
 .place-card .pc-story, .place-card .pc-activity { margin-top: 8px; }
-.place-card .pc-leaf strong { font-family: Georgia, serif; }
+/* as the Canvas's own cards: FEATURE, STORY and ACTIVIDAD in small caps over each name, the names in a bold serif */
+.place-card small { font-weight: 500; letter-spacing: .12em; opacity: .72; line-height: 1.2; margin-bottom: 2px; }
+.place-card strong { font-family: Georgia, 'Noto Serif', serif; font-weight: 700; line-height: 1.32; }
 .place-card .pc-activity .pc-leaf { margin: 0; padding: 0; }
 html.tilt :is(.place-card .place-line, .place-menu button) { rotate: none; translate: none; }
 /* Its floating menu: a small navy card in the top layer, growing out of the level tapped */
