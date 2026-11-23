@@ -11,13 +11,14 @@ export const PAGES_AFTER_MS = 900;
 /** The compass's small press before the pages fan out. */
 export const PRESS_MS = 220;
 
-/** The pages of the menu (Week board, Canvas, Progress, Year, Product history), shared by the round menu's fan and the page titles'. */
+/** The pages of the menu (Week board, Canvas, Progress, Year, Product history, How to use), shared by the round menu's fan and the page titles'. */
 export const PAGES = [
   { link: '/', label: 'nav.week' },
   { link: '/canvas', label: 'nav.canvas' },
   { link: '/progress', label: 'nav.progress' },
   { link: '/year', label: 'nav.year' },
   { link: '/products', label: 'nav.products' },
+  { link: '/guide', label: 'nav.guide' },
 ] as const;
 
 /**

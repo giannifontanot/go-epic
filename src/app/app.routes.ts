@@ -25,5 +25,6 @@ export const routes: Routes = [
   { path: 'progress', canActivate: [signedIn(true)], loadComponent: () => import('./pages/progress/progress').then((m) => m.Progress) },
   { path: 'year', canActivate: [signedIn(true)], loadComponent: () => import('./pages/year/year').then((m) => m.Year) },
   { path: 'products', canActivate: [signedIn(true)], loadComponent: () => import('./pages/products/products').then((m) => m.Products) },
+  { path: 'guide', canActivate: [signedIn(true)], loadComponent: () => import('./pages/guide/guide').then((m) => m.Guide) },
   { path: '**', redirectTo: '' },
 ];

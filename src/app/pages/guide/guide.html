@@ -1,0 +1,158 @@
+<section class="guide-page">
+  <header class="board-top guide-top">
+    <h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')"
+                (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('guide.title') }}<span class="title-chev" aria-hidden="true"></span></button></h1>
+  </header>
+  <div class="guide" role="region" aria-roledescription="carousel" [attr.aria-label]="i18n.t('guide.cards')"
+       (touchstart)="swipe.start($event)" (touchend)="swiped($event)" (touchcancel)="swipe.cancel()">
+    <div class="guide-stage" aria-live="polite">
+      @for (slide of shown(); track slide.n) {
+        <article class="guide-slide" role="group" aria-roledescription="slide" [attr.data-dir]="dir()"
+                 [attr.aria-label]="i18n.t('guide.of', { n: slide.n + 1, total: count })">
+          <div class="guide-art" aria-hidden="true">
+            @switch (slide.id) {
+      @case ('welcome') {
+<svg viewBox="0 0 320 200" class="ga-svg"><rect class="ga-screen" x="6" y="6" width="308" height="188" rx="18"/>
+<text class="ga-title" x="24" y="34">Go Epic</text>
+<path class="ga-spark" d="M112 20 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2z"/>
+<rect class="ga-day" x="22" y="46" width="210" height="138" rx="16"/>
+<rect class="ga-block" x="32" y="58" width="190" height="56" rx="12"/>
+<g class="ga-card c0"><rect class="body" x="42" y="68" width="170" height="16" rx="7"/><rect class="edge" x="42" y="68" width="4" height="16" rx="2"/><rect class="ln" x="54" y="73.5" width="76" height="5" rx="2.5"/></g><g class="ga-card c1"><rect class="body" x="42" y="90" width="170" height="16" rx="7"/><rect class="edge" x="42" y="90" width="4" height="16" rx="2"/><rect class="ln" x="54" y="95.5" width="60" height="5" rx="2.5"/></g>
+<rect class="ga-block" x="32" y="122" width="190" height="52" rx="12"/>
+<g class="ga-card c2"><rect class="body" x="42" y="132" width="170" height="32" rx="7"/><rect class="edge" x="42" y="132" width="4" height="32" rx="2"/><rect class="ln" x="54" y="145.5" width="90" height="5" rx="2.5"/></g><g class="ga-fab "><circle cx="280" cy="132" r="15"/><rect class="ga-fab-line" x="275" y="127" width="4.5" height="4.5" rx="1"/><rect class="ga-fab-line" x="275" y="133" width="4.5" height="4.5" rx="1"/><rect class="ga-fab-line" x="281" y="127" width="4.5" height="4.5" rx="1"/><rect class="ga-fab-line" x="281" y="133" width="4.5" height="4.5" rx="1"/></g><g class="ga-fab "><circle cx="280" cy="170" r="15"/><path class="ga-fab-line" d="M276 171 a6.5 6.5 0 1 1 8 0 v3 h-8 z M277 177 h6"/></g></svg>
+      }
+      @case ('areas') {
+<svg viewBox="0 0 320 200" class="ga-svg"><rect class="ga-screen" x="6" y="6" width="308" height="188" rx="18"/><rect class="ga-day" x="22" y="18" width="132" height="76" rx="14"/><path class="ga-icon" d="M68 40 L88 30 L108 40 Z M73 43 V60 M83 43 V60 M93 43 V60 M103 43 V60 M67 63 H109"/><text class="ga-label" x="88" y="82">{{ i18n.t('guide.d.health') }}</text><rect class="ga-day" x="166" y="18" width="132" height="76" rx="14"/><path class="ga-icon" d="M212 64 V38 h6 v5 h6 v-5 h6 v5 h4 v-5 h6 v5 h6 v-5 h6 V64 Z M227 64 v-9 a5 5 0 0 1 10 0 v9"/><text class="ga-label" x="232" y="82">{{ i18n.t('guide.d.family') }}</text><rect class="ga-day" x="22" y="106" width="132" height="76" rx="14"/><path class="ga-icon" d="M79 152 V128 h18 V152 Z M76 128 h24 M88 128 V116 l10 3.5 l-10 3.5 M85.5 136 h5 v7 h-5 z"/><text class="ga-label" x="88" y="170">{{ i18n.t('guide.d.career') }}</text><rect class="ga-day" x="166" y="106" width="132" height="76" rx="14"/><path class="ga-icon" d="M209 138 a23 11 0 1 0 46 0 a23 11 0 1 0 -46 0 M220 138 a12 5 0 1 0 24 0 a12 5 0 1 0 -24 0 M209 138 v6 a23 11 0 0 0 46 0 v-6"/><text class="ga-label" x="232" y="170">{{ i18n.t('guide.d.fun') }}</text></svg>
+      }
+      @case ('epics') {
+<svg viewBox="0 0 320 200" class="ga-svg"><rect class="ga-screen" x="6" y="6" width="308" height="188" rx="18"/>
+<rect class="ga-day" x="18" y="16" width="200" height="168" rx="18"/>
+<text class="ga-cap" x="34" y="36">{{ i18n.t('canvas.area').toUpperCase() }}</text>
+<text class="ga-name" x="34" y="53">{{ i18n.t('area.temple') }}</text><path class="ga-tri" d="M198 46 h10 l-5 6 z"/>
+<rect class="ga-rule" x="34" y="62" width="168" height="1"/>
+<text class="ga-cap" x="34" y="80">EPIC</text>
+<text class="ga-name" x="34" y="97">{{ i18n.t('guide.d.athlete') }}</text><path class="ga-tri" d="M198 90 h10 l-5 6 z"/>
+<rect class="ga-block" x="30" y="110" width="176" height="30" rx="10"/><rect class="ga-ink-bar" x="42" y="122" width="84" height="6" rx="3"/>
+<rect class="ga-block" x="30" y="146" width="176" height="30" rx="10"/><rect class="ga-ink-bar" x="42" y="158" width="62" height="6" rx="3"/>
+<path class="ga-arrow" d="M212 94 C 222 94 222 72 230 70"/>
+<rect class="ga-tile" x="230" y="56" width="76" height="28" rx="10"/>
+<text class="ga-tile-text" x="268" y="74">{{ i18n.t('guide.d.athlete') }} ✓</text>
+<rect class="ga-tile on" x="230" y="92" width="76" height="28" rx="10"/>
+<text class="ga-tile-text" x="268" y="110">+ Epic</text></svg>
+      }
+      @case ('levels') {
+<svg viewBox="0 0 320 200" class="ga-svg"><rect class="ga-screen" x="6" y="6" width="308" height="188" rx="18"/>
+<rect class="ga-day" x="16" y="14" width="288" height="172" rx="18"/>
+<text class="ga-cap" x="30" y="33">EPIC</text>
+<text class="ga-name" x="30" y="50">{{ i18n.t('guide.d.athlete') }}</text>
+<rect class="ga-block" x="28" y="60" width="264" height="116" rx="14"/>
+<text class="ga-cap ink" x="40" y="77">FEATURE</text><rect class="ga-ink-bar" x="40" y="83" width="110" height="5" rx="2.5"/>
+<rect class="ga-story" x="38" y="96" width="244" height="72" rx="12"/>
+<text class="ga-cap story" x="50" y="112">STORY</text>
+<g class="ga-card c0"><rect class="body" x="50" y="120" width="108" height="40" rx="7"/><rect class="edge" x="50" y="120" width="4" height="40" rx="2"/><rect class="ln" x="62" y="149" width="54" height="5" rx="2.5"/><text class="ga-cap card" x="62" y="134">{{ i18n.t('guide.d.activity') }}</text></g><g class="ga-card c4"><rect class="body" x="164" y="120" width="108" height="40" rx="7"/><rect class="edge" x="164" y="120" width="4" height="40" rx="2"/><rect class="ln" x="176" y="149" width="54" height="5" rx="2.5"/><text class="ga-cap card" x="176" y="134">{{ i18n.t('guide.d.activity') }}</text></g></svg>
+      }
+      @case ('undefined') {
+<svg viewBox="0 0 320 200" class="ga-svg"><rect class="ga-screen" x="6" y="6" width="308" height="188" rx="18"/>
+<rect class="ga-apply" x="24" y="16" width="272" height="36" rx="18"/>
+<text class="ga-apply-text" x="150" y="39">{{ i18n.t('canvas.undefined') }}</text>
+<circle class="ga-count" cx="274" cy="34" r="11"/><text class="ga-count-text" x="274" y="38">3</text>
+<path class="ga-arrow" d="M160 54 V 64"/>
+<rect class="ga-day" x="36" y="66" width="248" height="120" rx="16"/>
+<text class="ga-cap" x="50" y="86">{{ i18n.t('canvas.area').toUpperCase() }}</text><rect class="ga-text-bar" x="96" y="80" width="90" height="5" rx="2.5"/><circle class="ga-check" cx="262" cy="82" r="7"/><path class="ga-check-ink" d="M258.85 82 l2.24 2.4499999999999997 l4.2 -4.8999999999999995"/>
+<text class="ga-cap" x="50" y="106">EPIC</text><rect class="ga-text-bar" x="96" y="100" width="70" height="5" rx="2.5"/><circle class="ga-check" cx="262" cy="102" r="7"/><path class="ga-check-ink" d="M258.85 102 l2.24 2.4499999999999997 l4.2 -4.8999999999999995"/>
+<rect class="ga-block" x="46" y="114" width="228" height="28" rx="9"/>
+<text class="ga-cap ink" x="56" y="132">FEATURE</text><rect class="ga-ink-bar" x="116" y="126" width="80" height="5" rx="2.5"/><circle class="ga-check" cx="262" cy="128" r="7"/><path class="ga-check-ink" d="M258.85 128 l2.24 2.4499999999999997 l4.2 -4.8999999999999995"/>
+<rect class="ga-story" x="54" y="148" width="212" height="28" rx="9"/>
+<text class="ga-cap story" x="64" y="166">STORY</text><rect class="ga-story-bar" x="112" y="160" width="70" height="5" rx="2.5"/><circle class="ga-check" cx="252" cy="162" r="7"/><path class="ga-check-ink" d="M248.85 162 l2.24 2.4499999999999997 l4.2 -4.8999999999999995"/></svg>
+      }
+      @case ('week') {
+<svg viewBox="0 0 320 200" class="ga-svg"><rect class="ga-screen" x="6" y="6" width="308" height="188" rx="18"/>
+<rect class="ga-day" x="50" y="14" width="210" height="172" rx="16"/>
+<text class="ga-dayname" x="66" y="38">{{ i18n.t('dayShort.MONDAY') }}</text>
+<g class="ga-round"><circle cx="238" cy="33" r="11"/><path d="M238 28 v10 M233 33 h10"/></g>
+<rect class="ga-block edit" x="62" y="50" width="186" height="66" rx="12"/><rect class="ga-well" x="72" y="58" width="46" height="15" rx="7.5"/><text class="ga-well-text" x="95" y="69">07:00</text><rect class="ga-well" x="124" y="58" width="46" height="15" rx="7.5"/><text class="ga-well-text" x="147" y="69">08:00</text><g class="ga-card c0"><rect class="body" x="72" y="78" width="166" height="14" rx="7"/><rect class="edge" x="72" y="78" width="4" height="14" rx="2"/><rect class="ln" x="84" y="82.5" width="74" height="5" rx="2.5"/></g><g class="ga-card c1"><rect class="body" x="72" y="96" width="166" height="14" rx="7"/><rect class="edge" x="72" y="96" width="4" height="14" rx="2"/><rect class="ln" x="84" y="100.5" width="50" height="5" rx="2.5"/></g>
+<rect class="ga-block edit" x="62" y="124" width="186" height="54" rx="12"/><rect class="ga-well" x="72" y="132" width="46" height="15" rx="7.5"/><text class="ga-well-text" x="95" y="143">09:00</text><rect class="ga-well" x="124" y="132" width="46" height="15" rx="7.5"/><text class="ga-well-text" x="147" y="143">10:00</text><g class="ga-card c2"><rect class="body" x="72" y="152" width="166" height="18" rx="7"/><rect class="edge" x="72" y="152" width="4" height="18" rx="2"/><rect class="ln" x="84" y="158.5" width="80" height="5" rx="2.5"/></g>
+<g class="ga-fab ring"><circle cx="288" cy="164" r="15"/><path class="ga-fab-line pen" d="M282 170 l2 -6 l9 -9 l4 4 l-9 9 z"/></g></svg>
+      }
+      @case ('today') {
+<svg viewBox="0 0 320 200" class="ga-svg"><rect class="ga-screen" x="6" y="6" width="308" height="188" rx="18"/>
+<rect class="ga-day" x="40" y="14" width="240" height="172" rx="16"/>
+<rect class="ga-block" x="52" y="26" width="216" height="150" rx="14"/>
+<rect class="ga-done" x="62" y="36" width="196" height="34" rx="8"/><rect class="ga-done-bar" x="98" y="50" width="80" height="5" rx="2.5"/><circle class="ga-check" cx="80" cy="53" r="9"/><path class="ga-check-ink" d="M75.95 53 l2.88 3.15 l5.3999999999999995 -6.3"/><g class="ga-card c1"><rect class="body" x="62" y="78" width="196" height="48" rx="7"/><rect class="edge" x="62" y="78" width="4" height="48" rx="2"/><rect class="ln" x="98" y="94" width="90" height="5" rx="2.5"/><circle class="ga-ring" cx="80" cy="96" r="9"/><path class="ga-half" d="M80 87 a9 9 0 0 1 0 18 z"/><rect class="ga-left-bg" x="62" y="120" width="196" height="6" rx="3"/><rect class="ga-left" x="150" y="120" width="108" height="6" rx="3"/></g><g class="ga-card c2"><rect class="body" x="62" y="134" width="196" height="34" rx="7"/><rect class="edge" x="62" y="134" width="4" height="34" rx="2"/><rect class="ln" x="98" y="148.5" width="70" height="5" rx="2.5"/><circle class="ga-ring" cx="80" cy="151" r="9"/></g>
+<line class="ga-now" x1="40" y1="104" x2="280" y2="104"/>
+<rect class="ga-now-badge" x="12" y="96" width="44" height="16" rx="8"/><text class="ga-now-text" x="34" y="108">10:15</text></svg>
+      }
+      @case ('capture') {
+<svg viewBox="0 0 320 200" class="ga-svg"><rect class="ga-screen" x="6" y="6" width="308" height="188" rx="18"/>
+<rect class="ga-win" x="18" y="14" width="232" height="152" rx="16"/>
+<rect class="ga-input" x="30" y="26" width="146" height="24" rx="8"/><rect class="ga-caret" x="38" y="31" width="1.6" height="14"/>
+<rect class="ga-apply" x="182" y="26" width="56" height="24" rx="12"/><text class="ga-apply-text small" x="210" y="42">{{ i18n.t('capture.add') }}</text>
+<circle class="ga-chip" cx="40" cy="64" r="8"/><circle class="ga-chip on" cx="64" cy="64" r="8"/><circle class="ga-chip" cx="88" cy="64" r="8"/><circle class="ga-chip on" cx="112" cy="64" r="8"/><circle class="ga-chip" cx="136" cy="64" r="8"/><circle class="ga-chip" cx="160" cy="64" r="8"/><circle class="ga-chip" cx="184" cy="64" r="8"/>
+<path class="ga-tab" d="M30 96 v-10 a5 5 0 0 1 5 -5 h56 a5 5 0 0 1 5 5 v10 z"/>
+<rect class="ga-list" x="30" y="94" width="208" height="62" rx="8"/>
+<g class="ga-paper n0"><rect x="38" y="102" width="192" height="22" rx="5"/><rect class="sq" x="45" y="108" width="10" height="10" rx="2"/><rect class="ln" x="62" y="111" width="90" height="4" rx="2"/></g>
+<g class="ga-paper n1"><rect x="38" y="128" width="192" height="22" rx="5"/><rect class="sq" x="45" y="134" width="10" height="10" rx="2"/><rect class="ln" x="62" y="137" width="60" height="4" rx="2"/></g>
+<path class="ga-folder" d="M14 194 v-16 a5 5 0 0 1 5 -5 h150 a5 5 0 0 1 5 5 v16"/>
+<text class="ga-folder-text" x="24" y="188">{{ i18n.t('week.overdue') }} · 2</text>
+<g class="ga-fab "><circle cx="288" cy="170" r="15"/><path class="ga-fab-line" d="M284 171 a6.5 6.5 0 1 1 8 0 v3 h-8 z M285 177 h6"/></g></svg>
+      }
+      @case ('progress') {
+<svg viewBox="0 0 320 200" class="ga-svg"><rect class="ga-screen" x="6" y="6" width="308" height="188" rx="18"/><rect class="ga-tabline" x="24" y="28" width="180" height="1.5"/><rect class="ga-accent" x="24" y="25" width="60" height="4" rx="2"/><rect class="ga-panel" x="20" y="38" width="190" height="40" rx="10"/><rect class="ga-text-bar" x="30" y="48" width="70" height="5" rx="2.5"/><path class="ga-flame" d="M184 56 c-6 -4 -2 -10 1 -12 c0 4 6 5 5 10 a4 4 0 0 1 -6 2z"/><text class="ga-streak" x="178" y="55">12</text><circle class="ga-dot" cx="33.0" cy="67" r="3.6"/><circle class="ga-dot" cx="44.5" cy="67" r="3.6"/><circle class="ga-dot" cx="56.0" cy="67" r="3.6"/><circle class="ga-dot miss" cx="67.5" cy="67" r="3.6"/><circle class="ga-dot" cx="79.0" cy="67" r="3.6"/><circle class="ga-dot" cx="90.5" cy="67" r="3.6"/><circle class="ga-dot" cx="102.0" cy="67" r="3.6"/><circle class="ga-dot" cx="113.5" cy="67" r="3.6"/><circle class="ga-dot" cx="125.0" cy="67" r="3.6"/><circle class="ga-dot" cx="136.5" cy="67" r="3.6"/><circle class="ga-dot" cx="148.0" cy="67" r="3.6"/><circle class="ga-dot" cx="159.5" cy="67" r="3.6"/><circle class="ga-dot" cx="171.0" cy="67" r="3.6"/><circle class="ga-dot" cx="182.5" cy="67" r="3.6"/><rect class="ga-panel" x="20" y="86" width="190" height="40" rx="10"/><rect class="ga-text-bar" x="30" y="96" width="56" height="5" rx="2.5"/><path class="ga-flame" d="M184 104 c-6 -4 -2 -10 1 -12 c0 4 6 5 5 10 a4 4 0 0 1 -6 2z"/><text class="ga-streak" x="178" y="103">8</text><circle class="ga-dot" cx="33.0" cy="115" r="3.6"/><circle class="ga-dot" cx="44.5" cy="115" r="3.6"/><circle class="ga-dot" cx="56.0" cy="115" r="3.6"/><circle class="ga-dot" cx="67.5" cy="115" r="3.6"/><circle class="ga-dot" cx="79.0" cy="115" r="3.6"/><circle class="ga-dot" cx="90.5" cy="115" r="3.6"/><circle class="ga-dot miss" cx="102.0" cy="115" r="3.6"/><circle class="ga-dot" cx="113.5" cy="115" r="3.6"/><circle class="ga-dot" cx="125.0" cy="115" r="3.6"/><circle class="ga-dot" cx="136.5" cy="115" r="3.6"/><circle class="ga-dot" cx="148.0" cy="115" r="3.6"/><circle class="ga-dot" cx="159.5" cy="115" r="3.6"/><circle class="ga-dot" cx="171.0" cy="115" r="3.6"/><circle class="ga-dot" cx="182.5" cy="115" r="3.6"/><rect class="ga-panel" x="20" y="134" width="190" height="40" rx="10"/><rect class="ga-text-bar" x="30" y="144" width="42" height="5" rx="2.5"/><path class="ga-flame" d="M184 152 c-6 -4 -2 -10 1 -12 c0 4 6 5 5 10 a4 4 0 0 1 -6 2z"/><text class="ga-streak" x="178" y="151">4</text><circle class="ga-dot" cx="33.0" cy="163" r="3.6"/><circle class="ga-dot miss" cx="44.5" cy="163" r="3.6"/><circle class="ga-dot" cx="56.0" cy="163" r="3.6"/><circle class="ga-dot" cx="67.5" cy="163" r="3.6"/><circle class="ga-dot" cx="79.0" cy="163" r="3.6"/><circle class="ga-dot" cx="90.5" cy="163" r="3.6"/><circle class="ga-dot" cx="102.0" cy="163" r="3.6"/><circle class="ga-dot" cx="113.5" cy="163" r="3.6"/><circle class="ga-dot miss" cx="125.0" cy="163" r="3.6"/><circle class="ga-dot" cx="136.5" cy="163" r="3.6"/><circle class="ga-dot" cx="148.0" cy="163" r="3.6"/><circle class="ga-dot" cx="159.5" cy="163" r="3.6"/><circle class="ga-dot" cx="171.0" cy="163" r="3.6"/><circle class="ga-dot" cx="182.5" cy="163" r="3.6"/><polygon class="ga-web" points="262.0,58.0 298.4,79.0 298.4,121.0 262.0,142.0 225.6,121.0 225.6,79.0"/><line class="ga-axis" x1="262" y1="100" x2="262.0" y2="58.0"/><line class="ga-axis" x1="262" y1="100" x2="298.4" y2="79.0"/><line class="ga-axis" x1="262" y1="100" x2="298.4" y2="121.0"/><line class="ga-axis" x1="262" y1="100" x2="262.0" y2="142.0"/><line class="ga-axis" x1="262" y1="100" x2="225.6" y2="121.0"/><line class="ga-axis" x1="262" y1="100" x2="225.6" y2="79.0"/><polygon class="ga-radar" points="262.0,62.2 283.8,87.4 291.1,116.8 262.0,118.9 236.5,114.7 242.0,88.5"/></svg>
+      }
+      @case ('year') {
+<svg viewBox="0 0 320 200" class="ga-svg"><defs><pattern id="ga-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="3" height="6" fill="#c9d3e3"/></pattern></defs><rect class="ga-season" x="10" y="12" width="300" height="176" rx="14"/><text class="ga-sprint" x="20" y="38">S1</text><rect class="ga-sq past" x="44" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="55" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="66" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="77" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="88" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="99" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="110" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="126" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="137" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="148" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="159" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="170" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="181" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="192" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="208" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="219" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="230" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="241" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="252" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="263" y="30" width="9" height="9" rx="2"/><rect class="ga-sq past" x="274" y="30" width="9" height="9" rx="2"/><text class="ga-sprint" x="20" y="68">S2</text><rect class="ga-sq" x="44" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="55" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="66" y="60" width="9" height="9" rx="2"/><rect class="ga-sq today" x="77" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="88" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="99" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="110" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="126" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="137" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="148" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="159" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="170" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="181" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="192" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="208" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="219" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="230" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="241" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="252" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="263" y="60" width="9" height="9" rx="2"/><rect class="ga-sq" x="274" y="60" width="9" height="9" rx="2"/><text class="ga-sprint" x="20" y="98">S3</text><rect class="ga-sq" x="44" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="55" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="66" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="77" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="88" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="99" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="110" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="126" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="137" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="148" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="159" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="170" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="181" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="192" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="208" y="90" width="9" height="9" rx="2"/><rect class="ga-sq note" x="219" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="230" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="241" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="252" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="263" y="90" width="9" height="9" rx="2"/><rect class="ga-sq" x="274" y="90" width="9" height="9" rx="2"/><text class="ga-sprint" x="20" y="128">S4</text><rect class="ga-sq" x="44" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="55" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="66" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="77" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="88" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="99" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="110" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="126" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="137" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="148" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="159" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="170" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="181" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="192" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="208" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="219" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="230" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="241" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="252" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="263" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="274" y="120" width="9" height="9" rx="2"/><rect class="ga-sq" x="44" y="150" width="9" height="9" rx="2"/><rect class="ga-sq" x="55" y="150" width="9" height="9" rx="2"/><rect class="ga-sq" x="66" y="150" width="9" height="9" rx="2"/><rect class="ga-sq" x="77" y="150" width="9" height="9" rx="2"/><rect class="ga-sq" x="88" y="150" width="9" height="9" rx="2"/><rect class="ga-sq" x="99" y="150" width="9" height="9" rx="2"/><rect class="ga-sq" x="110" y="150" width="9" height="9" rx="2"/><rect x="126" y="150" width="160" height="9" rx="3" fill="url(#ga-hatch)"/><path class="ga-sun" d="M24 158 m-5 0 a5 5 0 1 0 10 0 a5 5 0 1 0 -10 0"/><g class="ga-bubble"><path d="M156 59 h116 a6 6 0 0 1 6 6 v14 a6 6 0 0 1 -6 6 h-45 l-4 5 l-4 -5 h-63 a6 6 0 0 1 -6 -6 v-14 a6 6 0 0 1 6 -6 z"/></g><text class="ga-bubble-text" x="162" y="76">★ {{ i18n.t('guide.d.note') }}</text></svg>
+      }
+      @case ('delete') {
+<svg viewBox="0 0 320 200" class="ga-svg"><rect class="ga-screen" x="6" y="6" width="308" height="188" rx="18"/>
+<rect class="ga-veil" x="6" y="6" width="308" height="188" rx="18"/>
+<rect class="ga-win" x="46" y="18" width="228" height="164" rx="18"/>
+<text class="ga-soft-text" x="160" y="42">{{ i18n.t('undo.deleting', { name: i18n.t('guide.d.athlete') }) }}</text>
+<text class="ga-big" x="160" y="98">8</text>
+<text class="ga-soft-text" x="160" y="117">{{ i18n.t('undo.seconds') }}</text>
+<rect class="ga-btn del" x="60" y="130" width="96" height="28" rx="14"/><text class="ga-btn-text del" x="108" y="148">{{ i18n.t('undo.now') }}</text>
+<rect class="ga-focus" x="161" y="127" width="102" height="34" rx="17"/>
+<rect class="ga-btn keep" x="164" y="130" width="96" height="28" rx="14"/><text class="ga-btn-text keep" x="212" y="148">{{ i18n.t('undo.keep') }}</text>
+<rect class="ga-drain-bg" x="62" y="168" width="196" height="4" rx="2"/><rect class="ga-drain" x="62" y="168" width="118" height="4" rx="2"/></svg>
+      }
+      @case ('themes') {
+<svg viewBox="0 0 320 200" class="ga-svg"><rect class="ga-screen" x="6" y="6" width="308" height="188" rx="18"/>
+<rect class="ga-win" x="18" y="34" width="118" height="132" rx="14"/><rect class="ga-suggest" x="26" y="44" width="102" height="26" rx="8"/><rect class="ga-sw c0" x="32" y="50" width="10" height="14" rx="2"/><rect class="ga-sw c1" x="44" y="50" width="10" height="14" rx="2"/><rect class="ga-sw c2" x="56" y="50" width="10" height="14" rx="2"/><rect class="ga-sw c3" x="68" y="50" width="10" height="14" rx="2"/><rect class="ga-sw c4" x="80" y="50" width="10" height="14" rx="2"/><rect class="ga-sw c5" x="92" y="50" width="10" height="14" rx="2"/><rect class="ga-sw c6" x="104" y="50" width="10" height="14" rx="2"/><rect class="ga-sw c7" x="116" y="50" width="10" height="14" rx="2"/><rect class="ga-sw fixed" x="32" y="86" width="10" height="14" rx="2" style="fill: #f9a8d4"/><rect class="ga-sw fixed" x="44" y="86" width="10" height="14" rx="2" style="fill: #fda4af"/><rect class="ga-sw fixed" x="56" y="86" width="10" height="14" rx="2" style="fill: #fbcfe8"/><rect class="ga-sw fixed" x="68" y="86" width="10" height="14" rx="2" style="fill: #f472b6"/><rect class="ga-sw fixed" x="80" y="86" width="10" height="14" rx="2" style="fill: #fecdd3"/><rect class="ga-sw fixed" x="92" y="86" width="10" height="14" rx="2" style="fill: #f9a8d4"/><rect class="ga-sw fixed" x="104" y="86" width="10" height="14" rx="2" style="fill: #fda4af"/><rect class="ga-sw fixed" x="116" y="86" width="10" height="14" rx="2" style="fill: #fbcfe8"/><rect class="ga-sw fixed" x="32" y="122" width="10" height="14" rx="2" style="fill: #fde68a"/><rect class="ga-sw fixed" x="44" y="122" width="10" height="14" rx="2" style="fill: #fdba74"/><rect class="ga-sw fixed" x="56" y="122" width="10" height="14" rx="2" style="fill: #fca5a5"/><rect class="ga-sw fixed" x="68" y="122" width="10" height="14" rx="2" style="fill: #a7f3d0"/><rect class="ga-sw fixed" x="80" y="122" width="10" height="14" rx="2" style="fill: #93c5fd"/><rect class="ga-sw fixed" x="92" y="122" width="10" height="14" rx="2" style="fill: #c4b5fd"/><rect class="ga-sw fixed" x="104" y="122" width="10" height="14" rx="2" style="fill: #fcd34d"/><rect class="ga-sw fixed" x="116" y="122" width="10" height="14" rx="2" style="fill: #fdba74"/>
+@for (t of themeTiles; track t.id; let i = $index) {
+  <rect class="ga-theme" [class.on]="t.id === theme.theme()" [attr.x]="t.x" [attr.y]="t.y" width="44" height="26" rx="6" [style.fill]="t.bar"/>
+  <rect [attr.x]="t.x + 6" [attr.y]="t.y + 17" width="22" height="4" rx="2" [style.fill]="t.accent"/>
+}
+<g class="ga-fab "><circle cx="286" cy="40" r="15"/><circle class="ga-fab-line" cx="286" cy="40" r="5"/></g><g class="ga-fab ring"><circle cx="286" cy="74" r="15"/><path class="ga-fab-line pen" d="M280 80 l2 -6 l9 -9 l4 4 l-9 9 z"/></g><g class="ga-fab open"><circle cx="286" cy="108" r="15"/><circle class="ga-fab-line" cx="282" cy="106" r="1.6"/><circle class="ga-fab-line" cx="289" cy="104" r="1.6"/><circle class="ga-fab-line" cx="290" cy="111" r="1.6"/><path class="ga-fab-line" d="M286 99 a9 9 0 1 0 2 17 c-3 -2 -1 -5 2 -5 h3 a6 6 0 0 0 -7 -12z"/></g><g class="ga-fab "><circle cx="286" cy="142" r="15"/><circle class="ga-fab-line" cx="286" cy="142" r="7"/><path class="ga-fab-line" d="M289 139 l-2 5 l-4 1 l2 -5z"/></g><g class="ga-fab "><circle cx="286" cy="176" r="15"/><rect class="ga-fab-line" x="281" y="171" width="10" height="2" rx="1"/><rect class="ga-fab-line" x="281" y="175" width="10" height="2" rx="1"/><rect class="ga-fab-line" x="281" y="179" width="10" height="2" rx="1"/></g></svg>
+      }
+            }
+          </div>
+          <div class="guide-text">
+            <h2>{{ i18n.t('guide.' + slide.id + '.title') }}</h2>
+            <p>{{ i18n.t('guide.' + slide.id + '.body') }}</p>
+            @if (slide.n === count - 1) {
+              <div class="guide-end">
+                <button type="button" class="btn-cancel" (click)="go(0)">{{ i18n.t('guide.again') }}</button>
+                <button type="button" class="btn-apply" (click)="toCanvas()">{{ i18n.t('guide.start') }}</button>
+              </div>
+            }
+          </div>
+        </article>
+      }
+    </div>
+    <div class="guide-nav">
+      <button type="button" class="guide-arrow" [disabled]="index() === 0" [attr.aria-label]="i18n.t('guide.prev')"
+              [title]="i18n.t('guide.prev')" (click)="step(-1)">
+        <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <div class="guide-where">
+        <span class="guide-dots" aria-hidden="true">
+          @for (id of slides; track id; let i = $index) { <span class="guide-dot" [class.on]="i === index()"></span> }
+        </span>
+        <span class="guide-count">{{ i18n.t('guide.of', { n: index() + 1, total: count }) }}</span>
+      </div>
+      <button type="button" class="guide-arrow" [disabled]="index() === count - 1" [attr.aria-label]="i18n.t('guide.next')"
+              [title]="i18n.t('guide.next')" (click)="step(1)">
+        <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
