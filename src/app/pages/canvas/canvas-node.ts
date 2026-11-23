@@ -17,6 +17,13 @@ import { CanvasState } from './canvas-state';
   template: `
     @let n = node();
     @let editing = n.kind === 'task' && editId() === n.id;
+    @if (editing && loose() && bodyTpl()) {
+      <!-- In the Undefined window an open Activity is only its place, drawn as the Canvas draws it (Gianni): no card of its
+           colour around it and no title over it; its name is in its own ACTIVIDAD box, at the foot of the place card. -->
+      <div class="loose-edit" [attr.data-editing]="n.id" [attr.data-node]="n.id" [style.--tone]="tone()" role="group" [attr.aria-label]="n.title">
+        <ng-container *ngTemplateOutlet="bodyTpl(); context: { $implicit: n, loose: true }" />
+      </div>
+    } @else {
     <article class="object" [class.feature]="n.kind === 'feature'" [class.story]="n.kind === 'story'" [class.task]="n.kind === 'task'"
       [class.editing]="editing" [attr.data-editing]="editing ? n.id : null" [attr.data-node]="n.id" [attr.data-drop-kind]="n.kind" [attr.data-parent]="n.id" [style.--ox]="offset().x" [style.--oy]="offset().y"
       [style.background]="tone()" [style.--tone]="tone()" [attr.aria-label]="n.title">
@@ -65,7 +72,8 @@ import { CanvasState } from './canvas-state';
         </div>
       }
       @if (collapsed) { <span class="count">{{ children().length }} {{ i18n.t('canvas.contained') }}</span> }
-    </article>`,
+    </article>
+    }`,
   styleUrl: './canvas-node.css',
 })
 export class CanvasNode {
