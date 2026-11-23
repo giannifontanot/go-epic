@@ -61,6 +61,8 @@ export class ThemePicker {
         <h2 id="palette-window-title" tabindex="-1">{{ i18n.t('palette.title') }} · {{ i18n.t('theme.' + look.theme()) }}</h2>
         <button type="button" class="drawer-close" [attr.aria-label]="i18n.t('nav.close')" (click)="cancel()">×</button>
       </header>
+      <!-- the palettes and the three boxes scroll together, so on a short screen both stay reachable and OK stays in sight -->
+      <div class="palette-body">
       <div class="palette-list" role="radiogroup" aria-labelledby="palette-window-title">
         @for (p of palettes; track p.id) {
           <!-- the theme's own palette is the suggested one (Gianni, v56): a halo round its colours, «Sugerido» above it at the right -->
@@ -97,6 +99,7 @@ export class ThemePicker {
           <small>{{ i18n.t('settings.redHint') }}</small>
         </span>
       </label>
+      </div>
       <footer class="settings-foot">
         <button type="button" class="primary btn-apply palette-ok" (click)="ok()">OK</button>
       </footer>

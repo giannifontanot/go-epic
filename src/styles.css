@@ -2120,8 +2120,9 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
    its name over its colours, the list scrolling inside the window), Only the edge below them and OK, always in sight */
 .palette-window[open] { display: flex; flex-direction: column; overflow: hidden; }
 .palette-window .settings-head { flex: none; }
-.palette-window .palette-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin-top: 12px; padding: 2px; overscroll-behavior: contain; }
-.palette-window .edge-row { flex: none; margin-top: 14px; }
+.palette-window .palette-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 2px; }
+.palette-window .palette-list { margin-top: 12px; }
+.palette-window .edge-row { margin-top: 14px; }
 .palette-window .settings-foot { flex: none; margin-top: 14px; }
 .palette-ok { min-width: 120px; min-height: 48px; font-size: 18px; }
 .palette-list { display: flex; flex-direction: column; gap: 8px; }
