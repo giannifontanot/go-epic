@@ -4,13 +4,14 @@ import { I18n } from '../../core/i18n';
 import { LibNode } from '../../core/library.model';
 import { Task, blockColors, toneVar } from '../../core/week.model';
 import { CanvasState } from './canvas-state';
+import { splitTail } from '../../core/text-tail';
 
 /**
  * A Feature box, a Story container or an Activity capsule (Floating Canvas). Activities: grip, title, ✎ edit (in the
  * Undefined window, `loose`: no grip and no ✎, the whole card opens it). Features and
  * Stories: grip, label and fold ⌄ on the small label line, the title below on the whole width (a tap on it opens the actions).
  * An Activity's ✎ makes the card itself grow in place and become editable (Gianni): the page lends it its name box and the
- * body under it (`nameTpl`, `bodyTpl`), and its ✎ turns into ✓ to close it.
+ * body under it (`nameTpl`, `bodyTpl`): Eliminar at its top right, Cancelar and Aplicar at its foot.
  */
 @Component({
   selector: 'app-canvas-node',
@@ -29,28 +30,35 @@ import { CanvasState } from './canvas-state';
       [class.editing]="editing" [attr.data-editing]="editing ? n.id : null" [attr.data-node]="n.id" [attr.data-drop-kind]="n.kind" [attr.data-parent]="n.id" [style.--ox]="offset().x" [style.--oy]="offset().y"
       [style.background]="tone()" [style.--tone]="tone()" [attr.aria-label]="n.title">
       @if (n.kind === 'task') {
+        @if (editing && nameTpl()) {
+          <!-- Open (Gianni): ACTIVIDAD and Eliminar at the top right, as in the other windows; the name box under them on the
+               whole width; Cancelar and Aplicar at the foot (the page's body). No ✓ at the end of the name line. -->
+          <header class="stacked">
+            <div class="edit-top"><small aria-hidden="true">{{ i18n.t('canvas.task') }}</small>
+              <button type="button" class="edit-delete" [disabled]="disabled()" (click)="remove.emit(n)">{{ i18n.t('task.delete') }}</button></div>
+            <div class="name editing-name"><ng-container *ngTemplateOutlet="nameTpl(); context: { $implicit: n }" /></div>
+          </header>
+        } @else {
         <header>
           @if (!loose()) {
-            <button type="button" class="grip" [disabled]="disabled() || editing" [attr.aria-label]="i18n.t('canvas.drag') + ' ' + n.title"
+            <button type="button" class="grip" [disabled]="disabled()" [attr.aria-label]="i18n.t('canvas.drag') + ' ' + n.title"
               (pointerdown)="drag.emit({ event: $event, node: n })">⠿</button>
           }
           <!-- ACTIVIDAD in small caps above its title (Gianni: like the Canvas's own card) -->
-          @if (editing && nameTpl()) {
-            <div class="name editing-name"><small aria-hidden="true">{{ i18n.t('canvas.task') }}</small><ng-container *ngTemplateOutlet="nameTpl(); context: { $implicit: n }" /></div>
-          } @else if (loose()) {
+          @if (loose()) {
             <!-- In the Undefined window the whole card is the button (Gianni: no ✎; a tap on the card opens it) -->
             <button type="button" class="name loose-open" [disabled]="disabled()" [attr.aria-label]="i18n.t('canvas.edit') + ' ' + n.title"
               (click)="action.emit(n)"><small aria-hidden="true">{{ i18n.t('canvas.task') }}</small><strong>{{ n.title }}</strong></button>
           } @else {
             <div class="name"><small aria-hidden="true">{{ i18n.t('canvas.task') }}</small><strong>{{ n.title }}</strong></div>
           }
-          <!-- the same button turns ✎ into ✓, so the focus stays on it -->
           @if (!loose()) {
-          <button type="button" class="more" [class.done]="editing" [disabled]="disabled()" [attr.aria-expanded]="editing"
-            [attr.aria-label]="(editing ? i18n.t('task.done') : i18n.t('canvas.edit')) + ' ' + n.title"
-            [title]="editing ? i18n.t('task.done') : i18n.t('canvas.edit')" (click)="action.emit(n)">{{ editing ? '✓' : '✎' }}</button>
+          <button type="button" class="more" [disabled]="disabled()" [attr.aria-expanded]="false"
+            [attr.aria-label]="i18n.t('canvas.edit') + ' ' + n.title" [title]="i18n.t('canvas.edit')"
+            (click)="action.emit(n)"><span class="pen" aria-hidden="true">✎</span></button>
           }
         </header>
+        }
         @if (editing && bodyTpl()) { <ng-container *ngTemplateOutlet="bodyTpl(); context: { $implicit: n }" /> }
       } @else {
         <!-- Features and Stories: the controls live on the small label line, so the title gets the whole width;
@@ -64,7 +72,7 @@ import { CanvasState } from './canvas-state';
               [attr.aria-label]="i18n.t(collapsed ? 'canvas.expand' : 'canvas.collapse') + ' ' + n.title" (click)="toggle()">⌄</button>
           </div>
           <button type="button" class="title" [disabled]="disabled()" [attr.aria-label]="i18n.t('canvas.actions') + ' ' + n.title"
-            [title]="i18n.t('canvas.actions') + ' ' + n.title" (click)="action.emit(n)"><strong>{{ n.title }}<span class="edit-pen" aria-hidden="true">✎</span></strong></button>
+            [title]="i18n.t('canvas.actions') + ' ' + n.title" (click)="action.emit(n)">@let t = tail(n.title);<strong>{{ t.head }}<span class="pen-tail">{{ t.tail }}<span class="pen title-pen" aria-hidden="true">✎</span></span></strong></button>
         </header>
       }
       @if (n.kind !== 'task' && !collapsed) {
@@ -72,7 +80,7 @@ import { CanvasState } from './canvas-state';
           @for (child of children(); track child.id) {
             <app-canvas-node [node]="child" [state]="state()" [version]="version()" [disabled]="disabled()"
               [editId]="editId()" [nameTpl]="nameTpl()" [bodyTpl]="bodyTpl()"
-              (drag)="drag.emit($event)" (action)="action.emit($event)" (add)="add.emit($event)" />
+              (drag)="drag.emit($event)" (action)="action.emit($event)" (add)="add.emit($event)" (remove)="remove.emit($event)" />
           }
           <button type="button" class="add" [disabled]="disabled()" (click)="add.emit(n)">
             + {{ i18n.t(n.kind === 'feature' ? 'canvas.addStory' : 'canvas.addTask') }}</button>
@@ -103,6 +111,9 @@ export class CanvasNode {
   readonly drag = output<{ event: PointerEvent; node: LibNode }>();
   readonly action = output<LibNode>();
   readonly add = output<LibNode>();
+  /** Eliminar on an open Activity's card (top right). */
+  readonly remove = output<LibNode>();
+  protected readonly tail = splitTail;
   collapsed = false;
 
   toggle(): void {

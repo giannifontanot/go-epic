@@ -530,10 +530,25 @@ html:is([data-theme='office'], [data-theme='graphite']) { --edit-red: #b4504b; }
    under it, above the floating edit bar */
 .title-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin: 0; padding: 0; border: 0; background: none;
   color: inherit; font: inherit; letter-spacing: inherit; line-height: inherit; text-align: left; cursor: pointer; }
-.title-chev { font-size: .55em; opacity: .6; transition: rotate .3s ease; }
+.title-chev { opacity: .7; transition: rotate .3s ease; }
 .title-btn[aria-expanded='true'] .title-chev { rotate: 180deg; }
 .title-btn:focus-visible { outline: 3px solid var(--teal); outline-offset: 4px; border-radius: 8px; }
 html.tilt .title-btn { translate: none; }   /* it leans with its title, never slides off it */
+
+/* Two signs, everywhere in the app (Gianni): what opens a FLOATING MENU (a page's title, the Canvas's Área and Epic, the
+   place card's levels, a list to pick from) shows a truly filled triangle; what opens or closes a BOX (a fold) keeps its ⌄. */
+.title-chev, .menu-chev { display: inline-block; flex: none; width: 14px; height: 9px; background: currentColor;
+  clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.title-chev { width: 13px; height: 8px; }
+
+/* Every edit pencil is one and the same (Gianni): the same size whatever text it follows, never bold, always pointing
+   left. A panel (UI design, accessibility, typography) chose 22px: about 18px of drawn pencil, the size of a standard small
+   icon, readable at a glance on a phone and in every 40-44px button, without dwarfing a 15px title it follows. */
+.pen { display: inline-block; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-size: 22px; font-weight: 400;
+  font-style: normal; line-height: 1; letter-spacing: 0; -webkit-text-stroke: 0; text-transform: none; scale: -1 1; }
+/* right after a name it sits on the name's line; the name's last word goes with it, so it never stands alone (.pen-tail) */
+.title-pen { margin-left: .3em; vertical-align: -3px; }
+.pen-tail { white-space: nowrap; }
 .title-veil { z-index: 31; }
 .page-fan.title-fan { z-index: 32; right: auto; }
 @media (prefers-reduced-motion: reduce) { .title-chev { transition: none; } }
@@ -589,6 +604,8 @@ dialog.capture-panel { margin: calc(var(--vv-top, 0px) + max(12px, env(safe-area
 dialog.capture-panel .capture-scroll { height: 100%; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain;
   padding: 18px 18px calc(18px + 56px); }
 dialog.capture-panel .capture-x { --tap: 40px; flex: none; }
+/* the keyboard coming up shrinks it softly to the part still visible (core/soft-keyboard), and back when it goes down */
+@media (prefers-reduced-motion: no-preference) { dialog.capture-panel[open] { transition: height .34s cubic-bezier(.2, 0, 0, 1), margin-top .34s cubic-bezier(.2, 0, 0, 1); } }
 /* the thumb's Close (Gianni): the other windows' Close button, always in the window's bottom-right corner, over the list */
 dialog.capture-panel .capture-close-foot { position: absolute; right: 14px; bottom: 14px; z-index: 2; box-shadow: 0 4px 14px #0006; }
 dialog.capture-panel::backdrop, dialog.editor::backdrop, dialog.transfer::backdrop { background: rgba(4, 9, 30, .55); }
@@ -711,16 +728,12 @@ app-pick-menu { display: block; min-width: 0; }
    A panel weighed one shade against two: two drop Office's ink on its plum to 3.1:1, one keeps every theme at 4:1 or more.
    It follows the name on the same line when it fits, else it wraps as a whole close under it. */
 .area-desc { display: inline-block; margin-left: .3em; color: color-mix(in srgb, currentColor 78%, transparent); }
-/* The ⌄ that opens a floating menu: at the far right, centred on its button, everywhere (Gianni) */
-/* in the very tone of the name it opens (Gianni: the grey of the description did not show) and a little bigger */
-.menu-chev { position: absolute; right: 8px; top: 50%; translate: 0 -50%; font-family: system-ui, sans-serif; font-size: 21px; font-weight: 700; line-height: 1;
-  color: inherit; opacity: 1; pointer-events: none; transition: rotate .3s ease; }
+/* What opens a floating menu: at the far right, centred on its button, everywhere (Gianni), in the very tone of the name
+   it opens; its shape is the app's one filled triangle (below) */
+.menu-chev { position: absolute; right: 10px; top: 50%; translate: 0 -50%; color: inherit; opacity: 1; pointer-events: none; transition: rotate .3s ease; }
 .pick-btn.open .menu-chev, .place-line[aria-expanded='true'] .menu-chev { rotate: 180deg; }
-/* The ✎ right after a name (Epic, Feature, Story; Gianni: so renaming is obvious), pointing left, nearly the name's size,
-   bold in the name's own ink (Gianni: thin and grey it was not seen); the glyph has no bold face, so a stroke thickens it */
-.edit-pen { display: inline-grid; place-items: center; vertical-align: -.08em; margin-left: .25em; font-family: system-ui, sans-serif; font-weight: 900;
-  font-size: .9em; line-height: 1; color: inherit; -webkit-text-stroke: .07em currentColor; paint-order: stroke fill; }
-.edit-pen > span, span.edit-pen { scale: -1 1; }
+/* An Epic's ✎ right after its name is a button of its own (the pencil itself is the app's one .pen, below) */
+.edit-pen { display: inline-grid; place-items: center; vertical-align: middle; margin-left: .2em; line-height: 1; color: inherit; }
 .pick-btn button.edit-pen { position: relative; pointer-events: auto; z-index: 1; min-width: 44px; min-height: 44px; margin: -10px -6px -10px 0; padding: 0; border: 0;
   border-radius: 50%; background: transparent; cursor: pointer; }
 .pick-btn button.edit-pen:hover:not(:disabled) { background: color-mix(in srgb, currentColor 12%, transparent); }
@@ -1015,7 +1028,8 @@ dialog.editor.new-block header h2 { font-size: min(24px, 5.3vw); white-space: no
 .where-card { margin: 4px 0 8px; }
 .pc-head { position: relative; display: block; margin: 0 -6px; padding: 4px 6px; border-radius: 12px; }
 .pc-tap { cursor: pointer; }
-.pc-tap::after { content: '⌄'; position: absolute; right: 8px; top: 50%; translate: 0 -50%; font-size: 15px; opacity: .55; pointer-events: none; }
+.pc-tap::after { content: ''; position: absolute; right: 10px; top: 50%; translate: 0 -50%; width: 12px; height: 8px; opacity: .7; pointer-events: none;
+  background: currentColor; clip-path: polygon(0 0, 100% 0, 50% 100%); }   /* a native list opens: the floating-menu triangle */
 .pc-tap > strong { padding-right: 22px; }
 .pc-tap:hover { background: rgba(255, 255, 255, .12); }
 .pc-feature .pc-tap:hover, .pc-story .pc-tap:hover { background: rgba(54, 38, 67, .08); }
@@ -1430,6 +1444,8 @@ html[data-theme='goepiclight'] { --title-ink: #8a5a12; --title-gold: linear-grad
 html[data-theme='goepicdark'] { --title-gold: linear-gradient(100deg, #f5d77a, #e2b84a 55%, #c9a227); --tab-ink: #f5f5f7; }
 html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(h1:not(:has(.title-btn)), h1 .title-btn, h1 .title-btn:hover, .title-chev, .day-head h2, .update-card p) {
   background: var(--title-gold); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+/* the title's triangle is a shape, not a letter: filled with the gold itself */
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) h1 .title-btn .title-chev { -webkit-background-clip: border-box; background-clip: border-box; }
 /* the phone's day tabs (Gianni): the days in black (Dark: its light ink, black would not read on navy), the chosen one filled with gold */
 html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .day-tabs button:not([aria-selected='true']) { color: var(--tab-ink); }
 html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .board-head .day-tabs button[aria-selected='true'] {

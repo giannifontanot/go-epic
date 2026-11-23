@@ -11,7 +11,7 @@ small { font-size:9px; text-transform:uppercase; letter-spacing:.11em; opacity:.
 button { color:inherit; border:0; border-radius:12px; background:transparent; min-width:36px; min-height:40px; cursor:pointer; padding:4px; }
 button:hover { background:#fff6; }button:focus-visible { outline:3px solid #173f74; outline-offset:2px; }
 button:disabled { opacity:.4; cursor:default; }.grip { touch-action:none; cursor:grab; font-size:23px; }.grip:active { cursor:grabbing; }
-.more { font-size:19px; font-weight:900; -webkit-text-stroke:.07em currentColor; }   /* the ✎ bold (Gianni: it was not seen) */.fold { font-size:21px; }.children { display:flex; flex-direction:column; gap:12px; margin-top:10px; }
+.more { padding:4px; }   /* its ✎ is the app's one pencil (styles.css .pen): one size, never bold, pointing left */.fold { font-size:21px; }.children { display:flex; flex-direction:column; gap:12px; margin-top:10px; }
 .add { align-self:flex-start; font-size:12px; padding:6px 12px; border:1px dashed #23395155; min-height:40px; }
 .count { display:block; margin:5px 35px; font-size:12px; }
 .object.drop-hot { outline:3px solid #fff; box-shadow:0 0 0 6px #78d8c65e,0 12px 30px #0003; }
@@ -45,9 +45,17 @@ header.stacked { display:block; }
 .title { display:block; width:100%; min-height:40px; padding:2px 2px 4px; text-align:left; border-radius:10px; }
 .title strong { font-size:15px; }
 
-/* An Activity being edited (Gianni): the same card, grown in place, lifted a little with a teal ring; its ✎ is now ✓ */
+/* An Activity being edited (Gianni): the same card, grown in place, lifted a little with a teal ring; ACTIVIDAD and
+   Eliminar on its top line, the name box under them on the whole width */
 .task.editing { z-index:3; padding:6px 10px 12px; box-shadow:0 0 0 3px color-mix(in srgb,var(--teal,#76e0d0) 75%,transparent), 0 14px 30px rgba(1,6,29,.32); }
-.more.done { font-size:20px; font-weight:800; }
+.edit-top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 4px; }
+.task .edit-top small { margin:0; }
+/* Eliminar, not transparent (Gianni): a panel chose a pale rose with a deep red word and edge, so it reads as delete
+   on every card colour without shouting; it still asks and counts down like every delete */
+.edit-delete { min-height:40px; padding:6px 16px; border:1.5px solid #d98c8c; border-radius:999px; background:#ffe4e4; color:#a4161a;
+  font-size:14px; font-weight:700; box-shadow:0 1px 2px rgba(48,39,70,.14); }
+button.edit-delete:hover:not(:disabled) { background:#ffd4d4; }
+.task button.edit-delete:focus-visible { outline:3px solid var(--teal,#76e0d0); outline-offset:2px; }
 .editing-name { padding:3px 0; }
 
 /* As the Canvas's own card (Gianni's sample): FEATURE, STORY and ACTIVIDAD in small caps above each title, the titles in a

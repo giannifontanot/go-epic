@@ -1,4 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
+import { focusAtEnd } from '../../core/text-tail';
+import { VISIBLE_AREA_EVENT, visibleArea } from '../../core/viewport';
 import { Component, DestroyRef, ElementRef, Injector, afterNextRender, computed, inject, signal, viewChild } from '@angular/core';
 import { eventDates, importPlan } from '../../core/calendar-import';
 import { DateNote, notesLabel } from '../../core/date-notes';
@@ -46,7 +48,7 @@ function readLastCalendar(): string | null {
     <section class="year-page">
       <header class="board-top year-top">
         <h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')"
-                    (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('year.title', { year: year().year }) }}<span class="title-chev" aria-hidden="true">⌄</span></button></h1>
+                    (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('year.title', { year: year().year }) }}<span class="title-chev" aria-hidden="true"></span></button></h1>
         <app-why screen="year" />
       </header>
       <!-- the years offered (Gianni): 2026, still being lived, and 2027 -->
@@ -509,9 +511,9 @@ export class Year {
     const cell = key ? this.cellOf(key) : null;
     if (!cell) return;
     const r = cell.getBoundingClientRect();
-    const vv = window.visualViewport;
-    const top0 = vv?.offsetTop ?? 0;
-    const height = vv?.height ?? window.innerHeight;
+    const vv = visibleArea();
+    const top0 = vv.top;
+    const height = vv.height;
     const width = document.documentElement.clientWidth;
     const w = pop.offsetWidth;
     const h = pop.offsetHeight;
@@ -552,6 +554,7 @@ export class Year {
     window[method]('resize', this.schedulePlace);
     window.visualViewport?.[method]('resize', this.schedulePlace);
     window.visualViewport?.[method]('scroll', this.schedulePlace);
+    window[method](VISIBLE_AREA_EVENT, this.schedulePlace);   // the keyboard over the page (core/viewport)
     // a note added or removed makes the window taller or shorter: it keeps its tail on the day
     if (on && typeof ResizeObserver === 'function') (this.resizing ??= new ResizeObserver(this.schedulePlace)).observe(this.popRef().nativeElement);
     if (!on) this.resizing?.disconnect();
@@ -594,9 +597,7 @@ export class Year {
   protected startRename(id: string): void {
     this.renaming.set(id);
     afterNextRender(() => {
-      const box = this.popRef().nativeElement.querySelector<HTMLInputElement>('.yd-rename');
-      box?.focus();
-      box?.select();
+      focusAtEnd(this.popRef().nativeElement.querySelector<HTMLInputElement>('.yd-rename'));   // the cursor at its end, nothing highlighted (Gianni)
     }, { injector: this.injector });
   }
   /** Moving to another day while a note is being renamed: its new name is kept first, on its own day. */

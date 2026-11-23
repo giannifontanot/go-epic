@@ -6,7 +6,7 @@
   <!-- The title and the day chips stay at the top (Gianni): only the blocks scroll under them; while arranging the edit bar stays with them -->
   <div class="board-head">
   <header class="board-top week-top">
-    <h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')" (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('nav.week') }}<span class="title-chev" aria-hidden="true">⌄</span></button></h1>
+    <h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')" (click)="pageMenu.toggle($event.currentTarget)">{{ i18n.t('nav.week') }}<span class="title-chev" aria-hidden="true"></span></button></h1>
     <span></span>
     @if (arranging()) {
       <button type="button" class="chip quiet on finish" (click)="toggleArrange()">✓ {{ i18n.t('week.finish') }}</button>
@@ -104,7 +104,7 @@
                                   (click)="$event.stopPropagation(); todos.setDone(todo.id, todo.done === null, dates()[day])"><ng-container [ngTemplateOutlet]="stateIcon" [ngTemplateOutletContext]="{ $implicit: todo.done !== null ? 'done' : 'todo' }" /></button>
                           <span class="todo-title">{{ todo.title }}</span><span class="todo-time">{{ todo.time }}</span>
                           <button type="button" class="todo-edit" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
-                                  (click)="$event.stopPropagation(); editTodo(todo, day)">✎</button>
+                                  (click)="$event.stopPropagation(); editTodo(todo, day)"><span class="pen" aria-hidden="true">✎</span></button>
                         </li>
                       }
                     </ul>
@@ -149,7 +149,7 @@
                         <button type="button" class="round" [disabled]="!canStep(tfirst, tlast, bfirst, blast, 1)" [attr.aria-label]="i18n.t('week.taskDown')" [title]="i18n.t('week.taskDown')"
                                 (click)="$event.stopPropagation(); moveTask(day, block, ti, 1)">▼</button>
                         <button type="button" class="round push" [attr.aria-label]="i18n.t('week.taskActions') + ': ' + task.title" [title]="i18n.t('week.taskActions')"
-                                (click)="$event.stopPropagation(); openTask(day, block, task)">✎</button>
+                                (click)="$event.stopPropagation(); openTask(day, block, task)"><span class="pen" aria-hidden="true">✎</span></button>
                         <button type="button" class="round danger-x" [attr.aria-label]="i18n.t('week.deleteTask') + ': ' + task.title" [title]="i18n.t('week.deleteTask')"
                                 (click)="$event.stopPropagation(); deleteTask(day, block, task)">✕</button>
                       </span>
@@ -222,7 +222,7 @@
                         (click)="$event.stopPropagation(); todos.setDone(todo.id, todo.done === null, dates()[day])"><ng-container [ngTemplateOutlet]="stateIcon" [ngTemplateOutletContext]="{ $implicit: todo.done !== null ? 'done' : 'todo' }" /></button>
                 <span class="todo-title">{{ todo.title }}@if (late) { <small class="todo-from">{{ fromLabel(todo) }}</small> }</span>@if (todo.time) { <span class="todo-time">{{ todo.time }}</span> }
                 <button type="button" class="todo-edit" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
-                        (click)="$event.stopPropagation(); editTodo(todo, day)">✎</button>
+                        (click)="$event.stopPropagation(); editTodo(todo, day)"><span class="pen" aria-hidden="true">✎</span></button>
               </li>
             }
           </ul>
@@ -251,7 +251,7 @@
                     (click)="$event.stopPropagation(); trayCheck(item)"><ng-container [ngTemplateOutlet]="stateIcon" [ngTemplateOutletContext]="{ $implicit: item.checked ? 'done' : 'todo' }" /></button>
             <span class="todo-title">{{ todo.title }} <small class="todo-from">{{ item.label }}</small></span>@if (todo.time) { <span class="todo-time">{{ todo.time }}</span> }
             <button type="button" class="todo-edit" [attr.aria-label]="i18n.t('capture.edit') + ': ' + todo.title" [title]="i18n.t('capture.edit')"
-                    (click)="$event.stopPropagation(); editTodo(todo, store.today())">✎</button>
+                    (click)="$event.stopPropagation(); editTodo(todo, store.today())"><span class="pen" aria-hidden="true">✎</span></button>
           </li>
         }
       </ul>

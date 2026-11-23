@@ -1,7 +1,7 @@
 @let v = version();
 <section class="canvas-page" [attr.data-v]="v">
   <header class="page-header">
-    <h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')" (click)="pageMenu.toggle($event.currentTarget)">Canvas<span class="title-dot">✦</span><span class="title-chev" aria-hidden="true">⌄</span></button></h1>
+    <h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')" (click)="pageMenu.toggle($event.currentTarget)">Canvas<span class="title-dot">✦</span><span class="title-chev" aria-hidden="true"></span></button></h1>
     <!-- Everything saves by itself (Gianni): no Undo, Redo, Save or Discard. The activities with no place wait behind
          «Sin definir (N)», a small window (Gianni: not a box at the top of the Canvas); dropping an Activity on it takes its place away. -->
     <div class="toolbar">
@@ -42,7 +42,7 @@
           <div class="objects">
             @for (node of roots; track node.id) {
               <app-canvas-node [node]="node" [state]="state" [version]="v" [disabled]="saving"
-                [editId]="editId" [nameTpl]="editName" [bodyTpl]="editBody"
+                [editId]="editId" [nameTpl]="editName" [bodyTpl]="editBody" (remove)="remove()"
                 (drag)="startDrag($event)" (action)="act($event)" (add)="addChild($event)" />
             }
           </div>
@@ -97,7 +97,7 @@
   <ul class="undefined-list">
     @for (node of undefinedList; track node.id; let i = $index) {
       <li><app-canvas-node [node]="node" [state]="state" [version]="v" [disabled]="saving" [loose]="true" [toneOverride]="undefinedTone(i)"
-        [editId]="editId" [nameTpl]="editName" [bodyTpl]="editBody" (action)="act($event)" /></li>
+        [editId]="editId" [nameTpl]="editName" [bodyTpl]="editBody" (remove)="remove()" (action)="act($event)" /></li>
     } @empty {
       <li class="undefined-empty">{{ i18n.t('canvas.undefinedEmpty') }}</li>
     }
@@ -105,12 +105,12 @@
   <footer class="close-foot"><button type="button" class="primary close-pill" (click)="closeUndefined()">{{ i18n.t('nav.close') }}</button></footer>
 </dialog>
 
-<!-- An Activity's own card, grown in place (Gianni): only its name (a box with a thin teal edge) and Delete, which asks and
-     counts down like every delete. The name is kept as soon as its box is left. -->
+<!-- An Activity's own card, grown in place (Gianni): its name (a box with a thin teal edge), Eliminar at the top right
+     (it asks and counts down like every delete), and Cancelar and Aplicar at the foot: the name is kept only with Aplicar. -->
 <ng-template #editName let-node>
   <label class="card-name"><span class="sr-only">{{ i18n.t('canvas.name') }}</span>
-    <input [value]="editTitle" (input)="editTitle = $any($event.target).value" (blur)="commitTitle()"
-      (keydown.enter)="$event.preventDefault(); finishEdit()" autocomplete="off" enterkeyhint="done" /></label>
+    <input [value]="editTitle" (input)="editTitle = $any($event.target).value"
+      (keydown.enter)="$event.preventDefault(); applyEdit()" autocomplete="off" enterkeyhint="done" /></label>
 </ng-template>
 <!-- The window's own name (Epic, Feature, Story, or a Story's new Activity): no box at the top any more (Gianni); a tap on
      the name in its own box of the card turns it into a box with a thin teal edge right there, and a new one starts as that
@@ -122,7 +122,7 @@
         [placeholder]="i18n.t('canvas.name')" (keydown.enter)="$event.preventDefault(); $any($event.target).blur()" /></label>
   } @else {
     <button type="button" class="modal-name-btn" [disabled]="saving" [attr.aria-label]="i18n.t('canvas.rename') + ': ' + title"
-      (click)="openName()"><strong>{{ title }}<span class="edit-pen" aria-hidden="true">✎</span></strong></button>
+      (click)="openName()">@let t = tail(title);<strong>{{ t.head }}<span class="pen-tail">{{ t.tail }}<span class="pen title-pen" aria-hidden="true">✎</span></span></strong></button>
   }
 </ng-template>
 <!-- In the Undefined window the name lives in the place card's own ACTIVIDAD box (Gianni): a tap there renames it -->
@@ -141,9 +141,17 @@
         [optionsOf]="placeOptions" [newId]="NEW" [version]="version()" [disabled]="saving" (pick)="pickPlace($event)" />
       @if (cascadeIncomplete) { <p class="card-hint">{{ i18n.t('canvas.placeHint') }}</p> }
     }
-    <div class="card-actions">
-      <button type="button" class="card-delete" [disabled]="saving" (click)="remove()">{{ i18n.t('task.delete') }}</button>
-      @if (loose) { <button type="button" class="card-done" (click)="finishEdit()">✓ {{ i18n.t('task.done') }}</button> }
-    </div>
+    @if (loose) {
+      <div class="card-actions">
+        <button type="button" class="card-delete" [disabled]="saving" (click)="remove()">{{ i18n.t('task.delete') }}</button>
+        <button type="button" class="card-done" (click)="finishEdit()">✓ {{ i18n.t('task.done') }}</button>
+      </div>
+    } @else {
+      <!-- Cancelar on the left, Aplicar on the right (Gianni); Eliminar is at the card's top right -->
+      <div class="card-actions card-apply">
+        <button type="button" class="card-cancel" (click)="cancelEdit()">{{ i18n.t('task.cancel') }}</button>
+        <button type="button" class="card-ok" [disabled]="saving" (click)="applyEdit()">{{ i18n.t('canvas.apply') }}</button>
+      </div>
+    }
   </div>
 </ng-template>

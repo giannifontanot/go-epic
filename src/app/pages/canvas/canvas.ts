@@ -17,6 +17,7 @@ import { CanvasNode } from './canvas-node';
 import { CanvasLayout, CanvasState } from './canvas-state';
 import { PlaceCard, PlaceLevel, PlaceOption, PlacePick } from './place-card';
 import { PickItem, PickMenu } from './pick-menu';
+import { focusAtEnd, splitTail } from '../../core/text-tail';
 
 interface Drag {
   node: LibNode; x: number; y: number; currentX: number; currentY: number; source: HTMLElement;
@@ -384,7 +385,7 @@ export class Canvas implements DoCheck {
   }
   startEdit(node: LibNode): void {
     if (this.saving) return;
-    if (this.editId) { this.commitTitle(); this.endEdit(); }               // one card at a time
+    if (this.editId) this.leaveEdit();                                     // one card at a time
     const token = ++this.editToken;
     this.editId = node.id;
     this.editTitle = node.title;
@@ -413,10 +414,15 @@ export class Canvas implements DoCheck {
     this.mutate(() => this.state.edit(node.id, title));
     this.announcement = this.i18n.t('canvas.saved');
   }
-  /** ✓, a tap outside or Esc: the name is kept and the card shrinks back softly. */
-  async finishEdit(): Promise<void> {
+  /** Aplicar (or Enter): the name is kept and the card shrinks back softly. */
+  applyEdit(): Promise<void> { return this.finishEdit(true); }
+  /** Cancelar, Esc or a tap outside the card on the Canvas (Gianni: only Aplicar keeps the name): it shrinks back as it was. */
+  cancelEdit(): Promise<void> { return this.finishEdit(false); }
+  /** The card shrinks back softly; `keep` keeps its typed name (the Undefined window keeps it as soon as it is left). */
+  async finishEdit(keep = true): Promise<void> {
     if (!this.editId) return;
-    this.commitTitle();
+    if (keep) this.commitTitle();
+    else this.editTitle = this.editNode?.title ?? '';
     const token = ++this.editToken;
     const body = this.editElement()?.querySelector<HTMLElement>('.card-edit');
     if (body && !this.motion.reduced()) {
@@ -427,6 +433,12 @@ export class Canvas implements DoCheck {
     }
     if (token === this.editToken) this.endEdit();
   }
+  /** Another card or window opens: an open card on the Canvas drops what was not applied; one in the Undefined window keeps it. */
+  private leaveEdit(): void {
+    if (this.editInUndefined()) this.commitTitle();
+    this.endEdit();
+  }
+  private editInUndefined(): boolean { return !!this.editElement()?.closest('.undefined-window'); }
   /** Closes the card at once. */
   private endEdit(): void {
     if (!this.editId) return;
@@ -448,7 +460,7 @@ export class Canvas implements DoCheck {
     if (!card || !target || card.contains(target)) return;
     const window = target.closest('dialog');
     if (window && !window.contains(card)) return;
-    void this.finishEdit();
+    void this.finishEdit(this.editInUndefined());
   }
 
   /** Its whole place at once, as soon as the card's last level is chosen (area, Epic, Feature and Story; Gianni: never
@@ -482,7 +494,7 @@ export class Canvas implements DoCheck {
   editorClosing = false;
 
   open(kind: Kind, parentId: string | null = null, node?: LibNode, bare = false): void {
-    if (this.editId) { this.commitTitle(); this.endEdit(); }
+    if (this.editId) this.leaveEdit();
     this.editorClosing = false;
     this.modal = { kind, parentId, node, bare };
     this.title = node?.title || '';
@@ -495,10 +507,13 @@ export class Canvas implements DoCheck {
   }
   /** New activity (Gianni): just its name; it waits in Undefined until it gets its whole place. */
   newActivity(): void { this.open('task', null, undefined, true); }
-  /** A tap on the name in its own box of the card: it becomes the name box right there, ready to type (he tapped it). */
+  /** The window's name split for its ✎: the last word stays with the pencil, never the pencil alone on a line (Gianni). */
+  protected readonly tail = splitTail;
+  /** A tap on the name in its own box of the card: it becomes the name box right there, the cursor at its end, nothing
+   *  highlighted (Gianni). */
   openName(): void {
     this.nameOpen = true;
-    afterNextRender(() => { const box = this.modalNameBox()?.nativeElement; box?.focus(); box?.select(); }, { injector: this.injector });
+    afterNextRender(() => focusAtEnd(this.modalNameBox()?.nativeElement), { injector: this.injector });
   }
   addChild(node: LibNode): void { this.open(node.kind === 'feature' ? 'story' : 'task', node.id); }
   close(): void {
@@ -727,7 +742,7 @@ export class Canvas implements DoCheck {
     const yes = await this.asks.ask({ message: question, ok: this.i18n.t('task.delete'), danger: true,
       countdown: { message: this.i18n.t('undo.deleting', { name: node.title }), ids: [node.id], commit } });
     if (yes && this.modal?.node === node) this.close();
-    if (yes && this.editId === node.id) void this.finishEdit();
+    if (yes && this.editId === node.id) void this.finishEdit(false);
   }
 
   private mutate(action: () => void, excluded?: string): void {
@@ -864,7 +879,7 @@ export class Canvas implements DoCheck {
   }
 
   @HostListener('window:keydown.escape')
-  escape(): void { this.cancelDrag(); if (this.editId && !this.undefinedWindow()?.nativeElement.open) void this.finishEdit(); }
+  escape(): void { this.cancelDrag(); if (this.editId && !this.undefinedWindow()?.nativeElement.open) void this.cancelEdit(); }
 
   // --- Device preferences ---
 

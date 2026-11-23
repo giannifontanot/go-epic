@@ -76,6 +76,17 @@ select option { color:var(--card-ink); background:var(--light); }
 .card-hint { margin:8px 2px 0; font-size:12px; line-height:1.45; opacity:.8; }
 .card-actions { margin-top:10px; }
 .card-edit button.card-delete { flex:1; }
+/* Cancelar | Aplicar at the open card's foot (Gianni: not transparent; the Epic navy would be too dark there). A panel
+   (UI, colour, accessibility) chose solid fills that read on every card colour: Cancelar the Canvas's own cream with
+   navy ink and a fine navy edge (quiet, it changes nothing), Aplicar the app's teal with navy ink and a deeper teal edge
+   (the one action that keeps the name); both well over 7:1 for their words. */
+.card-apply { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.card-edit .card-apply button { min-height:44px; border-radius:999px; color:#101b42; font-size:15px; font-weight:700; box-shadow:0 1px 2px rgba(16,27,66,.18); }
+.card-edit .card-apply button.card-cancel { background:#fff4e9; border:1.5px solid rgba(16,27,66,.28); }
+.card-edit .card-apply button.card-cancel:hover:not(:disabled) { background:#ffffff; color:#101b42; }
+.card-edit .card-apply button.card-ok { background:#76e0d0; border:1.5px solid #3fae9d; }
+.card-edit .card-apply button.card-ok:hover:not(:disabled) { background:#8ae8da; color:#101b42; }
+.card-edit .card-apply button:focus-visible { outline:3px solid #101b42; outline-offset:2px; }
 
 @media (max-width:900px) { .objects { gap:20px; }
   .objects>app-canvas-node { width:100%; }.objects>app-canvas-node:nth-child(even) { margin-top:0; } }
@@ -98,7 +109,7 @@ select option { color:var(--card-ink); background:var(--light); }
   color:inherit; font:700 16px/1.32 Georgia,'Noto Serif',serif; }
 .leaf-name input:focus { outline:none; background:color-mix(in srgb,currentColor 14%,transparent); box-shadow:inset 0 -2px 0 currentColor; }
 @media (max-width:700px) { .undefined-window { padding-left:12px!important; padding-right:12px!important; }.undefined-list { padding:6px 0; } }
-/* The window's name lives in its own box of the card (Gianni): the name with a bold ✎, and once tapped a box with a thin
+/* The window's name lives in its own box of the card (Gianni): the name with its ✎, and once tapped a box with a thin
    teal edge in the card's own ink, kept only on Apply */
 .modal-name { display:block; }
 .modal-name input { display:block; width:100%; box-sizing:border-box; min-height:44px; margin:2px 0 0; padding:6px 10px; border:1.5px solid var(--teal); border-radius:10px;

@@ -51,7 +51,7 @@ export type { MenuAction };
       </button>
       @if (edit(); as action) {
         <button type="button" class="capture-fab act-fab edit-fab" [style.--i]="index().edit" [attr.aria-label]="action.label" [title]="action.label"
-                (click)="run(action.run)">✎</button>
+                (click)="run(action.run)"><span class="pen" aria-hidden="true">✎</span></button>
       }
       <!-- Ajustes, its own button on top (Gianni): language, weighted buttons, red time line -->
       <button type="button" class="capture-fab act-fab" [style.--i]="index().settings" [attr.aria-label]="i18n.t('settings.title')" [title]="i18n.t('settings.title')"

@@ -1,4 +1,5 @@
 import { Component, DestroyRef, ElementRef, Injector, TemplateRef, afterNextRender, inject, input, output, signal, viewChild, viewChildren } from '@angular/core';
+import { watchVisibleArea } from '../../core/viewport';
 import { NgTemplateOutlet } from '@angular/common';
 import { I18n } from '../../core/i18n';
 import { flyTiles } from '../../shared/fan';
@@ -70,7 +71,7 @@ const LEVELS: Record<'epic' | 'feature' | 'story' | 'task', PlaceLevel[]> = {
         <small>{{ i18n.t('canvas.' + level) }}</small>
         @let desc = label ? descOf()(level) : '';
         <strong [class.pc-empty]="!label">{{ label || i18n.t('canvas.toDefine') }}@if (desc) { <span class="area-desc">{{ desc }}</span> }</strong>
-        <span class="menu-chev" aria-hidden="true">⌄</span>
+        <span class="menu-chev" aria-hidden="true"></span>
       </button>
     </ng-template>
     <ng-template #leaf>
@@ -146,12 +147,10 @@ export class PlaceCard {
   constructor() {
     const follow = () => this.place();
     window.addEventListener('resize', follow);
-    window.visualViewport?.addEventListener('resize', follow);
-    window.visualViewport?.addEventListener('scroll', follow);
+    const unwatch = watchVisibleArea(follow);   // the keyboard included (core/viewport)
     inject(DestroyRef).onDestroy(() => {
       window.removeEventListener('resize', follow);
-      window.visualViewport?.removeEventListener('resize', follow);
-      window.visualViewport?.removeEventListener('scroll', follow);
+      unwatch();
       try { this.menu()?.nativeElement.hidePopover(); } catch { /* not shown */ }
     });
   }
