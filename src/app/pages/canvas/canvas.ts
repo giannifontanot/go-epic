@@ -2,7 +2,7 @@ import { Why } from '../../shared/why';
 import { ThemeService } from '../../core/theme';
 import { PageMenu } from '../../shared/title-fan';
 import { Ask } from '../../shared/ask';
-import { Component, DestroyRef, DoCheck, ElementRef, HostListener, Injector, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, DoCheck, ElementRef, HostListener, Injector, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { AuthService } from '../../core/auth.service';
@@ -17,6 +17,7 @@ import { CanvasNode } from './canvas-node';
 import { CanvasLayout, CanvasState } from './canvas-state';
 import { PlaceCard, PlaceLevel, PlaceOption, PlacePick } from './place-card';
 import { PickItem, PickMenu } from './pick-menu';
+import { focusAtEnd, splitTail } from '../../core/text-tail';
 
 interface Drag {
   node: LibNode; x: number; y: number; currentX: number; currentY: number; source: HTMLElement;
@@ -66,6 +67,7 @@ export class Canvas implements DoCheck {
   private owner: string | null | undefined;
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
+  private readonly cdr = inject(ChangeDetectorRef);
   private readonly themes = inject(ThemeService);
   private readonly editor = viewChild<ElementRef<HTMLDialogElement>>('editor');
   private readonly undefinedWindow = viewChild<ElementRef<HTMLDialogElement>>('undefinedWindow');
@@ -88,6 +90,9 @@ export class Canvas implements DoCheck {
   announcement = '';
   modal: Modal | null = null;
   title = '';
+  /** The window's name is open as a box (v55): only after a tap on its ✎, or from the start for something new. */
+  nameOpen = false;
+  protected readonly tail = splitTail;
   /** The window's name box is open in its card (a tap on the name; a new one starts open). */
   parentId = '';
   dragState?: Drag;
@@ -495,6 +500,7 @@ export class Canvas implements DoCheck {
     this.editorClosing = false;
     this.modal = { kind, parentId, node, bare };
     this.title = node?.title || '';
+    this.nameOpen = !node;
     const parent = node?.parentId ?? parentId;
     this.epicArea = kind === 'epic' ? (this.keyOf(parent) || (this.areaFilter === 'all' ? '' : this.areaFilter)) : '';
     this.fillCascade(parent);
@@ -508,6 +514,14 @@ export class Canvas implements DoCheck {
   caretToEnd(box: HTMLInputElement): void {
     const end = () => { if (document.activeElement === box) { const n = box.value.length; try { box.setSelectionRange(n, n); } catch { /* no selection */ } } };
     requestAnimationFrame(() => setTimeout(end, 0));
+  }
+  /** A tap on the name's ✎ (Gianni, v55): the name becomes its box at once, focused within the same tap (so the phone's
+   *  keyboard comes up), the cursor at its end, nothing highlighted. */
+  openName(): void {
+    if (this.saving) return;
+    this.nameOpen = true;
+    this.cdr.detectChanges();
+    focusAtEnd(this.editor()?.nativeElement.querySelector<HTMLInputElement>('.modal-name input'));
   }
   addChild(node: LibNode): void { this.open(node.kind === 'feature' ? 'story' : 'task', node.id); }
   close(): void {
