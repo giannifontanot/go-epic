@@ -27,12 +27,12 @@ export class ThemePicker {
  * The themes (Gianni): the edit bar's Themes button fans the ten themes out of it into two straight columns of
  * five square tiles (the dark themes on the left, the light ones on the right, each row one family; they never lean), each a little picture of the theme in its own colours, which never change
  * with the theme that is on; a tap on a tile puts that theme on behind and opens its palette window (Gianni): only the
- * palettes (a tap shows one at once) and Only the edge below them, then OK, which keeps the theme, its palette and its
+ * palettes (a tap shows one at once), Only the edge, the red time line and the red countdown bar below them, then OK, which keeps the theme, its palette and its
  * edge and closes everything (the window, the themes and the menu they came from). Closing the window without OK (×,
  * Esc, the backdrop) puts back what was kept and leaves the themes open. A tap outside, Esc or the button again draws
  * the themes back into it. Under reduced motion they simply appear
  * and go. Drawn by the App, outside the page (a grey theme's filter on the page would move and grey the tiles), under
- * the button as far as the screen allows. Ajustes holds the language, the weighted buttons and the red time line.
+ * the button as far as the screen allows. Ajustes holds the language and the weighted buttons.
  */
 @Component({
   selector: 'app-theme-fan',
@@ -82,6 +82,21 @@ export class ThemePicker {
           <small>{{ i18n.t('palette.edgeHint') }}</small>
         </span>
       </label>
+      <!-- the time line and the countdown bar on the Week board: red, or with the theme (Gianni, v66: moved here from Ajustes) -->
+      <label class="setting-row">
+        <input type="checkbox" class="setting-check" [checked]="look.redLine()" (change)="look.redLine.set($any($event.target).checked)" />
+        <span class="setting-text">
+          <strong><span class="red-sample" aria-hidden="true"></span>{{ i18n.t('settings.redLine') }}</strong>
+          <small>{{ i18n.t('settings.redHint') }}</small>
+        </span>
+      </label>
+      <label class="setting-row">
+        <input type="checkbox" class="setting-check" [checked]="look.redCountdown()" (change)="look.redCountdown.set($any($event.target).checked)" />
+        <span class="setting-text">
+          <strong><span class="countdown-sample" aria-hidden="true"></span>{{ i18n.t('settings.redCountdown') }}</strong>
+          <small>{{ i18n.t('settings.redHint') }}</small>
+        </span>
+      </label>
       <footer class="settings-foot">
         <button type="button" class="primary btn-apply palette-ok" (click)="ok()">OK</button>
       </footer>
@@ -109,7 +124,7 @@ export class ThemeFan {
   protected readonly palettes = PALETTES;
   private readonly paletteWindow = viewChild.required<ElementRef<HTMLDialogElement>>('paletteWindow');
   /** What was kept before a tile was tapped, put back if the window closes without OK; null while it is shut. */
-  private kept: { theme: Theme; palettes: ReturnType<PaletteService['snapshot']> } | null = null;
+  private kept: { theme: Theme; palettes: ReturnType<PaletteService['snapshot']>; redLine: boolean; redCountdown: boolean } | null = null;
   protected chosen() { return paletteFor(this.look.theme(), this.palette.palettes()); }
   protected ownPalette(): string { return defaultPalette(this.look.theme()); }
   protected edge(): boolean { return edgeFor(this.look.theme(), this.palette.edges()); }
@@ -132,7 +147,7 @@ export class ThemeFan {
   /** A tile: the theme goes on behind (not kept yet) and its palette window opens. */
   protected choose(theme: Theme): void {
     if (this.kept || this.closing) return;
-    this.kept = { theme: this.look.theme(), palettes: this.palette.snapshot() };
+    this.kept = { theme: this.look.theme(), palettes: this.palette.snapshot(), redLine: this.look.redLine(), redCountdown: this.look.redCountdown() };
     this.look.preview(theme);
     openDialog(this.paletteWindow().nativeElement, { escape: false });
   }
@@ -154,6 +169,8 @@ export class ThemeFan {
     this.kept = null;
     this.palette.restore(kept.palettes);
     this.look.set(kept.theme);
+    this.look.redLine.set(kept.redLine);
+    this.look.redCountdown.set(kept.redCountdown);
     void closeDialog(this.paletteWindow().nativeElement);
   }
 
