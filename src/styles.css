@@ -2125,7 +2125,7 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
 .levels-window .settings-head { flex: none; }
 .levels-hint { flex: none; margin: 10px 0 0; color: var(--ink-soft); font-size: 14px; line-height: 1.4; }
 .levels-window .levels-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin-top: 12px; padding: 2px; display: grid; gap: 10px; align-content: start; overscroll-behavior: contain; }
-.levels-row { grid-template-areas: 'name tick' 'words tick'; }
+.palette-row.levels-row { grid-template-areas: 'name tick' 'words tick'; }
 .levels-words { grid-area: words; font-size: 15px; line-height: 1.4; color: var(--ink); text-align: left; }
 .levels-window .levels-foot { flex: none; margin-top: 14px; display: flex; justify-content: flex-end; gap: 10px; }
 .levels-window .levels-foot button { min-height: 48px; min-width: 110px; }
