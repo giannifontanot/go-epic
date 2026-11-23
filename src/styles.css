@@ -685,19 +685,37 @@ dialog.info-card.track-grid[open] { display: flex; flex-direction: column; overf
 /* Starter template preview: a Feature renamed from its old name (Canvas) */
 .template-tree .renamed { display: block; color: var(--accent-text, var(--jelly-b)); font-size: 12px; font-style: normal; }
 
-/* Canvas: the Epic tabs start with a fixed yellow "EPICS:" label, as tall as the tabs, so the scrolling row reads as the Epics (Gianni) */
-.epic-strip { display: flex; align-items: stretch; gap: 0; padding-left: 16px; flex-shrink: 0; }
-.epic-strip .epic-tabs { flex: 1; min-width: 0; padding-left: 8px; }
-.epics-label { flex: none; align-self: stretch; display: flex; align-items: center; margin: 8px 0 14px; padding: 0 14px; border-radius: 16px; background: var(--jelly-b);
-  color: var(--jelly-ink); font-size: 13px; font-weight: 900; letter-spacing: .08em; white-space: nowrap; }
-/* Each Epic tab carries its own ✎ (edit) in the top-right corner; "+ Epic" ends the row */
-.epic-tab { position: relative; flex-shrink: 0; display: flex; }
-.epic-tab > button[role='tab'] { padding-right: 40px !important; }
-.epic-edit { position: absolute; top: 2px; right: 2px; width: 40px; min-width: 40px !important; max-width: 40px; height: 40px; min-height: 40px !important; padding: 0 !important; border-radius: 0 16px 0 16px !important;
+/* Canvas: the Epics are real folder tabs (Gianni). «Epics» names the row above it; the open tab is the folder's own
+   colour (the plum panel's top) and runs into it, a line in the theme's primary colour along its top and its foot
+   flaring into the folder's edge; the others sit a little lower and quieter, behind it. Each tab carries its own ✎ in
+   its top-right corner; "+ Epic" ends the row, which scrolls sideways. */
+.epics-title { margin: 2px 4px 6px; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
+.epic-tabs { display: flex; align-items: flex-end; gap: 4px; padding: 0 16px 0 0; overflow-x: auto; overflow-y: hidden; flex-shrink: 0; scrollbar-width: none; }
+.epic-tabs::-webkit-scrollbar { display: none; }
+.epic-tab { position: relative; flex-shrink: 0; display: flex; min-width: 110px; max-width: 240px; border-radius: 16px 16px 0 0;
+  background: color-mix(in srgb, var(--plum-a) 42%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 14%, transparent);
+  translate: 0 4px; transition: background .3s, translate .3s cubic-bezier(.2, 0, 0, 1), box-shadow .3s; }
+.epic-tab.open { z-index: 1; background: var(--plum-a); translate: 0 0; box-shadow: inset 0 3px 0 var(--pink); }
+.epic-tab.open::before, .epic-tab.open::after { content: ''; position: absolute; bottom: 0; width: 14px; height: 14px; pointer-events: none; }
+.epic-tab.open::before { left: -14px; background: radial-gradient(circle at 0 0, transparent 13.5px, var(--plum-a) 14px); }
+.epic-tab.open::after { right: -14px; background: radial-gradient(circle at 100% 0, transparent 13.5px, var(--plum-a) 14px); }
+.epic-tab:not(.open):hover { background: color-mix(in srgb, var(--plum-a) 62%, transparent); }
+.epic-tab > button[role='tab'] { flex: 1; min-width: 0; min-height: 46px; margin: 0; padding: 10px 40px 10px 15px; border-radius: 16px 16px 0 0; background: transparent !important;
+  color: var(--ink-soft); text-align: left; transition: color .3s; }
+.epic-tab > button[role='tab'] > span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.epic-tab.open > button[role='tab'] { color: var(--ink); }
+.epic-tab > button[role='tab']:hover:not(:disabled) { color: var(--ink); }
+.epic-edit { position: absolute; top: 3px; right: 2px; width: 40px; min-width: 40px !important; max-width: 40px; height: 40px; min-height: 40px !important; padding: 0 !important; border-radius: 50% !important;
   background: transparent !important; color: var(--ink-soft) !important; font-size: 16px; }
-.epic-tab > .active + .epic-edit { color: var(--jelly-ink) !important; }
-.epic-edit:hover:not(:disabled) { background: rgba(255, 255, 255, .16) !important; }
-.epic-add { flex-shrink: 0; align-self: center; border: 1.5px dashed rgba(255, 244, 233, .35) !important; background: transparent !important; white-space: nowrap; }
+.epic-tab.open > .epic-edit { color: var(--ink) !important; }
+.epic-edit:hover:not(:disabled) { background: color-mix(in srgb, var(--ink) 12%, transparent) !important; }
+.epic-add { flex-shrink: 0; align-self: center; margin-left: 8px !important; border: 1.5px dashed color-mix(in srgb, var(--ink) 35%, transparent) !important; background: transparent !important; white-space: nowrap; }
+/* The folder: square where the first tab runs into it */
+.epic-tabs:has(> .epic-tab.open:first-child) + .epic-objects { border-top-left-radius: 0; }
+.dragging .epic-tab:not(.open) { outline: 1.5px dashed color-mix(in srgb, var(--ink) 40%, transparent); outline-offset: -3px; }
+/* The tabs belong to their folder: they never lean off it */
+html.tilt .epic-tabs .epic-tab button { rotate: none; translate: none; }
+@media (prefers-reduced-motion: reduce) { .epic-tab, .epic-tab > button[role='tab'] { transition: none; } }
 
 /* Weighted buttons (core/tilt.ts): the root's --tilt-r / --tilt-k glide (registered, so they can transition, with a
    little bounce when they spring back) and every button follows through rotate/translate, never its own transform. Each
@@ -711,7 +729,7 @@ html.tilt button:not(.yr-cell) { rotate: var(--tilt-r);
 /* Everything has weight (Gianni): blocks, day columns, cards, titles and texts, fields, notes, habits and Canvas
    objects lean and slide too, less than the buttons since they nest (a title leans inside its leaning card, inside its
    leaning block). TILT_BODIES in tilt.ts lists the same elements. */
-html.tilt :is(.block, .task, .now-card, .habit, .capture-list li, .epics-label, .object, .pc-feature, .pc-story, .pc-activity, .day, .field, .min-chip, input:not([type=radio]), select:not(.pc-head > select), .todo-note, .todo-strip, .stepper, .linked-chip) {
+html.tilt :is(.block, .task, .now-card, .habit, .capture-list li, .object, .pc-feature, .pc-story, .pc-activity, .day, .field, .min-chip, input:not([type=radio]), select:not(.pc-head > select), .todo-note, .todo-strip, .stepper, .linked-chip) {
   rotate: calc(var(--tilt-r) * .3);
   translate: calc((max(var(--tilt-k), 0) * var(--tilt-rr, 0px) + min(var(--tilt-k), 0) * var(--tilt-rl, 0px)) * .55) var(--tilt-y, 0px); }
 html.tilt .task.done { --tilt-y: 4px; }
@@ -720,7 +738,7 @@ html.tilt :is(h1, h2, .t-title, .t-time, .t-dur, .summary, .free, .hint, .eyebro
 html.tilt article.day { rotate: calc(var(--tilt-r) * .12); }   /* a whole day column is tall: it leans less, so its foot never swings off the screen */
 /* A Canvas object keeps its place on this device (--ox / --oy, canvas-node) and adds the slide to it */
 html.tilt .object { translate: calc(var(--ox, 0px) + (max(var(--tilt-k), 0) * var(--tilt-rr, 0px) + min(var(--tilt-k), 0) * var(--tilt-rl, 0px)) * .55) var(--oy, 0px); }
-@media (prefers-reduced-motion: reduce) { html.tilt :is(button, .block, .task, .now-card, .habit, .capture-list li, .epics-label, .pc-feature, .pc-story, .pc-activity, .day, .field, .min-chip, input:not([type=radio]), select:not(.pc-head > select), .todo-note, .todo-strip, .stepper, .linked-chip, h1, h2, .t-title, .t-time, .t-dur, .summary, .free, .hint, .eyebrow) { rotate: none; translate: none; }
+@media (prefers-reduced-motion: reduce) { html.tilt :is(button, .block, .task, .now-card, .habit, .capture-list li, .pc-feature, .pc-story, .pc-activity, .day, .field, .min-chip, input:not([type=radio]), select:not(.pc-head > select), .todo-note, .todo-strip, .stepper, .linked-chip, h1, h2, .t-title, .t-time, .t-dur, .summary, .free, .hint, .eyebrow) { rotate: none; translate: none; }
   html.tilt .object { rotate: none; translate: var(--ox, 0px) var(--oy, 0px); } }
 
 
@@ -1705,6 +1723,7 @@ html:is([data-theme='squeezeme'], [data-theme='pinkpop'], [data-theme='sunburnt'
    gold round the blocks, a hairline round the cards; the day's round buttons, the Track box and the free-time stripes
    are drawn darker so they read on the light greys */
 html[data-theme='goepiclight'] .day { box-shadow: 0 0 0 1px rgba(16, 27, 66, .12), 0 6px 16px var(--g-shadow); }
+html[data-theme='goepiclight'] .epic-objects { box-shadow: 0 0 0 1px rgba(16, 27, 66, .12), 0 6px 16px var(--g-shadow); }   /* the folder on the near-white page */
 html[data-theme='goepiclight'] .task:not(.done):not([data-status='late']) { box-shadow: 0 0 0 1px rgba(16, 27, 66, .24), 0 5px 0 rgba(48, 39, 70, .25); }
 html[data-theme='goepiclight'] .day-head .round { border-color: color-mix(in srgb, var(--ink) 35%, transparent); }
 html[data-theme='goepiclight'] .t-track input { border-color: #5f5c69; }
