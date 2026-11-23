@@ -7,7 +7,7 @@ import { DARK_THEMES, LIGHT_THEMES, THEME_BAR, Theme, ThemeService } from '../..
 import { PageMenu } from '../../shared/title-fan';
 
 /** The cards, in the order a new user sets Go Epic up (Gianni: what comes first, what to make sure of, what to watch). */
-export const GUIDE_SLIDES = ['welcome', 'areas', 'epics', 'levels', 'undefined', 'week', 'today', 'capture', 'progress', 'year', 'delete', 'themes'] as const;
+export const GUIDE_SLIDES = ['welcome', 'areas', 'epics', 'levels', 'undefined', 'plan', 'week', 'today', 'capture', 'progress', 'year', 'delete', 'themes'] as const;
 export type GuideSlide = (typeof GUIDE_SLIDES)[number];
 
 /** Each theme's accent, for the little theme tiles drawn on the last card (its `--pink` in styles.css). */
