@@ -1795,7 +1795,7 @@ html[data-theme='graphite'] .board > .overdue-tray { --tray-edge: #d27870; --tra
 .foot-countdown-fill { display: block; height: 100%; margin-left: auto; background: var(--countdown); transition: width .6s ease; }
 /* what it pushes up: the folder sits on it, 💡 Capture rises by its height, the four squares fade away */
 .overdue-tray { transition: transform .9s cubic-bezier(.4, 0, .2, 1); }
-html.countdown-up .overdue-tray { transform: translateY(calc(-1 * var(--foot-h))); }
+html.countdown-up .overdue-tray { transform: translateY(calc(-1 * var(--foot-h))); max-height: calc(100dvh - 12px - var(--foot-h)); }   /* its tab stays on screen */
 /* 💡 rises by a margin (not translate or transform: the weighted buttons' tilt and its .away scale own those) */
 .idea-fab { margin-bottom: 0; transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .28s ease, visibility 0s, margin-bottom .9s cubic-bezier(.4, 0, .2, 1); }
 .idea-fab.away { transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .28s ease, visibility 0s .34s, margin-bottom .9s cubic-bezier(.4, 0, .2, 1); }
