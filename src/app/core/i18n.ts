@@ -99,6 +99,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'palette.squeezeme': { en: 'Clear Sky', es: 'Cielo claro' },
   'palette.sunburnt': { en: 'Sunburnt Toast', es: 'Sunburnt Toast' },
   'palette.petalpunk': { en: 'Pinks', es: 'Rosas' },
+  'palette.lightroses': { en: 'Light Roses', es: 'Rosas Claros' },
   'palette.smokedcitrus': { en: 'Oranges', es: 'Naranjas' },
   'palette.office': { en: 'Office', es: 'Oficina' },
   'palette.graphite': { en: 'Graphite', es: 'Grafito' },

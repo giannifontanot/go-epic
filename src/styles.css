@@ -52,7 +52,7 @@ button:disabled { opacity: .4; cursor: default; }
 .round { display: inline-grid; place-items: center; width: var(--tap); height: var(--tap); min-width: 0; padding: 0; aspect-ratio: 1;
   border: 1.5px solid color-mix(in srgb, var(--jelly-ink) 45%, transparent); border-radius: 50%;
   background: color-mix(in srgb, #fff4e9 55%, var(--tone, var(--jelly-b))); color: var(--jelly-ink); font-size: calc(var(--tap) * .4); line-height: 1; }
-.round:hover:not(:disabled) { border-color: #0d9488; color: #0d9488; }
+@media (hover: hover) { .round:hover:not(:disabled) { border-color: #0d9488; color: #0d9488; } }   /* never sticks after a tap on a phone */
 .day-head .round { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .3); color: var(--ink); }
 
 /* App navigation: no ☰ any more (Gianni); the pages are in the action menu (shared/page-fan) */
@@ -1214,7 +1214,7 @@ button.t-state:focus-visible { outline: 3px solid var(--teal); outline-offset: 3
 
 /* Every task note keeps its ✎ (40px); an overdue one (rolled over from an earlier day) has a red edge and says its day */
 .todo-edit { flex: none; width: 40px; height: 40px; min-height: 40px; padding: 0; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .55);
-  color: #3b2c0b; font-size: 16px; }
+  color: inherit; font-size: 16px; }   /* its ✎ wears the note's own ink (v57) */
 .todo-note.overdue { box-shadow: inset 4px 0 0 #dc2626, 0 3px 8px rgba(0, 0, 0, .25); }
 .todo-from { display: block; font-size: 11px; font-weight: 700; color: #b91c1c; }
 .c-when.late { color: #b91c1c; opacity: 1; }
@@ -2196,3 +2196,15 @@ html[data-theme='goepiclight'] .palette-suggested { color: #1d1d1f; }
 .canvas-page .undefined-btn .count-dot { position:absolute; right:8px; top:50%; translate:0 -50%; }
 .canvas-page .undefined-btn.drop-hot { outline:3px solid var(--ink); outline-offset:3px; }
 .undefined-window button.undefined-new { display:block; margin:0 0 10px; }
+
+/* Every edit ✎ wears the very ink of the text it opens (Gianni, v57): the pencil never has a tone of its own, and a tap on
+   a phone leaves no hover colour behind (the hover rules above only apply where there is a mouse). A ✎ inside a name
+   (Canvas titles, the Epic, the window's name) already takes that name's colour; a ✎ button on a card or a note takes
+   the card's or the note's ink, which is its title's. */
+.pen { color: inherit; opacity: 1; }
+.task .t-tools .round:has(> .pen), .task .t-tools .round:has(> .pen):hover:not(:disabled) { color: inherit; }
+.capture-list li .c-icon:has(> .pen) { color: inherit; }
+.capture-list.finished .c-icon:has(> .pen) .pen { opacity: .7; }   /* as faint as the finished task's name */
+html[data-theme='graphite'] .task:not(.done):not(.off) .t-tools .round:has(> .pen) { color: var(--act-ink) !important; }
+html[data-theme='graphite'] :is(.todo-note, .capture-list:not(.finished) li) :is(.todo-edit, .c-icon:has(> .pen)) { color: #1f2226 !important; }
+html[data-auto-ink] .task .t-tools .round:has(> .pen) { background-color: color-mix(in srgb, var(--act-ink) 12%, var(--tone, transparent)); }   /* its ink, like the title's, reads on the card's own colour */
