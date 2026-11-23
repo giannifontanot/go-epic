@@ -563,6 +563,7 @@ export class Canvas implements DoCheck {
     for (const below of levels.slice(index + 1)) { cascade[below] = ''; if (below !== 'area') newName[below] = ''; }
     this.cascade = cascade;
     this.newName = newName;
+    if (this.modal?.kind === 'epic') this.epicArea = cascade.area as LifeArea;   // an Epic's place is only its area
     this.bump();
     if (!this.modal && this.editNode && !this.cascadeIncomplete) this.applyMove();
   }
@@ -584,7 +585,8 @@ export class Canvas implements DoCheck {
     this.cascade = { area: '', epic: '', feature: '', story: '' };
     this.newName = { epic: '', feature: '', story: '' };
     const m = this.subject;
-    if (!m || m.kind === 'epic' || m.kind === 'area') return;
+    if (m?.kind === 'epic') { this.cascade.area = this.epicArea; return; }   // its ÁREA line on the place card
+    if (!m || m.kind === 'area') return;
     const chain: LibNode[] = [];
     for (let id = parentId, guard = 0; id && guard < 10; guard++) {
       const node = this.state.node(id);

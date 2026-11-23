@@ -10,7 +10,8 @@ export interface PlaceOption { id: string; title: string; desc?: string; }
 export interface PlacePick { level: PlaceLevel; id: string; name?: string; }
 
 /** The levels above each object, in order (an Activity sits in a Story, a Story in a Feature, a Feature in an Epic). */
-const LEVELS: Record<'feature' | 'story' | 'task', PlaceLevel[]> = {
+const LEVELS: Record<'epic' | 'feature' | 'story' | 'task', PlaceLevel[]> = {
+  epic: ['area'],
   feature: ['area', 'epic'],
   story: ['area', 'epic', 'feature'],
   task: ['area', 'epic', 'feature', 'story'],
@@ -32,8 +33,14 @@ const LEVELS: Record<'feature' | 'story' | 'task', PlaceLevel[]> = {
     <div class="pick-card place-card" role="group" [attr.aria-label]="i18n.t('task.where')">
       <span class="pc-epic">
         <ng-container *ngTemplateOutlet="line; context: { level: 'area' }" />
-        <ng-container *ngTemplateOutlet="line; context: { level: 'epic' }" />
+        @if (kind === 'epic') {
+          <!-- an Epic comes from its area (Gianni): ÁREA on top, the Epic itself under it on the same plum card -->
+          <ng-container *ngTemplateOutlet="leaf" />
+        } @else {
+          <ng-container *ngTemplateOutlet="line; context: { level: 'epic' }" />
+        }
       </span>
+      @if (kind !== 'epic') {
       <span class="pc-nest">
         <span class="pc-feature">
           @if (kind === 'feature') {
@@ -53,6 +60,7 @@ const LEVELS: Record<'feature' | 'story' | 'task', PlaceLevel[]> = {
           }
         </span>
       </span>
+      }
     </div>
 
     <ng-template #line let-level="level">
@@ -109,8 +117,8 @@ export class PlaceCard {
   private readonly fanBox = viewChild<ElementRef<HTMLElement>>('fanBox');
   private readonly tiles = viewChildren<ElementRef<HTMLElement>>('tile');
 
-  /** What is being placed: an Activity (four levels above it), a Story (three) or a Feature (two). */
-  readonly leafKind = input.required<'feature' | 'story' | 'task'>();
+  /** What is being placed: an Activity (four levels above it), a Story (three), a Feature (two) or an Epic (its area). */
+  readonly leafKind = input.required<'epic' | 'feature' | 'story' | 'task'>();
   readonly leafTitle = input('');
   /** What the object's own box holds instead of its title, when the page lets it be renamed right there (its name box). */
   readonly leafTpl = input<TemplateRef<unknown> | null>(null);

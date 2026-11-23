@@ -59,9 +59,10 @@ select option { color:var(--card-ink); background:var(--light); }
 /* An Activity's own card, grown in place (Gianni: the Canvas card itself, not a window). Everything inside is drawn in the
    card's own ink (currentColor), so it reads on every theme's card, light or dark, filled or edge-only. */
 .card-name { display:block; }
-.card-name input { width:100%; box-sizing:border-box; min-height:44px; padding:8px 10px; border:1.5px solid color-mix(in srgb,currentColor 35%,transparent);
+/* its name box has a thin teal edge (Gianni), so it reads as the one thing to change */
+.card-name input { width:100%; box-sizing:border-box; min-height:44px; padding:8px 10px; border:1.5px solid var(--teal);
   border-radius:12px; background:color-mix(in srgb,currentColor 8%,transparent); color:inherit; font:inherit; font-size:16px; font-weight:600; }
-.card-name input:focus-visible { outline:3px solid color-mix(in srgb,currentColor 55%,transparent); outline-offset:1px; }
+.card-name input:focus-visible { outline:none; box-shadow:0 0 0 2px var(--teal); }
 .card-edit { padding:4px 2px 0; }
 .card-actions { display:flex; gap:8px; }
 .card-edit button:not(.swatch) { min-height:44px; padding:8px 14px; border:1.5px solid color-mix(in srgb,currentColor 30%,transparent);
@@ -74,7 +75,7 @@ select option { color:var(--card-ink); background:var(--light); }
 /* The place card inside the open card (Gianni: the Canvas's own card); its hint is in the card's ink */
 .card-edit app-place-card { display:block; margin:10px 0 0; }
 .card-hint { margin:8px 2px 0; font-size:12px; line-height:1.45; opacity:.8; }
-.card-actions { margin-top:12px; }
+.card-actions { margin-top:10px; }
 .card-edit button.card-delete { flex:1; }
 
 @media (max-width:900px) { .objects { gap:20px; }

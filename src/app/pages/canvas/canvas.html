@@ -69,15 +69,10 @@
     <form (submit)="$event.preventDefault(); submit()">
       <label class="field">{{ i18n.t('canvas.name') }}
         <input [value]="title" (input)="title = $any($event.target).value" autocomplete="off" /></label>
-      @if (m.kind === 'epic') {
-        <label class="field">{{ i18n.t('canvas.area') }}
-          <select (change)="epicArea = $any($event.target).value">
-            <option value="" disabled [selected]="!epicArea">{{ i18n.t('canvas.choose') }}</option>
-            @for (area of lifeAreaKeys; track area) { <option [value]="area" [selected]="area === epicArea">{{ i18n.t('area.' + area) }}</option> }
-          </select></label>
-      } @else if (m.kind !== 'area' && !m.bare) {
+      @if (m.kind !== 'area' && !m.bare) {
         <!-- Its place on the Canvas's own card (Gianni): each level reads «Por definir» until it is tapped and chosen,
-             or named new, in its floating menu; half a place is never applied. -->
+             or named new, in its floating menu; half a place is never applied. An Epic shows its ÁREA on top, whose
+             floating menu moves it to another area. -->
         <app-place-card [leafKind]="$any(m.kind)" [leafTitle]="title.trim() || i18n.t(m.kind === 'task' ? 'task.newTitle' : 'canvas.' + m.kind)"
           [value]="cascade" [labelOf]="placeLabel" [descOf]="placeDesc" [optionsOf]="placeOptions" [newId]="NEW" [version]="v" [disabled]="saving" (pick)="pickPlace($event)" />
       }
@@ -115,8 +110,8 @@
   <footer class="close-foot"><button type="button" class="primary close-pill" (click)="closeUndefined()">{{ i18n.t('nav.close') }}</button></footer>
 </dialog>
 
-<!-- An Activity's own card, grown in place (Gianni): its name, its place and Delete. Everything is kept at once; the name
-     as soon as its box is left, the place once all four levels are chosen. -->
+<!-- An Activity's own card, grown in place (Gianni): only its name (a box with a thin teal edge) and Delete, which asks and
+     counts down like every delete. The name is kept as soon as its box is left. -->
 <ng-template #editName let-node>
   <label class="card-name"><span class="sr-only">{{ i18n.t('canvas.name') }}</span>
     <input [value]="editTitle" (input)="editTitle = $any($event.target).value" (blur)="commitTitle()"
@@ -130,11 +125,14 @@
 </ng-template>
 <ng-template #editBody let-node let-loose="loose">
   <div class="card-edit" [class.loose]="loose">
-    <!-- Its place, on the Canvas's own card (Gianni: no colours here, no Move): each level reads «Por definir» until it is
-         tapped and chosen in its floating menu; it is saved as soon as all four are chosen, never half placed. -->
-    <app-place-card leafKind="task" [leafTitle]="editTitle.trim() || node.title" [leafTpl]="loose ? leafName : null" [value]="cascade" [labelOf]="placeLabel" [descOf]="placeDesc"
-      [optionsOf]="placeOptions" [newId]="NEW" [version]="version()" [disabled]="saving" (pick)="pickPlace($event)" />
-    @if (cascadeIncomplete) { <p class="card-hint">{{ i18n.t('canvas.placeHint') }}</p> }
+    <!-- Only in the Undefined window, where an Activity gets its place, does it show the place card (each level «Por definir»
+         until chosen in its floating menu; saved once all four are chosen). On the Canvas its place is already all around
+         it (Gianni), so the open card holds only its name box and Delete. -->
+    @if (loose) {
+      <app-place-card leafKind="task" [leafTitle]="editTitle.trim() || node.title" [leafTpl]="leafName" [value]="cascade" [labelOf]="placeLabel" [descOf]="placeDesc"
+        [optionsOf]="placeOptions" [newId]="NEW" [version]="version()" [disabled]="saving" (pick)="pickPlace($event)" />
+      @if (cascadeIncomplete) { <p class="card-hint">{{ i18n.t('canvas.placeHint') }}</p> }
+    }
     <div class="card-actions">
       <button type="button" class="card-delete" [disabled]="saving" (click)="remove()">{{ i18n.t('task.delete') }}</button>
       @if (loose) { <button type="button" class="card-done" (click)="finishEdit()">✓ {{ i18n.t('task.done') }}</button> }
