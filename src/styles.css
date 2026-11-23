@@ -1254,7 +1254,9 @@ body:has(.board.locked.spot)::before { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .block-body { transition: none; } .block-body:not(.closed) > .block-inner { overflow: visible; } }
 
 /* Each block's own fold, in its header beside ✕ (Gianni) */
-.block-fold { font-size: 18px; font-weight: 800; line-height: 1; }   /* — open (tap to shrink), □ folded (tap to open) */
+.block-fold { font-size: 18px; font-weight: 800; line-height: 1; }   /* a narrow rectangle open (tap to shrink), □ folded (tap to open) */
+/* The open block's fold sign (Gianni): a narrow outlined rectangle, never a dash, which read as subtract or delete */
+.block-fold .fold-bar { display: block; width: 16px; height: 7px; border: 2px solid currentColor; border-radius: 2px; box-sizing: border-box; }
 /* The time range: a soft grey dash, so the two hours read easily */
 .summary .dash { margin: 0 .25em; color: rgba(54, 38, 67, .45); font-weight: 400; }
 /* Capture: when the keyboard moves the visible screen, the panel follows smoothly instead of jumping */
