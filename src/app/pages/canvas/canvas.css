@@ -46,12 +46,6 @@ select option { color:var(--card-ink); background:var(--light); }
 
 /* The action dialog (global dialog.editor gives the navy card) */
 .canvas-editor .field input,.canvas-editor .field select { max-width:none; border-radius:12px; }
-.cascade { border:0; padding:0; margin:0 0 4px; min-width:0; }
-.cascade legend { padding:0; margin-bottom:10px; font-size:13px; font-weight:700; }
-.cascade label { display:grid; grid-template-columns:4.8em minmax(0,1fr); align-items:center; gap:10px; margin-bottom:10px; font-size:13px; }
-.new-name input { width:100%; min-height:44px; padding:9px 12px; border:1px solid rgba(255,255,255,.2); border-radius:12px; background:var(--page); color:var(--ink); font-size:16px; box-sizing:border-box; }
-.cascade label.new-name { display:block; margin:-4px 0 12px calc(4.8em + 10px); }
-.cascade select { max-width:none; min-width:0; min-height:44px; padding:9px 10px; border:1px solid rgba(255,255,255,.2); border-radius:12px; background:var(--page); font-size:16px; }
 .arrange-actions { display:flex; gap:8px; margin-bottom:6px; }
 .canvas-editor .hint { color:var(--ink-soft); font-size:12px; line-height:1.6; }
 .canvas-editor footer button { min-height:42px; padding:9px 16px; font-size:14px; }
@@ -63,33 +57,19 @@ select option { color:var(--card-ink); background:var(--light); }
   border-radius:12px; background:color-mix(in srgb,currentColor 8%,transparent); color:inherit; font:inherit; font-size:16px; font-weight:600; }
 .card-name input:focus-visible { outline:3px solid color-mix(in srgb,currentColor 55%,transparent); outline-offset:1px; }
 .card-edit { padding:4px 2px 0; }
-.card-colors { margin:10px 0 12px !important; }
-.card-colors .swatch { border:2px solid color-mix(in srgb,currentColor 30%,transparent); min-height:0; padding:0; }
-.card-colors .swatch.on { border-color:currentColor; box-shadow:0 0 0 2px var(--teal); }
-.card-colors .swatch.auto { background:color-mix(in srgb,currentColor 8%,transparent); color:inherit; font-size:13px; }
 .card-actions { display:flex; gap:8px; }
 .card-edit button:not(.swatch) { min-height:44px; padding:8px 14px; border:1.5px solid color-mix(in srgb,currentColor 30%,transparent);
   background:color-mix(in srgb,currentColor 9%,transparent); color:inherit; font-size:14px; font-weight:700; }
-.card-edit button:not(.swatch):hover:not(:disabled), .card-colors .swatch.auto:hover:not(:disabled) { color:inherit; background:color-mix(in srgb,currentColor 16%,transparent); }
+.card-edit button:not(.swatch):hover:not(:disabled) { color:inherit; background:color-mix(in srgb,currentColor 16%,transparent); }
 .card-edit button:disabled { opacity:.45; }
-.card-move-btn { flex:1; display:inline-flex; align-items:center; justify-content:center; gap:6px; }
-.card-move-btn .chev { display:inline-block; font-size:17px; line-height:1; transition:rotate .3s cubic-bezier(.22,1,.36,1); }
-.card-move-btn.open .chev { rotate:180deg; }
 /* Delete in red, mixed with the card's ink so it reads on light and dark cards */
 .card-edit button.card-delete { color:color-mix(in oklab,#d62828 72%,currentColor); border-color:color-mix(in oklab,#d62828 50%,transparent); }
 .card-edit button.card-delete:hover:not(:disabled) { color:color-mix(in oklab,#d62828 72%,currentColor); }
-/* Move opens softly under the buttons (grid rows 0fr ↔ 1fr) */
-.card-move { display:grid; grid-template-rows:0fr; opacity:0; transition:grid-template-rows .34s cubic-bezier(.22,1,.36,1), opacity .25s ease; }
-.card-move.open { grid-template-rows:1fr; opacity:1; }
-.card-move-inner { min-height:0; overflow:hidden; }
-.card-move-inner > :first-child { margin-top:14px; }
-.card-move .cascade select, .card-move .new-name input { width:100%; box-sizing:border-box; border:1.5px solid color-mix(in srgb,currentColor 30%,transparent);
-  background:color-mix(in srgb,currentColor 8%,transparent); color:inherit; border-radius:12px; }
-.card-move .cascade select option { color:#1d1d24; background:#fff; }
-.card-move .cascade label.new-name { margin-left:0; }
-.card-move .new-name input::placeholder { color:color-mix(in srgb,currentColor 55%,transparent); }
-.card-edit button.card-move-apply { width:100%; margin-top:2px; border-color:transparent; background:var(--teal); color:#10233a; }
-.card-edit button.card-move-apply:hover:not(:disabled) { background:var(--teal); color:#10233a; filter:brightness(1.05); }
+/* The place card inside the open card (Gianni: the Canvas's own card); its hint is in the card's ink */
+.card-edit app-place-card { display:block; margin:10px 0 0; }
+.card-hint { margin:8px 2px 0; font-size:12px; line-height:1.45; opacity:.8; }
+.card-actions { margin-top:12px; }
+.card-edit button.card-delete { flex:1; }
 
 @media (max-width:900px) { .objects { gap:20px; }
   .objects>app-canvas-node { width:100%; }.objects>app-canvas-node:nth-child(even) { margin-top:0; } }

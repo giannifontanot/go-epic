@@ -1,20 +1,20 @@
 import { Why } from '../../shared/why';
 import { PageMenu } from '../../shared/title-fan';
 import { Ask } from '../../shared/ask';
-import { NgTemplateOutlet } from '@angular/common';
 import { Component, DestroyRef, DoCheck, ElementRef, HostListener, Injector, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
 import { AuthService } from '../../core/auth.service';
 import { Kind, LIFE_AREAS, LibNode, LifeArea, PARENT_KIND, emptyLibrary, followDay, lifeAreaKey, lifeAreaNodes, rebaseLibrary, undefinedTasks } from '../../core/library.model';
 import { LibraryStore } from '../../core/library.store';
-import { COLOR_CHOICES, DAYS, Task, blockColors, toneVar } from '../../core/week.model';
+import { DAYS, Task, blockColors, toneVar } from '../../core/week.model';
 import { WeekStore, WeekWrite } from '../../core/week.store';
 import { UnsavedWork } from '../../core/unsaved';
 import { CaptureUi } from '../capture/capture-ui';
 import { CanvasMotion } from './canvas-motion';
 import { CanvasNode } from './canvas-node';
 import { CanvasLayout, CanvasState } from './canvas-state';
+import { PlaceCard, PlaceLevel, PlaceOption, PlacePick } from './place-card';
 
 interface Drag {
   node: LibNode; x: number; y: number; currentX: number; currentY: number; source: HTMLElement;
@@ -33,8 +33,9 @@ type AreaView = LifeArea | 'all';
 /**
  * Floating Canvas, as in Epic Manager: Epic tabs of one of the four life areas with their Features, Stories and
  * Activities; the Activities with no place yet wait in the Undefined window (Gianni). Objects are dragged by their grip; an
- * Activity's ✎ grows its own card in place, editable (name, colour, Delete, and Move with its whole place, all four levels at
- * once), and Features, Stories and Epics keep their window. Every change saves by itself (Gianni: no Undo, Redo, Save
+ * Activity's ✎ grows its own card in place, editable (name, Delete, and its place on the Canvas's own card: each level «Por
+ * definir» until it is chosen in a floating menu, saved once all four are chosen), and Features, Stories and Epics keep
+ * their window. Every change saves by itself (Gianni: no Undo, Redo, Save
  * or Discard), and the week follows: renamed or recoloured tasks change in every block, deleted ones leave the week.
  */
 
@@ -46,7 +47,7 @@ const PANE_OPEN_MS = 320;
 
 @Component({
   selector: 'app-canvas',
-  imports: [CanvasNode, Why, NgTemplateOutlet],
+  imports: [CanvasNode, Why, PlaceCard],
   templateUrl: './canvas.html',
   styleUrl: './canvas.css',
 })
@@ -74,9 +75,6 @@ export class Canvas implements DoCheck {
   /** Bumped after every draft change: the template reads the mutable draft through it. */
   protected readonly version = signal(0);
   protected readonly ready = computed(() => this.libraryStore.ready() && this.week.loaded());
-  protected readonly colorChoices = COLOR_CHOICES;
-  protected readonly toneVar = toneVar;
-  protected readonly FREE = '__free';
   /** A level named new in the cascade (created on Apply). */
   protected readonly NEW = '__new';
   protected readonly lifeAreaKeys: LifeArea[] = LIFE_AREAS.map((a) => a.key);
@@ -373,10 +371,9 @@ export class Canvas implements DoCheck {
 
   // --- An Activity's own card, grown in place and editable (Gianni: not a window) ---
 
-  /** The Activity whose card is open ('' = none), its name as typed, and whether its Move panel is open. */
+  /** The Activity whose card is open ('' = none) and its name as typed. */
   editId = '';
   editTitle = '';
-  moveOpen = false;
   /** Bumped on every open or close, so a card still shrinking never closes the next one. */
   private editToken = 0;
   get editNode(): LibNode | undefined { return this.editId ? this.state.node(this.editId) : undefined; }
@@ -399,7 +396,6 @@ export class Canvas implements DoCheck {
     const token = ++this.editToken;
     this.editId = node.id;
     this.editTitle = node.title;
-    this.moveOpen = false;
     this.fillCascade(node.parentId);
     this.bump();
     afterNextRender(() => {
@@ -444,14 +440,12 @@ export class Canvas implements DoCheck {
     if (!this.editId) return;
     this.editToken++;
     this.editId = '';
-    this.moveOpen = false;
     if (!this.modal) this.fillCascade(null);
     this.bump();
   }
   private editElement(): HTMLElement | null {
     return this.editId ? document.querySelector<HTMLElement>(`[data-editing="${CSS.escape(this.editId)}"]`) : null;
   }
-  toggleMove(): void { this.moveOpen = !this.moveOpen; if (this.moveOpen) this.fillCascade(this.editNode?.parentId ?? null); this.bump(); }
 
   /** A tap anywhere but the open card closes it (a question window over it, like Delete's, leaves it open). */
   @HostListener('document:click', ['$event'])
@@ -465,7 +459,8 @@ export class Canvas implements DoCheck {
     void this.finishEdit();
   }
 
-  /** Move here: its whole place at once (area, Epic, Feature and Story; Gianni: never half a place). */
+  /** Its whole place at once, as soon as the card's last level is chosen (area, Epic, Feature and Story; Gianni: never
+   *  half a place). The Undefined window stays open for the next one while any is left. */
   applyMove(): void {
     const node = this.editNode;
     if (!node || this.saving || this.cascadeIncomplete) return;
@@ -485,7 +480,7 @@ export class Canvas implements DoCheck {
     }));
     if (parentId === undefined) { ghost?.remove(); return; }
     this.endEdit();                                                         // it lands closed in its new place
-    if (inWindow && parentId !== null) this.closeUndefined();
+    if (inWindow && !this.undefinedList.length) this.closeUndefined();
     this.followPlace('task', place, node.id);
     if (ghost) void this.motion.land(ghost, this.nodeElement(node.id), this.destinationElement(parentId ?? null));
     this.announcement = this.i18n.t('canvas.saved');
@@ -537,9 +532,9 @@ export class Canvas implements DoCheck {
   /** An Epic's area, chosen among the four. */
   epicArea: LifeArea | '' = '';
 
-  // The place: a cascade of combos (Area → Epic → Feature → Story), each listing the children of the one above, or a new one
-  // named right there (created on Apply). An Activity's area may also be Undefined.
-  cascade: { area: LifeArea | '' | '__free'; epic: string; feature: string; story: string } = { area: '', epic: '', feature: '', story: '' };
+  // The place: Area → Epic → Feature → Story on the place card, each level an existing one under the level above, or a new
+  // one named right there (created when the place is applied).
+  cascade: Record<PlaceLevel, string> = { area: '', epic: '', feature: '', story: '' };
   newName: Record<CascadeLevel, string> = { epic: '', feature: '', story: '' };
   get cascadeLevels(): CascadeLevel[] {
     const subject = this.subject;
@@ -551,7 +546,7 @@ export class Canvas implements DoCheck {
   private cascadeParent(level: CascadeLevel): string {
     const levels = this.cascadeLevels;
     const index = levels.indexOf(level);
-    if (index === 0) return this.cascade.area && this.cascade.area !== this.FREE ? this.lifeAreas[this.cascade.area]?.id ?? '' : '';
+    if (index === 0) return this.cascade.area ? this.lifeAreas[this.cascade.area as LifeArea]?.id ?? '' : '';
     const above = this.cascade[levels[index - 1]];
     return above === this.NEW ? '' : above;
   }
@@ -565,25 +560,38 @@ export class Canvas implements DoCheck {
     const m = this.subject;
     if (!m || m.bare || m.kind === 'area') return false;
     if (m.kind === 'epic') return !this.epicArea;
-    if (m.kind === 'task' && this.cascade.area === this.FREE) return false;
     if (!this.cascade.area) return true;
     return this.cascadeLevels.some((level) => !this.cascade[level] || (this.cascade[level] === this.NEW && !this.newName[level].trim()));
   }
-  pickCascade(level: 'area' | CascadeLevel, id: string): void {
-    const levels = this.cascadeLevels;
-    if (level === 'area') this.cascade.area = id as LifeArea | '__free';
-    else this.cascade[level] = id;
-    const from = level === 'area' ? 0 : levels.indexOf(level) + 1;
-    for (const below of levels.slice(from)) { this.cascade[below] = ''; this.newName[below] = ''; }
-    if (level === 'area' && id === this.FREE) return;
-    for (const below of levels.slice(from)) {
-      const above = below === levels[0] ? '' : this.cascade[levels[levels.indexOf(below) - 1]];
-      if (above === this.NEW) { this.cascade[below] = this.NEW; continue; }   // nothing exists under a new one yet
-      const options = this.cascadeOptions(below);                             // a level with a single choice is chosen for you
-      if (options.length !== 1) break;
-      this.cascade[below] = options[0].id;
-    }
+  /** A level chosen on the place card clears the ones below it (Gianni: they read «Por definir» again). On an Activity's
+   *  open card the place is applied as soon as its last level is chosen; a window applies it with its Apply. */
+  pickPlace(pick: PlacePick): void {
+    const levels: PlaceLevel[] = ['area', ...this.cascadeLevels];
+    const index = levels.indexOf(pick.level);
+    if (index < 0) return;
+    const name = pick.id === this.NEW ? (pick.name ?? '').trim() : '';
+    if (pick.id === this.NEW && !name) return;
+    if (pick.level === 'area' && !this.lifeAreaKeys.includes(pick.id as LifeArea)) return;
+    const cascade = { ...this.cascade, [pick.level]: pick.id };
+    const newName = { ...this.newName };
+    if (pick.level !== 'area') newName[pick.level] = name;
+    for (const below of levels.slice(index + 1)) { cascade[below] = ''; if (below !== 'area') newName[below] = ''; }
+    this.cascade = cascade;
+    this.newName = newName;
+    this.bump();
+    if (!this.modal && this.editNode && !this.cascadeIncomplete) this.applyMove();
   }
+  /** A level's name on the place card ('' = «Por definir»): a life area's full name, a new one's typed name. */
+  readonly placeLabel = (level: PlaceLevel): string => {
+    const id = this.cascade[level];
+    if (!id) return '';
+    if (level === 'area') return this.lifeAreaKeys.includes(id as LifeArea) ? this.i18n.t('area.' + id) : '';
+    return id === this.NEW ? this.newName[level] : this.state.node(id)?.title ?? '';
+  };
+  /** A level's choices in its floating menu: the four life areas, else the children of the level chosen above. */
+  readonly placeOptions = (level: PlaceLevel): PlaceOption[] => level === 'area'
+    ? this.lifeAreaKeys.map((key) => ({ id: key, title: this.i18n.t('area.' + key) }))
+    : this.cascadeOptions(level).map((n) => ({ id: n.id, title: n.title }));
   private fillCascade(parentId: string | null): void {
     this.cascade = { area: '', epic: '', feature: '', story: '' };
     this.newName = { epic: '', feature: '', story: '' };
@@ -603,9 +611,7 @@ export class Canvas implements DoCheck {
     if (whole) {
       this.cascade.area = key;
       levels.forEach((level, i) => (this.cascade[level] = chain[i + 1].id));
-    } else if (m.kind === 'task' && !m.node) {
-      this.cascade.area = this.FREE;
-    }   // an Activity with no place yet starts with nothing chosen: Apply waits for its whole place (Gianni)
+    }   // anything else starts «Por definir» everywhere: the place waits until it is whole (Gianni)
   }
 
   get canApply(): boolean {
@@ -623,9 +629,9 @@ export class Canvas implements DoCheck {
     const m = editing ? { kind: editing.kind, node: editing, parentId: editing.parentId } as Modal : this.modal!;
     if (m.kind === 'area') return null;
     if (m.kind === 'epic') return this.epicArea ? this.ensureArea(this.epicArea) ?? undefined : undefined;
-    if (m.bare || this.cascade.area === this.FREE) return null;
+    if (m.bare) return null;
     if (!this.cascade.area) return undefined;
-    let parent = this.ensureArea(this.cascade.area);
+    let parent = this.ensureArea(this.cascade.area as LifeArea);
     for (const level of this.cascadeLevels) {
       if (!parent) return undefined;
       const value = this.cascade[level];
@@ -637,7 +643,7 @@ export class Canvas implements DoCheck {
   private plannedParent(): string | null {
     const m = this.subject!;
     if (m.kind === 'epic') return this.epicArea ? this.lifeAreas[this.epicArea]?.id ?? this.NEW : null;
-    if (m.bare || this.cascade.area === this.FREE) return null;
+    if (m.bare) return null;
     const levels = this.cascadeLevels;
     const last = levels.length ? this.cascade[levels[levels.length - 1]] : '';
     return !last || levels.some((l) => this.cascade[l] === this.NEW) ? this.NEW : last;
@@ -683,7 +689,7 @@ export class Canvas implements DoCheck {
       if (key) { this.showArea(key); this.activeId = id; }
       return;
     }
-    if (!place.area || place.area === this.FREE || kind === 'area') return;
+    if (!place.area || kind === 'area') return;
     const key = place.area as LifeArea;
     const epicId = place.epic === this.NEW || !place.epic ? this.pathEpic(id) : place.epic;
     this.showArea(key);
@@ -698,14 +704,6 @@ export class Canvas implements DoCheck {
     for (let n = this.state.node(id), guard = 0; n && guard < 10; guard++, n = this.state.node(n.parentId)) if (n.kind === 'epic') return n.id;
     return '';
   }
-
-  /** A colour picked on the open card is kept at once. */
-  setColor(color: string | null): void {
-    const node = this.editNode;
-    if (!node || this.saving) return;
-    this.mutate(() => this.state.setColor(node.id, color));
-  }
-  colorOf(node: LibNode | undefined): string | null { return node ? this.state.node(node.id)?.color ?? null : null; }
 
   arrange(delta: number): void {
     const node = this.modal?.node;
