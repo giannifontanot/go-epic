@@ -1,11 +1,29 @@
 import { Component, ElementRef, Injector, afterNextRender, inject, input, output, signal, viewChild, viewChildren } from '@angular/core';
 import { flyTiles } from '../../shared/fan';
 
-export interface PickItem { id: string; label: string }
+/** A choice; `desc` is an area's description («Familia» under «El Castillo»), drawn a shade softer on its own line. */
+export interface PickItem { id: string; label: string; desc?: string }
+
+/** The floating menu under its button, from its left edge, kept 12px inside the visible screen (keyboard included);
+ *  above it when there is more room there. Shared by the Canvas's Área and Epic and the place card's levels. */
+export function placeFan(button: HTMLElement, fan: HTMLElement | undefined): void {
+  if (!fan || typeof innerHeight !== 'number') return;
+  const vv = window.visualViewport;
+  const top0 = vv?.offsetTop ?? 0, left0 = vv?.offsetLeft ?? 0;
+  const vw = vv?.width ?? innerWidth, vh = vv?.height ?? innerHeight;
+  const r = button.getBoundingClientRect();
+  const below = top0 + vh - r.bottom - 20, above = r.top - top0 - 20;
+  fan.style.maxHeight = '';
+  const down = fan.scrollHeight <= below || below >= above;
+  fan.style.maxHeight = Math.max(120, down ? below : above) + 'px';
+  const h = fan.offsetHeight, w = fan.offsetWidth;
+  fan.style.top = (down ? Math.max(top0 + 12, r.bottom + 8) : Math.max(top0 + 12, r.top - 8 - h)) + 'px';
+  fan.style.left = Math.max(left0 + 12, Math.min(r.left, left0 + vw - w - 12)) + 'px';
+}
 
 /**
  * The Canvas's Área and Epic (Gianni: not tabs any more): a small uppercase label over the current choice, in the
- * cards' serif, with a ▾; a tap slides every choice out of it at once as the pages menu's tiles, at the very same speed
+ * cards' serif, with a ⌄ at the far right of the button (Gianni: as on the place card); a tap slides every choice out of it at once as the pages menu's tiles, at the very same speed
  * (`flyTiles`), the chosen one marked; a tap on one picks it, a tap outside, Esc or the button again draw them back
  * into it. The tiles sit in the top layer (a popover), so no panel clips them and no theme filter moves them. An
  * optional last tile adds a new one (+ Epic). Nothing moves under reduced motion.
@@ -13,17 +31,23 @@ export interface PickItem { id: string; label: string }
 @Component({
   selector: 'app-pick-menu',
   template: `
-    <button #btn type="button" class="pick-btn" aria-haspopup="true" [attr.aria-expanded]="open()" [disabled]="disabled()" (click)="toggle()">
-      <small>{{ label() }}</small>
-      <strong><span class="pick-value">{{ value() }}</span><span class="pick-chev" aria-hidden="true">▾</span></strong>
-    </button>
+    <!-- One button covers the whole box (the menu); the text lies over it, and an Epic's ✎ right after its name is a
+         button of its own on top (Gianni: so renaming is obvious) -->
+    <div class="pick-btn" [class.open]="open()" [class.off]="disabled()">
+      <button #btn type="button" class="pick-hit" aria-haspopup="true" [attr.aria-expanded]="open()" [disabled]="disabled()"
+        [attr.aria-label]="label() + ': ' + value() + (valueDesc() ? ' ' + valueDesc() : '')" (click)="toggle()"></button>
+      <small aria-hidden="true">{{ label() }}</small>
+      <strong><span class="pick-value" aria-hidden="true">{{ value() }}</span>@if (valueDesc()) { <span class="area-desc" aria-hidden="true">{{ valueDesc() }}</span> }@if (editLabel()) {<button type="button" class="edit-pen"
+          [disabled]="disabled()" [attr.aria-label]="editLabel()" [title]="editLabel()" (click)="edit.emit()"><span aria-hidden="true">✎</span></button>}</strong>
+      <span class="menu-chev" aria-hidden="true">⌄</span>
+    </div>
     <div #pop popover="manual" class="pick-pop" (click)="onVeil($event)">
       @if (open()) {
         <nav #fanBox class="page-fan pick-fan" [attr.aria-label]="label()">
           @for (item of items(); track item.id) {
             <button #tile type="button" class="page-tile pick-tile" [class.on]="item.id === chosen()"
               [attr.aria-current]="item.id === chosen() ? 'true' : null" (click)="pick(item.id)">
-              <span>{{ item.label }}</span>@if (item.id === chosen()) { <span class="theme-tile-check" aria-hidden="true">✓</span> }
+              <span class="pick-label">{{ item.label }}@if (item.desc) { <span class="area-desc">{{ item.desc }}</span> }</span>@if (item.id === chosen()) { <span class="theme-tile-check" aria-hidden="true">✓</span> }
             </button>
           }
           @if (addLabel()) {
@@ -38,10 +62,15 @@ export interface PickItem { id: string; label: string }
 export class PickMenu {
   readonly label = input.required<string>();
   readonly value = input.required<string>();
+  /** The current choice's area description, a shade softer under it ('' = none). */
+  readonly valueDesc = input('');
   readonly items = input<PickItem[]>([]);
   readonly chosen = input('');
   readonly addLabel = input('');
   readonly disabled = input(false);
+  /** The name of the ✎ right after the value ('' = none): an Epic is renamed there. */
+  readonly editLabel = input('');
+  readonly edit = output<void>();
   readonly picked = output<string>();
   readonly add = output<void>();
 
@@ -93,17 +122,5 @@ export class PickMenu {
     Promise.all(animations.map((a) => a.finished)).then(done, done);
   }
   private tileEls(): HTMLElement[] { return this.tiles().map((t) => t.nativeElement); }
-  /** Under the button, from its left edge, never past the screen's edges; above it when there is more room there. */
-  private place(): void {
-    const fan = this.fanBox()?.nativeElement;
-    if (!fan || typeof innerHeight !== 'number') return;
-    const r = this.btn().nativeElement.getBoundingClientRect();
-    const vh = window.visualViewport?.height ?? innerHeight;
-    const below = vh - r.bottom - 20, above = r.top - 20;
-    const down = fan.scrollHeight <= below || below >= above;
-    fan.style.maxHeight = Math.max(120, down ? below : above) + 'px';
-    const h = fan.offsetHeight, w = fan.offsetWidth;
-    fan.style.top = (down ? Math.max(12, r.bottom + 8) : Math.max(12, r.top - 8 - h)) + 'px';
-    fan.style.left = Math.max(12, Math.min(r.left, innerWidth - w - 12)) + 'px';
-  }
+  private place(): void { placeFan(this.btn().nativeElement, this.fanBox()?.nativeElement); }
 }

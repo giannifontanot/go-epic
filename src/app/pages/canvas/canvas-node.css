@@ -65,3 +65,8 @@ strong, .title strong { font-family:Georgia,'Noto Serif',serif; font-weight:700;
 
 /* The Undefined window's open Activity: nothing around its place card, which takes the window's whole width */
 .loose-edit { position:relative; }
+
+/* In the Undefined window the card itself opens (Gianni: no ✎): its name is a button as wide and tall as the card */
+.loose-open { display:block; flex:1; min-width:0; margin:-8px -8px -8px -7px; padding:12px 14px 13px 13px; border-radius:inherit; text-align:left; cursor:pointer; }
+.task:has(.loose-open) { padding:8px; }
+.loose-open:hover:not(:disabled) { background:color-mix(in srgb,currentColor 8%,transparent); }

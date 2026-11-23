@@ -694,34 +694,61 @@ dialog.info-card.track-grid[open] { display: flex; flex-direction: column; overf
    tiles in the top layer under it. The Epic's ✎ sits at the end of its line; "+ Epic" is the Epic menu's last tile. */
 .pick-head { display: grid; gap: 2px; margin: 4px 0 14px; padding: 0 2px; color: var(--ink); }
 .pick-head .area-hint { margin: 0 0 8px; font-size: calc(12px * var(--esc)); }
-.epic-line { display: flex; align-items: flex-start; gap: 4px; min-width: 0; }
-.epic-line app-pick-menu { flex: 1; min-width: 0; }
 app-pick-menu { display: block; min-width: 0; }
-.pick-btn { display: block; width: auto; max-width: 100%; min-height: 44px; margin: 0; padding: 2px 4px 4px; border: 0; border-radius: 12px;
-  background: transparent; color: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.pick-btn:hover:not(:disabled) { background: color-mix(in srgb, currentColor 8%, transparent); }
-.pick-btn:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+/* The box: one button over all of it opens the menu (.pick-hit); the text lies over it and lets taps through; the ⌄ sits
+   at its far right, centred (Gianni: as on the place card), and an Epic's ✎ is a button of its own right after the name */
+.pick-btn { position: relative; display: block; width: 100%; box-sizing: border-box; min-height: 44px; margin: 0; padding: 2px 34px 4px 4px; border-radius: 12px;
+  color: inherit; text-align: left; -webkit-tap-highlight-color: transparent; }
+.pick-btn > :not(.pick-hit, .menu-chev) { position: relative; pointer-events: none; }
+.pick-hit { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; border-radius: inherit; background: transparent; cursor: pointer; }
+.pick-btn:hover:not(.off) .pick-hit { background: color-mix(in srgb, currentColor 8%, transparent); }
+.pick-hit:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
 .pick-btn small { display: block; font-size: calc(11px * var(--esc)); font-weight: 500; letter-spacing: .12em; text-transform: uppercase; opacity: .72; line-height: 1.2; margin-bottom: 2px; }
-.pick-btn strong { display: block; font-family: Georgia, 'Noto Serif', serif; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere;
+.pick-btn strong { display: block; font-family: Georgia, 'Noto Serif', serif; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere;
   font-size: calc(var(--act-fs) * 1.5); letter-spacing: var(--act-ls); }
-.pick-chev { display: inline-block; margin-left: .4em; font-family: system-ui, sans-serif; font-size: .55em; vertical-align: .15em; opacity: .7; transition: rotate .3s ease; }
-.pick-btn[aria-expanded='true'] .pick-chev { rotate: 180deg; }
-.epic-edit { flex: none; width: 44px; min-width: 44px !important; height: 44px; min-height: 44px !important; margin-top: 14px; padding: 0 !important; border-radius: 50% !important;
-  background: transparent !important; color: var(--ink) !important; font-size: 17px; opacity: .8; }
-.epic-edit:hover:not(:disabled) { background: color-mix(in srgb, var(--ink) 12%, transparent) !important; opacity: 1; }
+.pick-btn.off { opacity: .6; }
+/* An area's description (Gianni: «Familia» beside «El Castillo»): one shade softer than its name, wherever it appears.
+   A panel weighed one shade against two: two drop Office's ink on its plum to 3.1:1, one keeps every theme at 4:1 or more.
+   It follows the name on the same line when it fits, else it wraps as a whole close under it. */
+.area-desc { display: inline-block; margin-left: .3em; color: color-mix(in srgb, currentColor 78%, transparent); }
+/* The ⌄ that opens a floating menu: at the far right, centred on its button, everywhere (Gianni) */
+.menu-chev { position: absolute; right: 8px; top: 50%; translate: 0 -50%; font-family: system-ui, sans-serif; font-size: 15px; line-height: 1;
+  opacity: .55; pointer-events: none; transition: rotate .3s ease; }
+.pick-btn.open .menu-chev, .place-line[aria-expanded='true'] .menu-chev { rotate: 180deg; }
+/* The ✎ right after a name (Epic, Feature, Story; Gianni: so renaming is obvious), pointing left, nearly the name's size,
+   in the descriptions' softer shade */
+.edit-pen { display: inline-grid; place-items: center; vertical-align: -.08em; margin-left: .25em; font-family: system-ui, sans-serif; font-weight: 400;
+  font-size: .9em; line-height: 1; color: color-mix(in srgb, currentColor 78%, transparent); }
+.edit-pen > span, span.edit-pen { scale: -1 1; }
+.pick-btn button.edit-pen { position: relative; pointer-events: auto; z-index: 1; min-width: 44px; min-height: 44px; margin: -10px -6px -10px 0; padding: 0; border: 0;
+  border-radius: 50%; background: transparent; cursor: pointer; }
+.pick-btn button.edit-pen:hover:not(:disabled) { background: color-mix(in srgb, currentColor 12%, transparent); }
+.pick-btn button.edit-pen:focus-visible { outline: 3px solid var(--teal); outline-offset: 0; }
 /* the floating menu: a light veil over the screen (the popover itself) and the tiles under the button */
 .pick-pop { position: fixed; inset: 0; width: auto; height: auto; max-width: none; max-height: none; margin: 0; padding: 0; border: 0;
   background: rgba(4, 9, 30, .18); overflow: hidden; color: var(--ink); }
 .pick-pop:not(:popover-open) { display: none; }
+.pick-pop:focus { outline: none; }
 .page-fan.pick-fan { position: fixed; z-index: auto; right: auto; width: min(320px, calc(100vw - 24px)); box-sizing: border-box; padding: 8px;
   margin: -8px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
 .pick-tile { width: 100%; border: 0; text-align: left; line-height: 1.25; padding-top: 10px; padding-bottom: 10px; cursor: pointer; overflow-wrap: anywhere; }
 .pick-tile.on .theme-tile-check { top: 4px; right: 4px; }
+.pick-tile.on { padding-right: 34px; }
 .pick-tile.pick-add { background: transparent; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink) 40%, transparent); border: 0; }
 .pick-tile:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+.pick-label { min-width: 0; }
+/* a note in place of choices (choose the level above first, nothing yet) */
+.pick-tile.pick-note { margin: 0; cursor: default; font-size: calc(14px * var(--esc)); font-weight: 600; line-height: 1.45; color: var(--ink-soft); }
+/* the place card's last tile: a box to name a new Epic, Feature or Story right there, with Create */
+.pick-tile.pick-new { gap: 8px; padding: 8px; cursor: default; }
+.pick-new input { flex: 1 1 auto; min-width: 0; min-height: 44px; box-sizing: border-box; padding: 8px 12px; border: 1px solid var(--win-edge); border-radius: 12px;
+  background: var(--page); color: var(--ink); font-size: 16px; font-weight: 500; }
+.pick-new input::placeholder { color: var(--ink-soft); }
+.pick-new button { flex: none; min-height: 44px; padding: 0 16px; border-radius: 12px; font-size: 14px; font-weight: 800; }
 /* they belong to their panel and menu: they never lean or slide with the phone */
-html.tilt :is(.pick-btn, .pick-tile, .epic-edit) { rotate: none; translate: none; }
-@media (prefers-reduced-motion: reduce) { .pick-chev { transition: none; } }
+html.tilt :is(.pick-btn, .pick-btn *, .pick-tile) { rotate: none; translate: none; }
+html.tilt .menu-chev { translate: 0 -50%; }
+@media (prefers-reduced-motion: reduce) { .menu-chev { transition: none; } }
 
 /* Weighted buttons (core/tilt.ts): the root's --tilt-r / --tilt-k glide (registered, so they can transition, with a
    little bounce when they spring back) and every button follows through rotate/translate, never its own transform. Each
@@ -1004,8 +1031,11 @@ dialog.editor.new-block header h2 { font-size: min(24px, 5.3vw); white-space: no
 .place-card { cursor: default; }
 .place-card .pc-epic { padding: 0 6px 8px; min-height: 0; }
 .place-card .pc-epic .pc-head + .pc-head { margin-top: 2px; }
-.place-line { display: block; width: calc(100% + 12px); box-sizing: border-box; min-height: 44px; border: 0; background: transparent; color: inherit;
-  text-align: left; font: inherit; -webkit-tap-highlight-color: transparent; }
+.place-line { position: relative; display: block; width: calc(100% + 12px); box-sizing: border-box; min-height: 44px; border: 0; background: transparent; color: inherit;
+  text-align: left; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.place-line > strong { padding-right: 22px; }
+.place-line:hover:not(:disabled) { background: rgba(255, 255, 255, .12); }
+.pc-feature .place-line:hover:not(:disabled), .pc-story .place-line:hover:not(:disabled) { background: rgba(54, 38, 67, .08); }
 .place-line:focus-visible { outline: 2px solid var(--teal); outline-offset: 1px; }
 .place-line[aria-expanded='true'] { background: rgba(255, 255, 255, .14); }
 .pc-feature .place-line[aria-expanded='true'], .pc-story .place-line[aria-expanded='true'] { background: rgba(54, 38, 67, .1); }
@@ -1015,28 +1045,8 @@ dialog.editor.new-block header h2 { font-size: min(24px, 5.3vw); white-space: no
 .place-card small { font-weight: 500; letter-spacing: .12em; opacity: .72; line-height: 1.2; margin-bottom: 2px; }
 .place-card strong { font-family: Georgia, 'Noto Serif', serif; font-weight: 700; line-height: 1.32; }
 .place-card .pc-activity .pc-leaf { margin: 0; padding: 0; }
-html.tilt :is(.place-card .place-line, .place-menu button) { rotate: none; translate: none; }
-/* Its floating menu: a small navy card in the top layer, growing out of the level tapped */
-.place-menu { position: fixed; inset: auto; left: 0; top: 0; margin: 0; padding: 10px; box-sizing: border-box; overflow: auto; overscroll-behavior: contain;
-  border: 1px solid var(--win-edge); border-radius: 18px; background: var(--navy-card); color: var(--ink); box-shadow: 0 18px 50px rgba(0, 0, 0, .45); }
-.place-menu:not(:popover-open):not(.on) { display: none; }
-.place-menu:focus { outline: none; }
-.pm-title { margin: 2px 6px 8px; font-size: 11px; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-soft); }
-.pm-list { display: grid; gap: 4px; }
-.pm-opt { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 44px; padding: 10px 12px; border: 0;
-  border-radius: 12px; background: color-mix(in srgb, var(--ink) 6%, transparent); color: var(--ink); text-align: left; font-size: 15px; font-weight: 600;
-  line-height: 1.3; overflow-wrap: anywhere; }
-.pm-opt:hover { background: color-mix(in srgb, var(--ink) 12%, transparent); }
-.pm-opt.on { background: color-mix(in srgb, var(--teal) 28%, transparent); box-shadow: inset 0 0 0 2px var(--teal); }
-.pm-opt:focus-visible { outline: 2px solid var(--teal); outline-offset: 1px; }
-.pm-check { flex: none; font-weight: 800; }
-.pm-note { margin: 4px 6px 8px; font-size: 13px; line-height: 1.45; color: var(--ink-soft); }
-.pm-new { display: flex; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid color-mix(in srgb, var(--ink) 14%, transparent); }
-.pm-new input { flex: 1 1 auto; min-width: 0; min-height: 44px; box-sizing: border-box; padding: 8px 12px; border: 1px solid var(--win-edge); border-radius: 12px;
-  background: var(--page); color: var(--ink); font-size: 16px; }
-.pm-new input::placeholder { color: var(--ink-soft); }
-.pm-new button { flex: none; min-height: 44px; padding: 0 16px; font-size: 14px; font-weight: 800; }
-html:is([data-theme='office'], [data-theme='graphite']) .place-menu { filter: grayscale(1); }
+html.tilt :is(.place-card .place-line, .place-pop button) { rotate: none; translate: none; }
+/* Its floating menu is the Canvas's Área and Epic menu (.pick-pop, .pick-fan, .pick-tile above) */
 /* The colour window: a small card, never full screen */
 dialog.editor.color-window { width: min(340px, calc(100vw - 32px)); height: fit-content; max-height: calc(100dvh - 32px); border-radius: 22px; padding: 16px 18px 18px; }
 .color-window header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
@@ -1876,7 +1886,7 @@ html[data-edge]:is([data-theme='goepiclight'], [data-theme='goepicdark']) .color
      worked out from that colour reads on it */
   html[data-auto-ink]:is([data-theme='office'], [data-theme='graphite']) :is(.object.task, .undefined-item) { background: var(--tone, var(--g-card)) !important; }
   /* ...but the place card inside an open activity, and its floating menu, keep their own surfaces' ink */
-  html[data-auto-ink][data-theme='graphite'] .object.task :is(.place-card, .place-card *, .place-menu, .place-menu *):not(.pc-activity, .pc-activity *) { color: var(--ink) !important; }
+  html[data-auto-ink][data-theme='graphite'] .object.task :is(.place-card, .place-card *, .place-pop, .place-pop *):not(.pc-activity, .pc-activity *) { color: var(--ink) !important; }
 }
 /* the dark cards (Petal Punk, Smoked Citrus, Graphite, Go Epic Dark): light ink everywhere on them, a deeper lip, light
    grip and buttons, an empty To do ring drawn in the card's ink; Done keeps its glorious gold */

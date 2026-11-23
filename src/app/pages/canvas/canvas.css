@@ -22,7 +22,10 @@ button.primary { background:var(--pink); color:var(--card-ink); }button.primary:
 .count-pill { font-size:12px; font-weight:800; padding:2px 9px; border-radius:999px; background:rgba(255,255,255,.14); }
 .undefined-btn.drop-hot { outline:3px solid var(--teal); outline-offset:2px; }
 .undefined-window header h2 { display:flex; align-items:center; gap:8px; }
-.undefined-window header .round { --tap:40px; flex:none; padding:0; border:1.5px solid rgba(220,38,38,.55); background:transparent; color:#dc2626; font-size:20px; }
+.undefined-window header { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+/* Close: a small pill at the right, top and foot (Gianni), never as wide as the window */
+.undefined-window .close-pill { flex:none!important; width:auto; min-height:40px; padding:8px 18px; font-size:14px; font-weight:800; }
+.undefined-window footer.close-foot { justify-content:flex-end; }
 .undefined-window .hint { margin:0 0 12px; color:var(--ink-soft); font-size:13px; line-height:1.5; }
 .undefined-list { list-style:none; margin:0; padding:6px 4px; display:grid; gap:10px; max-height:min(62dvh,540px); overflow:auto; overscroll-behavior:contain; }
 .undefined-empty { padding:6px 2px; font-size:13px; color:var(--ink-soft); }
