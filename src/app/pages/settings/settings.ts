@@ -45,7 +45,7 @@ import { ThemeService } from '../../core/theme';
         </span>
       </label>
       <footer class="settings-foot">
-        <button type="button" class="primary" (click)="close()">{{ i18n.t('task.done') }}</button>
+        <button type="button" class="primary btn-apply" (click)="close()">{{ i18n.t('task.done') }}</button>
       </footer>
     </dialog>
   `,

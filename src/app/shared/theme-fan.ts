@@ -63,12 +63,11 @@ export class ThemePicker {
       </header>
       <div class="palette-list" role="radiogroup" aria-labelledby="palette-window-title">
         @for (p of palettes; track p.id) {
-          <button type="button" role="radio" class="palette-row" [class.on]="chosen().id === p.id" [attr.aria-checked]="chosen().id === p.id"
-                  (click)="palette.setPalette(look.theme(), p.id)">
-            <span class="palette-name">
-              {{ i18n.t('palette.' + p.id) }}
-              @if (p.id === ownPalette()) { <small>· {{ i18n.t('palette.own') }}</small> }
-            </span>
+          <!-- the theme's own palette is the suggested one (Gianni, v56): a halo round its colours, «Sugerido» above it at the right -->
+          <button type="button" role="radio" class="palette-row" [class.on]="chosen().id === p.id" [class.suggested]="p.id === ownPalette()"
+                  [attr.aria-checked]="chosen().id === p.id" (click)="palette.setPalette(look.theme(), p.id)">
+            <span class="palette-name">{{ i18n.t('palette.' + p.id) }}</span>
+            @if (p.id === ownPalette()) { <span class="palette-suggested">{{ i18n.t('palette.suggested') }}</span> }
             <span class="palette-swatches" aria-hidden="true">
               @for (c of p.colors; track $index) { <i [style.background]="c"></i> }
             </span>
@@ -84,7 +83,7 @@ export class ThemePicker {
         </span>
       </label>
       <footer class="settings-foot">
-        <button type="button" class="primary palette-ok" (click)="ok()">OK</button>
+        <button type="button" class="primary btn-apply palette-ok" (click)="ok()">OK</button>
       </footer>
     </dialog>
   `,

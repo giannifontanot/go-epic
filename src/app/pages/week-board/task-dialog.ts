@@ -120,8 +120,8 @@ export interface TaskSave {
       @if (problem()) { <p class="app-error" role="alert">{{ problem() }}</p> }
 
       <footer>
-        <button type="button" (click)="leave()">{{ i18n.t('task.cancel') }}</button>
-        <button type="button" class="primary" (click)="done()">{{ i18n.t('task.done') }}</button>
+        <button type="button" class="btn-cancel" (click)="leave()">{{ i18n.t('task.cancel') }}</button>
+        <button type="button" class="primary btn-apply" (click)="done()">{{ i18n.t('task.done') }}</button>
       </footer>
     </dialog>
 

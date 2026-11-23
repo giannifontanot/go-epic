@@ -224,8 +224,9 @@ dialog.info-card::backdrop { background: rgba(4, 9, 30, .55); }
 .progress-top > .why { margin-left: auto; }
 .focus-top-end { display: inline-flex; align-items: center; gap: 12px; margin-left: auto; }
 .canvas-page .page-header > h1 { margin-right: auto; }
-.canvas-page .page-header > .why { order: 3; }
-@media (max-width: 680px) { .canvas-page .page-header > .why { order: 1; } .canvas-page .page-header > .toolbar { order: 2; } }
+/* the Canvas's one button, «Sin definir», takes its own row under the title and Why? (Gianni, v56: on the whole width) */
+.canvas-page .page-header > .why { order: 1; }
+.canvas-page .page-header > .toolbar { order: 2; }
 dialog.capture-panel header > .why { margin: 0 10px 0 auto; }
 /* the window (Gianni: it read like a sheet that did not matter; a panel of experts redrew it): a well-set page.
    Literata, a serif made for reading on screens (self-hosted, OFL), 17px with 1.7 lines, hyphenated in the window's
@@ -2106,3 +2107,92 @@ button:not(.round, .capture-fab, .grip, .t-grip, .t-state, .swatch, .theme-tile,
   font-size: 15px !important;
   letter-spacing: 1.5px !important;
 }
+
+/* The three window buttons (Gianni, v53 on the Canvas, v56 everywhere): Cancelar cream with navy ink, Aplicar (and every
+   window's Done, OK or Copy/Move) turquoise with navy ink, Eliminar a pale rose with a deep red word, each with a thin edge.
+   An expert panel gave each theme its own version, in the same three roles, keeping the ink at 7:1 or more on its button:
+   the light themes a near-white Cancel and a mint Apply, the dark ones a dark Cancel and a bright turquoise Apply, the grey
+   themes only greys. «Sin definir» on the Canvas wears Aplicar's colours. */
+:root {
+  --btn-cancel: #fff4e9; --btn-cancel-ink: #101b42; --btn-cancel-edge: rgba(16, 27, 66, .28);
+  --btn-apply: #76e0d0; --btn-apply-ink: #101b42; --btn-apply-edge: #3fae9d;
+  --btn-delete: #ffe4e4; --btn-delete-ink: #a4161a; --btn-delete-edge: #d98c8c;
+}
+html[data-theme='pinkpop'] {
+  --btn-cancel: #fff5fb; --btn-cancel-ink: #2a1f2b; --btn-cancel-edge: #e9a9c8;
+  --btn-apply: #a9e6d9; --btn-apply-ink: #183c36; --btn-apply-edge: #5fb3a5;
+  --btn-delete: #ffe1e8; --btn-delete-ink: #9f1239; --btn-delete-edge: #f0a3b5;
+}
+html[data-theme='petalpunk'] {
+  --btn-cancel: #3a2b44; --btn-cancel-ink: #f6e9f1; --btn-cancel-edge: #6b4a66;
+  --btn-apply: #7fd6c8; --btn-apply-ink: #1b141f; --btn-apply-edge: #4fae9f;
+  --btn-delete: #4a2030; --btn-delete-ink: #fecdd6; --btn-delete-edge: #9f3a55;
+}
+html[data-theme='squeezeme'] {
+  --btn-cancel: #f8fbff; --btn-cancel-ink: #1f2937; --btn-cancel-edge: #a9c1e8;
+  --btn-apply: #8fdcd0; --btn-apply-ink: #0f2e3a; --btn-apply-edge: #3ea89a;
+  --btn-delete: #fde2e2; --btn-delete-ink: #991b1b; --btn-delete-edge: #f0a8a8;
+}
+html[data-theme='smokedcitrus'] {
+  --btn-cancel: #3a3632; --btn-cancel-ink: #f5efe8; --btn-cancel-edge: #6b655e;
+  --btn-apply: #86dccd; --btn-apply-ink: #1a1918; --btn-apply-edge: #4aa999;
+  --btn-delete: #4a2420; --btn-delete-ink: #fecaca; --btn-delete-edge: #9a3b33;
+}
+html[data-theme='sunburnt'] {
+  --btn-cancel: #fff8f1; --btn-cancel-ink: #3b2a12; --btn-cancel-edge: #e6c49c;
+  --btn-apply: #97dccd; --btn-apply-ink: #16332e; --btn-apply-edge: #4aa999;
+  --btn-delete: #fde2dc; --btn-delete-ink: #9a2a17; --btn-delete-edge: #eba795;
+}
+html[data-theme='office'] {
+  --btn-cancel: #eceef0; --btn-cancel-ink: #26292d; --btn-cancel-edge: #9fa4aa;
+  --btn-apply: #b4c4c8; --btn-apply-ink: #1f2226; --btn-apply-edge: #7c8b90;
+  --btn-delete: #ecdcdc; --btn-delete-ink: #7f3434; --btn-delete-edge: #b98989;
+}
+html[data-theme='graphite'] {
+  --btn-cancel: #3d4147; --btn-cancel-ink: #dfe1e4; --btn-cancel-edge: #5d636b;
+  --btn-apply: #8fa9a6; --btn-apply-ink: #1f2226; --btn-apply-edge: #6c8582;
+  --btn-delete: #4a3836; --btn-delete-ink: #f0c4bf; --btn-delete-edge: #a85a54;
+}
+html[data-theme='goepiclight'] {
+  --btn-cancel: #ffffff; --btn-cancel-ink: #1d1d1f; --btn-cancel-edge: #c7c7cf;
+  --btn-apply: #76e0d0; --btn-apply-ink: #101b42; --btn-apply-edge: #3fae9d;
+  --btn-delete: #ffe4e4; --btn-delete-ink: #a4161a; --btn-delete-edge: #d98c8c;
+}
+html[data-theme='goepicdark'] {
+  --btn-cancel: #1c2858; --btn-cancel-ink: #f5f5f7; --btn-cancel-edge: #3a4777;
+  --btn-apply: #76e0d0; --btn-apply-ink: #101b42; --btn-apply-edge: #3fae9d;
+  --btn-delete: #3a1f2e; --btn-delete-ink: #fecdd6; --btn-delete-edge: #9b3b4f;
+}
+/* :root:root:root and the doubled class: they must win over the themes' accent rules on .primary and .ask-ok, which are
+   !important too */
+:root:root:root button:is(.btn-cancel, .btn-apply, .btn-delete) { border-radius: 999px !important; border-width: 1.5px !important; border-style: solid !important;
+  font-weight: 700; box-shadow: 0 1px 2px rgba(16, 27, 66, .18) !important; }
+:root:root:root button.btn-cancel.btn-cancel { background: var(--btn-cancel) !important; color: var(--btn-cancel-ink) !important; border-color: var(--btn-cancel-edge) !important; }
+:root:root:root button.btn-apply.btn-apply { background: var(--btn-apply) !important; color: var(--btn-apply-ink) !important; border-color: var(--btn-apply-edge) !important; }
+:root:root:root button.btn-delete.btn-delete { background: var(--btn-delete) !important; color: var(--btn-delete-ink) !important; border-color: var(--btn-delete-edge) !important; }
+:root:root:root button.btn-cancel.btn-cancel:hover:not(:disabled) { background: color-mix(in srgb, var(--btn-cancel) 88%, var(--btn-cancel-ink)) !important; }
+:root:root:root button.btn-apply.btn-apply:hover:not(:disabled) { background: color-mix(in srgb, var(--btn-apply) 88%, #fff) !important; }
+:root:root:root button.btn-delete.btn-delete:hover:not(:disabled) { background: color-mix(in srgb, var(--btn-delete) 90%, var(--btn-delete-ink)) !important; }
+:root:root:root button:is(.btn-cancel, .btn-apply, .btn-delete):focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+:root:root:root button:is(.btn-cancel, .btn-apply, .btn-delete):disabled { opacity: .45; }
+
+/* The suggested palette (Gianni, v56): the theme's own palette has a halo round its colours and «Sugerido» above the
+   halo at its right */
+.palette-row.suggested .palette-swatches { border-radius: 9px; box-shadow: 0 0 0 3px var(--navy-card), 0 0 0 5.5px var(--teal); }
+.palette-row.suggested { padding-top: 12px; padding-bottom: 14px; }
+.palette-suggested { grid-area: name; justify-self: end; align-self: end; margin-bottom: 2px; padding: 1px 9px; border-radius: 999px;
+  background: var(--teal); color: var(--g-on-ink, #101b42); font-size: 11px; font-weight: 800; letter-spacing: .04em; line-height: 1.6; }
+html[data-theme='goepiclight'] .palette-suggested { color: #1d1d1f; }
+
+/* Canvas, «Sin definir» (Gianni, v56): the Canvas's one button at the top, on the whole width, a pill as tall as the other
+   buttons in Aplicar's colours, with how many wait in a small navy circle at its right; «+ Nueva actividad» in its window */
+.canvas-page .toolbar { flex:1 0 100%; }
+:is(.canvas-page, .undefined-window) button:is(.undefined-btn,.undefined-new) { width:100%; min-height:44px; border:1.5px solid var(--btn-apply-edge); background:var(--btn-apply); color:var(--btn-apply-ink); box-shadow:0 1px 2px #101b422e; }
+:is(.canvas-page, .undefined-window) button:is(.undefined-btn,.undefined-new):hover:not(:disabled) { background:color-mix(in srgb,var(--btn-apply) 88%,#fff); color:var(--btn-apply-ink); }
+:is(.canvas-page, .undefined-window) button:is(.undefined-btn,.undefined-new):focus-visible { outline:3px solid var(--ink); outline-offset:2px; }
+.canvas-page button.undefined-btn { position:relative; display:flex; align-items:center; justify-content:center; padding:8px 52px; }
+:is(.canvas-page, .undefined-window) .count-dot { display:inline-grid; place-items:center; min-width:28px; height:28px; padding:0 7px; box-sizing:border-box; border-radius:999px;
+  background:var(--btn-apply-ink); color:var(--btn-apply); font-size:13px; font-weight:800; letter-spacing:0; line-height:1; }
+.canvas-page .undefined-btn .count-dot { position:absolute; right:8px; top:50%; translate:0 -50%; }
+.canvas-page .undefined-btn.drop-hot { outline:3px solid var(--ink); outline-offset:3px; }
+.undefined-window button.undefined-new { display:block; margin:0 0 10px; }

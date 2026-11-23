@@ -71,18 +71,18 @@ export class Ask {
           <span>{{ i18n.t(undo.left() === 1 ? 'undo.second' : 'undo.seconds') }}</span>
         </p>
         <div class="ask-actions">
-          <button type="button" class="ask-cancel undo-now" (click)="undo.flush()">{{ i18n.t('undo.now') }}</button>
-          <button #undoCancel type="button" class="ask-ok undo-keep" (click)="keep()">{{ i18n.t('undo.keep') }}</button>
+          <button type="button" class="ask-cancel btn-delete undo-now" (click)="undo.flush()">{{ i18n.t('undo.now') }}</button>
+          <button #undoCancel type="button" class="ask-ok btn-cancel undo-keep" (click)="keep()">{{ i18n.t('undo.keep') }}</button>
         </div>
         <span class="ask-timer" aria-hidden="true"><i [style.--secs]="seconds + 's'" [style.--frac]="undo.left() / seconds"></i></span>
       } @else if (shown(); as q) {
         <p id="ask-text">{{ q.message }}</p>
         <div class="ask-actions">
           @if (q.ok) {
-            <button type="button" class="ask-cancel" (click)="answer(false)">{{ q.cancel || i18n.t('task.cancel') }}</button>
-            <button type="button" class="ask-ok" [class.danger]="q.danger" (click)="answer(true)">{{ q.ok }}</button>
+            <button type="button" class="ask-cancel btn-cancel" (click)="answer(false)">{{ q.cancel || i18n.t('task.cancel') }}</button>
+            <button type="button" class="ask-ok" [class.danger]="q.danger" [class.btn-delete]="q.danger" [class.btn-apply]="!q.danger" (click)="answer(true)">{{ q.ok }}</button>
           } @else {
-            <button type="button" class="ask-ok" (click)="answer(false)">{{ i18n.t('ask.ok') }}</button>
+            <button type="button" class="ask-ok btn-apply" (click)="answer(false)">{{ i18n.t('ask.ok') }}</button>
           }
         </div>
       }
