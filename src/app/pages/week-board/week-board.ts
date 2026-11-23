@@ -138,7 +138,7 @@ export class WeekBoard {
       } }, { injector: this.injector }));
     });
     this.followNow();
-    effect(() => { if (this.arranging()) untracked(() => this.spotlight.set(false)); });
+    effect(() => { if (this.arranging()) untracked(() => { this.spotlight.set(false); this.headHidden.set(false); }); });
   }
 
   /**
@@ -161,10 +161,13 @@ export class WeekBoard {
     // finger or the wheel (takeOver), which turns it off at once.
     const scrolled = () => {
       if (this.autoScroll) this.endAutoScroll(160);
-      else if (Date.now() - this.litAt > 700) this.spotlight.set(false);
+      else {
+        if (Date.now() - this.litAt > 700) this.spotlight.set(false);
+        if (Date.now() - this.hidAt > 700) this.headHidden.set(false);
+      }
       arm();
     };
-    const takeOver = () => { this.handledAt = Date.now(); if (this.autoScroll) { clearTimeout(this.autoScroll); this.autoScroll = null; } this.spotlight.set(false); };
+    const takeOver = () => { this.handledAt = Date.now(); if (this.autoScroll) { clearTimeout(this.autoScroll); this.autoScroll = null; } this.spotlight.set(false); this.headHidden.set(false); };
     const down = () => { this.handledAt = Date.now(); touching = true; stop(); };
     const up = () => { touching = false; arm(); };
     // A finger is followed by touch events: a native scroll cancels the pointer (pointercancel) while the finger is
@@ -196,7 +199,7 @@ export class WeekBoard {
   /** The centring scroll ends once its scroll events stop for `quiet` ms; then the spotlight comes on. */
   private endAutoScroll(quiet: number): void {
     if (this.autoScroll) clearTimeout(this.autoScroll);
-    this.autoScroll = setTimeout(() => { this.autoScroll = null; this.light(); }, quiet);
+    this.autoScroll = setTimeout(() => { this.autoScroll = null; this.hidAt = Date.now(); this.light(); }, quiet);
   }
   private light(): void {
     const line = document.querySelector<HTMLElement>('article.day.today .now-line');
@@ -205,6 +208,19 @@ export class WeekBoard {
     this.spotlight.set(on);
   }
   private litAt = 0;
+  /**
+   * The board's header fades out, wholly, while the red line centres itself (Gianni: to see what is behind it), and
+   * fades back in at his first scroll of his own (the same signs that end the spotlight). Taps pass through it then.
+   */
+  protected readonly headHidden = signal(false);
+  /** When the centring last settled: the scroll events a phone still sends just after it are not his. */
+  private hidAt = 0;
+  /** A centring of the line is starting: the header fades away (never while arranging). */
+  private hideHead(): void {
+    if (this.arranging()) return;
+    this.hidAt = Date.now();
+    this.headHidden.set(true);
+  }
   protected readonly mobileDay = signal<Day>(this.store.today());
   private readonly swipe = new SwipeTracker();
   /**
@@ -403,6 +419,7 @@ export class WeekBoard {
     if (!target || !shownOnScreen(target)) return;                          // hidden (another day's tab)
     const rect = target.getBoundingClientRect();
     const view = window.visualViewport?.height ?? window.innerHeight;
+    if (line) this.hideHead();                                              // only a red line being centred hides the header
     if (line && Math.abs(rect.top - view / 2) <= 4) { if (!this.autoScroll) this.light(); return; }   // already in the middle
     const smooth = typeof matchMedia === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.endAutoScroll(400);                                                  // no scroll at all (an edge): it still lights

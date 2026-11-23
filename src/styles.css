@@ -1120,6 +1120,11 @@ body { letter-spacing: var(--app-ls); }
   margin-left: -16px; margin-right: -16px; padding: max(6px, env(safe-area-inset-top)) 16px 8px; background: var(--page);
   box-shadow: 0 8px 14px -10px rgba(0, 0, 0, .45); }
 .board-head { margin-bottom: 12px; }
+/* while the red line centres itself the header fades away, wholly, so what is behind it shows (Gianni); his own scroll
+   brings it back softly; taps pass through it meanwhile */
+.board-head { transition: opacity .9s cubic-bezier(.4, 0, .2, 1), visibility 0s linear 0s; }
+.board-head.faded { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .9s cubic-bezier(.4, 0, .2, 1), visibility 0s linear .9s; }
+@media (prefers-reduced-motion: reduce) { .board-head, .board-head.faded { transition: none; } }
 .board-head > .week-top { margin-bottom: 0; }
 .board-head > .day-tabs { margin: 8px 0 0; }
 .text-steppers { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 2px; }
