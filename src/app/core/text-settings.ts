@@ -7,6 +7,9 @@ import { Injectable, signal } from '@angular/core';
  * (`textScale`), so an 8px "FEATURE" over a 10px activity becomes about 9px when the activity goes to 12px.
  * A third stepper, px, sets how many pixels a minute takes on the cards and free bands (`pxPerMin`, --px-min).
  * Saved on this device (`go-epic-text`); applied as CSS variables on <html>: --act-fs, --esc, --app-ls, --px-min (styles.css).
+ * A step glides (Gianni: more grows big, softly; less shrinks small, softly): the variables move from what is on screen
+ * to the new value over `LOOK_GLIDE_MS`, so the cards, texts and free bands grow or shrink with it; at once under
+ * reduced motion.
  */
 
 export const TEXT_DEFAULT_SIZE = 15;
@@ -59,6 +62,24 @@ export function appSpacing(spacing: number): number {
   return Math.round(Math.min(0.06, sp / 2) * 1000) / 1000 || 0;
 }
 
+/** How long a step of px, Aa or AV glides (slow and soft, like the app's other motions). */
+export const LOOK_GLIDE_MS = 700;
+
+/** What the three steppers set, as drawn on screen. */
+export interface Look { size: number; spacing: number; px: number }
+
+/** Ease in and out (cubic): the glide starts and ends softly. `t` is kept in 0…1. */
+export function glideEase(t: number): number {
+  const x = Math.min(1, Math.max(0, Number.isFinite(t) ? t : 1));
+  return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+}
+
+/** The look a fraction `k` (0…1) of the way from `from` to `to`. */
+export function lookBetween(from: Look, to: Look, k: number): Look {
+  const at = (a: number, b: number) => (k >= 1 ? b : k <= 0 ? a : a + (b - a) * k);
+  return { size: at(from.size, to.size), spacing: at(from.spacing, to.spacing), px: at(from.px, to.px) };
+}
+
 const KEY = 'go-epic-text';
 
 @Injectable({ providedIn: 'root' })
@@ -67,6 +88,9 @@ export class TextSettings {
   readonly spacing = signal(0);
   /** Pixels per minute on the Week board's cards and free bands (the px stepper). */
   readonly pxPerMin = signal(PX_PER_MIN_DEFAULT);
+  /** What is on screen now (mid-glide, between the old value and the chosen one). */
+  private drawn: Look | null = null;
+  private frame = 0;
 
   constructor() {
     try {
@@ -79,15 +103,16 @@ export class TextSettings {
     this.apply();
   }
 
-  set(size: number, spacing: number): void {
+  /** `keep`, when given, runs after every frame of the glide (the page keeping its middle card where it was). */
+  set(size: number, spacing: number, keep?: () => void): void {
     this.size.set(Math.min(TEXT_MAX_SIZE, Math.max(TEXT_MIN_SIZE, size)));
     this.spacing.set(Math.min(TEXT_MAX_SPACING, Math.max(TEXT_MIN_SPACING, spacing)));
-    this.save();
+    this.save(keep);
   }
 
-  private save(): void {
+  private save(keep?: () => void): void {
     try { localStorage.setItem(KEY, JSON.stringify({ size: this.size(), spacing: this.spacing(), px: this.pxPerMin(), pxv: PX_VERSION })); } catch { /* view preference */ }
-    this.apply();
+    this.glide(keep);
   }
 
   reset(): void {
@@ -95,17 +120,17 @@ export class TextSettings {
   }
 
   /** The Aa stepper: one size up (+1) or down (-1). */
-  stepSize(dir: 1 | -1): void {
-    this.set(stepValue(TEXT_SIZES, this.size(), dir), this.spacing());
+  stepSize(dir: 1 | -1, keep?: () => void): void {
+    this.set(stepValue(TEXT_SIZES, this.size(), dir), this.spacing(), keep);
   }
   /** The AV stepper: a little more (+1) or less (-1) space between letters. */
-  stepSpacing(dir: 1 | -1): void {
-    this.set(this.size(), stepValue(TEXT_SPACINGS, this.spacing(), dir));
+  stepSpacing(dir: 1 | -1, keep?: () => void): void {
+    this.set(this.size(), stepValue(TEXT_SPACINGS, this.spacing(), dir), keep);
   }
   /** The px stepper: a minute takes more (+1) or fewer (-1) pixels. */
-  stepPx(dir: 1 | -1): void {
+  stepPx(dir: 1 | -1, keep?: () => void): void {
     this.pxPerMin.set(stepValue(PX_PER_MIN_STEPS, this.pxPerMin(), dir));
-    this.save();
+    this.save(keep);
   }
   canStep(kind: 'size' | 'spacing' | 'px', dir: 1 | -1): boolean {
     const steps = kind === 'size' ? TEXT_SIZES : kind === 'spacing' ? TEXT_SPACINGS : PX_PER_MIN_STEPS;
@@ -113,14 +138,54 @@ export class TextSettings {
     return dir === 1 ? cur < steps[steps.length - 1] : cur > steps[0];
   }
 
+  private target(): Look {
+    return { size: this.size(), spacing: this.spacing(), px: this.pxPerMin() };
+  }
+
+  /** Straight to the chosen look (on start, and under reduced motion). */
   private apply(): void {
+    if (this.frame) { cancelAnimationFrame(this.frame); this.frame = 0; }
+    this.draw(this.target());
+  }
+
+  /**
+   * From what is on screen to the chosen look, softly; a tap during a glide starts the next one from where it is.
+   */
+  private glide(keep?: () => void): void {
+    const from = this.drawn;
+    const reduced = typeof matchMedia !== 'function' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!from || reduced || typeof requestAnimationFrame !== 'function' || typeof performance === 'undefined') {
+      this.apply();
+      keep?.();
+      return;
+    }
+    if (this.frame) cancelAnimationFrame(this.frame);
+    const to = this.target();
+    const start = performance.now();
+    const tick = (now: number) => {
+      const t = (now - start) / LOOK_GLIDE_MS;
+      this.draw(lookBetween(from, to, glideEase(t)));
+      keep?.();
+      this.frame = t < 1 ? requestAnimationFrame(tick) : 0;
+    };
+    this.frame = requestAnimationFrame(tick);
+  }
+
+  private draw(look: Look): void {
+    this.drawn = look;
     if (typeof document === 'undefined') return;
     const root = document.documentElement.style;
-    root.setProperty('--act-fs', this.size() + 'px');
-    root.setProperty('--act-ls', this.spacing() + 'em');
-    root.setProperty('--esc', String(textScale(this.size())));
-    root.setProperty('--px-min', this.pxPerMin() + 'px');
-    const ls = appSpacing(this.spacing());
+    root.setProperty('--act-fs', round(look.size) + 'px');
+    root.setProperty('--act-ls', round(look.spacing, 4) + 'em');
+    root.setProperty('--esc', String(textScale(look.size)));
+    root.setProperty('--px-min', round(look.px, 4) + 'px');
+    const ls = appSpacing(look.spacing);
     root.setProperty('--app-ls', ls ? ls + 'em' : 'normal');
   }
+}
+
+/** A value written to CSS, without a long tail of digits. */
+function round(n: number, digits = 3): number {
+  const f = 10 ** digits;
+  return Math.round(n * f) / f;
 }
