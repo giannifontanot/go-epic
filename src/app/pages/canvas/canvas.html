@@ -67,20 +67,15 @@
       @if (m.node) { <button type="button" class="danger" [disabled]="saving" (click)="remove()">{{ i18n.t('task.delete') }}</button> }
     </header>
     <form (submit)="$event.preventDefault(); submit()">
-      <label class="field">{{ i18n.t('canvas.name') }}
-        <input [value]="title" (input)="title = $any($event.target).value" autocomplete="off" /></label>
-      @if (m.kind !== 'area' && !m.bare) {
+      @if (m.kind === 'area' || m.bare) {
+        <label class="field">{{ i18n.t('canvas.name') }}
+          <input [value]="title" (input)="title = $any($event.target).value" autocomplete="off" /></label>
+      } @else {
         <!-- Its place on the Canvas's own card (Gianni): each level reads «Por definir» until it is tapped and chosen,
              or named new, in its floating menu; half a place is never applied. An Epic shows its ÁREA on top, whose
              floating menu moves it to another area. -->
         <app-place-card [leafKind]="$any(m.kind)" [leafTitle]="title.trim() || i18n.t(m.kind === 'task' ? 'task.newTitle' : 'canvas.' + m.kind)"
-          [value]="cascade" [labelOf]="placeLabel" [descOf]="placeDesc" [optionsOf]="placeOptions" [newId]="NEW" [version]="v" [disabled]="saving" (pick)="pickPlace($event)" />
-      }
-      @if (m.node && (m.kind === 'feature' || m.kind === 'story')) {
-        <div class="arrange-actions">
-          <button type="button" class="chip quiet" [disabled]="saving" (click)="arrange(-1)">↑ {{ i18n.t('canvas.earlier') }}</button>
-          <button type="button" class="chip quiet" [disabled]="saving" (click)="arrange(1)">↓ {{ i18n.t('canvas.later') }}</button>
-        </div>
+          [leafTpl]="modalName" [value]="cascade" [labelOf]="placeLabel" [descOf]="placeDesc" [optionsOf]="placeOptions" [newId]="NEW" [version]="v" [disabled]="saving" (pick)="pickPlace($event)" />
       }
       <footer>
         <button type="button" (click)="close()">{{ i18n.t('task.cancel') }}</button>
@@ -116,6 +111,19 @@
   <label class="card-name"><span class="sr-only">{{ i18n.t('canvas.name') }}</span>
     <input [value]="editTitle" (input)="editTitle = $any($event.target).value" (blur)="commitTitle()"
       (keydown.enter)="$event.preventDefault(); finishEdit()" autocomplete="off" enterkeyhint="done" /></label>
+</ng-template>
+<!-- The window's own name (Epic, Feature, Story, or a Story's new Activity): no box at the top any more (Gianni); a tap on
+     the name in its own box of the card turns it into a box with a thin teal edge right there, and a new one starts as that
+     box (never focused: the keyboard comes up only when it is tapped). Nothing is kept until Apply; Cancel drops it. -->
+<ng-template #modalName>
+  @if (nameOpen || !modal?.node) {
+    <label class="modal-name"><span class="sr-only">{{ i18n.t('canvas.name') }}</span>
+      <input #modalNameBox [value]="title" (input)="title = $any($event.target).value" autocomplete="off" enterkeyhint="done"
+        [placeholder]="i18n.t('canvas.name')" (keydown.enter)="$event.preventDefault(); $any($event.target).blur()" /></label>
+  } @else {
+    <button type="button" class="modal-name-btn" [disabled]="saving" [attr.aria-label]="i18n.t('canvas.rename') + ': ' + title"
+      (click)="openName()"><strong>{{ title }}<span class="edit-pen" aria-hidden="true">✎</span></strong></button>
+  }
 </ng-template>
 <!-- In the Undefined window the name lives in the place card's own ACTIVIDAD box (Gianni): a tap there renames it -->
 <ng-template #leafName>

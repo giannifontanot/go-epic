@@ -86,6 +86,9 @@ export class Canvas implements DoCheck {
   announcement = '';
   modal: Modal | null = null;
   title = '';
+  /** The window's name box is open in its card (a tap on the name; a new one starts open). */
+  nameOpen = false;
+  private readonly modalNameBox = viewChild<ElementRef<HTMLInputElement>>('modalNameBox');
   parentId = '';
   dragState?: Drag;
   private scrollFrame = 0;
@@ -479,6 +482,7 @@ export class Canvas implements DoCheck {
     this.editorClosing = false;
     this.modal = { kind, parentId, node, bare };
     this.title = node?.title || '';
+    this.nameOpen = false;
     const parent = node?.parentId ?? parentId;
     this.epicArea = kind === 'epic' ? (this.keyOf(parent) || (this.areaFilter === 'all' ? '' : this.areaFilter)) : '';
     this.fillCascade(parent);
@@ -487,6 +491,11 @@ export class Canvas implements DoCheck {
   }
   /** New activity (Gianni): just its name; it waits in Undefined until it gets its whole place. */
   newActivity(): void { this.open('task', null, undefined, true); }
+  /** A tap on the name in its own box of the card: it becomes the name box right there, ready to type (he tapped it). */
+  openName(): void {
+    this.nameOpen = true;
+    afterNextRender(() => { const box = this.modalNameBox()?.nativeElement; box?.focus(); box?.select(); }, { injector: this.injector });
+  }
   addChild(node: LibNode): void { this.open(node.kind === 'feature' ? 'story' : 'task', node.id); }
   close(): void {
     const d = this.editor()?.nativeElement;
@@ -693,19 +702,6 @@ export class Canvas implements DoCheck {
   private pathEpic(id?: string): string {
     for (let n = this.state.node(id), guard = 0; n && guard < 10; guard++, n = this.state.node(n.parentId)) if (n.kind === 'epic') return n.id;
     return '';
-  }
-
-  arrange(delta: number): void {
-    const node = this.modal?.node;
-    if (this.editorClosing) return;
-    if (!node || node.kind === 'epic' || node.kind === 'area') return;
-    const siblings = this.state.children(node.parentId);
-    const index = siblings.findIndex((n) => n.id === node.id);
-    const destination = index + delta;
-    if (destination < 0 || destination >= siblings.length) return;
-    const before = delta < 0 ? siblings[destination]?.id : siblings[destination + 1]?.id;
-    this.mutate(() => this.state.move(node.id, node.parentId, before));
-    this.announcement = this.i18n.t('canvas.saved');
   }
 
   /** A week place count for the delete question of a task. */
