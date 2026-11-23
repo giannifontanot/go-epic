@@ -17,7 +17,6 @@ import { CanvasNode } from './canvas-node';
 import { CanvasLayout, CanvasState } from './canvas-state';
 import { PlaceCard, PlaceLevel, PlaceOption, PlacePick } from './place-card';
 import { PickItem, PickMenu } from './pick-menu';
-import { focusAtEnd, splitTail } from '../../core/text-tail';
 
 interface Drag {
   node: LibNode; x: number; y: number; currentX: number; currentY: number; source: HTMLElement;
@@ -90,8 +89,6 @@ export class Canvas implements DoCheck {
   modal: Modal | null = null;
   title = '';
   /** The window's name box is open in its card (a tap on the name; a new one starts open). */
-  nameOpen = false;
-  private readonly modalNameBox = viewChild<ElementRef<HTMLInputElement>>('modalNameBox');
   parentId = '';
   dragState?: Drag;
   private scrollFrame = 0;
@@ -498,7 +495,6 @@ export class Canvas implements DoCheck {
     this.editorClosing = false;
     this.modal = { kind, parentId, node, bare };
     this.title = node?.title || '';
-    this.nameOpen = false;
     const parent = node?.parentId ?? parentId;
     this.epicArea = kind === 'epic' ? (this.keyOf(parent) || (this.areaFilter === 'all' ? '' : this.areaFilter)) : '';
     this.fillCascade(parent);
@@ -507,13 +503,11 @@ export class Canvas implements DoCheck {
   }
   /** New activity (Gianni): just its name; it waits in Undefined until it gets its whole place. */
   newActivity(): void { this.open('task', null, undefined, true); }
-  /** The window's name split for its ✎: the last word stays with the pencil, never the pencil alone on a line (Gianni). */
-  protected readonly tail = splitTail;
-  /** A tap on the name in its own box of the card: it becomes the name box right there, the cursor at its end, nothing
-   *  highlighted (Gianni). */
-  openName(): void {
-    this.nameOpen = true;
-    afterNextRender(() => focusAtEnd(this.modalNameBox()?.nativeElement), { injector: this.injector });
+  /** A tap on the window's name box: the cursor goes to its end, nothing highlighted (Gianni), once the browser has
+   *  placed it where the finger landed. */
+  caretToEnd(box: HTMLInputElement): void {
+    const end = () => { if (document.activeElement === box) { const n = box.value.length; try { box.setSelectionRange(n, n); } catch { /* no selection */ } } };
+    requestAnimationFrame(() => setTimeout(end, 0));
   }
   addChild(node: LibNode): void { this.open(node.kind === 'feature' ? 'story' : 'task', node.id); }
   close(): void {

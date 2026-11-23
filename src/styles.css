@@ -605,7 +605,7 @@ dialog.capture-panel .capture-scroll { height: 100%; box-sizing: border-box; ove
   padding: 18px 18px calc(18px + 56px); }
 dialog.capture-panel .capture-x { --tap: 40px; flex: none; }
 /* the keyboard coming up shrinks it softly to the part still visible (core/soft-keyboard), and back when it goes down */
-@media (prefers-reduced-motion: no-preference) { dialog.capture-panel[open] { transition: height .34s cubic-bezier(.2, 0, 0, 1), margin-top .34s cubic-bezier(.2, 0, 0, 1); } }
+@media (prefers-reduced-motion: no-preference) { dialog.capture-panel[open] { transition: height .68s cubic-bezier(.2, 0, 0, 1), margin-top .68s cubic-bezier(.2, 0, 0, 1); } }
 /* the thumb's Close (Gianni): the other windows' Close button, always in the window's bottom-right corner, over the list */
 dialog.capture-panel .capture-close-foot { position: absolute; right: 14px; bottom: 14px; z-index: 2; box-shadow: 0 4px 14px #0006; }
 dialog.capture-panel::backdrop, dialog.editor::backdrop, dialog.transfer::backdrop { background: rgba(4, 9, 30, .55); }
@@ -875,7 +875,7 @@ dialog.activity-picker header h2 { margin: 0; font-size: 22px; }
 .pick-epics { display: flex; gap: 8px; margin: 0 0 14px; padding: 2px 2px 8px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; }
 .pick-epics button { flex: none; display: grid; text-align: left; min-width: 72px; max-width: 200px; min-height: 44px; padding: 6px 12px; border: 0; border-radius: 14px;
   background: linear-gradient(155deg, var(--plum-a), var(--plum-b)); color: var(--ink); cursor: pointer; }
-.pick-epics button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; font-size: 14px; }
+.pick-epics button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
 .pick-epics button small { font-size: 11px; opacity: .75; }
 .pick-epics button.active { background: linear-gradient(150deg, var(--jelly-a), var(--jelly-b)); color: var(--jelly-ink); }
 .pick-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
@@ -1123,7 +1123,7 @@ body:has(.board.locked.spot)::before { opacity: 1; }
 /* The time range: a soft grey dash, so the two hours read easily */
 .summary .dash { margin: 0 .25em; color: rgba(54, 38, 67, .45); font-weight: 400; }
 /* Capture: when the keyboard moves the visible screen, the panel follows smoothly instead of jumping */
-dialog.capture-panel { transition: margin-top .25s ease, height .25s ease; }
+dialog.capture-panel { transition: margin-top .68s cubic-bezier(.2, 0, 0, 1), height .68s cubic-bezier(.2, 0, 0, 1); }
 
 /* Edit mode grows out of the ✎ and shrinks back into it (week-board toggleArrange, View Transitions): a circle from
    the pressed point, 300 ms with the dialogs' mirrored curves; the other half of the pair stays still underneath. */
@@ -2095,3 +2095,14 @@ dialog.info-card.year-import { width: min(440px, calc(100vw - 32px)); border: 1p
 .gcal-cal input { width: 20px; height: 20px; accent-color: var(--pink); flex: none; }
 .gcal-dot { width: 12px; height: 12px; flex: none; border-radius: 50%; background: var(--ink-soft); }
 .gcal-result { font-weight: 600; }
+
+/* Every button's words in one size (Gianni, v54): the size of Aplicar on an Activity's open card, 15px, with the letters a
+   little apart (1.5px) so they read cleanly. Buttons that hold only a sign (×, ✎, +, −, ▲, ›, the round menus, the check
+   circles and squares, swatches) and those drawn as titles, cards, rows or menu tiles keep their own size. */
+button:not(.round, .capture-fab, .grip, .t-grip, .t-state, .swatch, .theme-tile, .page-tile, .title, .title-btn, .why-btn,
+  .now-badge, .edit-pen, .more, .fold, .c-icon, .todo-edit, .pc-act-x, .pick-close, .drawer-close, .close, .update-step,
+  .update-button, .pc-head, .pick-hit, .palette-row, .yr-cell, .today-task, .yd-note, .loose-open, .b-row, .c-text,
+  .overdue-head, .pc-act-open, .year-dates li > button, .look-pill button, .stepper button, .linked-chip button, .error > button:not(.primary)) {
+  font-size: 15px !important;
+  letter-spacing: 1.5px !important;
+}
