@@ -113,6 +113,7 @@ input.block-name { border: 0; border-bottom: 1.5px dashed rgba(54, 38, 67, .5); 
 .task-row { display: flex; align-items: flex-start; gap: 8px; }
 .t-time { flex: none; font-size: 13px; opacity: .75; font-variant-numeric: tabular-nums; padding-top: 2px; }
 .t-title { flex: 1 1 0; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
+.board.locked .t-title { display: block; }   /* the whole name, never cut (Gianni, v62); a block, so its margin keeps it level with the circle */
 /* A card is its whole name (every line, never cut) plus its minutes under the name's bottom edge, locked or arranging
    (Gianni, v62: counted from the name's foot, or a 1-minute activity looks like a 45-minute one; 1px a minute by default,
    no cap), so shrinking it hands every pixel to the free band (Gianni: pulling the last card's handle up made the block grow) */
