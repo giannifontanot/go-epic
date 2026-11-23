@@ -16,7 +16,7 @@ export class PaletteService {
 
   constructor() {
     effect(() => {
-      const look = paletteLook(this.theme.theme(), this.palettes(), this.edges());
+      const look = paletteLook(this.theme.shown(), this.palettes(), this.edges());
       if (typeof document === 'undefined') return;
       const root = document.documentElement;
       for (let i = 0; i < SLOTS; i++) {

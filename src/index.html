@@ -66,9 +66,13 @@
     <script>
       try {
         var bar = { pinkpop: '#fbeaf3', petalpunk: '#1b141f', squeezeme: '#eef4fc', sunburnt: '#fff1e5', smokedcitrus: '#1a1918', office: '#c6c9cd', graphite: '#2b2e33', goepiclight: '#fbfbfd', goepicdark: '#0a1130' }[localStorage.getItem('go-epic-theme')];
+        // the Canvas always wears Epic (Gianni): opened straight there, it starts in Epic too, only the manifest follows the choice
+        var canvas = /^\/canvas(\/|$)/.test(location.pathname);
         if (bar) {
-          document.documentElement.dataset.theme = localStorage.getItem('go-epic-theme');
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', bar);
+          if (!canvas) {
+            document.documentElement.dataset.theme = localStorage.getItem('go-epic-theme');
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', bar);
+          }
           document.querySelector('link[rel="manifest"]').setAttribute('href', 'manifest-' + localStorage.getItem('go-epic-theme') + '.webmanifest');
         }
         if (localStorage.getItem('go-epic-red-line') === '1') document.documentElement.dataset.redLine = '';

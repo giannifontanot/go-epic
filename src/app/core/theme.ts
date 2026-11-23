@@ -1,4 +1,4 @@
-import { Injectable, effect, signal } from '@angular/core';
+import { Injectable, computed, effect, signal } from '@angular/core';
 
 /** The looks Go Epic can wear (Ajustes › Theme). */
 export const THEMES = ['epic', 'pinkpop', 'petalpunk', 'squeezeme', 'sunburnt', 'smokedcitrus', 'office', 'graphite', 'goepiclight', 'goepicdark'] as const;
@@ -41,14 +41,20 @@ export class ThemeService {
   readonly redLine = signal(read(RED_LINE_KEY) === '1');
   /** True while a theme is only tried on (the palette window is open over the themes): it shows but is not stored. */
   private readonly trying = signal(false);
+  /** A page that always wears one look whatever is chosen (the Canvas and its windows: Epic, Gianni), while it is open. */
+  private readonly held = signal<Theme | null>(null);
+  /** The look on screen: the held one, unless a theme is being tried on (the palette window shows what is picked). */
+  readonly shown = computed<Theme>(() => (this.trying() ? null : this.held()) ?? this.theme());
 
   constructor() {
     effect(() => {
       const theme = this.theme();
+      const shown = this.shown();
       const trying = this.trying();
       if (typeof document === 'undefined') return;
-      document.documentElement.dataset['theme'] = theme;
-      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_BAR[theme]);
+      document.documentElement.dataset['theme'] = shown;
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_BAR[shown]);
+      // the installed app keeps the chosen theme's manifest: a page's own look never repaints the phone's bars for a day
       document.querySelector('link[rel="manifest"]')?.setAttribute('href', manifestFor(theme));
       if (!trying) try { localStorage.setItem(THEME_KEY, theme); } catch { /* a view preference */ }
     });
@@ -64,6 +70,11 @@ export class ThemeService {
   set(theme: Theme): void {
     this.trying.set(false);
     this.theme.set(theme);
+  }
+
+  /** While a page is open it wears this look, whatever theme is chosen; null lets the chosen theme back. */
+  hold(theme: Theme | null): void {
+    this.held.set(theme);
   }
 
   /** Shows the theme without keeping it (the palette window's live preview); set() keeps it, or puts the old one back. */

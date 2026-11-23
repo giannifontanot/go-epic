@@ -1,4 +1,5 @@
 import { Why } from '../../shared/why';
+import { ThemeService } from '../../core/theme';
 import { PageMenu } from '../../shared/title-fan';
 import { Ask } from '../../shared/ask';
 import { Component, DestroyRef, DoCheck, ElementRef, HostListener, Injector, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
@@ -65,6 +66,7 @@ export class Canvas implements DoCheck {
   private owner: string | null | undefined;
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly injector = inject(Injector);
+  private readonly themes = inject(ThemeService);
   private readonly editor = viewChild<ElementRef<HTMLDialogElement>>('editor');
   private readonly undefinedWindow = viewChild<ElementRef<HTMLDialogElement>>('undefinedWindow');
 
@@ -86,6 +88,9 @@ export class Canvas implements DoCheck {
   announcement = '';
   modal: Modal | null = null;
   title = '';
+  /** The window's name box is open in its card (a tap on the name; a new one starts open). */
+  nameOpen = false;
+  private readonly modalNameBox = viewChild<ElementRef<HTMLInputElement>>('modalNameBox');
   parentId = '';
   dragState?: Drag;
   private scrollFrame = 0;
@@ -130,7 +135,9 @@ export class Canvas implements DoCheck {
       this.capture.menuHidden.set(on);
       this.capture.lookTools.set(on ? { px: false, finish: () => this.lookOpen.set(false) } : null);
     });
-    inject(DestroyRef).onDestroy(() => { this.capture.menuHidden.set(false); this.capture.lookTools.set(null); this.capture.menuEdit.set(null); this.cancelDrag(); this.motion.destroy(); this.unsaved.canvasDraft.set(false); });
+    // The Canvas and its windows always wear the original Epic look, whatever theme is chosen (Gianni)
+    this.themes.hold('epic');
+    inject(DestroyRef).onDestroy(() => { this.themes.hold(null); this.capture.menuHidden.set(false); this.capture.lookTools.set(null); this.capture.menuEdit.set(null); this.cancelDrag(); this.motion.destroy(); this.unsaved.canvasDraft.set(false); });
   }
 
   // --- What the page shows ---
@@ -479,6 +486,7 @@ export class Canvas implements DoCheck {
     this.editorClosing = false;
     this.modal = { kind, parentId, node, bare };
     this.title = node?.title || '';
+    this.nameOpen = false;
     const parent = node?.parentId ?? parentId;
     this.epicArea = kind === 'epic' ? (this.keyOf(parent) || (this.areaFilter === 'all' ? '' : this.areaFilter)) : '';
     this.fillCascade(parent);
@@ -487,6 +495,11 @@ export class Canvas implements DoCheck {
   }
   /** New activity (Gianni): just its name; it waits in Undefined until it gets its whole place. */
   newActivity(): void { this.open('task', null, undefined, true); }
+  /** A tap on the name in its own box of the card: it becomes the name box right there, ready to type (he tapped it). */
+  openName(): void {
+    this.nameOpen = true;
+    afterNextRender(() => { const box = this.modalNameBox()?.nativeElement; box?.focus(); box?.select(); }, { injector: this.injector });
+  }
   addChild(node: LibNode): void { this.open(node.kind === 'feature' ? 'story' : 'task', node.id); }
   close(): void {
     const d = this.editor()?.nativeElement;
@@ -693,19 +706,6 @@ export class Canvas implements DoCheck {
   private pathEpic(id?: string): string {
     for (let n = this.state.node(id), guard = 0; n && guard < 10; guard++, n = this.state.node(n.parentId)) if (n.kind === 'epic') return n.id;
     return '';
-  }
-
-  arrange(delta: number): void {
-    const node = this.modal?.node;
-    if (this.editorClosing) return;
-    if (!node || node.kind === 'epic' || node.kind === 'area') return;
-    const siblings = this.state.children(node.parentId);
-    const index = siblings.findIndex((n) => n.id === node.id);
-    const destination = index + delta;
-    if (destination < 0 || destination >= siblings.length) return;
-    const before = delta < 0 ? siblings[destination]?.id : siblings[destination + 1]?.id;
-    this.mutate(() => this.state.move(node.id, node.parentId, before));
-    this.announcement = this.i18n.t('canvas.saved');
   }
 
   /** A week place count for the delete question of a task. */
