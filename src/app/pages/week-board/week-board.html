@@ -160,9 +160,10 @@
                       </label>
                     }
                   </div>
-                  <!-- Edit mode: the card is its content plus its minutes (px per minute, the px stepper), so a minute it loses is exactly a minute
-                       the free band below gains and the block keeps its height (Gianni) -->
-                  @if (arranging()) { <span class="t-span" aria-hidden="true"></span> }
+                  <!-- The card is its content plus its minutes (px per minute, the px stepper), locked or arranging (Gianni, v60: a 45-minute
+                       activity must look bigger than a 1-minute one; its own one-line height is the floor, no cap); a minute it loses is
+                       exactly a minute the free band below gains and the block keeps its height -->
+                  <span class="t-span" aria-hidden="true"></span>
                   <span class="t-dur">{{ durationLabel(shownMinutes(task)) }}</span>
                   <!-- Edit mode: pull the handle at the card's foot to change its minutes (Gianni); never past the block's end -->
                   @if (arranging()) {
