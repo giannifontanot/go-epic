@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, Injector, afterNextRender, inject, input, output, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, TemplateRef, afterNextRender, inject, input, output, signal, viewChild } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { I18n } from '../../core/i18n';
 
@@ -63,7 +63,8 @@ const CLOSE_MS = 160;
       </button>
     </ng-template>
     <ng-template #leaf>
-      <span class="pc-head pc-leaf"><small>{{ i18n.t('canvas.' + kind) }}</small><strong>{{ leafTitle() }}</strong></span>
+      <span class="pc-head pc-leaf"><small>{{ i18n.t('canvas.' + kind) }}</small>
+        @if (leafTpl(); as tpl) { <ng-container *ngTemplateOutlet="tpl" /> } @else { <strong>{{ leafTitle() }}</strong> }</span>
     </ng-template>
 
     <!-- The floating menu: in the top layer, so no card or window clips it; it grows out of the level tapped -->
@@ -105,6 +106,8 @@ export class PlaceCard {
   /** What is being placed: an Activity (four levels above it), a Story (three) or a Feature (two). */
   readonly leafKind = input.required<'feature' | 'story' | 'task'>();
   readonly leafTitle = input('');
+  /** What the object's own box holds instead of its title, when the page lets it be renamed right there (its name box). */
+  readonly leafTpl = input<TemplateRef<unknown> | null>(null);
   /** The chosen id of each level ('' = to be defined; `newId` = a new one, named in `labelOf`). */
   readonly value = input.required<Record<PlaceLevel, string>>();
   /** A level's name as shown ('' = to be defined). */

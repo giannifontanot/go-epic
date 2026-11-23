@@ -62,3 +62,6 @@ strong, .title strong { font-family:Georgia,'Noto Serif',serif; font-weight:700;
 .title { padding:4px 2px 6px; }
 .node-bar small { padding-left:2px; }
 @media (pointer:coarse) { .feature { padding:12px 11px 13px; }.story { padding:10px 10px 12px; } }
+
+/* The Undefined window's open Activity: nothing around its place card, which takes the window's whole width */
+.loose-edit { position:relative; }

@@ -150,15 +150,22 @@
     <input [value]="editTitle" (input)="editTitle = $any($event.target).value" (blur)="commitTitle()"
       (keydown.enter)="$event.preventDefault(); finishEdit()" autocomplete="off" enterkeyhint="done" /></label>
 </ng-template>
-<ng-template #editBody let-node>
-  <div class="card-edit">
+<!-- In the Undefined window the name lives in the place card's own ACTIVIDAD box (Gianni): a tap there renames it -->
+<ng-template #leafName>
+  <label class="leaf-name"><span class="sr-only">{{ i18n.t('canvas.name') }}</span>
+    <input [value]="editTitle" (input)="editTitle = $any($event.target).value" (blur)="commitTitle()"
+      (keydown.enter)="$event.preventDefault(); $any($event.target).blur()" autocomplete="off" enterkeyhint="done" /></label>
+</ng-template>
+<ng-template #editBody let-node let-loose="loose">
+  <div class="card-edit" [class.loose]="loose">
     <!-- Its place, on the Canvas's own card (Gianni: no colours here, no Move): each level reads «Por definir» until it is
          tapped and chosen in its floating menu; it is saved as soon as all four are chosen, never half placed. -->
-    <app-place-card leafKind="task" [leafTitle]="editTitle.trim() || node.title" [value]="cascade" [labelOf]="placeLabel"
+    <app-place-card leafKind="task" [leafTitle]="editTitle.trim() || node.title" [leafTpl]="loose ? leafName : null" [value]="cascade" [labelOf]="placeLabel"
       [optionsOf]="placeOptions" [newId]="NEW" [version]="version()" [disabled]="saving" (pick)="pickPlace($event)" />
     @if (cascadeIncomplete) { <p class="card-hint">{{ i18n.t('canvas.placeHint') }}</p> }
     <div class="card-actions">
       <button type="button" class="card-delete" [disabled]="saving" (click)="remove()">{{ i18n.t('task.delete') }}</button>
+      @if (loose) { <button type="button" class="card-done" (click)="finishEdit()">✓ {{ i18n.t('task.done') }}</button> }
     </div>
   </div>
 </ng-template>
