@@ -26,8 +26,8 @@
         <!-- One plum panel, the Epic's own colour (Gianni's picture): ÁREA and EPIC at its top, each the current choice in
              the cards' serif with a ▾ that opens every choice at once in a floating menu, like the pages menu (Gianni: not
              tabs); the Epic's Features, Stories and Activities nest below them in the same panel. -->
-        <div class="scroll-panel epic-objects" id="epic-panel" [attr.aria-label]="active?.title || i18n.t('canvas.epics')"
-          [attr.data-drop-kind]="activeId ? 'epic' : null" [attr.data-parent]="activeId || null" tabindex="0">
+        <!-- Only the Features scroll (Gianni): ÁREA and EPIC stay still at the panel's top, the content under them scrolls. -->
+        <div class="epic-objects" id="epic-panel" [attr.data-drop-kind]="activeId ? 'epic' : null" [attr.data-parent]="activeId || null">
           <header class="pick-head">
             <app-pick-menu class="pick-area" [label]="i18n.t('canvas.area')" [value]="i18n.t('area.' + areaTab)"
               [items]="areaItems" [chosen]="areaTab" (picked)="selectArea($any($event))" />
@@ -42,7 +42,7 @@
               }
             </div>
           </header>
-          <div class="epic-pane">
+          <div class="epic-pane scroll-panel" role="region" [attr.aria-label]="active?.title || i18n.t('canvas.epics')" tabindex="0">
           <div class="objects">
             @for (node of roots; track node.id) {
               <app-canvas-node [node]="node" [state]="state" [version]="v" [disabled]="saving"

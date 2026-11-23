@@ -262,7 +262,7 @@ export class Canvas implements DoCheck {
     if (id === this.openTab) return;
     const token = ++this.swap;
     const pane = this.pane();
-    if (!pane || this.motion.reduced() || !this.activeId) { this.pendingId = ''; this.activeId = id; this.bump(); this.openPane(); return; }
+    if (!pane || this.motion.reduced() || !this.activeId) { this.pendingId = ''; this.activeId = id; this.toTop(); this.bump(); this.openPane(); return; }
     this.pendingId = id;
     this.bump();
     const from = getComputedStyle(pane).opacity;
@@ -273,6 +273,7 @@ export class Canvas implements DoCheck {
       if (token !== this.swap) return;
       this.pendingId = '';
       this.activeId = id;
+      this.toTop();
       this.bump();
       this.openPane();
     };
@@ -292,6 +293,8 @@ export class Canvas implements DoCheck {
     }, { injector: this.injector });
   }
   private pane(): HTMLElement | null { return this.host.nativeElement.querySelector<HTMLElement>('.epic-pane'); }
+  /** Only the Epic's content scrolls (Gianni: ÁREA and EPIC stay still above it), so another Epic opens at its top. */
+  private toTop(): void { const pane = this.pane(); if (pane) pane.scrollTop = 0; }
   ensureActive(): void { if (!this.epics.some((n) => n.id === this.activeId)) this.activeId = this.epics[0]?.id || ''; }
   /** Shows an area's Epics at once (an Epic created or placed elsewhere, or the end of a soft switch). */
   setAreaFilter(key: string, softly = false): void {
@@ -322,7 +325,7 @@ export class Canvas implements DoCheck {
   selectArea(key: AreaView): void {
     if (key === this.areaTab) return;
     const pane = this.pane();
-    if (!pane || this.motion.reduced()) { this.setAreaFilter(key); return; }
+    if (!pane || this.motion.reduced()) { this.toTop(); this.setAreaFilter(key); return; }
     const token = ++this.areaSwap;
     this.swap++;
     this.pendingArea = key;
@@ -335,6 +338,7 @@ export class Canvas implements DoCheck {
     const show = () => {
       if (token !== this.areaSwap) return;
       this.pendingArea = '';
+      this.toTop();
       this.setAreaFilter(key, true);
     };
     out.finished.then(show, show);
@@ -780,7 +784,9 @@ export class Canvas implements DoCheck {
     const tick = () => {
       const d = this.dragState;
       if (!d?.ghost) return;
-      const panel = document.elementFromPoint(d.currentX, d.currentY)?.closest<HTMLElement>('.scroll-panel');
+      // Over ÁREA and EPIC (they stay still, Gianni) the finger still scrolls the Epic's content up under them
+      const under = document.elementFromPoint(d.currentX, d.currentY);
+      const panel = under?.closest<HTMLElement>('.scroll-panel') || (under?.closest('.epic-objects') ? this.pane() : null);
       if (panel) {
         const r = panel.getBoundingClientRect();
         if (d.currentY < r.top + 55) panel.scrollTop -= 8;
