@@ -44,3 +44,8 @@ header.stacked { display:block; }
 .fold.closed { rotate:-90deg; }
 .title { display:block; width:100%; min-height:40px; padding:2px 2px 4px; text-align:left; border-radius:10px; }
 .title strong { font-size:15px; }
+
+/* An Activity being edited (Gianni): the same card, grown in place, lifted a little with a teal ring; its ✎ is now ✓ */
+.task.editing { z-index:3; padding:6px 10px 12px; box-shadow:0 0 0 3px color-mix(in srgb,var(--teal,#76e0d0) 75%,transparent), 0 14px 30px rgba(1,6,29,.32); }
+.more.done { font-size:20px; font-weight:800; }
+.editing-name { padding:3px 0; }

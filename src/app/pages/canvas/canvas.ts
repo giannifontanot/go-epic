@@ -1,6 +1,7 @@
 import { Why } from '../../shared/why';
 import { PageMenu } from '../../shared/title-fan';
 import { Ask } from '../../shared/ask';
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, DestroyRef, DoCheck, ElementRef, HostListener, Injector, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { closeDialog, isBackdropClick, openDialog, pressPoint } from '../../core/dialog';
 import { I18n } from '../../core/i18n';
@@ -29,8 +30,9 @@ const AREA_KEY = 'go-epic-canvas-area';
 
 /**
  * Floating Canvas, as in Epic Manager: Epic tabs of one of the four life areas with their Features, Stories and
- * Activities; the Activities with no place yet wait in the Undefined window (Gianni). Objects are dragged by their grip (or
- * placed with the ✎ dialog's cascade, all four levels at once). Every change saves by itself (Gianni: no Undo, Redo, Save
+ * Activities; the Activities with no place yet wait in the Undefined window (Gianni). Objects are dragged by their grip; an
+ * Activity's ✎ grows its own card in place, editable (name, colour, Delete, and Move with its whole place, all four levels at
+ * once), and Features, Stories and Epics keep their window. Every change saves by itself (Gianni: no Undo, Redo, Save
  * or Discard), and the week follows: renamed or recoloured tasks change in every block, deleted ones leave the week.
  */
 
@@ -40,7 +42,7 @@ const PANE_OPEN_MS = 320;
 
 @Component({
   selector: 'app-canvas',
-  imports: [CanvasNode, Why],
+  imports: [CanvasNode, Why, NgTemplateOutlet],
   templateUrl: './canvas.html',
   styleUrl: './canvas.css',
 })
@@ -96,6 +98,7 @@ export class Canvas implements DoCheck {
           this.owner = uid;
           this.cancelDrag();
           this.close();
+          this.endEdit();
           this.state.load(emptyLibrary(), {});
           this.activeId = '';
           this.pendingId = '';
@@ -142,7 +145,6 @@ export class Canvas implements DoCheck {
   }
   private undefinedFor?: LibNode[];
   private undefinedCache: LibNode[] = [];
-  isUndefined(node: LibNode): boolean { return this.undefinedList.some((n) => n.id === node.id); }
   /** "El Templo - Salud" for a life area, else the area's own title. */
   areaLabel(id: string | null): string {
     const node = this.state.node(id);
@@ -167,6 +169,10 @@ export class Canvas implements DoCheck {
     if (d && !d.open) openDialog(d);
   }
   closeUndefined(): void { void closeDialog(this.undefinedWindow()?.nativeElement); }
+  /** The window is gone: a card open in it closes with it (its name kept). */
+  undefinedClosed(): void {
+    if (this.editId && !this.nodeElement(this.editId)?.closest('.epic-pane')) { this.commitTitle(); this.endEdit(); }
+  }
   onUndefinedBackdrop(event: MouseEvent): void {
     const d = this.undefinedWindow()?.nativeElement;
     if (d && isBackdropClick(event, d)) this.closeUndefined();
@@ -233,7 +239,10 @@ export class Canvas implements DoCheck {
   /** The update prompt waits while a change is not saved yet (a save refused before the library loaded). */
   private readonly unsaved = inject(UnsavedWork);
   ngDoCheck(): void {
-    if (this.unsaved.canvasDraft() !== this.state.dirty) this.unsaved.canvasDraft.set(this.state.dirty);
+    const edited = this.editNode;
+    if (this.editId && !edited) this.endEdit();                            // deleted meanwhile (here or on another device)
+    const dirty = this.state.dirty || (!!edited && this.editTitle.trim() !== '' && this.editTitle !== edited.title);
+    if (this.unsaved.canvasDraft() !== dirty) this.unsaved.canvasDraft.set(dirty);
   }
 
   /** The tab being opened while the old Epic's content is still closing (the tab answers at once). */
@@ -299,10 +308,131 @@ export class Canvas implements DoCheck {
 
   // --- The action dialog (create / edit / move / colour / delete) ---
 
+  // --- An Activity's own card, grown in place and editable (Gianni: not a window) ---
+
+  /** The Activity whose card is open ('' = none), its name as typed, and whether its Move panel is open. */
+  editId = '';
+  editTitle = '';
+  moveOpen = false;
+  /** Bumped on every open or close, so a card still shrinking never closes the next one. */
+  private editToken = 0;
+  get editNode(): LibNode | undefined { return this.editId ? this.state.node(this.editId) : undefined; }
+  /** What the cascade, Move and Delete work on: the window's object, else the open card's Activity. */
+  private get subject(): Modal | null {
+    if (this.modal) return this.modal;
+    const node = this.editNode;
+    return node ? { kind: node.kind, node, parentId: node.parentId } : null;
+  }
+
+  /** ✎ on a card: an Activity grows in place; a Feature or Story still opens its window. ✓ (the same button) closes it. */
+  act(node: LibNode): void {
+    if (node.kind !== 'task') { this.open(node.kind, node.parentId, node); return; }
+    if (this.editId === node.id) { void this.finishEdit(); return; }
+    this.startEdit(node);
+  }
+  startEdit(node: LibNode): void {
+    if (this.saving) return;
+    if (this.editId) { this.commitTitle(); this.endEdit(); }               // one card at a time
+    const token = ++this.editToken;
+    this.editId = node.id;
+    this.editTitle = node.title;
+    this.moveOpen = false;
+    this.fillCascade(node.parentId);
+    this.bump();
+    afterNextRender(() => {
+      const card = this.editElement();
+      const body = card?.querySelector<HTMLElement>('.card-edit');
+      if (!card || !body || token !== this.editToken) return;
+      if (!this.motion.reduced()) {
+        // It grows softly out of the card's own foot: the body opens from nothing while the card keeps its shape.
+        const height = body.getBoundingClientRect().height;
+        body.style.overflow = 'clip';
+        body.animate([{ height: '0px', opacity: 0, transform: 'translateY(-6px)' }, { height: `${height}px`, opacity: 1, transform: 'none' }],
+          { duration: 360, easing: 'cubic-bezier(0,0,.2,1)' }).finished.catch(() => {}).finally(() => (body.style.overflow = ''));
+        card.animate([{ scale: '.98' }, { scale: '1.015', offset: .6 }, { scale: '1' }], { duration: 360, easing: 'ease-out' });
+      }
+      setTimeout(() => { if (token === this.editToken) card.scrollIntoView({ block: 'nearest', behavior: this.motion.reduced() ? 'auto' : 'smooth' }); }, 380);
+    }, { injector: this.injector });
+  }
+  /** Its name is kept as soon as the box is left (an empty name keeps the old one). */
+  commitTitle(): void {
+    const node = this.editNode;
+    const title = this.editTitle.trim();
+    if (!node || !title || title === node.title || this.saving) return;
+    this.mutate(() => this.state.edit(node.id, title));
+    this.announcement = this.i18n.t('canvas.saved');
+  }
+  /** ✓, a tap outside or Esc: the name is kept and the card shrinks back softly. */
+  async finishEdit(): Promise<void> {
+    if (!this.editId) return;
+    this.commitTitle();
+    const token = ++this.editToken;
+    const body = this.editElement()?.querySelector<HTMLElement>('.card-edit');
+    if (body && !this.motion.reduced()) {
+      const height = body.getBoundingClientRect().height;
+      body.style.overflow = 'clip';
+      await body.animate([{ height: `${height}px`, opacity: 1 }, { height: '0px', opacity: 0 }],
+        { duration: 260, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' }).finished.catch(() => {});
+    }
+    if (token === this.editToken) this.endEdit();
+  }
+  /** Closes the card at once. */
+  private endEdit(): void {
+    if (!this.editId) return;
+    this.editToken++;
+    this.editId = '';
+    this.moveOpen = false;
+    if (!this.modal) this.fillCascade(null);
+    this.bump();
+  }
+  private editElement(): HTMLElement | null {
+    return this.editId ? document.querySelector<HTMLElement>(`[data-editing="${CSS.escape(this.editId)}"]`) : null;
+  }
+  toggleMove(): void { this.moveOpen = !this.moveOpen; if (this.moveOpen) this.fillCascade(this.editNode?.parentId ?? null); this.bump(); }
+
+  /** A tap anywhere but the open card closes it (a question window over it, like Delete's, leaves it open). */
+  @HostListener('document:click', ['$event'])
+  outsideClick(event: MouseEvent): void {
+    if (!this.editId) return;
+    const card = this.editElement();
+    const target = event.target as Element | null;
+    if (!card || !target || card.contains(target)) return;
+    const window = target.closest('dialog');
+    if (window && !window.contains(card)) return;
+    void this.finishEdit();
+  }
+
+  /** Move here: its whole place at once (area, Epic, Feature and Story; Gianni: never half a place). */
+  applyMove(): void {
+    const node = this.editNode;
+    if (!node || this.saving || this.cascadeIncomplete) return;
+    const title = this.editTitle.trim() || node.title;
+    const planned = this.plannedParent();
+    const place = { area: this.cascade.area, epic: this.cascade.epic };
+    const inWindow = !!this.undefinedWindow()?.nativeElement.contains(this.editElement());
+    const source = this.nodeElement(node.id);
+    const moves = node.parentId !== planned;
+    const ghost = source && moves && !inWindow && !this.motion.reduced() ? this.motion.ghost(source) : undefined;
+    let parentId: string | null | undefined;
+    this.mutate(() => this.state.group(() => {
+      parentId = this.resolveParent(node);
+      if (parentId === undefined) return;
+      if (title !== node.title) this.state.edit(node.id, title);
+      if (node.parentId !== parentId) this.state.move(node.id, parentId);
+    }));
+    if (parentId === undefined) { ghost?.remove(); return; }
+    this.endEdit();                                                         // it lands closed in its new place
+    if (inWindow && parentId !== null) this.closeUndefined();
+    this.followPlace('task', place, node.id);
+    if (ghost) void this.motion.land(ghost, this.nodeElement(node.id), this.destinationElement(parentId ?? null));
+    this.announcement = this.i18n.t('canvas.saved');
+  }
+
   /** The editor is shrinking away: nothing more is applied (a double click on Apply must not create twice). */
   editorClosing = false;
 
   open(kind: Kind, parentId: string | null = null, node?: LibNode, bare = false): void {
+    if (this.editId) { this.commitTitle(); this.endEdit(); }
     this.editorClosing = false;
     this.modal = { kind, parentId, node, bare };
     this.title = node?.title || '';
@@ -324,6 +454,11 @@ export class Canvas implements DoCheck {
       this.modal = null;
     }
   }
+  /** The window has closed: an open card's Move panel works on its own Activity again. */
+  editorClosed(): void {
+    this.modal = null;
+    if (this.editNode) this.fillCascade(this.editNode.parentId);
+  }
   onBackdrop(event: MouseEvent): void {
     const d = this.editor()?.nativeElement;
     if (d && isBackdropClick(event, d)) this.close();
@@ -344,7 +479,8 @@ export class Canvas implements DoCheck {
   cascade: { area: LifeArea | '' | '__free'; epic: string; feature: string; story: string } = { area: '', epic: '', feature: '', story: '' };
   newName: Record<CascadeLevel, string> = { epic: '', feature: '', story: '' };
   get cascadeLevels(): CascadeLevel[] {
-    const target = this.modal ? PARENT_KIND[this.modal.kind] : null;
+    const subject = this.subject;
+    const target = subject ? PARENT_KIND[subject.kind] : null;
     const levels: CascadeLevel[] = ['epic', 'feature', 'story'];
     return target && target !== 'area' ? levels.slice(0, levels.indexOf(target as CascadeLevel) + 1) : [];
   }
@@ -358,11 +494,12 @@ export class Canvas implements DoCheck {
   }
   cascadeOptions(level: CascadeLevel): LibNode[] {
     const parent = this.cascadeParent(level);
-    return parent ? this.state.children(parent, level).filter((n) => n.id !== this.modal?.node?.id) : [];
+    const self = this.subject?.node?.id;
+    return parent ? this.state.children(parent, level).filter((n) => n.id !== self) : [];
   }
   /** Apply waits until every level is chosen or named: a place is never half given (Gianni). */
   get cascadeIncomplete(): boolean {
-    const m = this.modal;
+    const m = this.subject;
     if (!m || m.bare || m.kind === 'area') return false;
     if (m.kind === 'epic') return !this.epicArea;
     if (m.kind === 'task' && this.cascade.area === this.FREE) return false;
@@ -387,7 +524,7 @@ export class Canvas implements DoCheck {
   private fillCascade(parentId: string | null): void {
     this.cascade = { area: '', epic: '', feature: '', story: '' };
     this.newName = { epic: '', feature: '', story: '' };
-    const m = this.modal;
+    const m = this.subject;
     if (!m || m.kind === 'epic' || m.kind === 'area') return;
     const chain: LibNode[] = [];
     for (let id = parentId, guard = 0; id && guard < 10; guard++) {
@@ -419,8 +556,8 @@ export class Canvas implements DoCheck {
     return this.state.create('area', LIFE_AREAS.find((a) => a.key === key)!.title, null)?.id ?? null;
   }
   /** Where the dialog puts the object, creating the area and any level named new. Inside a draft group; undefined = failed. */
-  private resolveParent(): string | null | undefined {
-    const m = this.modal!;
+  private resolveParent(editing?: LibNode): string | null | undefined {
+    const m = editing ? { kind: editing.kind, node: editing, parentId: editing.parentId } as Modal : this.modal!;
     if (m.kind === 'area') return null;
     if (m.kind === 'epic') return this.epicArea ? this.ensureArea(this.epicArea) ?? undefined : undefined;
     if (m.bare || this.cascade.area === this.FREE) return null;
@@ -435,7 +572,7 @@ export class Canvas implements DoCheck {
   }
   /** The parent the dialog would end on, without creating anything ('new' when some level is new). */
   private plannedParent(): string | null {
-    const m = this.modal!;
+    const m = this.subject!;
     if (m.kind === 'epic') return this.epicArea ? this.lifeAreas[this.epicArea]?.id ?? this.NEW : null;
     if (m.bare || this.cascade.area === this.FREE) return null;
     const levels = this.cascadeLevels;
@@ -495,11 +632,11 @@ export class Canvas implements DoCheck {
     return '';
   }
 
+  /** A colour picked on the open card is kept at once. */
   setColor(color: string | null): void {
-    const node = this.modal?.node;
-    if (!node) return;
+    const node = this.editNode;
+    if (!node || this.saving) return;
     this.mutate(() => this.state.setColor(node.id, color));
-    this.modal = { ...this.modal!, node: this.state.node(node.id) };
   }
   colorOf(node: LibNode | undefined): string | null { return node ? this.state.node(node.id)?.color ?? null : null; }
 
@@ -523,7 +660,7 @@ export class Canvas implements DoCheck {
 
   /** Delete asks, then counts down like every delete in the app (Gianni); only when the time is up is it gone (and saved). */
   async remove(): Promise<void> {
-    const node = this.modal?.node;
+    const node = this.subject?.node;
     if (!node || this.saving || this.editorClosing) return;
     if (!this.state.canDelete(node.id)) { void this.asks.tell(this.i18n.t('canvas.deleteHint')); return; }
     const places = node.kind === 'task' ? this.weekPlaces(node.id) : 0;
@@ -535,6 +672,7 @@ export class Canvas implements DoCheck {
     const yes = await this.asks.ask({ message: question, ok: this.i18n.t('task.delete'), danger: true,
       countdown: { message: this.i18n.t('undo.deleting', { name: node.title }), ids: [node.id], commit } });
     if (yes && this.modal?.node === node) this.close();
+    if (yes && this.editId === node.id) void this.finishEdit();
   }
 
   private mutate(action: () => void, excluded?: string): void {
@@ -669,7 +807,7 @@ export class Canvas implements DoCheck {
   }
 
   @HostListener('window:keydown.escape')
-  escape(): void { this.cancelDrag(); }
+  escape(): void { this.cancelDrag(); if (this.editId && !this.undefinedWindow()?.nativeElement.open) void this.finishEdit(); }
 
   // --- Device preferences ---
 
