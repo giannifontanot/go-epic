@@ -351,6 +351,7 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'canvas.areas': { en: 'Areas', es: 'Áreas' },
   'canvas.workspace': { en: 'Epic workspace', es: 'Espacio del Epic' },
   'canvas.editEpic': { en: 'Edit Epic', es: 'Editar Epic' },
+  'canvas.noEpicYet': { en: 'No Epic yet', es: 'Ningún Epic todavía' },
   'canvas.freeSpace': { en: 'Free Space', es: 'Espacio libre' },
   'canvas.emptyEpic': { en: 'This Epic is empty', es: 'Este Epic está vacío' },
   'canvas.emptyEpicHint': { en: 'Give an activity from Undefined its place here with its ✎, or drag it into a Story.', es: 'Dale lugar aquí a una actividad de Sin definir con su ✎, o arrástrala a una Story.' },
