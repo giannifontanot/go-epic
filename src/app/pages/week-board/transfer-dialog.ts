@@ -33,8 +33,8 @@ export interface Transfer {
         }
       </div>
       <footer>
-        <button type="button" (click)="leave()">{{ i18n.t('task.cancel') }}</button>
-        <button type="button" class="primary" [disabled]="!picked().length" (click)="done()">
+        <button type="button" class="btn-cancel" (click)="leave()">{{ i18n.t('task.cancel') }}</button>
+        <button type="button" class="primary btn-apply" [disabled]="!picked().length" (click)="done()">
           {{ i18n.t(mode() === 'copy' ? 'transfer.copy' : 'transfer.move') }}@if (picked().length > 1) { ({{ picked().length }}) }
         </button>
       </footer>

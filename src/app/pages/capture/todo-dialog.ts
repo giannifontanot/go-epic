@@ -54,8 +54,8 @@ export interface TodoSave { id: string; title: string; date: string | null; time
       }
       @if (problem()) { <p class="app-error" role="alert">{{ problem() }}</p> }
       <footer>
-        <button type="button" (click)="cancel()">{{ i18n.t('task.cancel') }}</button>
-        <button type="button" class="primary" (click)="done()">{{ i18n.t('task.done') }}</button>
+        <button type="button" class="btn-cancel" (click)="cancel()">{{ i18n.t('task.cancel') }}</button>
+        <button type="button" class="primary btn-apply" (click)="done()">{{ i18n.t('task.done') }}</button>
       </footer>
     </dialog>
   `,

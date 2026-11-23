@@ -35,7 +35,7 @@ import { splitTail } from '../../core/text-tail';
                whole width; Cancelar and Aplicar at the foot (the page's body). No ✓ at the end of the name line. -->
           <header class="stacked">
             <div class="edit-top"><small aria-hidden="true">{{ i18n.t('canvas.task') }}</small>
-              <button type="button" class="edit-delete" [disabled]="disabled()" (click)="remove.emit(n)">{{ i18n.t('task.delete') }}</button></div>
+              <button type="button" class="edit-delete btn-delete" [disabled]="disabled()" (click)="remove.emit(n)">{{ i18n.t('task.delete') }}</button></div>
             <div class="name editing-name"><ng-container *ngTemplateOutlet="nameTpl(); context: { $implicit: n }" /></div>
           </header>
         } @else {

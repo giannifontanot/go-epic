@@ -2,12 +2,14 @@
 <section class="canvas-page" [attr.data-v]="v">
   <header class="page-header">
     <h1><button type="button" class="title-btn" aria-haspopup="true" aria-expanded="false" [title]="i18n.t('nav.pages')" (click)="pageMenu.toggle($event.currentTarget)">Canvas<span class="title-dot">✦</span><span class="title-chev" aria-hidden="true"></span></button></h1>
-    <!-- Everything saves by itself (Gianni): no Undo, Redo, Save or Discard. The activities with no place wait behind
-         «Sin definir (N)», a small window (Gianni: not a box at the top of the Canvas); dropping an Activity on it takes its place away. -->
+    <!-- Everything saves by itself (Gianni): no Undo, Redo, Save or Discard. The activities with no place wait behind one
+         button (Gianni, v56: New activity lives inside it, since a new activity is born with no place): «Sin definir» on the
+         whole width, turquoise like Aplicar, with how many wait in a small navy circle at its right; its window lists them
+         under «+ Nueva actividad». Dropping an Activity on the button takes its place away. -->
     <div class="toolbar">
-      <button type="button" class="primary" [disabled]="!ready()" (click)="newActivity()">+ {{ i18n.t('canvas.newActivity') }}</button>
       <button type="button" class="undefined-btn" data-drop-kind="FREE" [disabled]="!ready()" (click)="openUndefined()"
-        [attr.aria-haspopup]="'dialog'">{{ i18n.t('canvas.undefined') }} <span class="count-pill">{{ ready() ? undefinedList.length : '…' }}</span></button>
+        [attr.aria-haspopup]="'dialog'"><span class="undefined-label">{{ i18n.t('canvas.undefined') }}</span>
+        <span class="count-dot">{{ ready() ? undefinedList.length : '…' }}</span></button>
     </div>
     <app-why screen="canvas" />
   </header>
@@ -64,7 +66,7 @@
   @if (modal; as m) {
     <header>
       <h2 id="canvas-editor-title">{{ i18n.t(m.node ? 'canvas.edit' : 'canvas.create') }} · {{ i18n.t('canvas.' + m.kind) }}</h2>
-      @if (m.node) { <button type="button" class="danger" [disabled]="saving" (click)="remove()">{{ i18n.t('task.delete') }}</button> }
+      @if (m.node) { <button type="button" class="danger btn-delete" [disabled]="saving" (click)="remove()">{{ i18n.t('task.delete') }}</button> }
     </header>
     <form (submit)="$event.preventDefault(); submit()">
       @if (m.kind === 'area' || m.bare) {
@@ -78,8 +80,8 @@
           [leafTpl]="modalName" [value]="cascade" [labelOf]="placeLabel" [descOf]="placeDesc" [optionsOf]="placeOptions" [newId]="NEW" [version]="v" [disabled]="saving" (pick)="pickPlace($event)" />
       }
       <footer>
-        <button type="button" (click)="close()">{{ i18n.t('task.cancel') }}</button>
-        <button type="submit" class="primary" [disabled]="!canApply">{{ i18n.t('canvas.apply') }}</button>
+        <button type="button" class="btn-cancel" (click)="close()">{{ i18n.t('task.cancel') }}</button>
+        <button type="submit" class="primary btn-apply" [disabled]="!canApply">{{ i18n.t('canvas.apply') }}</button>
       </footer>
     </form>
   }
@@ -89,10 +91,12 @@
      opens it, where it gets area, Epic, Feature and Story on the Canvas's own card. -->
 <dialog #undefinedWindow class="editor undefined-window" aria-labelledby="undefined-title" (click)="onUndefinedBackdrop($event)" (close)="undefinedClosed()">
   <header>
-    <h2 id="undefined-title" tabindex="-1">{{ i18n.t('canvas.undefined') }} <span class="count-pill">{{ undefinedList.length }}</span></h2>
+    <h2 id="undefined-title" tabindex="-1">{{ i18n.t('canvas.undefined') }} <span class="count-dot">{{ undefinedList.length }}</span></h2>
     <!-- Close as a small pill at the right, at the top and at the foot (Gianni: a full-width one looked like one more activity) -->
     <button type="button" class="primary close-pill" (click)="closeUndefined()">{{ i18n.t('nav.close') }}</button>
   </header>
+  <!-- New activity is born here (Gianni, v56): just its name, and it waits in this list until it gets its whole place -->
+  <button type="button" class="undefined-new" [disabled]="saving" (click)="newActivity()">+ {{ i18n.t('canvas.newActivity') }}</button>
   <p class="hint">{{ i18n.t('canvas.undefinedHint') }}</p>
   <ul class="undefined-list">
     @for (node of undefinedList; track node.id; let i = $index) {
@@ -147,14 +151,14 @@
     }
     @if (loose) {
       <div class="card-actions">
-        <button type="button" class="card-delete" [disabled]="saving" (click)="remove()">{{ i18n.t('task.delete') }}</button>
-        <button type="button" class="card-done" (click)="finishEdit()">✓ {{ i18n.t('task.done') }}</button>
+        <button type="button" class="card-delete btn-delete" [disabled]="saving" (click)="remove()">{{ i18n.t('task.delete') }}</button>
+        <button type="button" class="card-done btn-apply" (click)="finishEdit()">✓ {{ i18n.t('task.done') }}</button>
       </div>
     } @else {
       <!-- Cancelar on the left, Aplicar on the right (Gianni); Eliminar is at the card's top right -->
       <div class="card-actions card-apply">
-        <button type="button" class="card-cancel" (click)="cancelEdit()">{{ i18n.t('task.cancel') }}</button>
-        <button type="button" class="card-ok" [disabled]="saving" (click)="applyEdit()">{{ i18n.t('canvas.apply') }}</button>
+        <button type="button" class="card-cancel btn-cancel" (click)="cancelEdit()">{{ i18n.t('task.cancel') }}</button>
+        <button type="button" class="card-ok btn-apply" [disabled]="saving" (click)="applyEdit()">{{ i18n.t('canvas.apply') }}</button>
       </div>
     }
   </div>
