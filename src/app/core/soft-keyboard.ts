@@ -52,13 +52,20 @@ function scrollsY(el: HTMLElement): boolean {
   return (y === 'auto' || y === 'scroll') && el.clientHeight > 0;
 }
 
-/** Room for the box to move up when its list is too short: extra padding at the list's foot (taken off on the way back). */
-function makeRoom(el: HTMLElement, needed: number): void {
+/**
+ * Room for the box to move up when its list is too short: extra padding at the list's foot (taken off on the way back).
+ * Returns how far the list can now really scroll: a list sized to its content (a window with `fit-content`) only grows
+ * with the padding, so then the padding is taken off at once (before anything is painted) and nothing is gained.
+ */
+function makeRoom(el: HTMLElement, needed: number): number {
+  const before = el.style.paddingBottom;
   const rec = moved.get(el) as Scrolled | undefined;
-  const pad = rec ? rec.pad : el.style.paddingBottom;
   const base = parseFloat(getComputedStyle(el).paddingBottom) || 0;
   el.style.paddingBottom = `${base + needed}px`;
-  if (rec) rec.pad = pad; else moved.set(el, { kind: 'scroll', el, from: el.scrollTop, to: el.scrollTop, pad });
+  const can = el.scrollHeight - el.clientHeight - el.scrollTop;
+  if (can <= 0.5) { el.style.paddingBottom = before; return 0; }
+  if (rec) { if (rec.pad === null) rec.pad = before; } else moved.set(el, { kind: 'scroll', el, from: el.scrollTop, to: el.scrollTop, pad: before });
+  return can;
 }
 
 function scrollBy(el: Element, by: number): void {
@@ -84,10 +91,12 @@ function reveal(): void {
     if (node === document.body || node === document.documentElement) break;
     if (!scrollsY(node)) { if (node === win) break; continue; }
     const top = node.getBoundingClientRect().top;
-    const can = Math.min(need, boxTop - Math.max(top, 0) - MARGIN);
+    let can = Math.min(need, boxTop - Math.max(top, 0) - MARGIN);
     if (can > 0.5) {
       const left = node.scrollHeight - node.clientHeight - node.scrollTop;
-      if (left < can) makeRoom(node, can - left);
+      if (left < can) can = Math.min(can, Math.max(left, makeRoom(node, can - left)));   // only what it can really scroll
+    }
+    if (can > 0.5) {
       scrollBy(node, can);
       need -= can;
       boxTop -= can;
@@ -108,7 +117,7 @@ function reveal(): void {
   }
   // 3. else the page itself scrolls, with room at its foot when it is too short
   const page = document.scrollingElement ?? document.documentElement;
-  const left = page.scrollHeight - innerHeight - page.scrollTop;
+  const left = page.scrollHeight - page.clientHeight - page.scrollTop;
   if (left < need) {
     room ??= Object.assign(document.createElement('div'), { className: 'kb-room' });
     room.setAttribute('aria-hidden', 'true');
@@ -132,7 +141,10 @@ function restore(): void {
       continue;
     }
     const el = rec.el as HTMLElement;
-    const untouched = Math.abs(topOf(el) - rec.to) < 6;
+    // a glide still on its way up is ours, not the user's: it stops and turns back from where it is
+    const midway = gliding.has(el);
+    if (midway) { cancelAnimationFrame(gliding.get(el) ?? 0); gliding.delete(el); }
+    const untouched = midway || Math.abs(topOf(el) - rec.to) < 6;
     const drop = () => { if (rec.pad !== null && !moved.has(el)) el.style.paddingBottom = rec.pad; };
     if (untouched) glide(el, rec.from, drop); else drop();
     if (el === page) pageBack = untouched;
