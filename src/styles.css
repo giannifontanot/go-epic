@@ -1306,6 +1306,11 @@ span.t-state { pointer-events: none; }
 button.t-state { cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 button.t-state::after { content: ''; position: absolute; inset: -7px; border-radius: 50%; }
 button.t-state:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+/* On a Week card the circle has the same room above it as on its left, 10px from the card's edges (Gianni: it nearly
+   touched the top while the left had plenty), and the time and the name's first line are centred on it, whatever the Aa
+   size (their margin is the circle's middle, 4 + 15px, less half their own line). Cards with no circle keep their look. */
+.task-row > .t-state { margin: 4px 0 -4px -2px; }
+.task-row:has(> .t-state) :is(.t-time, .t-title) { padding-top: 0; margin-top: 8px; margin-top: max(0px, calc(19px - .5lh)); }
 .t-state[data-status='todo'] { background: rgba(255, 255, 255, .6); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--card-ink) 55%, transparent); }
 @media (hover: hover) { button.t-state[data-status='todo']:hover { background: rgba(255, 255, 255, .85); } }
 .t-state svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
