@@ -113,8 +113,8 @@ export const WHY: Record<WhyScreen, Record<Lang, WhyText>> = {
           'No todo nace sabiendo a dónde pertenece. Sin definir guarda lo que todavía no encuentra su sitio, sin culpa y sin perderlo.',
           'Ordenar la vida no es meter todo a la fuerza en cajas; es darle a cada cosa el tiempo de mostrarte a qué parte de ti pertenece.',
         ] },
-        { heading: 'Diseñar con borradores', body: [
-          'Diseñar la propia vida se parece más a dibujar bocetos que a firmar contratos: se prueba, se mira y se ajusta. Por eso aquí puedes mover y deshacer con libertad antes de decidir. Una vida bien pensada no se escribe de un tirón.',
+        { heading: 'Diseñar como un boceto', body: [
+          'Diseñar la propia vida se parece más a dibujar bocetos que a firmar contratos: se prueba, se mira y se ajusta. Por eso aquí puedes mover cada cosa con libertad, cuantas veces quieras, y todo queda guardado solo. Una vida bien pensada no se escribe de un tirón.',
         ] },
       ],
     },
@@ -143,8 +143,8 @@ export const WHY: Record<WhyScreen, Record<Lang, WhyText>> = {
           'Not everything is born knowing where it belongs. Undefined keeps what has not found its place yet, without guilt and without losing it.',
           'Ordering your life is not forcing everything into boxes; it is giving each thing time to show you which part of you it belongs to.',
         ] },
-        { heading: 'Designing in drafts', body: [
-          'Designing your life is more like sketching than signing contracts: you try, look and adjust. That is why here you can move things and undo freely before you decide. A well thought-out life is not written in one go.',
+        { heading: 'Designing like a sketch', body: [
+          'Designing your life is more like sketching than signing contracts: you try, look and adjust. That is why here you can move each thing freely, as often as you like, and everything saves by itself. A well thought-out life is not written in one go.',
         ] },
       ],
     },

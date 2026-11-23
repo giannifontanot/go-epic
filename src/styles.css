@@ -169,18 +169,7 @@ html[data-theme='goepiclight'] .block { --head-shade: #b9b9c5; }   /* the grey b
 /* The state menu (Focus): a small centred card */
 dialog.status-menu { width: min(340px, calc(100vw - 32px)); padding: 18px; border: 0; border-radius: 22px; background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; }
 dialog.status-menu::backdrop { background: rgba(4, 9, 30, .55); }
-/* Canvas: leaving with unsaved changes. A small centred card (never full screen) with three plain answers, one per row */
-dialog.leave-ask { width: min(360px, calc(100vw - 32px)); padding: 20px; border: 0; border-radius: 22px; background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; }
-dialog.leave-ask::backdrop { background: rgba(4, 9, 30, .55); }
-dialog.leave-ask h2 { margin: 0 0 6px; font-size: 21px; }
-dialog.leave-ask p { margin: 0 0 16px; color: var(--ink-soft); }
-.leave-actions { display: grid; gap: 10px; }
-dialog.leave-ask .leave-actions button { min-height: 46px; border-radius: 999px; font-size: 16px; font-weight: 700; }
-dialog.leave-ask .leave-discard { border: 1.5px solid rgba(248, 113, 113, .6); background: transparent; color: #fca5a5; }
-dialog.leave-ask .leave-stay { border: 0; background: rgba(255, 255, 255, .08); color: var(--ink-soft); }
-html:is([data-theme='office'], [data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='goepiclight']) dialog.leave-ask .leave-discard { color: #b91c1c; border-color: rgba(185, 28, 28, .5); }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) dialog.leave-ask .leave-stay { background: rgba(var(--g-tint), .1); }
-/* The app's own question windows (Gianni: no more browser boxes): the leave window's look, Cancel then the answer,
+/* The app's own question windows (Gianni: no more browser boxes): a small centred card, Cancel then the answer,
    the answer red when it deletes or discards */
 dialog.ask-window { width: min(380px, calc(100vw - 32px)); padding: 22px 20px 18px; border: 0; border-radius: 22px;
   background: var(--navy-card); color: var(--ink); box-shadow: 0 25px 90px #0008; }
@@ -397,7 +386,7 @@ dialog.editor .app-error { margin: 0 0 8px; }
   dialog.editor { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom)); }
   dialog.editor footer > button { flex: 1; }
   /* the New task window fits its content (Gianni: not the whole screen, no empty space under it; height auto would stretch a modal dialog to the screen) */
-  dialog.editor.todo-editor { width: calc(100vw - 24px); height: fit-content; max-height: calc(100dvh - 24px); border-radius: 22px; padding: 20px 18px; }
+  dialog.editor:is(.todo-editor, .canvas-editor, .undefined-window) { width: calc(100vw - 24px); height: fit-content; max-height: calc(100dvh - 24px); border-radius: 22px; padding: 20px 18px; }
 }
 
 /* Task details: the Where (one line per level, label first) and the linked library task */
@@ -911,7 +900,7 @@ li.drop-slot { list-style: none; box-sizing: border-box; border: 2.5px dashed rg
    components' own encapsulated sizes. */
 :root { --act-fs: 15px; --act-ls: 0em; --esc: 1; --app-ls: normal; }
 body { letter-spacing: var(--app-ls); }
-:is(.t-title, .now-card h2, .object.task strong, .object.story strong, .pc-activity strong, .pc-story strong, .c-text, .h-head strong, .linked-chip, .text-preview .t-title) {
+:is(.t-title, .now-card h2, :is(.object.task, .undefined-item) strong, .object.story strong, .pc-activity strong, .pc-story strong, .c-text, .h-head strong, .linked-chip, .text-preview .t-title) {
   font-size: var(--act-fs) !important; letter-spacing: var(--act-ls) !important; }
 .now-card h2 { font-size: calc(var(--act-fs) * 2) !important; }
 :is(.object.feature > header strong, .pc-feature > strong, .pc-epic strong, .epic-tabs button > span) { font-size: calc(var(--act-fs) * 1.07) !important; letter-spacing: var(--act-ls) !important; }
@@ -1394,7 +1383,7 @@ html:is([data-theme='office'], [data-theme='graphite']) .todo-note:not(.own) { b
    a shade apart per level, so their ink (dark in Office, light in Graphite) always reads */
 html:is([data-theme='office'], [data-theme='graphite']) .object.feature { background: var(--g-done) !important; }
 html:is([data-theme='office'], [data-theme='graphite']) .object.story { background: var(--g-card-2) !important; }
-html:is([data-theme='office'], [data-theme='graphite']) .object.task { background: var(--g-card) !important; }
+html:is([data-theme='office'], [data-theme='graphite']) :is(.object.task, .undefined-item) { background: var(--g-card) !important; }
 /* every other surface that keeps its own light background in Epic (finished and inactive items, Focus cards, the new
    activity header, small controls): grey, so the theme's ink (dark in Office, light in Graphite) reads on it */
 html:is([data-theme='office'], [data-theme='graphite']) :is(.task.off, .task.off[data-paper], .now-card.done, .today-task.done, .today-task[data-status='late'], .today-task[data-status='done'], .capture-list.finished li) { background: var(--g-done) !important; background-image: none !important; }
@@ -1797,10 +1786,10 @@ html[data-theme='office'] { --ge-card: #f9f9fa; --ge-hair: #c3c7cc; --ge-drop: r
 html[data-theme='petalpunk'] { --ge-card: #2c2232; --ge-hair: rgba(255, 255, 255, .14); --ge-drop: rgba(0, 0, 0, .35); }
 html[data-theme='smokedcitrus'] { --ge-card: #2e2b28; --ge-hair: rgba(255, 255, 255, .14); --ge-drop: rgba(0, 0, 0, .35); }
 html[data-theme='graphite'] { --ge-card: #3c4046; --ge-hair: rgba(255, 255, 255, .14); --ge-drop: rgba(0, 0, 0, .3); }
-html[data-edge] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity) {
+html[data-edge] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), :is(.object.task, .undefined-item), .pc-activity) {
   background: var(--ge-card) !important; background-image: none !important;
   box-shadow: inset 6px 0 0 var(--tone, var(--ge-hair)), inset 0 0 0 1px var(--ge-hair), 0 2px 6px var(--ge-drop) !important; }
-html[data-edge][data-theme='goepicdark'] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity) {
+html[data-edge][data-theme='goepicdark'] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), :is(.object.task, .undefined-item), .pc-activity) {
   box-shadow: inset 6px 0 0 var(--tone, var(--ge-hair)), inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 0 0 1px var(--ge-hair), 0 2px 6px var(--ge-drop) !important; }
 html[data-edge] :is(.task, .pc-activity:not(.pc-pickable)) { padding-left: 16px; }
 html[data-edge] .today-task { padding-left: 18px; }
@@ -1813,15 +1802,15 @@ html[data-edge]:is([data-theme='goepiclight'], [data-theme='goepicdark']) .color
 /* A filled card in a palette its theme's inks were not made for (<html data-auto-ink>): its ink is worked out from its
    own colour, near-white on a dark colour and near-black on a light one */
 @supports (color: oklch(from red l c h)) {
-  html[data-auto-ink] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity, .color-btn.picked) {
+  html[data-auto-ink] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), :is(.object.task, .undefined-item), .pc-activity, .color-btn.picked) {
     --act-ink: oklch(from var(--tone) clamp(.22, (.7 - l) * 1000, .97) .015 300); --card-ink: var(--act-ink); }
   /* Graphite forces its soft light ink on every card and its contents: a filled card in a foreign palette takes its
      worked-out ink instead (the state circle keeps its own) */
-  html[data-auto-ink][data-theme='graphite'] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity),
-  html[data-auto-ink][data-theme='graphite'] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), .object.task, .pc-activity) :not(.t-state, .t-state *, .danger-x) { color: var(--act-ink) !important; }
+  html[data-auto-ink][data-theme='graphite'] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), :is(.object.task, .undefined-item), .pc-activity),
+  html[data-auto-ink][data-theme='graphite'] :is(.task:not(.done):not(.off), .now-card:not(.done), .today-task:not(.done), :is(.object.task, .undefined-item), .pc-activity) :not(.t-state, .t-state *, .danger-x) { color: var(--act-ink) !important; }
   /* the grey themes draw Canvas activities on a fixed grey: in a foreign palette it wears its own colour, so the ink
      worked out from that colour reads on it */
-  html[data-auto-ink]:is([data-theme='office'], [data-theme='graphite']) .object.task { background: var(--tone, var(--g-card)) !important; }
+  html[data-auto-ink]:is([data-theme='office'], [data-theme='graphite']) :is(.object.task, .undefined-item) { background: var(--tone, var(--g-card)) !important; }
 }
 /* the dark cards (Petal Punk, Smoked Citrus, Graphite, Go Epic Dark): light ink everywhere on them, a deeper lip, light
    grip and buttons, an empty To do ring drawn in the card's ink; Done keeps its glorious gold */
