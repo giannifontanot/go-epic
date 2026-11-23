@@ -51,7 +51,13 @@ import { WHY, WhyScreen } from '../core/why';
 export class Why {
   protected readonly i18n = inject(I18n);
   readonly screen = input.required<WhyScreen>();
-  protected readonly content = computed(() => WHY[this.screen()][this.i18n.lang()]);
+  /** The screen's text in the language in use, its level names from the chosen Letreros set. */
+  protected readonly content = computed(() => {
+    const text = WHY[this.screen()][this.i18n.lang()];
+    const f = (s: string) => this.i18n.levelsIn(s);
+    return { ...text, title: f(text.title), orders: f(text.orders), lead: f(text.lead),
+      sections: text.sections.map((section) => ({ heading: f(section.heading), body: section.body.map(f) })) };
+  });
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
 
   /** A section's number, two digits like a book's chapter: 01, 02… */

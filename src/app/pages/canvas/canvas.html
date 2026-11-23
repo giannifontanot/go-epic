@@ -65,7 +65,7 @@
 <dialog #editor class="editor canvas-editor" aria-labelledby="canvas-editor-title" (click)="onBackdrop($event)" (close)="editorClosed()">
   @if (modal; as m) {
     <header>
-      <h2 id="canvas-editor-title">{{ i18n.t(m.node ? 'canvas.edit' : 'canvas.create') }} · {{ i18n.t('canvas.' + m.kind) }}</h2>
+      <h2 id="canvas-editor-title">{{ i18n.t(m.node ? 'canvas.edit' : 'canvas.create.' + m.kind) }} · {{ i18n.t('canvas.' + m.kind) }}</h2>
       @if (m.node) { <button type="button" class="danger btn-delete" [disabled]="saving" (click)="remove()">{{ i18n.t('task.delete') }}</button> }
     </header>
     <form (submit)="$event.preventDefault(); submit()">
