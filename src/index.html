@@ -76,6 +76,7 @@
           document.querySelector('link[rel="manifest"]').setAttribute('href', 'manifest-' + localStorage.getItem('go-epic-theme') + '.webmanifest');
         }
         if (localStorage.getItem('go-epic-red-line') === '1') document.documentElement.dataset.redLine = '';
+        if (localStorage.getItem('go-epic-red-countdown') !== '0') document.documentElement.dataset.redCountdown = '';
       } catch (e) {}
     </script>
     <meta name="description" content="Plan your week in blocks, then live each day one task at a time." />

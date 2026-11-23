@@ -12,6 +12,8 @@ export const DARK_THEMES: readonly Theme[] = ['epic', 'petalpunk', 'smokedcitrus
 export const THEME_KEY = 'go-epic-theme';
 /** Ajustes › "Red time line": the Week board's now-line always red, even in a quiet theme ('1' = on, this device). */
 export const RED_LINE_KEY = 'go-epic-red-line';
+/** The countdown bar red (default, Gianni) or with the theme: '0' when he unticks it. */
+export const RED_COUNTDOWN_KEY = 'go-epic-red-countdown';
 /** The browser bar colour of each theme (meta theme-color), the page colour. */
 export const THEME_BAR: Record<Theme, string> = { epic: '#101b42', pinkpop: '#fbeaf3', petalpunk: '#1b141f', squeezeme: '#eef4fc', sunburnt: '#fff1e5', smokedcitrus: '#1a1918', office: '#c6c9cd', graphite: '#2b2e33', goepiclight: '#fbfbfd', goepicdark: '#0a1130' };
 
@@ -39,6 +41,8 @@ export class ThemeService {
   readonly theme = signal<Theme>(parseTheme(read(THEME_KEY)));
   /** The now-line red whatever the theme (off: it goes with the theme; Epic's is red anyway). */
   readonly redLine = signal(read(RED_LINE_KEY) === '1');
+  /** The countdown bar red whatever the theme, on by default (Gianni); off, it goes with the theme (grey in Office and Graphite). */
+  readonly redCountdown = signal(read(RED_COUNTDOWN_KEY) !== '0');
   /** True while a theme is only tried on (the palette window is open over the themes): it shows but is not stored. */
   private readonly trying = signal(false);
   /** A page that always wears one look whatever is chosen (the Canvas and its windows: Epic, Gianni), while it is open. */
@@ -63,6 +67,12 @@ export class ThemeService {
       if (typeof document === 'undefined') return;
       if (red) document.documentElement.dataset['redLine'] = ''; else delete document.documentElement.dataset['redLine'];
       try { localStorage.setItem(RED_LINE_KEY, red ? '1' : '0'); } catch { /* a view preference */ }
+    });
+    effect(() => {
+      const red = this.redCountdown();
+      if (typeof document === 'undefined') return;
+      if (red) document.documentElement.dataset['redCountdown'] = ''; else delete document.documentElement.dataset['redCountdown'];
+      try { localStorage.setItem(RED_COUNTDOWN_KEY, red ? '1' : '0'); } catch { /* a view preference */ }
     });
   }
 

@@ -125,6 +125,10 @@ export class WeekBoard {
     // on <html>, since the round buttons are drawn outside this page.
     effect(() => { document.documentElement.classList.toggle('countdown-up', this.countdownUp()); });
     inject(DestroyRef).onDestroy(() => document.documentElement.classList.remove('countdown-up'));
+    // While the line centres itself (the header faded), the overdue folder and 💡 Capture darken a little, softly, so
+    // the centred line with its time is what draws the eye (Gianni); his own scroll brings them back with the header.
+    effect(() => { document.documentElement.classList.toggle('now-centred', this.headHidden()); });
+    inject(DestroyRef).onDestroy(() => document.documentElement.classList.remove('now-centred'));
     inject(DestroyRef).onDestroy(() => { this.capture.menuEdit.set(null); this.capture.menuHidden.set(false); this.capture.lookTools.set(null); this.cancelDrag?.(); });
     // On entering the Week board, the view centres on now (the red line in today's column), as in Epic Manager: once
     // the week, the library (card titles) and Capture's notes (the strip at the top) are there, so nothing shifts after.
