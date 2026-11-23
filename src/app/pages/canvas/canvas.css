@@ -30,6 +30,7 @@ button.primary { background:var(--pink); color:var(--card-ink); }button.primary:
   border-radius:14px 18px 13px 18px; background:#ffd5bd; color:var(--act-ink,#302746); text-align:left; font-size:14px; }
 .undefined-item strong { font-weight:600; overflow-wrap:anywhere; }
 .undefined-item span { flex:none; opacity:.7; }
+:host-context(html[data-edge]) .undefined-item { padding-left:18px; }   /* the colour is its 6px left edge there (styles.css) */
 .undefined-item:hover:not(:disabled) { color:var(--act-ink,#302746); filter:brightness(1.05); }
 .undefined-empty { padding:6px 2px; font-size:13px; color:var(--ink-soft); }
 h2 { margin:0; font-size:20px; }.heading-spacer { flex:1; }
