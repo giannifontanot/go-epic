@@ -29,18 +29,14 @@
         <!-- Only the Features scroll (Gianni): ÁREA and EPIC stay still at the panel's top, the content under them scrolls. -->
         <div class="epic-objects" id="epic-panel" [attr.data-drop-kind]="activeId ? 'epic' : null" [attr.data-parent]="activeId || null">
           <header class="pick-head">
-            <app-pick-menu class="pick-area" [label]="i18n.t('canvas.area')" [value]="i18n.t('area.' + areaTab)"
+            <app-pick-menu class="pick-area" [label]="i18n.t('canvas.area')" [value]="areaName(areaTab)" [valueDesc]="areaDesc(areaTab)"
               [items]="areaItems" [chosen]="areaTab" (picked)="selectArea($any($event))" />
             <p class="area-hint">{{ i18n.t('area.' + areaTab + 'Hint') }}</p>
-            <div class="epic-line">
-              <app-pick-menu class="pick-epic" [label]="i18n.t('canvas.epic')" [value]="openEpic?.title || i18n.t('canvas.noEpicYet')"
-                [items]="epicItems" [chosen]="openTab" [addLabel]="i18n.t('canvas.epic')" [disabled]="saving"
-                (picked)="selectEpic($event)" (add)="open('epic')" />
-              @if (openEpic; as e) {
-                <button type="button" class="epic-edit" [disabled]="saving" [attr.aria-label]="i18n.t('canvas.editEpic') + ': ' + e.title"
-                  [title]="i18n.t('canvas.editEpic')" (click)="open('epic', e.parentId, e)">✎</button>
-              }
-            </div>
+            <!-- the Epic's ✎ points left, right after its name (Gianni: so renaming is obvious) -->
+            <app-pick-menu class="pick-epic" [label]="i18n.t('canvas.epic')" [value]="openEpic?.title || i18n.t('canvas.noEpicYet')"
+              [items]="epicItems" [chosen]="openTab" [addLabel]="i18n.t('canvas.epic')" [disabled]="saving"
+              [editLabel]="openEpic ? i18n.t('canvas.editEpic') + ': ' + openEpic.title : ''"
+              (picked)="selectEpic($event)" (add)="open('epic')" (edit)="openEpic && open('epic', openEpic.parentId, openEpic)" />
           </header>
           <div class="epic-pane scroll-panel" role="region" [attr.aria-label]="active?.title || i18n.t('canvas.epics')" tabindex="0">
           <div class="objects">
@@ -83,7 +79,7 @@
         <!-- Its place on the Canvas's own card (Gianni): each level reads «Por definir» until it is tapped and chosen,
              or named new, in its floating menu; half a place is never applied. -->
         <app-place-card [leafKind]="$any(m.kind)" [leafTitle]="title.trim() || i18n.t(m.kind === 'task' ? 'task.newTitle' : 'canvas.' + m.kind)"
-          [value]="cascade" [labelOf]="placeLabel" [optionsOf]="placeOptions" [newId]="NEW" [version]="v" [disabled]="saving" (pick)="pickPlace($event)" />
+          [value]="cascade" [labelOf]="placeLabel" [descOf]="placeDesc" [optionsOf]="placeOptions" [newId]="NEW" [version]="v" [disabled]="saving" (pick)="pickPlace($event)" />
       }
       @if (m.node && (m.kind === 'feature' || m.kind === 'story')) {
         <div class="arrange-actions">
@@ -99,12 +95,13 @@
   }
 </dialog>
 
-<!-- Undefined (Gianni): the activities with no place yet, in a small window growing out of its button; the ✎ of one grows
-     its card, where it gets area, Epic, Feature and Story on the Canvas's own card. -->
+<!-- Undefined (Gianni): the activities with no place yet, in a small window growing out of its button; a tap on one (no ✎)
+     opens it, where it gets area, Epic, Feature and Story on the Canvas's own card. -->
 <dialog #undefinedWindow class="editor undefined-window" aria-labelledby="undefined-title" (click)="onUndefinedBackdrop($event)" (close)="undefinedClosed()">
   <header>
     <h2 id="undefined-title" tabindex="-1">{{ i18n.t('canvas.undefined') }} <span class="count-pill">{{ undefinedList.length }}</span></h2>
-    <button type="button" class="round danger-x" [attr.aria-label]="i18n.t('nav.close')" (click)="closeUndefined()">×</button>
+    <!-- Close as a small pill at the right, at the top and at the foot (Gianni: a full-width one looked like one more activity) -->
+    <button type="button" class="primary close-pill" (click)="closeUndefined()">{{ i18n.t('nav.close') }}</button>
   </header>
   <p class="hint">{{ i18n.t('canvas.undefinedHint') }}</p>
   <ul class="undefined-list">
@@ -115,7 +112,7 @@
       <li class="undefined-empty">{{ i18n.t('canvas.undefinedEmpty') }}</li>
     }
   </ul>
-  <footer><button type="button" class="primary" (click)="closeUndefined()">{{ i18n.t('nav.close') }}</button></footer>
+  <footer class="close-foot"><button type="button" class="primary close-pill" (click)="closeUndefined()">{{ i18n.t('nav.close') }}</button></footer>
 </dialog>
 
 <!-- An Activity's own card, grown in place (Gianni): its name, its place and Delete. Everything is kept at once; the name
@@ -135,7 +132,7 @@
   <div class="card-edit" [class.loose]="loose">
     <!-- Its place, on the Canvas's own card (Gianni: no colours here, no Move): each level reads «Por definir» until it is
          tapped and chosen in its floating menu; it is saved as soon as all four are chosen, never half placed. -->
-    <app-place-card leafKind="task" [leafTitle]="editTitle.trim() || node.title" [leafTpl]="loose ? leafName : null" [value]="cascade" [labelOf]="placeLabel"
+    <app-place-card leafKind="task" [leafTitle]="editTitle.trim() || node.title" [leafTpl]="loose ? leafName : null" [value]="cascade" [labelOf]="placeLabel" [descOf]="placeDesc"
       [optionsOf]="placeOptions" [newId]="NEW" [version]="version()" [disabled]="saving" (pick)="pickPlace($event)" />
     @if (cascadeIncomplete) { <p class="card-hint">{{ i18n.t('canvas.placeHint') }}</p> }
     <div class="card-actions">

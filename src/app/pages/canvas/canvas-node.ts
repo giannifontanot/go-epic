@@ -6,7 +6,8 @@ import { Task, blockColors, toneVar } from '../../core/week.model';
 import { CanvasState } from './canvas-state';
 
 /**
- * A Feature box, a Story container or an Activity capsule (Floating Canvas). Activities: grip, title, ✎ edit. Features and
+ * A Feature box, a Story container or an Activity capsule (Floating Canvas). Activities: grip, title, ✎ edit (in the
+ * Undefined window, `loose`: no grip and no ✎, the whole card opens it). Features and
  * Stories: grip, label and fold ⌄ on the small label line, the title below on the whole width (a tap on it opens the actions).
  * An Activity's ✎ makes the card itself grow in place and become editable (Gianni): the page lends it its name box and the
  * body under it (`nameTpl`, `bodyTpl`), and its ✎ turns into ✓ to close it.
@@ -36,18 +37,24 @@ import { CanvasState } from './canvas-state';
           <!-- ACTIVIDAD in small caps above its title (Gianni: like the Canvas's own card) -->
           @if (editing && nameTpl()) {
             <div class="name editing-name"><small aria-hidden="true">{{ i18n.t('canvas.task') }}</small><ng-container *ngTemplateOutlet="nameTpl(); context: { $implicit: n }" /></div>
+          } @else if (loose()) {
+            <!-- In the Undefined window the whole card is the button (Gianni: no ✎; a tap on the card opens it) -->
+            <button type="button" class="name loose-open" [disabled]="disabled()" [attr.aria-label]="i18n.t('canvas.edit') + ' ' + n.title"
+              (click)="action.emit(n)"><small aria-hidden="true">{{ i18n.t('canvas.task') }}</small><strong>{{ n.title }}</strong></button>
           } @else {
             <div class="name"><small aria-hidden="true">{{ i18n.t('canvas.task') }}</small><strong>{{ n.title }}</strong></div>
           }
           <!-- the same button turns ✎ into ✓, so the focus stays on it -->
+          @if (!loose()) {
           <button type="button" class="more" [class.done]="editing" [disabled]="disabled()" [attr.aria-expanded]="editing"
             [attr.aria-label]="(editing ? i18n.t('task.done') : i18n.t('canvas.edit')) + ' ' + n.title"
             [title]="editing ? i18n.t('task.done') : i18n.t('canvas.edit')" (click)="action.emit(n)">{{ editing ? '✓' : '✎' }}</button>
+          }
         </header>
         @if (editing && bodyTpl()) { <ng-container *ngTemplateOutlet="bodyTpl(); context: { $implicit: n }" /> }
       } @else {
         <!-- Features and Stories: the controls live on the small label line, so the title gets the whole width;
-             tapping the title opens its actions (no ••• beside it). -->
+             tapping the title opens its actions (no ••• beside it); a ✎ pointing left right after the name says so (Gianni). -->
         <header class="stacked">
           <div class="node-bar">
             <button type="button" class="grip" [disabled]="disabled()" [attr.aria-label]="i18n.t('canvas.drag') + ' ' + n.title"
@@ -57,7 +64,7 @@ import { CanvasState } from './canvas-state';
               [attr.aria-label]="i18n.t(collapsed ? 'canvas.expand' : 'canvas.collapse') + ' ' + n.title" (click)="toggle()">⌄</button>
           </div>
           <button type="button" class="title" [disabled]="disabled()" [attr.aria-label]="i18n.t('canvas.actions') + ' ' + n.title"
-            [title]="i18n.t('canvas.actions') + ' ' + n.title" (click)="action.emit(n)"><strong>{{ n.title }}</strong></button>
+            [title]="i18n.t('canvas.actions') + ' ' + n.title" (click)="action.emit(n)"><strong>{{ n.title }}<span class="edit-pen" aria-hidden="true">✎</span></strong></button>
         </header>
       }
       @if (n.kind !== 'task' && !collapsed) {

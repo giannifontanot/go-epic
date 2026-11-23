@@ -159,6 +159,14 @@ export class Canvas implements DoCheck {
     const key = node ? lifeAreaKey(node.title) : null;
     return key ? this.i18n.t('area.' + key) : node?.title || '';
   }
+  /** A life area's name and its description apart («El Castillo» and «Familia»; Gianni: the description a shade softer). */
+  areaName(key: string): string { return this.areaParts(key)[0]; }
+  areaDesc(key: string): string { return this.areaParts(key)[1]; }
+  private areaParts(key: string): [string, string] {
+    const text = this.i18n.t('area.' + key);
+    const cut = text.indexOf(' - ');
+    return cut < 0 ? [text, ''] : [text.slice(0, cut), text.slice(cut + 3)];
+  }
 
   /** A row's colour in the Undefined window: its own, else the automatic pastel, never like the row above. */
   undefinedTone(index: number): string | null {
@@ -317,7 +325,7 @@ export class Canvas implements DoCheck {
   pendingArea: AreaView | '' = '';
   get areaTab(): AreaView { return this.pendingArea || this.areaFilter; }
   private areaSwap = 0;
-  get areaItems(): PickItem[] { return this.areaViews.map((id) => ({ id, label: this.i18n.t('area.' + id) })); }
+  get areaItems(): PickItem[] { return this.areaViews.map((id) => ({ id, label: this.areaName(id), desc: this.areaDesc(id) })); }
   get epicItems(): PickItem[] { return this.epics.map((e) => ({ id: e.id, label: e.title })); }
   /** The Epic the Epic button shows: the one opening, else the open one. */
   get openEpic(): LibNode | undefined { return this.state.node(this.openTab); }
@@ -562,12 +570,15 @@ export class Canvas implements DoCheck {
   readonly placeLabel = (level: PlaceLevel): string => {
     const id = this.cascade[level];
     if (!id) return '';
-    if (level === 'area') return this.lifeAreaKeys.includes(id as LifeArea) ? this.i18n.t('area.' + id) : '';
+    if (level === 'area') return this.lifeAreaKeys.includes(id as LifeArea) ? this.areaName(id) : '';
     return id === this.NEW ? this.newName[level] : this.state.node(id)?.title ?? '';
   };
+  /** A level's description beside its name: only a life area has one («Familia»). */
+  readonly placeDesc = (level: PlaceLevel): string =>
+    level === 'area' && this.lifeAreaKeys.includes(this.cascade.area as LifeArea) ? this.areaDesc(this.cascade.area) : '';
   /** A level's choices in its floating menu: the four life areas, else the children of the level chosen above. */
   readonly placeOptions = (level: PlaceLevel): PlaceOption[] => level === 'area'
-    ? this.lifeAreaKeys.map((key) => ({ id: key, title: this.i18n.t('area.' + key) }))
+    ? this.lifeAreaKeys.map((key) => ({ id: key, title: this.areaName(key), desc: this.areaDesc(key) }))
     : this.cascadeOptions(level).map((n) => ({ id: n.id, title: n.title }));
   private fillCascade(parentId: string | null): void {
     this.cascade = { area: '', epic: '', feature: '', story: '' };
