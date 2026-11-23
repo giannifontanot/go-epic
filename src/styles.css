@@ -335,9 +335,6 @@ dialog.status-menu h2 { margin: 0 0 12px; font-size: 20px; overflow-wrap: anywhe
 /* The running activity's countdown (Gianni, as in Epic Manager's Focus bar): a thick bar at the card's foot, much
    bolder than the now-line; its fill is the minutes left, anchored right, so it shrinks from the left. Muted, never
    loud: each theme sets --countdown (a soft red in Epic) */
-.t-left { display: block; height: 9px; margin: 8px 0 0; border-radius: 999px; overflow: hidden; pointer-events: none;
-  background: color-mix(in srgb, var(--countdown) 22%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--countdown) 35%, transparent); }
-.t-left-fill { display: block; height: 100%; margin-left: auto; border-radius: inherit; background: var(--countdown); transition: width .6s ease; }
 .now-line { position: absolute; z-index: 5; left: -22px; right: -22px; height: 0; border-top: 2px solid var(--now); pointer-events: none;
   overflow-anchor: none; }   /* over the cards and their pinned notes (Gianni: nothing hides it); never the browser's scroll anchor: as it moves down a card, the page would follow it (Gianni: it scrolled while editing) */
 .now-badge { position: absolute; right: 26px; top: -11px; padding: 1px 6px; border: 0; border-radius: 999px; background: var(--now); color: var(--now-ink, #fff); font-size: 11px; font-weight: 800; line-height: 1.45; min-height: 0; pointer-events: auto; }
@@ -1783,6 +1780,32 @@ html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray {
 html[data-theme='office'] .board > .overdue-tray { --tray-edge: #7f3434; --tray-halo-w: 0px; }
 html[data-theme='graphite'] .board > .overdue-tray { --tray-edge: #d27870; --tray-halo: rgba(10, 11, 13, .8); }
 @media (min-width: 821px) { .overdue-tray { left: 50%; right: auto; width: min(560px, calc(100vw - 180px)); translate: -50% 0; } }
+
+/* The running activity's countdown lives only at the very foot of the screen (Gianni): square, edge to edge, 20px tall
+   (the phone's home strip below it in the same colour). It slides up from below as the red line centres itself, with
+   the header's fade, lifting the overdue folder and 💡 Capture above it and fading the menu's four squares; his own
+   scroll slides it back down out of sight and puts everything back, all of it softly. */
+:root { --foot-h: calc(20px + env(safe-area-inset-bottom)); }
+.foot-countdown { position: fixed; z-index: 16; left: 0; right: 0; bottom: 0; height: var(--foot-h); box-sizing: border-box;
+  padding-bottom: env(safe-area-inset-bottom); border-radius: 0; pointer-events: none; overflow: hidden;
+  background: color-mix(in srgb, var(--countdown) 24%, var(--page)); box-shadow: 0 -1px 0 color-mix(in srgb, var(--countdown) 45%, transparent);
+  transform: translateY(100%); visibility: hidden;
+  transition: transform .9s cubic-bezier(.4, 0, .2, 1), visibility 0s linear .9s; }
+.foot-countdown.up { transform: none; visibility: visible; transition: transform .9s cubic-bezier(.4, 0, .2, 1), visibility 0s; }
+.foot-countdown-fill { display: block; height: 100%; margin-left: auto; background: var(--countdown); transition: width .6s ease; }
+/* what it pushes up: the folder sits on it, 💡 Capture rises by its height, the four squares fade away */
+.overdue-tray { transition: transform .9s cubic-bezier(.4, 0, .2, 1); }
+html.countdown-up .overdue-tray { transform: translateY(calc(-1 * var(--foot-h))); max-height: calc(100dvh - 12px - var(--foot-h)); }   /* its tab stays on screen */
+/* 💡 rises by a margin (not translate or transform: the weighted buttons' tilt and its .away scale own those) */
+.idea-fab { margin-bottom: 0; transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .28s ease, visibility 0s, margin-bottom .9s cubic-bezier(.4, 0, .2, 1); }
+.idea-fab.away { transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .28s ease, visibility 0s .34s, margin-bottom .9s cubic-bezier(.4, 0, .2, 1); }
+html.countdown-up .idea-fab { margin-bottom: var(--foot-h); }
+html.countdown-up .menu-fab:not(.open) { opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity .9s ease, visibility 0s linear .9s, transform .34s cubic-bezier(.4, 0, .2, 1); }
+html:not(.countdown-up) .menu-fab:not(.open) { transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .9s ease, visibility 0s; }
+@media (prefers-reduced-motion: reduce) {
+  .foot-countdown, .foot-countdown.up, .overdue-tray, .menu-fab, .idea-fab, .idea-fab.away,
+  html.countdown-up .menu-fab:not(.open), html:not(.countdown-up) .menu-fab:not(.open) { transition: none; } }
 
 /* Edit tools (LookStack, Gianni): while editing, round buttons stack at the bottom right above the ✓ Finish: Aa, AV,
    Themes, px; each rises out of the Finish, the nearest first, and Aa / AV / px open a − value + pill to their left. */
