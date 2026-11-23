@@ -662,6 +662,138 @@ html.tilt .capture-tabs button.on { translate: 0 0; }   /* the tabs belong to th
 .products-empty svg { margin-bottom: 8px; opacity: .8; }
 .products-lead { margin: 0; color: var(--ink); font-size: calc(17px * var(--esc, 1)); font-weight: 600; }
 .products-empty .muted { margin: 0; font-size: calc(14px * var(--esc, 1)); }
+
+/* How to use (pages/guide, Gianni): a carousel of short cards, each a drawing of the real screen and a few words. The
+   drawings are painted with the theme's own tokens, so they wear the theme the user has on; the Year's keep the Year
+   screen's fixed colours. The new card slides in from its side (nothing under reduced motion). */
+.guide-page { max-width: 640px; margin: 0 auto; }
+.guide { display: grid; gap: 14px; }
+.guide-stage { display: grid; overflow: hidden; border-radius: 26px; }
+.guide-slide { display: grid; gap: 14px; padding: 14px 14px 20px; border-radius: 26px; background: var(--navy-card); border: 1px solid var(--win-edge); }
+.guide-slide[data-dir] { animation: guide-in .45s cubic-bezier(0, 0, .6, 1) both; }
+.guide-slide[data-dir='right'] { --guide-from: 44px; }
+.guide-slide[data-dir='left'] { --guide-from: -44px; }
+@keyframes guide-in { from { opacity: 0; translate: var(--guide-from, 44px) 0; } }
+.guide-art { border-radius: 18px; overflow: hidden; }
+.ga-svg { display: block; width: 100%; height: auto; max-height: 44vh; margin: 0 auto; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+.guide-text { padding: 0 6px; min-height: 8.5em; }
+.guide-text h2 { margin: 0 0 6px; font-size: calc(22px * var(--esc, 1)); color: var(--ink); }
+.guide-text p { margin: 0; font-size: calc(16px * var(--esc, 1)); line-height: 1.5; color: var(--ink); }
+.guide-end { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.guide-end button { min-height: 44px; padding: 0 18px; }
+.guide-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.guide-arrow { flex: none; display: grid; place-items: center; width: 56px; height: 56px; padding: 0; border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--ink) 30%, transparent); background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); }
+.guide-arrow path { fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.guide-where { display: grid; justify-items: center; gap: 6px; min-width: 0; }
+.guide-dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+.guide-dot { width: 7px; height: 7px; border-radius: 4px; background: color-mix(in srgb, var(--ink) 30%, transparent); transition: width .3s ease, background-color .3s ease; }
+.guide-dot.on { width: 18px; background: var(--pink); }
+.guide-count { font-size: calc(13px * var(--esc, 1)); color: var(--ink-soft); }
+@media (prefers-reduced-motion: reduce) { .guide-slide[data-dir] { animation: none; } .guide-dot { transition: none; } }
+/* the drawings' pieces */
+.ga-screen { fill: var(--page); stroke: color-mix(in srgb, var(--ink-soft) 35%, transparent); }
+.ga-day { fill: var(--plum-b); }
+.ga-block { fill: var(--jelly-b); stroke: var(--block-edge, none); stroke-width: 1.5; }
+.ga-block.edit { stroke: var(--arrange-edge, #000); stroke-width: 2; }
+.ga-story { fill: color-mix(in srgb, var(--jelly-a) 22%, #fffaf2); }
+.ga-cap { font-size: 9px; font-weight: 700; letter-spacing: 1.4px; fill: var(--ink-soft); }
+.ga-cap.ink { fill: var(--jelly-ink); }
+.ga-cap.story { fill: #3b3150; }
+.ga-cap.card { font-size: 7.5px; fill: var(--act-ink, var(--card-ink)); }
+.ga-name { font: 700 13px Georgia, 'Times New Roman', serif; fill: var(--ink); }
+.ga-title, .ga-dayname { font: 700 19px Georgia, 'Times New Roman', serif; fill: var(--ink); }
+.ga-dayname { font-size: 15px; }
+.ga-tri { fill: var(--ink); }
+.ga-rule { fill: color-mix(in srgb, var(--ink) 25%, transparent); }
+.ga-ink-bar { fill: var(--jelly-ink); opacity: .55; }
+.ga-text-bar { fill: var(--ink); opacity: .5; }
+.ga-story-bar { fill: #3b3150; opacity: .5; }
+.ga-card .body, .ga-sw { fill: var(--tone); }
+.ga-card .edge { display: none; fill: var(--tone); }
+.ga-card .ln { fill: var(--act-ink, var(--card-ink)); opacity: .5; }
+html[data-edge] .ga-card .body { fill: var(--ge-card); stroke: var(--ge-hair); }
+html[data-edge] .ga-card .edge { display: inline; }
+.ga-svg .c0 { --tone: var(--act-0, #a7e7e3); } .ga-svg .c1 { --tone: var(--act-1, #e1f3d0); } .ga-svg .c2 { --tone: var(--act-2, #e1d7ff); } .ga-svg .c3 { --tone: var(--act-3, #ffd5bd); }
+.ga-svg .c4 { --tone: var(--act-4, #ffc9d6); } .ga-svg .c5 { --tone: var(--act-5, #fff0a6); } .ga-svg .c6 { --tone: var(--act-6, #cde4ff); } .ga-svg .c7 { --tone: var(--act-7, #eadcc8); }
+.ga-label { font-size: 13px; font-weight: 700; fill: var(--ink); text-anchor: middle; }
+.ga-icon { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ga-spark { fill: var(--pink); }
+.ga-fab circle:first-child { fill: var(--fab, var(--pink)); }
+.ga-fab-line { fill: none; stroke: var(--fab-ink, var(--card-ink)); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.ga-fab.ring circle:first-child { stroke: var(--red); stroke-width: 3; }
+.ga-fab.open circle:first-child { stroke: var(--teal); stroke-width: 3; }
+.ga-arrow { fill: none; stroke: var(--ink-soft); stroke-width: 1.6; stroke-dasharray: 3 3; }
+.ga-tile { fill: var(--navy-card); stroke: color-mix(in srgb, var(--ink) 25%, transparent); }
+.ga-tile.on { stroke: var(--teal); stroke-width: 2; }
+.ga-tile-text { font-size: 10.5px; font-weight: 700; fill: var(--ink); text-anchor: middle; }
+.ga-apply { fill: var(--btn-apply, var(--teal)); stroke: var(--btn-apply-edge, none); stroke-width: 1.5; }
+.ga-apply-text { font-size: 14px; font-weight: 700; fill: var(--btn-apply-ink, #101b42); text-anchor: middle; }
+.ga-apply-text.small { font-size: 10.5px; }
+.ga-count { fill: var(--btn-apply-ink, #101b42); }
+.ga-count-text { font-size: 11px; font-weight: 700; fill: var(--btn-apply, #76e0d0); text-anchor: middle; }
+.ga-check { fill: var(--teal); }
+.ga-check-ink { fill: none; stroke: var(--g-on-ink, #0b2f2a); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ga-well { fill: color-mix(in srgb, var(--jelly-b), #000 7%); stroke: var(--jelly-ink); }
+.ga-well-text { font-size: 9px; font-weight: 700; fill: var(--jelly-ink); text-anchor: middle; }
+.ga-round circle { fill: color-mix(in srgb, var(--ink) 12%, transparent); stroke: color-mix(in srgb, var(--ink) 30%, transparent); }
+.ga-round path { fill: none; stroke: var(--ink); stroke-width: 1.8; stroke-linecap: round; }
+.ga-done { fill: #f6e7b0; stroke: #c9a227; stroke-width: 1.5; }
+.ga-done-bar { fill: #6b5310; opacity: .6; }
+.ga-ring { fill: none; stroke: var(--act-ink, var(--card-ink)); stroke-width: 1.8; }
+.ga-half { fill: var(--pink); }
+.ga-left-bg { fill: color-mix(in srgb, var(--act-ink, var(--card-ink)) 12%, transparent); }
+.ga-left { fill: var(--countdown); }
+.ga-now { stroke: var(--now); stroke-width: 2.5; }
+.ga-now-badge { fill: var(--now); }
+.ga-now-text { font-size: 9px; font-weight: 700; fill: #fff; text-anchor: middle; }
+.ga-win { fill: var(--navy-card); stroke: var(--win-edge); stroke-width: 1.2; }
+.ga-input { fill: var(--page); stroke: #7fb2ff; stroke-width: 1.5; }
+.ga-caret { fill: var(--ink); }
+.ga-chip { fill: none; stroke: var(--ink-soft); stroke-width: 1.4; }
+.ga-chip.on { fill: var(--teal); stroke: var(--teal); }
+.ga-tab, .ga-list { fill: #fff; }
+.ga-tab { stroke: var(--pink); stroke-width: 1.5; }
+.ga-paper rect:first-child { fill: var(--tone); }
+.ga-paper.n0 { --tone: var(--note-0, #a7e7e3); } .ga-paper.n1 { --tone: var(--note-1, #e1f3d0); }
+.ga-paper .sq { fill: none; stroke: #302746; stroke-width: 1.4; }
+.ga-paper .ln { fill: #302746; opacity: .5; }
+.ga-folder { fill: var(--navy-card); stroke: var(--red); stroke-width: 2.5; }
+.ga-folder-text { font-size: 10px; font-weight: 700; fill: var(--ink); }
+.ga-tabline { fill: color-mix(in srgb, var(--ink) 25%, transparent); }
+.ga-accent { fill: var(--pink); }
+.ga-panel { fill: var(--navy-card); }
+.ga-flame { fill: #f59e0b; }
+.ga-streak { font-size: 11px; font-weight: 700; fill: var(--ink); text-anchor: end; }
+.ga-dot { fill: var(--teal); }
+.ga-dot.miss { fill: none; stroke: var(--ink-soft); stroke-width: 1.2; }
+.ga-web { fill: none; stroke: color-mix(in srgb, var(--ink) 25%, transparent); }
+.ga-axis { stroke: color-mix(in srgb, var(--ink) 18%, transparent); }
+.ga-radar { fill: color-mix(in srgb, var(--pink) 40%, transparent); stroke: var(--pink); stroke-width: 2; }
+/* the Year's own colours, the same in every theme, as on the Year screen */
+.ga-season { fill: #f4f8f1; stroke: #d5dccf; }
+.ga-sprint { font-size: 10px; font-weight: 700; fill: #3d4f2e; }
+.ga-sq { fill: #fff; stroke: #8a8f98; }
+.ga-sq.past { stroke: #b9bec6; }
+.ga-sq.today { stroke: #39ff14; stroke-width: 2.2; }
+.ga-sq.note { stroke: #ff1f3d; stroke-width: 2.2; }
+.ga-sun { fill: none; stroke: #c27c0e; stroke-width: 1.6; }
+.ga-bubble path { fill: #fff; stroke: #cfd5de; }
+.ga-bubble-text { font-size: 11px; font-weight: 700; fill: #1d2433; }
+.ga-veil { fill: rgba(0, 0, 0, .35); }
+.ga-soft-text { font-size: 10.5px; fill: var(--ink-soft); text-anchor: middle; }
+.ga-big { font: 700 46px Georgia, 'Times New Roman', serif; fill: var(--ink); text-anchor: middle; }
+.ga-btn.del { fill: var(--btn-delete, #fde2e4); stroke: var(--btn-delete-edge, #e8a0a8); stroke-width: 1.5; }
+.ga-btn.keep { fill: var(--btn-cancel, #fff4e9); stroke: var(--btn-cancel-edge, #d8c9b8); stroke-width: 1.5; }
+.ga-btn-text { font-size: 10.5px; font-weight: 700; text-anchor: middle; }
+.ga-btn-text.del { fill: var(--btn-delete-ink, #9f1239); }
+.ga-btn-text.keep { fill: var(--btn-cancel-ink, #101b42); }
+.ga-focus { fill: none; stroke: var(--ink); stroke-width: 2; }
+.ga-drain-bg { fill: color-mix(in srgb, var(--red) 20%, transparent); }
+.ga-drain { fill: var(--red); }
+.ga-suggest { fill: none; stroke: var(--teal); stroke-width: 2; }
+.ga-theme { stroke: color-mix(in srgb, var(--ink) 30%, transparent); }
+.ga-theme.on { stroke: var(--teal); stroke-width: 3; }
 .habits { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .habit { padding: 12px 14px; border-radius: 18px; background: linear-gradient(155deg, var(--plum-a), var(--plum-b) 86%); }
 .h-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
