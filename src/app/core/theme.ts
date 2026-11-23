@@ -17,6 +17,19 @@ export const RED_COUNTDOWN_KEY = 'go-epic-red-countdown';
 /** The browser bar colour of each theme (meta theme-color), the page colour. */
 export const THEME_BAR: Record<Theme, string> = { epic: '#101b42', pinkpop: '#fbeaf3', petalpunk: '#1b141f', squeezeme: '#eef4fc', sunburnt: '#fff1e5', smokedcitrus: '#1a1918', office: '#c6c9cd', graphite: '#2b2e33', goepiclight: '#fbfbfd', goepicdark: '#0a1130' };
 
+/** How much black the Week's spotlight veil lays over the page (body::before, rgba(0, 0, 0, .2) in styles.css). */
+export const BAR_VEIL = 0.2;
+/** The veil fades in and out over this long (the same .6s as body::before), and the phone's top bar with it. */
+export const BAR_GLIDE_MS = 600;
+
+/** A #rrggbb colour with `amount` (0…1) of black laid over it, as a veil of rgba(0, 0, 0, amount) paints it. */
+export function shadeBar(hex: string, amount: number): string {
+  const a = Math.min(1, Math.max(0, amount));
+  const n = parseInt(hex.slice(1), 16);
+  const ch = (shift: number) => Math.round(((n >> shift) & 255) * (1 - a)).toString(16).padStart(2, '0');
+  return `#${ch(16)}${ch(8)}${ch(0)}`;
+}
+
 /**
  * The web app manifest of a theme: the same app with the theme's page colour as its theme and background colour, so
  * the installed app (Android's bottom bar, the splash, the task switcher) takes the theme's colour when Chrome next
@@ -49,6 +62,14 @@ export class ThemeService {
   private readonly held = signal<Theme | null>(null);
   /** The look on screen: the held one, unless a theme is being tried on (the palette window shows what is picked). */
   readonly shown = computed<Theme>(() => (this.trying() ? null : this.held()) ?? this.theme());
+  /**
+   * True while the Week's spotlight veil darkens the page (the red line centred itself): the phone's top bar
+   * (meta theme-color, which an installed app follows at once) darkens with it and brightens back when it lifts (Gianni).
+   */
+  readonly barVeil = signal(false);
+  /** The veil's share now on the top bar (0…BAR_VEIL), gliding toward its target. */
+  private barAmount = 0;
+  private barFrame = 0;
 
   constructor() {
     effect(() => {
@@ -57,10 +78,16 @@ export class ThemeService {
       const trying = this.trying();
       if (typeof document === 'undefined') return;
       document.documentElement.dataset['theme'] = shown;
-      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_BAR[shown]);
       // the installed app keeps the chosen theme's manifest: a page's own look never repaints the phone's bars for a day
       document.querySelector('link[rel="manifest"]')?.setAttribute('href', manifestFor(theme));
       if (!trying) try { localStorage.setItem(THEME_KEY, theme); } catch { /* a view preference */ }
+    });
+    // the phone's top bar: the shown theme's page colour, under the spotlight's veil while it is on, gliding between them
+    effect(() => {
+      const colour = THEME_BAR[this.shown()];
+      const target = this.barVeil() ? BAR_VEIL : 0;
+      if (typeof document === 'undefined') return;
+      this.glideBar(colour, target);
     });
     effect(() => {
       const red = this.redLine();
@@ -74,6 +101,26 @@ export class ThemeService {
       if (red) document.documentElement.dataset['redCountdown'] = ''; else delete document.documentElement.dataset['redCountdown'];
       try { localStorage.setItem(RED_COUNTDOWN_KEY, red ? '1' : '0'); } catch { /* a view preference */ }
     });
+  }
+
+  /** Moves the top bar's veil to `target` over BAR_GLIDE_MS, eased like the veil itself (at once under reduced motion). */
+  private glideBar(colour: string, target: number): void {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    const paint = () => meta?.setAttribute('content', shadeBar(colour, this.barAmount));
+    if (this.barFrame) cancelAnimationFrame(this.barFrame);
+    this.barFrame = 0;
+    const still = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const from = this.barAmount;
+    if (still || from === target || typeof requestAnimationFrame !== 'function') { this.barAmount = target; paint(); return; }
+    const start = performance.now();
+    const step = (now: number) => {
+      const t = Math.min(1, (now - start) / BAR_GLIDE_MS);
+      const eased = t < .5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+      this.barAmount = from + (target - from) * eased;
+      paint();
+      this.barFrame = t < 1 ? requestAnimationFrame(step) : 0;
+    };
+    this.barFrame = requestAnimationFrame(step);
   }
 
   /** Puts the theme on and keeps it on this device. */

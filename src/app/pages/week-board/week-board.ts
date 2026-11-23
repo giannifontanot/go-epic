@@ -7,6 +7,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ApplicationRef, Component, DestroyRef, ElementRef, Injector, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { flip, flipNow } from '../../core/flip';
 import { TextSettings } from '../../core/text-settings';
+import { ThemeService } from '../../core/theme';
 import { I18n } from '../../core/i18n';
 import {
   addDayBlocks, Block, DAYS, Day, NEW_TASK_MINUTES, countdown, Task, blockColors, toneVar, cloneBlock, fits, formatClock, freeMinutes, moveItem, stepTask, newId, resizedMinutes,
@@ -68,6 +69,7 @@ export class WeekBoard {
   protected readonly capture = inject(CaptureUi);
   private readonly injector = inject(Injector);
   protected readonly text = inject(TextSettings);
+  private readonly themes = inject(ThemeService);
   protected readonly days = DAYS;
 
   protected readonly arranging = signal(false);
@@ -129,6 +131,9 @@ export class WeekBoard {
     // the centred line with its time is what draws the eye (Gianni); his own scroll brings them back with the header.
     effect(() => { document.documentElement.classList.toggle('now-centred', this.headHidden()); });
     inject(DestroyRef).onDestroy(() => document.documentElement.classList.remove('now-centred'));
+    // the phone's top bar darkens with the spotlight's veil over the page and brightens back with it (Gianni, v67)
+    effect(() => { this.themes.barVeil.set(this.spotlight() && !this.arranging()); });
+    inject(DestroyRef).onDestroy(() => this.themes.barVeil.set(false));
     inject(DestroyRef).onDestroy(() => { this.capture.menuEdit.set(null); this.capture.menuHidden.set(false); this.capture.lookTools.set(null); this.cancelDrag?.(); });
     // On entering the Week board, the view centres on now (the red line in today's column), as in Epic Manager: once
     // the week, the library (card titles) and Capture's notes (the strip at the top) are there, so nothing shifts after.
