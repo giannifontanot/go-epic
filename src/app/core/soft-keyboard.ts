@@ -14,11 +14,12 @@ import { keyboardOverlay, setKeyboardOverlay } from './viewport';
 const MS = 340;
 const MARGIN = 16;
 
-interface Scrolled { kind: 'scroll'; el: Element; from: number; to: number; pad: string | null; }
-interface Lifted { kind: 'lift'; el: HTMLElement; translate: string; transition: string; }
-type Moved = Scrolled | Lifted;
+interface Scrolled { el: Element; from: number; to: number; pad: string | null; }
+interface Lifted { el: HTMLElement; translate: string; transition: string; }
 
-const moved = new Map<Element, Moved>();
+/** What was scrolled and what was lifted, kept apart: a window can be both (its list scrolled, then itself slid up). */
+const moved = new Map<Element, Scrolled>();
+const lifted = new Map<HTMLElement, Lifted>();
 const gliding = new WeakMap<Element, number>();
 let room: HTMLElement | null = null;
 let started = false;
@@ -59,20 +60,20 @@ function scrollsY(el: HTMLElement): boolean {
  */
 function makeRoom(el: HTMLElement, needed: number): number {
   const before = el.style.paddingBottom;
-  const rec = moved.get(el) as Scrolled | undefined;
+  const rec = moved.get(el);
   const base = parseFloat(getComputedStyle(el).paddingBottom) || 0;
   el.style.paddingBottom = `${base + needed}px`;
   const can = el.scrollHeight - el.clientHeight - el.scrollTop;
   if (can <= 0.5) { el.style.paddingBottom = before; return 0; }
-  if (rec) { if (rec.pad === null) rec.pad = before; } else moved.set(el, { kind: 'scroll', el, from: el.scrollTop, to: el.scrollTop, pad: before });
+  if (rec) { if (rec.pad === null) rec.pad = before; } else moved.set(el, { el, from: el.scrollTop, to: el.scrollTop, pad: before });
   return can;
 }
 
 function scrollBy(el: Element, by: number): void {
-  const rec = moved.get(el) as Scrolled | undefined;
+  const rec = moved.get(el);
   const from = rec ? rec.from : topOf(el);
   const to = topOf(el) + by;
-  moved.set(el, { kind: 'scroll', el, from, to, pad: rec ? rec.pad : null });
+  moved.set(el, { el, from, to, pad: rec ? rec.pad : null });
   glide(el, to);
 }
 
@@ -108,9 +109,9 @@ function reveal(): void {
   if (win) {
     const lift = Math.min(need, win.getBoundingClientRect().top - MARGIN);
     if (lift <= 0.5) return;
-    const rec = moved.get(win) as Lifted | undefined;
+    const rec = lifted.get(win);
     const prev = rec ? -parseFloat(win.style.translate.split(' ')[1] || '0') || 0 : 0;
-    if (!rec) moved.set(win, { kind: 'lift', el: win, translate: win.style.translate, transition: win.style.transition });
+    if (!rec) lifted.set(win, { el: win, translate: win.style.translate, transition: win.style.transition });
     win.style.transition = reduced() ? '' : `translate ${MS}ms cubic-bezier(.2,0,0,1)`;
     win.style.translate = `0 ${-(prev + lift)}px`;
     return;
@@ -130,16 +131,17 @@ function reveal(): void {
 /** The keyboard went down: everything glides back where it was (a list the user scrolled meanwhile stays). */
 function restore(): void {
   const all = [...moved.values()];
+  const lifts = [...lifted.values()];
   moved.clear();
+  lifted.clear();
+  for (const rec of lifts) {
+    rec.el.style.transition = reduced() ? '' : `translate ${MS}ms cubic-bezier(.2,0,0,1)`;
+    rec.el.style.translate = rec.translate;
+    setTimeout(() => { if (!lifted.has(rec.el)) rec.el.style.transition = rec.transition; }, MS + 40);
+  }
   const page = document.scrollingElement ?? document.documentElement;
   let pageBack = false;
   for (const rec of all) {
-    if (rec.kind === 'lift') {
-      rec.el.style.transition = reduced() ? '' : `translate ${MS}ms cubic-bezier(.2,0,0,1)`;
-      rec.el.style.translate = rec.translate;
-      setTimeout(() => { if (!moved.has(rec.el)) rec.el.style.transition = rec.transition; }, MS + 40);
-      continue;
-    }
     const el = rec.el as HTMLElement;
     // a glide still on its way up is ours, not the user's: it stops and turns back from where it is
     const midway = gliding.has(el);
@@ -151,7 +153,7 @@ function restore(): void {
   }
   if (room) {
     const spacer = room;
-    const off = () => { if (!moved.size) { spacer.style.height = '0px'; spacer.remove(); } };
+    const off = () => { if (!moved.size && !lifted.size) { spacer.style.height = '0px'; spacer.remove(); } };
     if (pageBack) setTimeout(off, MS + 40); else off();
   }
 }
