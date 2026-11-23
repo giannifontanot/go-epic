@@ -713,18 +713,21 @@ html[data-edge] .ga-card .body { fill: var(--ge-card); stroke: var(--ge-hair); }
 html[data-edge] .ga-card .edge { display: inline; }
 .ga-svg .c0 { --tone: var(--act-0, #a7e7e3); } .ga-svg .c1 { --tone: var(--act-1, #e1f3d0); } .ga-svg .c2 { --tone: var(--act-2, #e1d7ff); } .ga-svg .c3 { --tone: var(--act-3, #ffd5bd); }
 .ga-svg .c4 { --tone: var(--act-4, #ffc9d6); } .ga-svg .c5 { --tone: var(--act-5, #fff0a6); } .ga-svg .c6 { --tone: var(--act-6, #cde4ff); } .ga-svg .c7 { --tone: var(--act-7, #eadcc8); }
-/* the Canvas-to-today card: copies of the Story's Activities fly, one after another, into today's block (looping) */
+/* the Canvas-to-today card: copies of the Canvas's Activities (two in a Story, one still undefined) fly, one after another,
+   into today's block (looping); each lands on its own slot, `--dy` */
 .ga-slot { fill: none; stroke: var(--jelly-ink); stroke-width: 1.2; stroke-dasharray: 4 3; opacity: .45; }
 .ga-fly { opacity: 0; transform-box: fill-box; transform-origin: center; animation: 7s cubic-bezier(.45, 0, .25, 1) infinite both; }
 .ga-fly .body { filter: drop-shadow(0 3px 3px rgb(0 0 0 / .25)); }
-.ga-fly.f1 { animation-name: ga-fly1; } .ga-fly.f2 { animation-name: ga-fly2; } .ga-fly.f3 { animation-name: ga-fly3; }
-@keyframes ga-fly1 { 0%, 6% { opacity: 0; transform: none; } 9% { opacity: 1; transform: none; } 18% { transform: translate(74px, -58px) scale(1.08); }
-  27%, 88% { opacity: 1; transform: translate(148px, -26px); } 96%, 100% { opacity: 0; transform: translate(148px, -26px); } }
-@keyframes ga-fly2 { 0%, 27% { opacity: 0; transform: none; } 30% { opacity: 1; transform: none; } 39% { transform: translate(74px, -58px) scale(1.08); }
-  48%, 88% { opacity: 1; transform: translate(148px, -26px); } 96%, 100% { opacity: 0; transform: translate(148px, -26px); } }
-@keyframes ga-fly3 { 0%, 48% { opacity: 0; transform: none; } 51% { opacity: 1; transform: none; } 60% { transform: translate(74px, -58px) scale(1.08); }
-  69%, 88% { opacity: 1; transform: translate(148px, -26px); } 96%, 100% { opacity: 0; transform: translate(148px, -26px); } }
-@media (prefers-reduced-motion: reduce) { .ga-fly { animation: none; opacity: 1; transform: translate(148px, -26px); } }
+.ga-fly.f1 { --dy: -26px; --up: -58px; animation-name: ga-fly1; }
+.ga-fly.f2 { --dy: -24px; --up: -56px; animation-name: ga-fly2; }
+.ga-fly.f3 { --dy: -42px; --up: -74px; animation-name: ga-fly3; }
+@keyframes ga-fly1 { 0%, 6% { opacity: 0; transform: none; } 9% { opacity: 1; transform: none; } 18% { transform: translate(74px, var(--up)) scale(1.08); }
+  27%, 88% { opacity: 1; transform: translate(148px, var(--dy)); } 96%, 100% { opacity: 0; transform: translate(148px, var(--dy)); } }
+@keyframes ga-fly2 { 0%, 27% { opacity: 0; transform: none; } 30% { opacity: 1; transform: none; } 39% { transform: translate(74px, var(--up)) scale(1.08); }
+  48%, 88% { opacity: 1; transform: translate(148px, var(--dy)); } 96%, 100% { opacity: 0; transform: translate(148px, var(--dy)); } }
+@keyframes ga-fly3 { 0%, 48% { opacity: 0; transform: none; } 51% { opacity: 1; transform: none; } 60% { transform: translate(74px, var(--up)) scale(1.08); }
+  69%, 88% { opacity: 1; transform: translate(148px, var(--dy)); } 96%, 100% { opacity: 0; transform: translate(148px, var(--dy)); } }
+@media (prefers-reduced-motion: reduce) { .ga-fly { animation: none; opacity: 1; transform: translate(148px, var(--dy)); } }
 .ga-label { font-size: 13px; font-weight: 700; fill: var(--ink); text-anchor: middle; }
 .ga-icon { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .ga-spark { fill: var(--pink); }
