@@ -23,46 +23,26 @@
     <div class="split" [class.dragging]="!!dragState?.ghost">
       <section class="epic-space" aria-labelledby="workspace-title">
         <h2 id="workspace-title" class="sr-only">{{ i18n.t('canvas.workspace') }}</h2>
-        <!-- The areas are folder tabs too (Gianni: like the Epics): «Todas» first, then the four life areas; the open one
-             runs into the area's folder, which holds what the area covers, its Epics' tabs and their plum folder. -->
-        <h3 class="epics-title" id="areas-title">{{ i18n.t('canvas.areas') }}</h3>
-        <div class="area-tabs" (scroll)="followBubble()" role="tablist" aria-labelledby="areas-title">
-          @for (area of areaViews; track area; let index = $index) {
-            <div class="area-tab" [class.open]="areaTab === area">
-              <button type="button" role="tab" [attr.id]="'atab-' + area" [attr.data-area-tab]="area"
-                [class.active]="areaTab === area" [attr.aria-selected]="areaTab === area" aria-controls="area-panel"
-                [attr.tabindex]="areaTab === area ? 0 : -1" (keydown)="areaKey($event, index)" (click)="areaTap(area, $any($event.currentTarget))">
-                <span>{{ i18n.t('area.' + area) }}</span>
-              </button>
-            </div>
-          }
-        </div>
-        <div class="area-folder" id="area-panel" role="tabpanel" [attr.aria-labelledby]="'atab-' + areaTab">
-        <div class="area-inner">
-        <p class="area-hint">{{ i18n.t('area.' + areaFilter + 'Hint') }}</p>
-        <!-- Real folder tabs (Gianni): «Epics» names the row above it; the open tab is the folder's own colour and runs
-             into it, the others sit lower and quieter behind it; the content closes and opens softly on a switch -->
-        @if (epics.length) { <h3 class="epics-title" id="epics-title">{{ i18n.t('canvas.epics') }}</h3> }
-        <div class="epic-tabs" (scroll)="followBubble()" role="tablist" [attr.aria-labelledby]="epics.length ? 'epics-title' : null" [attr.aria-label]="epics.length ? null : i18n.t('canvas.epics')">
-          @for (epic of epics; track epic.id; let index = $index) {
-            <div class="epic-tab" [class.open]="openTab === epic.id">
-              <button type="button" role="tab" [attr.id]="'tab-' + epic.id" [attr.data-tab]="epic.id" data-drop-kind="epic" [attr.data-parent]="epic.id"
-                [class.active]="openTab === epic.id" [attr.aria-selected]="openTab === epic.id" aria-controls="epic-panel"
-                [attr.tabindex]="openTab === epic.id ? 0 : -1" (keydown)="tabKey($event, index)" (click)="tabTap(epic.id, $any($event.currentTarget), epic.title)">
-                <span>{{ epic.title }}</span>
-              </button>
-              <button type="button" class="epic-edit" [disabled]="saving" [attr.aria-label]="i18n.t('canvas.editEpic') + ': ' + epic.title"
-                [title]="i18n.t('canvas.editEpic')" (click)="open('epic', epic.parentId, epic)">✎</button>
-            </div>
-          }
-          <button type="button" class="epic-add" [disabled]="saving" (click)="open('epic')">+ {{ i18n.t('canvas.epic') }}</button>
-        </div>
-        <div class="scroll-panel epic-objects" id="epic-panel" role="tabpanel" [attr.aria-labelledby]="activeId ? 'tab-' + activeId : 'workspace-title'"
+        <!-- One plum panel, the Epic's own colour (Gianni's picture): ÁREA and EPIC at its top, each the current choice in
+             the cards' serif with a ▾ that opens every choice at once in a floating menu, like the pages menu (Gianni: not
+             tabs); the Epic's Features, Stories and Activities nest below them in the same panel. -->
+        <div class="scroll-panel epic-objects" id="epic-panel" [attr.aria-label]="active?.title || i18n.t('canvas.epics')"
           [attr.data-drop-kind]="activeId ? 'epic' : null" [attr.data-parent]="activeId || null" tabindex="0">
+          <header class="pick-head">
+            <app-pick-menu class="pick-area" [label]="i18n.t('canvas.area')" [value]="i18n.t('area.' + areaTab)"
+              [items]="areaItems" [chosen]="areaTab" (picked)="selectArea($any($event))" />
+            <p class="area-hint">{{ i18n.t('area.' + areaTab + 'Hint') }}</p>
+            <div class="epic-line">
+              <app-pick-menu class="pick-epic" [label]="i18n.t('canvas.epic')" [value]="openEpic?.title || i18n.t('canvas.noEpicYet')"
+                [items]="epicItems" [chosen]="openTab" [addLabel]="i18n.t('canvas.epic')" [disabled]="saving"
+                (picked)="selectEpic($event)" (add)="open('epic')" />
+              @if (openEpic; as e) {
+                <button type="button" class="epic-edit" [disabled]="saving" [attr.aria-label]="i18n.t('canvas.editEpic') + ': ' + e.title"
+                  [title]="i18n.t('canvas.editEpic')" (click)="open('epic', e.parentId, e)">✎</button>
+              }
+            </div>
+          </header>
           <div class="epic-pane">
-          @if (active; as a) {
-            <div class="workspace-context"><span>{{ areaLabel(a.parentId) }} <span aria-hidden="true">/</span> {{ a.title }}</span></div>
-          }
           <div class="objects">
             @for (node of roots; track node.id) {
               <app-canvas-node [node]="node" [state]="state" [version]="v" [disabled]="saving"
@@ -78,15 +58,10 @@
           }
           </div>
         </div>
-        </div>
-        </div>
       </section>
     </div>
   }
   <span class="sr-only" role="status" aria-live="polite">{{ announcement }}</span>
-  <!-- A cut Epic name, whole (Gianni): shown under its tab for a few seconds when it is tapped; the tab itself already
-       carries the whole name for screen readers -->
-  <div #tabBubble popover="manual" class="tab-bubble" aria-hidden="true"></div>
 </section>
 
 <dialog #editor class="editor canvas-editor" aria-labelledby="canvas-editor-title" (click)="onBackdrop($event)" (close)="editorClosed()">

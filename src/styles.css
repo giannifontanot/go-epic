@@ -688,54 +688,40 @@ dialog.info-card.track-grid[open] { display: flex; flex-direction: column; overf
 /* Starter template preview: a Feature renamed from its old name (Canvas) */
 .template-tree .renamed { display: block; color: var(--accent-text, var(--jelly-b)); font-size: 12px; font-style: normal; }
 
-/* Canvas: the Areas and the Epics are real folder tabs (Gianni). A small title names each row above it; the open tab is
-   its folder's own colour (--fold: the area folder's for the areas, the plum panel's top for the Epics) and runs into it,
-   a line in the theme's primary colour along its top and its foot flaring into the folder's edge; the others sit a
-   little lower and quieter, behind it. Each Epic tab carries its own ✎ in its top-right corner; "+ Epic" ends its row.
-   Both rows scroll sideways. The area folder is a soft band of the page's own ink, so it reads on every theme. */
-.canvas-page { --area-fold: color-mix(in srgb, var(--ink) 9%, transparent); }
-.epic-tab { --fold: var(--plum-a); }
-.area-tab { --fold: var(--area-fold); }
-.epics-title { margin: 2px 4px 6px; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
-:is(.epic-tabs, .area-tabs) { display: flex; align-items: flex-end; gap: 4px; padding: 0 16px 0 0; overflow-x: auto; overflow-y: hidden; flex-shrink: 0; scrollbar-width: none; }
-:is(.epic-tabs, .area-tabs)::-webkit-scrollbar { display: none; }
-/* A tab is as wide as its name (Gianni), up to the row's width; a longer name is cut with … and a tap shows it whole */
-:is(.epic-tab, .area-tab) { position: relative; flex-shrink: 0; display: flex; min-width: 0; max-width: calc(100% - 14px); border-radius: 16px 16px 0 0;
-  background: color-mix(in srgb, var(--fold) 42%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 14%, transparent);
-  translate: 0 4px; transition: background .3s, translate .3s cubic-bezier(.2, 0, 0, 1), box-shadow .3s; }
-:is(.epic-tab, .area-tab).open { z-index: 1; background: var(--fold); translate: 0 0; box-shadow: inset 0 3px 0 var(--pink); }
-:is(.epic-tab, .area-tab).open::before, :is(.epic-tab, .area-tab).open::after { content: ''; position: absolute; bottom: 0; width: 14px; height: 14px; pointer-events: none; }
-:is(.epic-tab, .area-tab).open::before { left: -14px; background: radial-gradient(circle at 0 0, transparent 13.5px, var(--fold) 14px); }
-:is(.epic-tab, .area-tab).open::after { right: -14px; background: radial-gradient(circle at 100% 0, transparent 13.5px, var(--fold) 14px); }
-:is(.epic-tab, .area-tab):not(.open):hover { background: color-mix(in srgb, var(--fold) 62%, transparent); }
-:is(.epic-tab, .area-tab) > button[role='tab'] { flex: 1; min-width: 0; min-height: 46px; margin: 0; padding: 10px 40px 10px 15px; border-radius: 16px 16px 0 0; background: transparent !important;
-  color: var(--ink-soft); text-align: left; transition: color .3s; }
-.area-tab > button[role='tab'] { padding-right: 15px; }   /* the areas are fixed: no ✎ */
-:is(.epic-tab, .area-tab) > button[role='tab'] > span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-:is(.epic-tab, .area-tab).open > button[role='tab'] { color: var(--ink); }
-:is(.epic-tab, .area-tab) > button[role='tab']:hover:not(:disabled) { color: var(--ink); }
-.epic-edit { position: absolute; top: 3px; right: 2px; width: 40px; min-width: 40px !important; max-width: 40px; height: 40px; min-height: 40px !important; padding: 0 !important; border-radius: 50% !important;
-  background: transparent !important; color: var(--ink-soft) !important; font-size: 16px; }
-.epic-tab.open > .epic-edit { color: var(--ink) !important; }
-.epic-edit:hover:not(:disabled) { background: color-mix(in srgb, var(--ink) 12%, transparent) !important; }
-.epic-add { flex-shrink: 0; align-self: center; margin-left: 8px !important; border: 1.5px dashed color-mix(in srgb, var(--ink) 35%, transparent) !important; background: transparent !important; white-space: nowrap; }
-/* The folders: square where the first tab runs into them */
-.epic-tabs:has(> .epic-tab.open:first-child) + .epic-objects { border-top-left-radius: 0; }
-.area-tabs:has(> .area-tab.open:first-child) + .area-folder { border-top-left-radius: 0; }
-.dragging .epic-tab:not(.open) { outline: 1.5px dashed color-mix(in srgb, var(--ink) 40%, transparent); outline-offset: -3px; }
-/* The whole name of a cut tab, in a small bubble under it (in the top layer, so no panel clips it) */
-.tab-bubble { position: fixed; inset: auto; left: 0; top: 0; margin: 0; width: max-content; max-width: min(420px, calc(100vw - 24px)); height: auto;
-  padding: 9px 14px; overflow: visible; border: 1px solid var(--win-edge); border-radius: 14px; background: var(--navy-card); color: var(--ink);
-  font-weight: 700; font-size: calc(var(--act-fs, 15px) * 1.07); line-height: 1.3; overflow-wrap: anywhere; pointer-events: none;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, .4); opacity: 0; translate: 0 -4px; transition: opacity .22s ease, translate .22s ease, top .2s ease; }
-.tab-bubble.on { opacity: 1; translate: 0 0; }
-.tab-bubble::before { content: ''; position: absolute; left: calc(var(--tail-x, 50%) - 7px); top: -7px; width: 13px; height: 13px; rotate: 45deg;
-  background: var(--navy-card); border: solid var(--win-edge); border-width: 1px 0 0 1px; }
-.tab-bubble:not(:popover-open):not(.on) { display: none; }
-@media (prefers-reduced-motion: reduce) { .tab-bubble { transition: none; translate: none; } }
-/* The tabs belong to their folder: they never lean off it */
-html.tilt :is(.epic-tabs .epic-tab, .area-tabs .area-tab) button { rotate: none; translate: none; }
-@media (prefers-reduced-motion: reduce) { :is(.epic-tab, .area-tab), :is(.epic-tab, .area-tab) > button[role='tab'] { transition: none; } }
+/* Canvas: the Área and the Epic (Gianni's picture): one panel in the Epic's own plum, at its top a small uppercase ÁREA
+   over the area's name and EPIC over the Epic's, in the cards' serif, each with a ▾. Each is a button that slides
+   every choice out of it at once, as the pages menu's tiles and at their speed (pages/canvas/pick-menu.ts), the
+   tiles in the top layer under it. The Epic's ✎ sits at the end of its line; "+ Epic" is the Epic menu's last tile. */
+.pick-head { display: grid; gap: 2px; margin: 4px 0 14px; padding: 0 2px; color: var(--ink); }
+.pick-head .area-hint { margin: 0 0 8px; font-size: calc(12px * var(--esc)); }
+.epic-line { display: flex; align-items: flex-start; gap: 4px; min-width: 0; }
+.epic-line app-pick-menu { flex: 1; min-width: 0; }
+app-pick-menu { display: block; min-width: 0; }
+.pick-btn { display: block; width: auto; max-width: 100%; min-height: 44px; margin: 0; padding: 2px 4px 4px; border: 0; border-radius: 12px;
+  background: transparent; color: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.pick-btn:hover:not(:disabled) { background: color-mix(in srgb, currentColor 8%, transparent); }
+.pick-btn:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+.pick-btn small { display: block; font-size: calc(11px * var(--esc)); font-weight: 500; letter-spacing: .12em; text-transform: uppercase; opacity: .72; line-height: 1.2; margin-bottom: 2px; }
+.pick-btn strong { display: block; font-family: Georgia, 'Noto Serif', serif; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere;
+  font-size: calc(var(--act-fs) * 1.5); letter-spacing: var(--act-ls); }
+.pick-chev { display: inline-block; margin-left: .4em; font-family: system-ui, sans-serif; font-size: .55em; vertical-align: .15em; opacity: .7; transition: rotate .3s ease; }
+.pick-btn[aria-expanded='true'] .pick-chev { rotate: 180deg; }
+.epic-edit { flex: none; width: 44px; min-width: 44px !important; height: 44px; min-height: 44px !important; margin-top: 14px; padding: 0 !important; border-radius: 50% !important;
+  background: transparent !important; color: var(--ink) !important; font-size: 17px; opacity: .8; }
+.epic-edit:hover:not(:disabled) { background: color-mix(in srgb, var(--ink) 12%, transparent) !important; opacity: 1; }
+/* the floating menu: a light veil over the screen (the popover itself) and the tiles under the button */
+.pick-pop { position: fixed; inset: 0; width: auto; height: auto; max-width: none; max-height: none; margin: 0; padding: 0; border: 0;
+  background: rgba(4, 9, 30, .18); overflow: hidden; color: var(--ink); }
+.pick-pop:not(:popover-open) { display: none; }
+.page-fan.pick-fan { position: fixed; z-index: auto; right: auto; width: min(320px, calc(100vw - 24px)); box-sizing: border-box; padding: 8px;
+  margin: -8px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.pick-tile { width: 100%; border: 0; text-align: left; line-height: 1.25; padding-top: 10px; padding-bottom: 10px; cursor: pointer; overflow-wrap: anywhere; }
+.pick-tile.on .theme-tile-check { top: 4px; right: 4px; }
+.pick-tile.pick-add { background: transparent; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--ink) 40%, transparent); border: 0; }
+.pick-tile:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+/* they belong to their panel and menu: they never lean or slide with the phone */
+html.tilt :is(.pick-btn, .pick-tile, .epic-edit) { rotate: none; translate: none; }
+@media (prefers-reduced-motion: reduce) { .pick-chev { transition: none; } }
 
 /* Weighted buttons (core/tilt.ts): the root's --tilt-r / --tilt-k glide (registered, so they can transition, with a
    little bounce when they spring back) and every button follows through rotate/translate, never its own transform. Each
@@ -941,7 +927,7 @@ body { letter-spacing: var(--app-ls); }
 :is(.t-title, .now-card h2, :is(.object.task, .undefined-item) strong, .object.story strong, .pc-activity strong, .pc-story strong, .c-text, .h-head strong, .linked-chip, .text-preview .t-title) {
   font-size: var(--act-fs) !important; letter-spacing: var(--act-ls) !important; }
 .now-card h2 { font-size: calc(var(--act-fs) * 2) !important; }
-:is(.object.feature > header strong, .pc-feature > strong, .pc-epic strong, .epic-tabs button > span, .area-tabs button > span) { font-size: calc(var(--act-fs) * 1.07) !important; letter-spacing: var(--act-ls) !important; }
+:is(.object.feature > header strong, .pc-feature > strong, .pc-epic strong) { font-size: calc(var(--act-fs) * 1.07) !important; letter-spacing: var(--act-ls) !important; }
 :is(.pick-card small, .text-preview small) { font-size: calc(9px * var(--esc)) !important; }
 .object small { font-size: calc(11px * var(--esc)) !important; }
 .place-card small { font-size: calc(11px * var(--esc)) !important; }   /* the Canvas's small-caps labels (Gianni's sample) */
@@ -1423,7 +1409,7 @@ html[data-theme='goepicdark'] .block-window input { color-scheme: dark; }
 html[data-theme='goepicdark'] input.block-name { border-bottom-color: rgba(226, 184, 74, .55); }
 /* the page's type: the wordmark's Cinzel Decorative for the page titles and day names, the clean system sans elsewhere */
 html:is([data-theme='goepiclight'], [data-theme='goepicdark']) body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Inter, 'Segoe UI', Roboto, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
-html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(h2, h3, .block-name, .pc-epic strong, .pc-feature strong, .pc-act-open strong) {
+html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(h2, h3, .block-name, .pc-epic strong, .pc-feature strong, .pc-act-open strong, .pick-btn strong) {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Inter, 'Segoe UI', Roboto, Arial, sans-serif; letter-spacing: -.01em; }
 html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(h1, .day-head h2, .update-card p) { font-family: 'Cinzel Decorative', Georgia, serif; font-weight: 900; letter-spacing: .01em; color: var(--title-ink); }
 html:is([data-theme='goepiclight'], [data-theme='goepicdark']) :is(.board-top h1, .focus-top h1) { font-size: 28px; }
@@ -1538,8 +1524,7 @@ html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], 
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) :is(.round, .nav-toggle, .idea, .chip.quiet:not(.on)) { background-color: rgba(var(--g-tint), .08); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .stepper { border-color: rgba(var(--g-tint), .25); }
 /* Canvas: its pale-pink captions and hints in the quiet ink */
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .canvas-page :is(.workspace-context, .area-hint, .undefined-hint, .undefined-empty, .empty, .epic-tabs button:not(.active) small) { color: var(--ink-soft) !important; }
-html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .canvas-page .epic-tabs .active small { color: var(--jelly-ink) !important; opacity: .75; }   /* the selected tab is a jelly (block-coloured) surface: its caption takes the block ink */
+html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .canvas-page :is(.workspace-context, .area-hint, .undefined-hint, .undefined-empty, .empty) { color: var(--ink-soft) !important; }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .canvas-page .search { background: rgba(var(--g-tint), .14); }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='pinkpop'], [data-theme='petalpunk'], [data-theme='squeezeme'], [data-theme='smokedcitrus'], [data-theme='sunburnt'], [data-theme='goepiclight'], [data-theme='goepicdark']) .canvas-page .search input::placeholder { color: var(--g-placeholder); }
 /* Graphite: everything written on a card, note or object reads in the soft light ink (their own inks are dark,

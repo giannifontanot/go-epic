@@ -10,13 +10,10 @@ button:hover:not(:disabled) { background:rgba(255,255,255,.16); color:var(--ink)
 button.primary { background:var(--pink); color:var(--card-ink); }button.primary:hover:not(:disabled) { background:#f8bfca; color:var(--card-ink); }
 
 .split { height:max(520px,calc(100dvh - 150px)); min-height:0; }
-/* The Epics are a folder (Gianni): the heading and the tabs stand on the page, the folder below them is the plum panel */
+/* One plum panel (Gianni): the Área and the Epic at its top, the Epic's content under them */
 .epic-space { min-width:0; min-height:0; height:100%; display:flex; flex-direction:column; }
-/* The four life areas, «Todas» first, as folder tabs (Gianni: like the Epics); the open area's folder holds what it covers,
-   then its Epics' tabs and their plum folder. Its contents close and open softly on a switch (selectArea). */
-.area-folder { display:flex; flex-direction:column; flex:1; min-height:0; padding:10px 10px 10px; border-radius:22px 22px 24px 24px; background:var(--area-fold); }
-.area-inner { display:flex; flex-direction:column; flex:1; min-height:0; }
-.area-hint { margin:0 6px 10px; font-size:12px; line-height:1.4; color:#e8c4d4; }
+/* The Área and the Epic sit at the top of the Epic's own plum panel (Gianni's picture), its content nested under them */
+.area-hint { margin:0 4px 8px; font-size:12px; line-height:1.4; color:#e8c4d4; }
 /* Undefined (Gianni): a button beside New activity with how many wait; its window lists them, a tap gives one its place */
 .undefined-btn { display:inline-flex; align-items:center; gap:8px; color:var(--ink); }
 .count-pill { font-size:12px; font-weight:800; padding:2px 9px; border-radius:999px; background:rgba(255,255,255,.14); }
@@ -32,7 +29,6 @@ select option { color:var(--card-ink); background:var(--light); }
 .scroll-panel { overflow:auto; overscroll-behavior:contain; flex:1; min-height:0; scrollbar-width:thin; scrollbar-color:#ffffff40 transparent; }
 .epic-objects { padding:12px 20px 90px; border-radius:22px 22px 19px 19px; box-shadow:0 15px 25px rgba(1,6,29,.3);
   background:radial-gradient(rgba(255,244,233,.12) 1px,transparent 1px) 0 0/22px 22px, linear-gradient(180deg,var(--plum-a),var(--plum-b) 86%); }
-.workspace-context { margin:0 0 20px; color:#e8c4d4; font-size:12px; }
 .objects { display:flex; flex-wrap:wrap; align-items:flex-start; gap:30px; padding:10px 6px; }
 .objects>app-canvas-node { width:340px; max-width:100%; }.objects>app-canvas-node:nth-child(even) { margin-top:25px; }
 .drop-hot { outline:3px solid var(--teal); outline-offset:-4px; background-color:#7d2a5f!important; }
@@ -75,7 +71,6 @@ select option { color:var(--card-ink); background:var(--light); }
 @media (max-width:680px) {
   .split { height:calc(100dvh - 150px); min-height:390px; }
   .epic-objects { padding:12px 12px 70px; }
-  .area-folder { padding:8px 6px 6px; border-radius:20px 20px 22px 22px; }.area-hint { margin:0 6px 8px; }
   button, select { min-height:44px; }
   .toolbar { width:100%; flex-wrap:nowrap; }.toolbar button { flex:1 1 0; min-width:0; justify-content:center; } }
 @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }

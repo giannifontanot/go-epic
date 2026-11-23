@@ -15,6 +15,7 @@ import { CanvasMotion } from './canvas-motion';
 import { CanvasNode } from './canvas-node';
 import { CanvasLayout, CanvasState } from './canvas-state';
 import { PlaceCard, PlaceLevel, PlaceOption, PlacePick } from './place-card';
+import { PickItem, PickMenu } from './pick-menu';
 
 interface Drag {
   node: LibNode; x: number; y: number; currentX: number; currentY: number; source: HTMLElement;
@@ -41,13 +42,11 @@ type AreaView = LifeArea | 'all';
 
 /** The Epic tabs' content: it closes, then the next one opens (ms). */
 const PANE_CLOSE_MS = 180;
-/** How long the bubble with a cut Epic name stays (Gianni: a few seconds). */
-const BUBBLE_MS = 3000;
 const PANE_OPEN_MS = 320;
 
 @Component({
   selector: 'app-canvas',
-  imports: [CanvasNode, Why, PlaceCard],
+  imports: [CanvasNode, Why, PlaceCard, PickMenu],
   templateUrl: './canvas.html',
   styleUrl: './canvas.css',
 })
@@ -68,7 +67,6 @@ export class Canvas implements DoCheck {
   private readonly injector = inject(Injector);
   private readonly editor = viewChild<ElementRef<HTMLDialogElement>>('editor');
   private readonly undefinedWindow = viewChild<ElementRef<HTMLDialogElement>>('undefinedWindow');
-  private readonly tabBubble = viewChild<ElementRef<HTMLElement>>('tabBubble');
 
   readonly state = new CanvasState();
   readonly motion = new CanvasMotion();
@@ -78,7 +76,7 @@ export class Canvas implements DoCheck {
   /** A level named new in the cascade (created on Apply). */
   protected readonly NEW = '__new';
   protected readonly lifeAreaKeys: LifeArea[] = LIFE_AREAS.map((a) => a.key);
-  /** The area tabs: «Todas» first (Gianni: to see every Epic at once), then the four life areas. */
+  /** The areas' menu: «Todas» first (Gianni: to see every Epic at once), then the four life areas. */
   protected readonly areaViews: AreaView[] = ['all', ...this.lifeAreaKeys];
 
   activeId = '';
@@ -132,7 +130,7 @@ export class Canvas implements DoCheck {
       this.capture.menuHidden.set(on);
       this.capture.lookTools.set(on ? { px: false, finish: () => this.lookOpen.set(false) } : null);
     });
-    inject(DestroyRef).onDestroy(() => { this.capture.menuHidden.set(false); this.capture.lookTools.set(null); this.capture.menuEdit.set(null); clearTimeout(this.bubbleTimer); this.cancelDrag(); this.motion.destroy(); this.unsaved.canvasDraft.set(false); });
+    inject(DestroyRef).onDestroy(() => { this.capture.menuHidden.set(false); this.capture.lookTools.set(null); this.capture.menuEdit.set(null); this.cancelDrag(); this.motion.destroy(); this.unsaved.canvasDraft.set(false); });
   }
 
   // --- What the page shows ---
@@ -295,75 +293,10 @@ export class Canvas implements DoCheck {
   }
   private pane(): HTMLElement | null { return this.host.nativeElement.querySelector<HTMLElement>('.epic-pane'); }
   ensureActive(): void { if (!this.epics.some((n) => n.id === this.activeId)) this.activeId = this.epics[0]?.id || ''; }
-  tabKey(event: KeyboardEvent, index: number): void {
-    const delta = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
-    if (!delta && event.key !== 'Home' && event.key !== 'End') return;
-    event.preventDefault();
-    const next = event.key === 'Home' ? 0 : event.key === 'End' ? this.epics.length - 1 : (index + delta + this.epics.length) % this.epics.length;
-    this.selectEpic(this.epics[next].id);
-    this.host.nativeElement.querySelector<HTMLElement>(`[data-tab="${CSS.escape(this.openTab)}"]`)?.focus();
-  }
-  /** A tap on a tab opens it; when its name is cut (Gianni: a tab is as wide as its name, up to the row's width), the
-   *  same tap also shows the whole name in a small bubble under it for a few seconds. */
-  tabTap(id: string, button: HTMLElement, title: string): void {
-    this.selectEpic(id);
-    const label = button.querySelector('span');
-    if (label && label.scrollWidth > label.clientWidth + 1) this.showBubble(button.closest('.epic-tab') ?? button, title);
-    else this.hideBubble();
-  }
-  private bubbleTimer = 0;
-  /** The tab the bubble points at, so it follows it when the row or the page scrolls. */
-  private bubbleTab: Element | null = null;
-  private showBubble(tab: Element, text: string): void {
-    const el = this.tabBubble()?.nativeElement;
-    if (!el) return;
-    clearTimeout(this.bubbleTimer);
-    el.textContent = text;
-    try { if (!el.matches(':popover-open')) el.showPopover(); } catch { /* no popover: drawn fixed anyway */ }
-    el.classList.remove('on');
-    this.bubbleTab = tab;
-    this.placeBubble();
-    void el.offsetWidth;                                                     // start the fade from hidden
-    el.classList.add('on');
-    this.bubbleTimer = window.setTimeout(() => this.hideBubble(), BUBBLE_MS);
-    window.setTimeout(() => this.followBubble(), 320);                       // the opened tab rises into its folder
-  }
-  /** Under its tab, centred on it, kept 12px inside the screen, its tail on the tab's middle. */
-  private placeBubble(): void {
-    const el = this.tabBubble()?.nativeElement;
-    const tab = this.bubbleTab;
-    if (!el || !tab) return;
-    if (!tab.isConnected) { this.hideBubble(); return; }
-    const r = tab.getBoundingClientRect();
-    const vw = window.visualViewport?.width ?? document.documentElement.clientWidth;
-    const width = el.offsetWidth;
-    const mid = r.left + r.width / 2;
-    const left = Math.max(12, Math.min(vw - 12 - width, mid - width / 2));
-    el.style.left = `${left}px`;
-    el.style.top = `${r.bottom + 10}px`;
-    el.style.setProperty('--tail-x', `${Math.max(16, Math.min(width - 16, mid - left))}px`);
-  }
-  hideBubble(): void {
-    const el = this.tabBubble()?.nativeElement;
-    clearTimeout(this.bubbleTimer);
-    this.bubbleTab = null;
-    if (!el?.classList.contains('on')) return;
-    el.classList.remove('on');
-    this.bubbleTimer = window.setTimeout(() => { try { el.hidePopover(); } catch { /* no popover */ } }, 300);
-  }
-  /** The row or the page scrolled: the bubble stays with its tab. */
-  @HostListener('window:scroll')
-  @HostListener('window:resize')
-  followBubble(): void { if (this.bubbleTab) this.placeBubble(); }
-  /** Shows an area's Epics at once (no soft switch: an Epic created or placed elsewhere, or the end of a soft switch). */
+  /** Shows an area's Epics at once (an Epic created or placed elsewhere, or the end of a soft switch). */
   setAreaFilter(key: string, softly = false): void {
-    if (!softly) this.hideBubble();
     if (!this.areaViews.includes(key as AreaView)) return;
-    if (!softly) {                                                          // a soft area switch still closing gives way
-      this.areaSwap++;
-      this.pendingArea = '';
-      this.areaInner()?.getAnimations().forEach((a) => a.cancel());
-    }
+    if (!softly) { this.areaSwap++; this.pendingArea = ''; }                // a soft area switch still closing gives way
     this.areaFilter = key as AreaView;
     try { localStorage.setItem(AREA_KEY, key); } catch { /* a view preference */ }
     const before = this.activeId;
@@ -372,60 +305,39 @@ export class Canvas implements DoCheck {
     this.pendingId = '';
     this.ensureActive();
     this.bump();
-    if (softly) this.pane()?.getAnimations().forEach((a) => a.cancel());   // the whole area opens softly instead
-    else if (this.activeId !== before || wasSwapping) this.openPane();
+    if (softly || this.activeId !== before || wasSwapping) this.openPane();
   }
 
-  // --- The area tabs (Gianni: folder tabs like the Epics', «Todas» first) ---
+  // --- The Área and Epic menus (Gianni: floating menus like the pages', not tabs) ---
 
-  /** The area tab being opened while the old area's content is still closing (the tab answers at once). */
+  /** The area being opened while the old Epic's content is still closing (the button answers at once). */
   pendingArea: AreaView | '' = '';
   get areaTab(): AreaView { return this.pendingArea || this.areaFilter; }
   private areaSwap = 0;
-  private areaInner(): HTMLElement | null { return this.host.nativeElement.querySelector<HTMLElement>('.area-inner'); }
-  /** Switching area: what the open area holds closes softly, then the other's opens softly; the last tap wins. */
+  get areaItems(): PickItem[] { return this.areaViews.map((id) => ({ id, label: this.i18n.t('area.' + id) })); }
+  get epicItems(): PickItem[] { return this.epics.map((e) => ({ id: e.id, label: e.title })); }
+  /** The Epic the Epic button shows: the one opening, else the open one. */
+  get openEpic(): LibNode | undefined { return this.state.node(this.openTab); }
+  /** Switching area: the open Epic's content closes softly, then the new area's first Epic opens softly; the last pick wins. */
   selectArea(key: AreaView): void {
     if (key === this.areaTab) return;
-    const inner = this.areaInner();
-    if (!inner || this.motion.reduced()) { this.setAreaFilter(key); return; }
+    const pane = this.pane();
+    if (!pane || this.motion.reduced()) { this.setAreaFilter(key); return; }
     const token = ++this.areaSwap;
+    this.swap++;
     this.pendingArea = key;
+    this.pendingId = '';
     this.bump();
-    const from = getComputedStyle(inner).opacity;
-    inner.getAnimations().forEach((a) => a.cancel());
-    const out = inner.animate([{ opacity: from, transform: 'none' }, { opacity: 0, transform: 'translateY(6px)' }],
+    const from = getComputedStyle(pane).opacity;
+    pane.getAnimations().forEach((a) => a.cancel());
+    const out = pane.animate([{ opacity: from, transform: 'none' }, { opacity: 0, transform: 'translateY(6px)' }],
       { duration: PANE_CLOSE_MS, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' });
     const show = () => {
       if (token !== this.areaSwap) return;
       this.pendingArea = '';
       this.setAreaFilter(key, true);
-      afterNextRender(() => {
-        const el = this.areaInner();
-        if (!el || token !== this.areaSwap) return;
-        const held = el.getAnimations();
-        el.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }],
-          { duration: PANE_OPEN_MS, easing: 'cubic-bezier(0,0,.2,1)' });
-        held.forEach((a) => a.cancel());   // after the new one starts, so no frame shows it uncovered
-      }, { injector: this.injector });
     };
     out.finished.then(show, show);
-  }
-  areaKey(event: KeyboardEvent, index: number): void {
-    const delta = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
-    if (!delta && event.key !== 'Home' && event.key !== 'End') return;
-    event.preventDefault();
-    const views = this.areaViews;
-    const next = event.key === 'Home' ? 0 : event.key === 'End' ? views.length - 1 : (index + delta + views.length) % views.length;
-    this.hideBubble();
-    this.selectArea(views[next]);
-    this.host.nativeElement.querySelector<HTMLElement>(`[data-area-tab="${CSS.escape(views[next])}"]`)?.focus();
-  }
-  /** A tap opens the area; when its name is cut, the same tap shows it whole in the bubble, as on the Epic tabs. */
-  areaTap(key: AreaView, button: HTMLElement): void {
-    this.selectArea(key);
-    const label = button.querySelector('span');
-    if (label && label.scrollWidth > label.clientWidth + 1) this.showBubble(button.closest('.area-tab') ?? button, this.i18n.t('area.' + key));
-    else this.hideBubble();
   }
 
   // --- The action dialog (create / edit / move / colour / delete) ---
@@ -817,10 +729,10 @@ export class Canvas implements DoCheck {
     const visited = new Set<string>();
     while (id && !visited.has(id)) {
       visited.add(id);
-      const visible = this.host.nativeElement.querySelector<HTMLElement>(`[data-tab="${CSS.escape(id)}"], [data-node="${CSS.escape(id)}"]`);
+      const visible = this.host.nativeElement.querySelector<HTMLElement>(`[data-node="${CSS.escape(id)}"]`);
       if (visible) return visible;
       const node = this.state.node(id);
-      if (node?.kind === 'epic') return this.host.nativeElement.querySelector('.epic-tabs');
+      if (node?.kind === 'epic') return this.host.nativeElement.querySelector('.pick-epic .pick-btn');
       id = node?.parentId || null;
     }
     return this.host.nativeElement.querySelector('.undefined-btn');
