@@ -1460,7 +1460,6 @@ button.t-state:focus-visible { outline: 3px solid var(--teal); outline-offset: 3
    surfaces get their grey by hand. ───────────────────────────────────────────────────────────────────────────── */
 /* Office (Gianni): quiet light greys for a work screen */
 html[data-theme='office'] {
-  --countdown: #5f6770;
   --page: #c6c9cd; --ink: #26292d; --ink-soft: #4a4f55;
   --plum-a: #a9aeb4; --plum-b: #a3a8ae; --jelly-a: #cdd0d3; --jelly-b: #c6c9cd; --jelly-ink: #2a2d31; --card-ink: #2a2d31;
   --pink: #9aa2ab; --teal: #7f8b96; --red: #8f4444; --navy-card: #cfd1d4; --light: #dfe1e4;
@@ -1476,7 +1475,6 @@ html[data-theme='office'] {
 /* Graphite (Gianni): dark, but kind to the eyes: deep greys, never black, and soft grey ink instead of white, so the
    contrast stays gentle */
 html[data-theme='graphite'] {
-  --countdown: #9aa2ab;
   --page: #2b2e33; --ink: #c9ccd1; --ink-soft: #8f959d;
   --plum-a: #34383e; --plum-b: #31353a; --jelly-a: #464b52; --jelly-b: #42474e; --jelly-ink: #c9ccd1; --card-ink: #c9ccd1;
   --pink: #59616b; --teal: #6c7884; --red: #a85a54; --navy-card: #33373d; --light: #3d4147;
@@ -1493,7 +1491,6 @@ html[data-theme='graphite'] {
    palettes, not grey: pastel cards, gold Done and Canvas colours stay; the page, days, blocks and windows turn pink.
    They share the structural rules below with the grey themes (shadows, veils, accent inks, tints) through --g-*. */
 html[data-theme='pinkpop'] {
-  --countdown: #b5546d;
   --page: #fbeaf3; --ink: #2a1f2b; --ink-soft: #6b5566;
   --plum-a: #efcadb; --plum-b: #e6bacf; --jelly-a: #fdfafa; --jelly-b: #f7f0f2; --jelly-ink: #3b2a35; --card-ink: #2a1f2b;   /* porcelain blocks, blush days */
   --block-edge: #d98fb2;                                           /* the pink stays only on the block's border (Gianni: not loud) */
@@ -1506,7 +1503,6 @@ html[data-theme='pinkpop'] {
 }
 html[data-theme='pinkpop'] body { min-height: 100dvh; background: linear-gradient(135deg, #fff7fb 0%, #fbeaf3 35%, #f5d6e7 70%, #fff7fb 100%) fixed; }
 html[data-theme='petalpunk'] {
-  --countdown: #f2b3bf;
   --page: #1b141f; --ink: #f6e9f1; --ink-soft: #c7b2c1;
   --plum-a: #2e2238; --plum-b: #251b2d; --jelly-a: #4a3a52; --jelly-b: #413349; --jelly-ink: #f4e6ef; --card-ink: #2a1020;   /* plum velvet blocks (Gianni: the hot pink shouted) */
   --block-edge: #c98aac;                                           /* a rose border is all the pink a block keeps */
@@ -1523,7 +1519,6 @@ html[data-theme='petalpunk'] body { min-height: 100dvh; background: linear-gradi
    light themes looked too much like the pinks and the citrus; a panel gave each column one family: blue, pink, orange,
    grey). Pale sky pages, soft blue days, porcelain blocks with a periwinkle edge, a muted cobalt accent. */
 html[data-theme='squeezeme'] {
-  --countdown: #3f5f9c;
   --page: #eef4fc; --ink: #1f2937; --ink-soft: #4a5872;
   --plum-a: #d3e1f5; --plum-b: #c3d6f0; --jelly-a: #fbfdff; --jelly-b: #eff4fb; --jelly-ink: #1e2a44; --card-ink: #1f2937;   /* porcelain blocks, sky days */
   --block-edge: #93b0e0;                                           /* periwinkle border */
@@ -1536,7 +1531,6 @@ html[data-theme='squeezeme'] {
 }
 html[data-theme='squeezeme'] body { min-height: 100dvh; background: linear-gradient(135deg, #f8fbff 0%, #eef4fc 35%, #dde9f8 70%, #f8fbff 100%) fixed; }
 html[data-theme='smokedcitrus'] {
-  --countdown: #d7773f;
   --page: #1a1918; --ink: #f5efe8; --ink-soft: #cfc3b6;
   --plum-a: #2c2b29; --plum-b: #232220; --jelly-a: #56514a; --jelly-b: #4a4640; --jelly-ink: #f3ece4; --card-ink: #2a1406;   /* blocks in warm smoked stone (Gianni: the orange blocks shouted) */
   --pink: #fb923c; --teal: #fdba74; --red: #f87171; --navy-card: #2c2b29; --light: #ffedd5;
@@ -1554,7 +1548,6 @@ html[data-theme='smokedcitrus'] .block-window input { color-scheme: dark; }
 html[data-theme='smokedcitrus'] input.block-name { border-bottom-color: rgba(253, 186, 116, .5); }
 /* Sunburnt Toast (light): Epic Manager's golden orange ("Pro_SunburntToast"): warm toast pages, golden blocks */
 html[data-theme='sunburnt'] {
-  --countdown: #a9522f;
   --page: #fff1e5; --ink: #1f2937; --ink-soft: #5c4633;
   --plum-a: #f2d8bc; --plum-b: #e9c7a2; --jelly-a: #fdf8ef; --jelly-b: #f8efe1; --jelly-ink: #3b2a12; --card-ink: #1f2937;   /* oat blocks, toast days */
   --block-edge: #d19c4a;                                           /* honey border */
@@ -1571,7 +1564,6 @@ html[data-theme='sunburnt'] body { min-height: 100dvh; background: linear-gradie
    buttons and the wordmark's Cinzel Decorative in navy for the page titles. Dark is the same page at night: deep navy
    (the wordmark's "Go"), navy days and blocks with a gold edge, gold buttons and the titles in the wordmark's gold. */
 html[data-theme='goepiclight'] {
-  --countdown: #a87b14;
   --page: #fbfbfd; --ink: #1d1d1f; --ink-soft: #5c5c63;          /* the soft ink darkened to read on the grey days (5.6:1) */
   --plum-a: #f0f0f4; --plum-b: #ececf1; --jelly-a: #d9d9e2; --jelly-b: #cfcfd9; --jelly-ink: #1d1d1f; --card-ink: #1d1d1f;   /* pale grey blocks on near-white days (Gianni: white blocks were lost on the page and their header; a panel chose it) */
   --block-edge: #b8901e;                                           /* the wordmark's gold, deep enough to outline the block (2.2:1 or more) */
@@ -1585,7 +1577,6 @@ html[data-theme='goepiclight'] {
 }
 html[data-theme='goepiclight'] body { min-height: 100dvh; background: #fbfbfd; }
 html[data-theme='goepicdark'] {
-  --countdown: #f0cf6e;
   --page: #0a1130; --ink: #f5f5f7; --ink-soft: #a9afc6;
   --plum-a: #16214f; --plum-b: #111a42; --jelly-a: #2f428c; --jelly-b: #283a7e; --jelly-ink: #f5f5f7; --card-ink: #22203a;   /* navy blocks with a gold edge */
   --block-edge: #c9a227;
@@ -1621,11 +1612,8 @@ html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .board-head .day-
   background: linear-gradient(100deg, #f0cf6e, #d9b54a 50%, #b8860b); border-color: #b8860b; color: #101b42 !important; }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepiclight'], [data-theme='goepicdark'])[data-red-line] { --now: #e0463b; --now-ink: #fff; }     /* Ajustes › red line */
 html[data-theme='graphite'][data-red-line] { --now: #d0564c; }
-/* Ajustes › red countdown bar (Gianni: red by default, in every theme, Office and Graphite too, since the box is
-   respected); off, each theme keeps its own muted --countdown (a quiet grey in Office and Graphite). Epic's own is
-   already its soft red. */
-html[data-red-countdown]:is([data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepicdark']) { --countdown: #d0524a; }
-html[data-red-countdown]:is([data-theme='office'], [data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='goepiclight']) { --countdown: #c0392b; }
+/* The countdown bar's colour (--countdown) is set on <html> by ThemeService (countdownColour in core/theme.ts): red when
+   the palette window's box is ticked, otherwise the theme's own colour. The :root value is only the first paint's. */
 
 html:is([data-theme='office'], [data-theme='graphite']) :is(main:not(:has(.board, .year-page)), dialog) { filter: grayscale(1); }
 /* the Year keeps its own colours in every theme (Gianni), so only what is around its seasons is grayed */
@@ -1823,8 +1811,8 @@ html[data-theme='graphite'] .board > .overdue-tray { --tray-edge: #d27870; --tra
 :root { --foot-h: calc(20px + env(safe-area-inset-bottom)); }
 .foot-countdown { position: fixed; z-index: 16; left: 0; right: 0; bottom: 0; height: var(--foot-h); box-sizing: border-box;
   padding-bottom: env(safe-area-inset-bottom); border-radius: 0; pointer-events: none; overflow: hidden;
-  /* the time already spent (Gianni, v66: much less pink): a quiet grey from the page and its ink, only a hint of the bar's colour */
-  background: color-mix(in srgb, var(--countdown) 7%, color-mix(in srgb, var(--ink) 13%, var(--page))); box-shadow: 0 -1px 0 color-mix(in srgb, var(--ink) 16%, transparent);
+  /* the time already spent: a soft tint of the bar's own colour (Gianni, v73: the pink is back) */
+  background: color-mix(in srgb, var(--countdown) 24%, var(--page)); box-shadow: 0 -1px 0 color-mix(in srgb, var(--countdown) 45%, transparent);
   transform: translateY(100%); visibility: hidden;
   transition: transform .9s cubic-bezier(.4, 0, .2, 1), visibility 0s linear .9s; }
 .foot-countdown.up { transform: none; visibility: visible; transition: transform .9s cubic-bezier(.4, 0, .2, 1), visibility 0s; }

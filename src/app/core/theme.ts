@@ -17,6 +17,24 @@ export const RED_COUNTDOWN_KEY = 'go-epic-red-countdown';
 /** The browser bar colour of each theme (meta theme-color), the page colour. */
 export const THEME_BAR: Record<Theme, string> = { epic: '#101b42', pinkpop: '#fbeaf3', petalpunk: '#1b141f', squeezeme: '#eef4fc', sunburnt: '#fff1e5', smokedcitrus: '#1a1918', office: '#c6c9cd', graphite: '#2b2e33', goepiclight: '#fbfbfd', goepicdark: '#0a1130' };
 
+/**
+ * The running activity's countdown bar (Gianni): red when the palette window's "Red countdown bar" box is ticked (the
+ * default), otherwise the theme's own colour (Epic its pink, a quiet grey in Office and Graphite). Set on <html> as
+ * --countdown by ThemeService, for the theme on screen. Epic used to have no colour of its own here, so unticking the
+ * box changed nothing there (v73 fix).
+ */
+export const COUNTDOWN_RED: Record<Theme, string> = {
+  epic: '#c9524c', graphite: '#d0524a', petalpunk: '#d0524a', smokedcitrus: '#d0524a', goepicdark: '#d0524a',
+  office: '#c0392b', pinkpop: '#c0392b', squeezeme: '#c0392b', sunburnt: '#c0392b', goepiclight: '#c0392b',
+};
+export const COUNTDOWN_THEME: Record<Theme, string> = {
+  epic: '#f4a8b7', office: '#5f6770', graphite: '#9aa2ab', pinkpop: '#b5546d', petalpunk: '#f2b3bf',
+  squeezeme: '#3f5f9c', smokedcitrus: '#d7773f', sunburnt: '#a9522f', goepiclight: '#a87b14', goepicdark: '#f0cf6e',
+};
+export function countdownColour(theme: Theme, red: boolean): string {
+  return (red ? COUNTDOWN_RED : COUNTDOWN_THEME)[theme];
+}
+
 /** How much black the Week's spotlight veil lays over the page (body::before, rgba(0, 0, 0, .2) in styles.css). */
 export const BAR_VEIL = 0.2;
 /** The veil fades in and out over this long (the same .6s as body::before), and the phone's top bar with it. */
@@ -100,6 +118,12 @@ export class ThemeService {
       if (typeof document === 'undefined') return;
       if (red) document.documentElement.dataset['redCountdown'] = ''; else delete document.documentElement.dataset['redCountdown'];
       try { localStorage.setItem(RED_COUNTDOWN_KEY, red ? '1' : '0'); } catch { /* a view preference */ }
+    });
+    // the countdown bar's colour, for the theme on screen (a theme tried on in the palette window included)
+    effect(() => {
+      const colour = countdownColour(this.shown(), this.redCountdown());
+      if (typeof document === 'undefined') return;
+      document.documentElement.style.setProperty('--countdown', colour);
     });
   }
 
