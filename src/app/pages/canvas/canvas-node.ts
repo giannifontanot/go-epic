@@ -26,10 +26,11 @@ import { CanvasState } from './canvas-state';
             <button type="button" class="grip" [disabled]="disabled() || editing" [attr.aria-label]="i18n.t('canvas.drag') + ' ' + n.title"
               (pointerdown)="drag.emit({ event: $event, node: n })">⠿</button>
           }
+          <!-- ACTIVIDAD in small caps above its title (Gianni: like the Canvas's own card) -->
           @if (editing && nameTpl()) {
-            <div class="name editing-name"><ng-container *ngTemplateOutlet="nameTpl(); context: { $implicit: n }" /></div>
+            <div class="name editing-name"><small aria-hidden="true">{{ i18n.t('canvas.task') }}</small><ng-container *ngTemplateOutlet="nameTpl(); context: { $implicit: n }" /></div>
           } @else {
-            <div class="name"><strong>{{ n.title }}</strong></div>
+            <div class="name"><small aria-hidden="true">{{ i18n.t('canvas.task') }}</small><strong>{{ n.title }}</strong></div>
           }
           <!-- the same button turns ✎ into ✓, so the focus stays on it -->
           <button type="button" class="more" [class.done]="editing" [disabled]="disabled()" [attr.aria-expanded]="editing"

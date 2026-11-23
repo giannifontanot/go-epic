@@ -27,7 +27,7 @@ interface Modal { kind: Kind; node?: LibNode; parentId: string | null; bare?: bo
 const LAYOUT_KEY = 'go-epic-canvas-layout';
 /** The life area the Canvas shows (a view preference of this device). */
 const AREA_KEY = 'go-epic-canvas-area';
-/** What the area combo shows: one life area, or «Todas» (every area's Epics). */
+/** What the area tabs show: one life area, or «Todas» (every area's Epics). */
 type AreaView = LifeArea | 'all';
 
 /**
@@ -78,7 +78,7 @@ export class Canvas implements DoCheck {
   /** A level named new in the cascade (created on Apply). */
   protected readonly NEW = '__new';
   protected readonly lifeAreaKeys: LifeArea[] = LIFE_AREAS.map((a) => a.key);
-  /** The area combo: «Todas» first (Gianni: to see every Epic at once), then the four life areas. */
+  /** The area tabs: «Todas» first (Gianni: to see every Epic at once), then the four life areas. */
   protected readonly areaViews: AreaView[] = ['all', ...this.lifeAreaKeys];
 
   activeId = '';
@@ -107,6 +107,8 @@ export class Canvas implements DoCheck {
           this.state.load(emptyLibrary(), {});
           this.activeId = '';
           this.pendingId = '';
+          this.pendingArea = '';
+          this.areaSwap++;
           this.swap++;   // a switch still closing belongs to the other account
           this.pane()?.getAnimations().forEach((a) => a.cancel());
           this.bump();
@@ -353,9 +355,15 @@ export class Canvas implements DoCheck {
   @HostListener('window:scroll')
   @HostListener('window:resize')
   followBubble(): void { if (this.bubbleTab) this.placeBubble(); }
-  setAreaFilter(key: string): void {
-    this.hideBubble();
+  /** Shows an area's Epics at once (no soft switch: an Epic created or placed elsewhere, or the end of a soft switch). */
+  setAreaFilter(key: string, softly = false): void {
+    if (!softly) this.hideBubble();
     if (!this.areaViews.includes(key as AreaView)) return;
+    if (!softly) {                                                          // a soft area switch still closing gives way
+      this.areaSwap++;
+      this.pendingArea = '';
+      this.areaInner()?.getAnimations().forEach((a) => a.cancel());
+    }
     this.areaFilter = key as AreaView;
     try { localStorage.setItem(AREA_KEY, key); } catch { /* a view preference */ }
     const before = this.activeId;
@@ -364,7 +372,60 @@ export class Canvas implements DoCheck {
     this.pendingId = '';
     this.ensureActive();
     this.bump();
-    if (this.activeId !== before || wasSwapping) this.openPane();
+    if (softly) this.pane()?.getAnimations().forEach((a) => a.cancel());   // the whole area opens softly instead
+    else if (this.activeId !== before || wasSwapping) this.openPane();
+  }
+
+  // --- The area tabs (Gianni: folder tabs like the Epics', «Todas» first) ---
+
+  /** The area tab being opened while the old area's content is still closing (the tab answers at once). */
+  pendingArea: AreaView | '' = '';
+  get areaTab(): AreaView { return this.pendingArea || this.areaFilter; }
+  private areaSwap = 0;
+  private areaInner(): HTMLElement | null { return this.host.nativeElement.querySelector<HTMLElement>('.area-inner'); }
+  /** Switching area: what the open area holds closes softly, then the other's opens softly; the last tap wins. */
+  selectArea(key: AreaView): void {
+    if (key === this.areaTab) return;
+    const inner = this.areaInner();
+    if (!inner || this.motion.reduced()) { this.setAreaFilter(key); return; }
+    const token = ++this.areaSwap;
+    this.pendingArea = key;
+    this.bump();
+    const from = getComputedStyle(inner).opacity;
+    inner.getAnimations().forEach((a) => a.cancel());
+    const out = inner.animate([{ opacity: from, transform: 'none' }, { opacity: 0, transform: 'translateY(6px)' }],
+      { duration: PANE_CLOSE_MS, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' });
+    const show = () => {
+      if (token !== this.areaSwap) return;
+      this.pendingArea = '';
+      this.setAreaFilter(key, true);
+      afterNextRender(() => {
+        const el = this.areaInner();
+        if (!el || token !== this.areaSwap) return;
+        const held = el.getAnimations();
+        el.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }],
+          { duration: PANE_OPEN_MS, easing: 'cubic-bezier(0,0,.2,1)' });
+        held.forEach((a) => a.cancel());   // after the new one starts, so no frame shows it uncovered
+      }, { injector: this.injector });
+    };
+    out.finished.then(show, show);
+  }
+  areaKey(event: KeyboardEvent, index: number): void {
+    const delta = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+    if (!delta && event.key !== 'Home' && event.key !== 'End') return;
+    event.preventDefault();
+    const views = this.areaViews;
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? views.length - 1 : (index + delta + views.length) % views.length;
+    this.hideBubble();
+    this.selectArea(views[next]);
+    this.host.nativeElement.querySelector<HTMLElement>(`[data-area-tab="${CSS.escape(views[next])}"]`)?.focus();
+  }
+  /** A tap opens the area; when its name is cut, the same tap shows it whole in the bubble, as on the Epic tabs. */
+  areaTap(key: AreaView, button: HTMLElement): void {
+    this.selectArea(key);
+    const label = button.querySelector('span');
+    if (label && label.scrollWidth > label.clientWidth + 1) this.showBubble(button.closest('.area-tab') ?? button, this.i18n.t('area.' + key));
+    else this.hideBubble();
   }
 
   // --- The action dialog (create / edit / move / colour / delete) ---
@@ -674,7 +735,7 @@ export class Canvas implements DoCheck {
         if (parentId === undefined) return;
         const created = this.state.create(kind, title, parentId);
         createdId = created?.id;
-        if (created?.kind === 'epic') { if (this.epicArea && this.areaFilter !== 'all') this.areaFilter = this.epicArea; this.activeId = created.id; }
+        if (created?.kind === 'epic') { if (this.epicArea && this.areaFilter !== 'all') this.setAreaFilter(this.epicArea); this.activeId = created.id; }
       }));
       if (kind !== 'epic' && createdId) this.followPlace(kind, place, createdId);   // its own ancestry names the Epic to show
     }
