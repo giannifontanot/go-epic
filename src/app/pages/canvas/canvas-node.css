@@ -9,7 +9,7 @@ strong { display:block; font-size:14px; line-height:1.35; overflow-wrap:anywhere
 small { font-size:9px; text-transform:uppercase; letter-spacing:.11em; opacity:.7; }
 .task small { display:none; }.task strong { font-size:13px; font-weight:550; }
 button { color:inherit; border:0; border-radius:12px; background:transparent; min-width:36px; min-height:40px; cursor:pointer; padding:4px; }
-button:hover { background:#fff6; }button:focus-visible { outline:3px solid #173f74; outline-offset:2px; }
+@media (hover:hover) { button:hover { background:#fff6; } }button:focus-visible { outline:3px solid #173f74; outline-offset:2px; }
 button:disabled { opacity:.4; cursor:default; }.grip { touch-action:none; cursor:grab; font-size:23px; }.grip:active { cursor:grabbing; }
 .more { padding:4px; }   /* its ✎ is the app's one pencil (styles.css .pen): one size, never bold, pointing left */.fold { font-size:21px; }.children { display:flex; flex-direction:column; gap:12px; margin-top:10px; }
 .add { align-self:flex-start; font-size:12px; padding:6px 12px; border:1px dashed #23395155; min-height:40px; }
@@ -30,7 +30,7 @@ button:disabled { opacity:.4; cursor:default; }.grip { touch-action:none; cursor
 .task { background:#ffd5bd; border-radius:14px 18px 13px 18px; color:var(--act-ink,#302746); }   /* light ink on the dark themes' dark cards */
 .task button:focus-visible { outline-color:var(--act-ink,#302746); }
 .feature>header strong { font-family:Georgia,serif; font-size:16px; }
-button:hover { background:rgba(255,255,255,.45); }button:focus-visible { outline-color:#302746; }
+@media (hover:hover) { button:hover { background:rgba(255,255,255,.45); } }button:focus-visible { outline-color:#302746; }
 .add { border-color:rgba(54,38,67,.4); }
 .object.drop-hot { outline:3px solid #76e0d0; box-shadow:0 0 0 6px rgba(118,224,208,.35), 0 12px 30px rgba(1,6,29,.35); }
 

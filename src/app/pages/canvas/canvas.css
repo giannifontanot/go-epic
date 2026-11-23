@@ -4,7 +4,7 @@
    content does, under the Área and the Epic (Gianni) */
 .canvas-page { color:var(--ink); padding:0 0 8px; box-sizing:border-box; display:flex; flex-direction:column;
   height:calc(100dvh - max(8px, env(safe-area-inset-top)) - max(16px, env(safe-area-inset-bottom))); min-height:480px; }
-.page-header { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:14px; }
+.page-header { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:26px; }   /* a little air under «Sin definir» (Gianni, v57) */
 h1 { margin:0; font-size:34px; letter-spacing:-.04em; line-height:1; }
 .title-dot { color:var(--jelly-b); margin-left:10px; font-size:22px; }
 .toolbar { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
