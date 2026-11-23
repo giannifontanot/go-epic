@@ -44,6 +44,14 @@ import { ThemeService } from '../../core/theme';
           <small>{{ i18n.t('settings.redLineHint') }}</small>
         </span>
       </label>
+      <!-- The countdown bar at the foot of the Week board: red (by default), or with the theme (grey in Office and Graphite) -->
+      <label class="setting-row">
+        <input type="checkbox" class="setting-check" [checked]="look.redCountdown()" (change)="look.redCountdown.set($any($event.target).checked)" />
+        <span class="setting-text">
+          <strong><span class="countdown-sample" aria-hidden="true"></span>{{ i18n.t('settings.redCountdown') }}</strong>
+          <small>{{ i18n.t('settings.redCountdownHint') }}</small>
+        </span>
+      </label>
       <footer class="settings-foot">
         <button type="button" class="primary btn-apply" (click)="close()">{{ i18n.t('task.done') }}</button>
       </footer>

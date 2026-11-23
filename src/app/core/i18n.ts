@@ -78,6 +78,8 @@ const LABELS: Record<string, { en: string; es: string }> = {
   'settings.title': { en: 'Settings', es: 'Ajustes' },
   'settings.redLine': { en: 'Red time line', es: 'Línea de la hora en rojo' },
   'settings.redLineHint': { en: 'The line that marks the time on the Week board. Off, it goes with the theme (a quiet grey in Office and Graphite).', es: 'La línea que marca la hora en la Semana. Apagado, va con el tema (gris discreto en Oficina y Grafito).' },
+  'settings.redCountdown': { en: 'Red countdown bar', es: 'Barra de cuenta regresiva en rojo' },
+  'settings.redCountdownHint': { en: 'The bar at the foot of the Week board that shows how much time the current activity has left. Off, it goes with the theme (a quiet grey in Office and Graphite).', es: 'La barra al pie de la Semana que muestra cuánto le queda a la actividad en curso. Apagado, va con el tema (gris discreto en Oficina y Grafito).' },
   'week.centreNow': { en: 'It is {time}: centre the line', es: 'Son las {time}: centrar la línea' },
   'settings.theme': { en: 'Theme', es: 'Tema' },
   'theme.epic': { en: 'Epic', es: 'Épico' },

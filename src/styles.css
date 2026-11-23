@@ -1592,13 +1592,18 @@ html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .board-head .day-
   background: linear-gradient(100deg, #f0cf6e, #d9b54a 50%, #b8860b); border-color: #b8860b; color: #101b42 !important; }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepiclight'], [data-theme='goepicdark'])[data-red-line] { --now: #e0463b; --now-ink: #fff; }     /* Ajustes › red line */
 html[data-theme='graphite'][data-red-line] { --now: #d0564c; }
+/* Ajustes › red countdown bar (Gianni: red by default, in every theme, Office and Graphite too, since the box is
+   respected); off, each theme keeps its own muted --countdown (a quiet grey in Office and Graphite). Epic's own is
+   already its soft red. */
+html[data-red-countdown]:is([data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepicdark']) { --countdown: #d0524a; }
+html[data-red-countdown]:is([data-theme='office'], [data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='goepiclight']) { --countdown: #c0392b; }
 
 html:is([data-theme='office'], [data-theme='graphite']) :is(main:not(:has(.board, .year-page)), dialog) { filter: grayscale(1); }
 /* the Year keeps its own colours in every theme (Gianni), so only what is around its seasons is grayed */
 html:is([data-theme='office'], [data-theme='graphite']) .year-page > :not(.year-seasons) { filter: grayscale(1); }
 /* On the Week board the now-line must keep its colour (it can be red, Ajustes), so everything around it is grayed
    instead of the whole page: the cards' own backgrounds are already greys (--tone below) */
-html:is([data-theme='office'], [data-theme='graphite']) .board > :not(.week),
+html:is([data-theme='office'], [data-theme='graphite']) .board > :not(.week, .foot-countdown),
 html:is([data-theme='office'], [data-theme='graphite']) .day > :not(.block),
 html:is([data-theme='office'], [data-theme='graphite']) .block > :not(.block-body),
 html:is([data-theme='office'], [data-theme='graphite']) .block-inner > :not(.tasks),
@@ -1718,6 +1723,7 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
 .setting-text { display: grid; gap: 4px; }
 .setting-text small { color: var(--ink-soft); }
 .red-sample { display: inline-block; width: 22px; height: 0; margin: 0 8px 4px 0; border-top: 3px solid var(--now); vertical-align: middle; }
+.countdown-sample { display: inline-block; width: 22px; height: 8px; margin: 0 8px 2px 0; background: var(--countdown); vertical-align: middle; }
 
 /* Week: the tasks left open on earlier days wait at the foot of the screen (Gianni: always in sight), beside the
    floating ✎, in a file folder (Gianni: not a floating box): its raised tab holds the heading, the folder's body sits
@@ -1731,8 +1737,8 @@ html[data-theme='graphite'] .block-window input { color-scheme: dark; }
      it per theme (below): 3px wide (Gianni: thinner), a red that keeps at least 3:1 against the page, the day column, the blocks and the
      folder behind it, and on the dark themes a 2px dark halo outside it, so it also stands off a yellow block or a
      plum day (Epic's old #dc2626 nearly vanished on the plum days, 1.7:1) */
-  --tray-edge: #ff6b6b; --tray-w: 3px; --tray-halo: rgba(4, 7, 22, .85); --tray-halo-w: 2px; --tray-pre: grayscale(0);
-  filter: var(--tray-pre) drop-shadow(var(--tray-w) 0 0 var(--tray-edge)) drop-shadow(calc(-1 * var(--tray-w)) 0 0 var(--tray-edge)) drop-shadow(0 calc(-1 * var(--tray-w)) 0 var(--tray-edge))
+  --tray-edge: #ff6b6b; --tray-w: 3px; --tray-halo: rgba(4, 7, 22, .85); --tray-halo-w: 2px; --tray-pre: grayscale(0); --tray-dim: brightness(1) saturate(1);
+  filter: var(--tray-pre) var(--tray-dim) drop-shadow(var(--tray-w) 0 0 var(--tray-edge)) drop-shadow(calc(-1 * var(--tray-w)) 0 0 var(--tray-edge)) drop-shadow(0 calc(-1 * var(--tray-w)) 0 var(--tray-edge))
     drop-shadow(var(--tray-halo-w) 0 0 var(--tray-halo)) drop-shadow(calc(-1 * var(--tray-halo-w)) 0 0 var(--tray-halo)) drop-shadow(0 calc(-1 * var(--tray-halo-w)) 0 var(--tray-halo))
     drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
 /* the folder's red per theme: the light themes take a deep red (no halo needed on their light pages), the dark ones a
@@ -1774,7 +1780,7 @@ html.tilt .overdue-head { rotate: none; translate: none; }   /* the tab is part 
 /* the filter is declared again here: the grey themes' `.board > :not(.week)` grayscale rule is more specific than the
    base tray rule and would otherwise drop the line */
 html:is([data-theme='office'], [data-theme='graphite']) .board > .overdue-tray { --tray-pre: grayscale(1);
-  filter: var(--tray-pre) drop-shadow(var(--tray-w) 0 0 var(--tray-edge)) drop-shadow(calc(-1 * var(--tray-w)) 0 0 var(--tray-edge)) drop-shadow(0 calc(-1 * var(--tray-w)) 0 var(--tray-edge))
+  filter: var(--tray-pre) var(--tray-dim) drop-shadow(var(--tray-w) 0 0 var(--tray-edge)) drop-shadow(calc(-1 * var(--tray-w)) 0 0 var(--tray-edge)) drop-shadow(0 calc(-1 * var(--tray-w)) 0 var(--tray-edge))
     drop-shadow(var(--tray-halo-w) 0 0 var(--tray-halo)) drop-shadow(calc(-1 * var(--tray-halo-w)) 0 0 var(--tray-halo)) drop-shadow(0 calc(-1 * var(--tray-halo-w)) 0 var(--tray-halo))
     drop-shadow(0 -3px 10px rgba(0, 0, 0, .32)); }
 html[data-theme='office'] .board > .overdue-tray { --tray-edge: #7f3434; --tray-halo-w: 0px; }
@@ -1794,12 +1800,17 @@ html[data-theme='graphite'] .board > .overdue-tray { --tray-edge: #d27870; --tra
 .foot-countdown.up { transform: none; visibility: visible; transition: transform .9s cubic-bezier(.4, 0, .2, 1), visibility 0s; }
 .foot-countdown-fill { display: block; height: 100%; margin-left: auto; background: var(--countdown); transition: width .6s ease; }
 /* what it pushes up: the folder sits on it, 💡 Capture rises by its height, the four squares fade away */
-.overdue-tray { transition: transform .9s cubic-bezier(.4, 0, .2, 1); }
+.overdue-tray { transition: transform .9s cubic-bezier(.4, 0, .2, 1), filter .9s ease; }
 html.countdown-up .overdue-tray { transform: translateY(calc(-1 * var(--foot-h))); max-height: calc(100dvh - 12px - var(--foot-h)); }   /* its tab stays on screen */
 /* 💡 rises by a margin (not translate or transform: the weighted buttons' tilt and its .away scale own those) */
-.idea-fab { margin-bottom: 0; transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .28s ease, visibility 0s, margin-bottom .9s cubic-bezier(.4, 0, .2, 1); }
-.idea-fab.away { transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .28s ease, visibility 0s .34s, margin-bottom .9s cubic-bezier(.4, 0, .2, 1); }
+.idea-fab { margin-bottom: 0; filter: brightness(1) saturate(1);
+  transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .28s ease, visibility 0s, margin-bottom .9s cubic-bezier(.4, 0, .2, 1), filter .9s ease; }
+.idea-fab.away { transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .28s ease, visibility 0s .34s, margin-bottom .9s cubic-bezier(.4, 0, .2, 1), filter .9s ease; }
 html.countdown-up .idea-fab { margin-bottom: var(--foot-h); }
+/* While the line centres itself, the overdue folder and 💡 Capture darken a little, softly (Gianni: so the centred line
+   with its time draws the eye); his own scroll brings them back. The spotlight's own amount, so it all reads as one. */
+html.now-centred .board > .overdue-tray { --tray-dim: brightness(.8) saturate(.75); }
+html.now-centred .idea-fab:not(.away) { filter: brightness(.8) saturate(.75); }
 html.countdown-up .menu-fab:not(.open) { opacity: 0; visibility: hidden; pointer-events: none;
   transition: opacity .9s ease, visibility 0s linear .9s, transform .34s cubic-bezier(.4, 0, .2, 1); }
 html:not(.countdown-up) .menu-fab:not(.open) { transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .9s ease, visibility 0s; }
