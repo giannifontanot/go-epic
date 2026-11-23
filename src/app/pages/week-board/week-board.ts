@@ -25,53 +25,16 @@ import { TaskDialog, TaskEdit, TaskSave } from './task-dialog';
 import { Transfer, TransferDialog } from './transfer-dialog';
 import { readTrayFolded, writeTrayFolded } from '../../core/tray-fold';
 import { SwipeTracker, stepDay } from '../../core/swipe';
+import { shownOnScreen, viewAnchor } from '../../core/view-anchor';
 
 /** On entering, the centring on now waits for the page's fade-in (0.9 s) and a second more (Gianni). */
 const ENTER_SETTLE_MS = 1900;
-
-/**
- * Whether an element is really on the board: laid out and not in a hidden day (on a phone only the day shown is laid
- * out; the others are display: none).
- */
-function shownOnScreen(el: HTMLElement): boolean {
-  return el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden';
-}
 
 /**
  * The week in seven columns of blocks and task cards. Locked by default (a calm view of the week);
  * "Arrange the week" unlocks editing: block windows, ▲▼, ⇄ copy/move, + and quick-add, and each card's ••• details.
  */
 /** An arrow key on a handle: to the next 5-minute step in its direction (23 → 25 or 20). */
-/**
- * The card (else block, else day) nearest the middle of the screen, and a function that scrolls the page back so it
- * sits where it was, at once (no glide), after the layout changed. Null when nothing is on screen.
- */
-function viewAnchor(): (() => void) | null {
-  if (typeof document === 'undefined') return null;
-  const mid = (window.visualViewport?.height ?? window.innerHeight) / 2;
-  const pick = (selector: string) => {
-    let best: { el: HTMLElement; gap: number } | null = null;
-    for (const el of document.querySelectorAll<HTMLElement>(selector)) {
-      const r = el.getBoundingClientRect();
-      if (!r.height || !shownOnScreen(el) || r.bottom < 0 || r.top > mid * 2 || r.right < 0 || r.left > window.innerWidth) continue;
-      const gap = r.top <= mid && r.bottom >= mid ? 0 : Math.min(Math.abs(r.top - mid), Math.abs(r.bottom - mid));
-      if (!best || gap < best.gap) best = { el, gap };
-    }
-    return best?.el ?? null;
-  };
-  const el = pick('[data-task]') ?? pick('[data-block]') ?? pick('article.day');
-  if (!el) return null;
-  const key = el.dataset['task'] ? `[data-task="${CSS.escape(el.dataset['task'])}"]`
-    : el.dataset['block'] ? `[data-block="${CSS.escape(el.dataset['block'])}"]` : null;
-  const top = el.getBoundingClientRect().top;
-  return () => {
-    const now = key ? document.querySelector<HTMLElement>(key) : el.isConnected ? el : null;
-    if (!now) return;
-    const delta = now.getBoundingClientRect().top - top;
-    if (Math.abs(delta) >= 1) window.scrollBy({ top: delta, left: 0, behavior: 'instant' });
-  };
-}
-
 function keyStep(value: number, direction: number): number {
   return direction > 0 ? Math.ceil((value + 1) / 5) * 5 - value : Math.floor((value - 1) / 5) * 5 - value;
 }

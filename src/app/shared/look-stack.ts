@@ -1,6 +1,7 @@
 import { Component, HostListener, computed, effect, inject, signal, untracked } from '@angular/core';
 import { I18n } from '../core/i18n';
 import { TextSettings } from '../core/text-settings';
+import { viewAnchor } from '../core/view-anchor';
 import { CaptureUi } from '../pages/capture/capture-ui';
 
 type Tool = 'size' | 'spacing' | 'px';
@@ -86,10 +87,15 @@ export class LookStack {
   @HostListener('document:keydown.escape')
   protected onEscape(): void { this.closePill(); }
 
+  /**
+   * One step up or down; the cards and texts glide to it (TextSettings), while the card in the middle of the screen
+   * stays where it is (Gianni: nothing jumps).
+   */
   protected step(tool: Tool, dir: 1 | -1): void {
-    if (tool === 'size') this.text.stepSize(dir);
-    else if (tool === 'spacing') this.text.stepSpacing(dir);
-    else if (tool === 'px') this.text.stepPx(dir);
+    const keep = viewAnchor() ?? undefined;
+    if (tool === 'size') this.text.stepSize(dir, keep);
+    else if (tool === 'spacing') this.text.stepSpacing(dir, keep);
+    else if (tool === 'px') this.text.stepPx(dir, keep);
   }
 
   protected value(tool: Tool): string {
