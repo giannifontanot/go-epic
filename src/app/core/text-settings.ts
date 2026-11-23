@@ -24,15 +24,14 @@ export const TEXT_SPACINGS = [-0.02, 0, 0.03, 0.06, 0.1];
  * The px stepper (Epic Manager's length zoom): how many pixels each minute of an activity (and of a block's free time)
  * takes on the Week board.
  */
-export const PX_PER_MIN_STEPS = [0.3, 0.5, 0.7, 1, 1.4];
+export const PX_PER_MIN_STEPS = [0.5, 0.7, 1, 1.4, 2];
 /**
- * Half a pixel a minute by default (Gianni: at 1 the activities were already as tall as he wants them at most, so px
- * could only make them huge; a panel: start thin, a 60-minute card about 64px, with room to grow to the old size and
- * a little past it).
+ * One pixel a minute by default (Gianni, v62: at half a pixel a 45-minute activity looked like a 1-minute one; the
+ * minutes are added under the name's bottom edge, so a 45-minute card is 45px taller than its name).
  */
-export const PX_PER_MIN_DEFAULT = 0.5;
+export const PX_PER_MIN_DEFAULT = 1;
 /** This version of the scale; a value saved under an older one was the old default saved with Aa / AV and reads as unset. */
-const PX_VERSION = 3;
+const PX_VERSION = 4;   // v62: the default became 1 px, so a scale saved before reads as unset
 /** A saved or typed scale kept inside the stepper's range (anything not a number falls back to the default). */
 export function clampPxPerMin(px: unknown): number {
   const n = typeof px === 'number' && Number.isFinite(px) ? px : PX_PER_MIN_DEFAULT;

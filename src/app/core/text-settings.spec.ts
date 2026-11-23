@@ -30,20 +30,21 @@ describe('text settings', () => {
 });
 
 describe('px per minute', () => {
-  it('steps through 0.3, 0.5, 0.7, 1 and 1.4 px a minute', () => {
-    expect(stepValue(PX_PER_MIN_STEPS, 0.5, 1)).toBe(0.7);
-    expect(stepValue(PX_PER_MIN_STEPS, 0.5, -1)).toBe(0.3);
+  it('steps through 0.5, 0.7, 1, 1.4 and 2 px a minute, 1 in the middle', () => {
     expect(stepValue(PX_PER_MIN_STEPS, 1, 1)).toBe(1.4);
-    expect(stepValue(PX_PER_MIN_STEPS, 1.4, 1)).toBe(1.4);
-    expect(stepValue(PX_PER_MIN_STEPS, 0.3, -1)).toBe(0.3);
+    expect(stepValue(PX_PER_MIN_STEPS, 1, -1)).toBe(0.7);
+    expect(stepValue(PX_PER_MIN_STEPS, 1.4, 1)).toBe(2);
+    expect(stepValue(PX_PER_MIN_STEPS, 2, 1)).toBe(2);
+    expect(stepValue(PX_PER_MIN_STEPS, 0.5, -1)).toBe(0.5);
+    expect(PX_PER_MIN_STEPS[2]).toBe(PX_PER_MIN_DEFAULT);
   });
-  it('keeps a saved scale inside the range, 0.5 (the default) when it is not a number', () => {
+  it('keeps a saved scale inside the range, 1 (the default) when it is not a number', () => {
     expect(clampPxPerMin(0.7)).toBe(0.7);
-    expect(clampPxPerMin(3)).toBe(1.4);
-    expect(clampPxPerMin(0)).toBe(0.3);
+    expect(clampPxPerMin(3)).toBe(2);
+    expect(clampPxPerMin(0)).toBe(0.5);
     expect(clampPxPerMin('x')).toBe(PX_PER_MIN_DEFAULT);
     expect(clampPxPerMin(Number.NaN)).toBe(PX_PER_MIN_DEFAULT);
-    expect(PX_PER_MIN_DEFAULT).toBe(0.5);
+    expect(PX_PER_MIN_DEFAULT).toBe(1);
   });
 
   it('glides a step softly: slow at both ends, never past the chosen value', () => {
