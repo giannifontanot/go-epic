@@ -55,10 +55,10 @@
                 <button type="button" class="round" [disabled]="blast" [attr.aria-label]="i18n.t('week.blockDown')" [title]="i18n.t('week.blockDown')" (click)="moveBlock(day, bi, 1)">▼</button>
                 <button type="button" class="round push" [attr.aria-label]="i18n.t('week.transfer')" [title]="i18n.t('week.transfer')" (click)="openTransfer(day, block)">⇄</button>
                 <button type="button" class="round" [disabled]="!canAddTo(block)" [attr.aria-label]="i18n.t('week.addTask')" [title]="i18n.t('week.addTask')" (click)="addTask(day, block)">+</button>
-                <!-- This block's own open / close (Gianni), beside ✕: a dash to shrink it, a square to open it again -->
+                <!-- This block's own open / close (Gianni), beside ✕: a narrow rectangle to shrink it (a dash read as subtract or delete), a square to open it again -->
                 <button type="button" class="round block-fold" [attr.aria-expanded]="!isFolded(block)"
                         [attr.aria-label]="i18n.t(isFolded(block) ? 'week.unfoldBlock' : 'week.foldBlock') + ': ' + block.name"
-                        [title]="i18n.t(isFolded(block) ? 'week.unfoldBlock' : 'week.foldBlock')" (click)="toggleBlockFold(block)">{{ isFolded(block) ? '□' : '—' }}</button>
+                        [title]="i18n.t(isFolded(block) ? 'week.unfoldBlock' : 'week.foldBlock')" (click)="toggleBlockFold(block)">@if (isFolded(block)) {□} @else {<span class="fold-bar" aria-hidden="true"></span>}</button>
                 <button type="button" class="round danger-x" [attr.aria-label]="i18n.t('week.deleteBlock')" [title]="i18n.t('week.deleteBlock')" (click)="deleteBlock(day, block)">✕</button>
               </div>
             }
