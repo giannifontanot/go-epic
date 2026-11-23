@@ -95,9 +95,10 @@
             @for (area of lifeAreaKeys; track area) { <option [value]="area" [selected]="area === epicArea">{{ i18n.t('area.' + area) }}</option> }
           </select></label>
       } @else if (m.kind !== 'area' && !m.bare) {
-        <!-- An Activity gets its whole place at once (Gianni): area, Epic, Feature and Story, each chosen or named new here;
-             half a place is never applied. Undefined keeps it among the activities with no place. -->
-        <ng-container *ngTemplateOutlet="cascadeFields; context: { $implicit: m.kind }" />
+        <!-- Its place on the Canvas's own card (Gianni): each level reads «Por definir» until it is tapped and chosen,
+             or named new, in its floating menu; half a place is never applied. -->
+        <app-place-card [leafKind]="$any(m.kind)" [leafTitle]="title.trim() || i18n.t(m.kind === 'task' ? 'task.newTitle' : 'canvas.' + m.kind)"
+          [value]="cascade" [labelOf]="placeLabel" [optionsOf]="placeOptions" [newId]="NEW" [version]="v" [disabled]="saving" (pick)="pickPlace($event)" />
       }
       @if (m.node && (m.kind === 'feature' || m.kind === 'story')) {
         <div class="arrange-actions">
@@ -113,8 +114,8 @@
   }
 </dialog>
 
-<!-- Undefined (Gianni): the activities with no place yet, in a small window growing out of its button; a tap on one opens
-     its ✎, where it gets area, Epic, Feature and Story all at once. -->
+<!-- Undefined (Gianni): the activities with no place yet, in a small window growing out of its button; the ✎ of one grows
+     its card, where it gets area, Epic, Feature and Story on the Canvas's own card. -->
 <dialog #undefinedWindow class="editor undefined-window" aria-labelledby="undefined-title" (click)="onUndefinedBackdrop($event)" (close)="undefinedClosed()">
   <header>
     <h2 id="undefined-title" tabindex="-1">{{ i18n.t('canvas.undefined') }} <span class="count-pill">{{ undefinedList.length }}</span></h2>
@@ -132,36 +133,8 @@
   <footer><button type="button" class="primary" (click)="closeUndefined()">{{ i18n.t('nav.close') }}</button></footer>
 </dialog>
 
-<!-- The place cascade (Area → Epic → Feature → Story), shared by the window and an Activity's open card -->
-<ng-template #cascadeFields let-kind>
-        <fieldset class="cascade"><legend>{{ i18n.t(kind === 'task' ? 'canvas.placeAll' : 'canvas.moveTo') }}</legend>
-          <label>{{ i18n.t('canvas.area') }}
-            <select (change)="pickCascade('area', $any($event.target).value)">
-              <option value="" disabled [selected]="!cascade.area">{{ i18n.t('canvas.choose') }}</option>
-              @if (kind === 'task') { <option [value]="FREE" [selected]="cascade.area === FREE">{{ i18n.t('canvas.undefined') }}</option> }
-              @for (area of lifeAreaKeys; track area) { <option [value]="area" [selected]="area === cascade.area">{{ i18n.t('area.' + area) }}</option> }
-            </select></label>
-          @if (cascade.area && cascade.area !== FREE) {
-            @for (level of cascadeLevels; track level; let i = $index) {
-              @if (i === 0 || cascade[cascadeLevels[i - 1]]) {
-                <label>{{ i18n.t('canvas.' + level) }}
-                  <select (change)="pickCascade(level, $any($event.target).value)">
-                    <option value="" disabled [selected]="!cascade[level]">{{ i18n.t('canvas.choose') }}</option>
-                    @for (option of cascadeOptions(level); track option.id) { <option [value]="option.id" [selected]="option.id === cascade[level]">{{ option.title }}</option> }
-                    <option [value]="NEW" [selected]="cascade[level] === NEW">+ {{ i18n.t('canvas.new.' + level) }}</option>
-                  </select></label>
-                @if (cascade[level] === NEW) {
-                  <label class="new-name"><span class="sr-only">{{ i18n.t('canvas.new.' + level) }}</span>
-                    <input [value]="newName[level]" (input)="newName[level] = $any($event.target).value" autocomplete="off" [placeholder]="i18n.t('canvas.newNamePh')" /></label>
-                }
-              }
-            }
-          }
-        </fieldset>
-</ng-template>
-
-<!-- An Activity's own card, grown in place (Gianni): its name, its colours, Delete, and «Move» opening its whole place.
-     Everything is kept at once; the name as soon as its box is left. -->
+<!-- An Activity's own card, grown in place (Gianni): its name, its place and Delete. Everything is kept at once; the name
+     as soon as its box is left, the place once all four levels are chosen. -->
 <ng-template #editName let-node>
   <label class="card-name"><span class="sr-only">{{ i18n.t('canvas.name') }}</span>
     <input [value]="editTitle" (input)="editTitle = $any($event.target).value" (blur)="commitTitle()"
@@ -169,23 +142,13 @@
 </ng-template>
 <ng-template #editBody let-node>
   <div class="card-edit">
-    <div class="color-pick card-colors" role="group" [attr.aria-label]="i18n.t('task.color')">
-      <button type="button" class="swatch auto" [class.on]="!colorOf(node)" [attr.aria-pressed]="!colorOf(node)" [disabled]="saving" (click)="setColor(null)">{{ i18n.t('task.auto') }}</button>
-      @for (choice of colorChoices; track choice.color) {
-        <button type="button" class="swatch" [style.background]="toneVar(choice.color)" [class.on]="colorOf(node) === choice.color" [disabled]="saving"
-          [attr.aria-pressed]="colorOf(node) === choice.color" [attr.aria-label]="i18n.t(choice.label)" [title]="i18n.t(choice.label)" (click)="setColor(choice.color)"></button>
-      }
-    </div>
+    <!-- Its place, on the Canvas's own card (Gianni: no colours here, no Move): each level reads «Por definir» until it is
+         tapped and chosen in its floating menu; it is saved as soon as all four are chosen, never half placed. -->
+    <app-place-card leafKind="task" [leafTitle]="editTitle.trim() || node.title" [value]="cascade" [labelOf]="placeLabel"
+      [optionsOf]="placeOptions" [newId]="NEW" [version]="version()" [disabled]="saving" (pick)="pickPlace($event)" />
+    @if (cascadeIncomplete) { <p class="card-hint">{{ i18n.t('canvas.placeHint') }}</p> }
     <div class="card-actions">
-      <button type="button" class="card-move-btn" [class.open]="moveOpen" [attr.aria-expanded]="moveOpen" [disabled]="saving" (click)="toggleMove()">
-        {{ i18n.t('canvas.move') }} <span class="chev" aria-hidden="true">⌄</span></button>
       <button type="button" class="card-delete" [disabled]="saving" (click)="remove()">{{ i18n.t('task.delete') }}</button>
-    </div>
-    <div class="card-move" [class.open]="moveOpen" [inert]="!moveOpen">
-      <div class="card-move-inner">
-        <ng-container *ngTemplateOutlet="cascadeFields; context: { $implicit: 'task' }" />
-        <button type="button" class="card-move-apply" [disabled]="saving || cascadeIncomplete" (click)="applyMove()">{{ i18n.t('canvas.moveHere') }}</button>
-      </div>
     </div>
   </div>
 </ng-template>
