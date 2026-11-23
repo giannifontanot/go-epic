@@ -513,7 +513,7 @@ html[data-theme='goepicdark'] .update-button { border-radius: 999px; background:
 .action-stack.open .capture-fab:disabled { opacity: .45; }   /* the day overview while today's plan loads: its place is kept */
 /* the menu's ✎ Edit opens another menu (the edit tools), so it wears a red ring (Gianni) */
 html .action-stack .capture-fab.act-fab.edit-fab.edit-fab { box-shadow: 0 0 0 4.5px var(--edit-red, #e5484d), 0 3px 10px rgba(1, 6, 29, .3); }   /* a little thicker (Gianni) */
-html:is([data-theme='office'], [data-theme='graphite']) { --edit-red: #b4504b; --edit-green: #4f8a5b; }
+html:is([data-theme='office'], [data-theme='graphite']) { --edit-red: #b4504b; }
 .page-fab { z-index: 22; }
 .page-fab.open, .theme-act.open { background: var(--teal); }
 /* the pages (Gianni): pills that fan out to the left of their button, the page you are on marked */
@@ -909,6 +909,15 @@ app-pick-menu { display: block; min-width: 0; }
 .pick-new button { flex: none; min-height: 44px; padding: 0 16px; border-radius: 12px; font-size: 14px; font-weight: 800; }
 /* they belong to their panel and menu: they never lean or slide with the phone */
 html.tilt :is(.pick-btn, .pick-btn *, .pick-tile) { rotate: none; translate: none; }
+/* Every floating menu's choice has a thin edge in the theme's colour (Gianni, v73: so the choices stand off the page);
+   the grey themes take a grey deep enough to be seen, the Go Epic themes their gold */
+.page-tile { border: 1px solid var(--tile-edge, var(--pink)); }
+.pick-tile, .pick-tile.pick-add { border: 1px solid var(--tile-edge, var(--pink)); }
+.pick-tile.pick-add { box-shadow: none; }
+html[data-theme='office'] { --tile-edge: #6f757c; }
+html[data-theme='graphite'] { --tile-edge: #9199a2; }
+html[data-theme='goepiclight'] { --tile-edge: #b8901e; }
+html[data-theme='goepicdark'] { --tile-edge: #e2b84a; }
 html.tilt .menu-chev { translate: 0 -50%; }
 @media (prefers-reduced-motion: reduce) { .menu-chev { transition: none; } }
 
@@ -1882,8 +1891,6 @@ html:not([data-theme]) body .capture-fab.finish-fab.finish-fab.finish-fab, html[
 html .capture-fab.look-fab.look-fab.open { background: var(--edit-open); color: var(--edit-open-ink) !important; border-color: var(--edit-open); }
 html body :is(.capture-fab.look-fab.look-fab.look-fab:not(.open), .capture-fab.finish-fab.finish-fab.finish-fab):hover:not(:disabled) { background: color-mix(in srgb, var(--edit-fab) 82%, #fff) !important; }
 html:is(:not([data-theme]), [data-theme='epic']) body .capture-fab.finish-fab.finish-fab.finish-fab.finish-fab:hover:not(:disabled) { background: color-mix(in srgb, var(--teal) 85%, #000) !important; }
-/* the round ✓ Finish means OK (Gianni, v66): a green ring as thick as the menu's ✎ Edit red one, in every theme */
-html:is([data-theme], :not([data-theme])) body .capture-fab.finish-fab.finish-fab.finish-fab { box-shadow: 0 0 0 4.5px var(--edit-green, #22a34a), 0 4px 14px rgba(0, 0, 0, .28); }
 
 /* A delete waits 8 s with a Cancel (Undo, Gianni), in the same question window: the seconds left, Cancel first and a red
    line along the window's foot that shrinks to nothing as the time runs out; what waits is dimmed where it shows */
