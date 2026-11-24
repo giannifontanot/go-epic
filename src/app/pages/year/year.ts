@@ -71,7 +71,7 @@ function readLastCalendar(): string | null {
                   @default { <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-4"/><path d="M12 17 5 12l2.5-1L5 6.5l3.5.5L9 4l3 3 3-3 .5 3 3.5-.5-2.5 4.5 2.5 1z"/></svg> }
                 }
               </span>
-              <!-- the season and its Go Epic year (Gianni, v82: «Invierno, 2026») -->
+              <!-- the season and its Go Epic year (Gianni, v83: «Invierno, 2026») -->
               <h2 [id]="'season-' + q.season">{{ i18n.t('year.' + q.season) }}, {{ year().year }}</h2>
               <span class="season-range">{{ shortDate(q.start) }} – {{ shortDate(q.end) }}</span>
             </header>
