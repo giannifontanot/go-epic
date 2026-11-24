@@ -9,7 +9,8 @@ import { ThemeService } from '../../core/theme';
  * Ajustes (⚙ in the ☰ menu): a window over the page you are on, not a page of its own (Gianni: going to another page
  * and then looking for the Week again felt wrong); closing it (×, Done, Esc or the backdrop) leaves you where you were.
  * Opened by the action menu's ⚙ (the ☰ menu is gone). It holds who is signed in, English / Español, the weighted
- * buttons, the red time line (no Sign out: Gianni, it left the app altogether); the themes are the action menu's palette (Gianni). Kept on this device.
+ * buttons (no Sign out: Gianni, it left the app altogether); the themes, and the red time line and red countdown bar boxes, are
+ * in the action menu's Themes, in each theme's palette window (Gianni, v66). Kept on this device.
  */
 @Component({
   selector: 'app-settings',
@@ -36,22 +37,6 @@ import { ThemeService } from '../../core/theme';
         <span class="setting-text">
           <strong>⚖ {{ i18n.t('nav.tilt') }}</strong>
           <small>{{ i18n.t('nav.tiltHint') }}</small>
-        </span>
-      </label>
-      <!-- The time line on the Week board: red, or with the theme (the grey themes keep it a quiet grey) -->
-      <label class="setting-row">
-        <input type="checkbox" class="setting-check" [checked]="look.redLine()" (change)="look.redLine.set($any($event.target).checked)" />
-        <span class="setting-text">
-          <strong><span class="red-sample" aria-hidden="true"></span>{{ i18n.t('settings.redLine') }}</strong>
-          <small>{{ i18n.t('settings.redLineHint') }}</small>
-        </span>
-      </label>
-      <!-- The countdown bar at the foot of the Week board: red (by default), or with the theme (grey in Office and Graphite) -->
-      <label class="setting-row">
-        <input type="checkbox" class="setting-check" [checked]="look.redCountdown()" (change)="look.redCountdown.set($any($event.target).checked)" />
-        <span class="setting-text">
-          <strong><span class="countdown-sample" aria-hidden="true"></span>{{ i18n.t('settings.redCountdown') }}</strong>
-          <small>{{ i18n.t('settings.redCountdownHint') }}</small>
         </span>
       </label>
       <footer class="settings-foot">

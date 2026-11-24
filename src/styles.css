@@ -513,7 +513,7 @@ html[data-theme='goepicdark'] .update-button { border-radius: 999px; background:
 .action-stack.open .capture-fab:disabled { opacity: .45; }   /* the day overview while today's plan loads: its place is kept */
 /* the menu's ✎ Edit opens another menu (the edit tools), so it wears a red ring (Gianni) */
 html .action-stack .capture-fab.act-fab.edit-fab.edit-fab { box-shadow: 0 0 0 4.5px var(--edit-red, #e5484d), 0 3px 10px rgba(1, 6, 29, .3); }   /* a little thicker (Gianni) */
-html:is([data-theme='office'], [data-theme='graphite']) { --edit-red: #b4504b; }
+html:is([data-theme='office'], [data-theme='graphite']) { --edit-red: #b4504b; --edit-green: #4f8a5b; }
 .page-fab { z-index: 22; }
 .page-fab.open, .theme-act.open { background: var(--teal); }
 /* the pages (Gianni): pills that fan out to the left of their button, the page you are on marked */
@@ -551,13 +551,18 @@ html.tilt .title-btn { translate: none; }   /* it leans with its title, never sl
 .page-fan.title-fan { z-index: 32; right: auto; }
 @media (prefers-reduced-motion: reduce) { .title-chev { transition: none; } }
 .theme-fan { position: fixed; z-index: 22; right: calc(max(16px, env(safe-area-inset-right)) + 72px);
-  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(248px, calc(100vw - max(16px, env(safe-area-inset-right)) - 80px), calc(40dvh - 6px - env(safe-area-inset-top) * .4 - env(safe-area-inset-bottom) * .4));
+  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 140px); width: min(248px, calc(100vw - max(16px, env(safe-area-inset-right)) - 80px), calc(40dvh - 30px - env(safe-area-inset-top) * .4 - env(safe-area-inset-bottom) * .4));
   max-height: calc(100dvh - max(12px, env(safe-area-inset-top)) - max(12px, env(safe-area-inset-bottom))); overflow-y: auto; overscroll-behavior: contain;
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 8px; }   /* five square rows always fit the screen's height (a landscape phone too); the 8px
   padding keeps the chosen tile's teal ring and its ✓ inside the scrolling box, which would clip them (Gianni) */
 /* two straight columns of square tiles (Gianni: a vertical menu, the dark themes on the left, the light ones on the
    right, each row a family: Epic | Clear Sky, Petal Punk | Pink Pop, Smoked Citrus | Sunburnt, Graphite | Office, Go Epic Dark | Go Epic Light); they
    never lean with the phone, so they stay square and never overlap. Each wears its own theme's page colour and ink. */
+/* Letreros (Gianni): a long button on top of the tiles, across both columns, in the theme that is on */
+.theme-tiles { display: contents; }
+.levels-btn { grid-column: 1 / -1; min-height: 48px; padding: 0 16px; border: 1px solid var(--win-edge, transparent); border-radius: 16px;
+  background: var(--navy-card); color: var(--ink); font: inherit; font-weight: 700; cursor: pointer; box-shadow: 0 6px 18px rgba(1, 6, 29, .35); }
+.levels-btn:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
 .theme-tile { position: relative; display: grid; align-content: center; justify-items: center; gap: 5px;
   aspect-ratio: 1; min-width: 0; padding: 8px 6px 7px; border: 0; border-radius: 16px;
   background: var(--tile-bg, #fff6ef); color: #2a2433; box-shadow: inset 0 0 0 1px rgba(42, 36, 51, .12), 0 8px 22px rgba(1, 6, 29, .4);
@@ -713,6 +718,24 @@ html[data-edge] .ga-card .body { fill: var(--ge-card); stroke: var(--ge-hair); }
 html[data-edge] .ga-card .edge { display: inline; }
 .ga-svg .c0 { --tone: var(--act-0, #a7e7e3); } .ga-svg .c1 { --tone: var(--act-1, #e1f3d0); } .ga-svg .c2 { --tone: var(--act-2, #e1d7ff); } .ga-svg .c3 { --tone: var(--act-3, #ffd5bd); }
 .ga-svg .c4 { --tone: var(--act-4, #ffc9d6); } .ga-svg .c5 { --tone: var(--act-5, #fff0a6); } .ga-svg .c6 { --tone: var(--act-6, #cde4ff); } .ga-svg .c7 { --tone: var(--act-7, #eadcc8); }
+/* the Canvas-to-today card: copies of the Canvas's Activities (three in a Story, one still undefined; Gianni) fly, one
+   after another, into today's block (looping); each lands on its own slot, `--dy` */
+.ga-slot { fill: none; stroke: var(--jelly-ink); stroke-width: 1.2; stroke-dasharray: 4 3; opacity: .45; }
+.ga-fly { opacity: 0; transform-box: fill-box; transform-origin: center; animation: 8s cubic-bezier(.45, 0, .25, 1) infinite both; }
+.ga-fly .body { filter: drop-shadow(0 3px 3px rgb(0 0 0 / .25)); }
+.ga-fly.f1 { --dy: -18px; --up: -50px; animation-name: ga-fly1; }
+.ga-fly.f2 { --dy: -12px; --up: -44px; animation-name: ga-fly2; }
+.ga-fly.f3 { --dy: -6px; --up: -38px; animation-name: ga-fly3; }
+.ga-fly.f4 { --dy: -22px; --up: -54px; animation-name: ga-fly4; }
+@keyframes ga-fly1 { 0%, 6% { opacity: 0; transform: none; } 9% { opacity: 1; transform: none; } 15% { transform: translate(74px, var(--up)) scale(1.08); }
+  24%, 88% { opacity: 1; transform: translate(148px, var(--dy)); } 96%, 100% { opacity: 0; transform: translate(148px, var(--dy)); } }
+@keyframes ga-fly2 { 0%, 24% { opacity: 0; transform: none; } 27% { opacity: 1; transform: none; } 33% { transform: translate(74px, var(--up)) scale(1.08); }
+  42%, 88% { opacity: 1; transform: translate(148px, var(--dy)); } 96%, 100% { opacity: 0; transform: translate(148px, var(--dy)); } }
+@keyframes ga-fly3 { 0%, 42% { opacity: 0; transform: none; } 45% { opacity: 1; transform: none; } 51% { transform: translate(74px, var(--up)) scale(1.08); }
+  60%, 88% { opacity: 1; transform: translate(148px, var(--dy)); } 96%, 100% { opacity: 0; transform: translate(148px, var(--dy)); } }
+@keyframes ga-fly4 { 0%, 60% { opacity: 0; transform: none; } 63% { opacity: 1; transform: none; } 69% { transform: translate(74px, var(--up)) scale(1.08); }
+  78%, 88% { opacity: 1; transform: translate(148px, var(--dy)); } 96%, 100% { opacity: 0; transform: translate(148px, var(--dy)); } }
+@media (prefers-reduced-motion: reduce) { .ga-fly { animation: none; opacity: 1; transform: translate(148px, var(--dy)); } }
 .ga-label { font-size: 13px; font-weight: 700; fill: var(--ink); text-anchor: middle; }
 .ga-icon { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .ga-spark { fill: var(--pink); }
@@ -1117,10 +1140,12 @@ body { letter-spacing: var(--app-ls); }
   margin-left: -16px; margin-right: -16px; padding: max(6px, env(safe-area-inset-top)) 16px 8px; background: var(--page);
   box-shadow: 0 8px 14px -10px rgba(0, 0, 0, .45); }
 .board-head { margin-bottom: 12px; }
-/* while the red line centres itself the header fades away, wholly, so what is behind it shows (Gianni); his own scroll
-   brings it back softly; taps pass through it meanwhile */
-.board-head { transition: opacity .9s cubic-bezier(.4, 0, .2, 1), visibility 0s linear 0s; }
-.board-head.faded { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .9s cubic-bezier(.4, 0, .2, 1), visibility 0s linear .9s; }
+/* while the red line centres itself the header slides up out of the screen, wholly, so what is behind it shows, the
+   countdown bar's motion upside down (Gianni: pushed, not faded); his own scroll slides it back down softly; taps pass
+   through it meanwhile. It goes past the top by its shadow too. */
+.board-head { transition: transform .9s cubic-bezier(.4, 0, .2, 1), visibility 0s linear 0s; }
+.board-head.faded { transform: translateY(calc(-100% - 24px)); visibility: hidden; pointer-events: none;
+  transition: transform .9s cubic-bezier(.4, 0, .2, 1), visibility 0s linear .9s; }
 @media (prefers-reduced-motion: reduce) { .board-head, .board-head.faded { transition: none; } }
 .board-head > .week-top { margin-bottom: 0; }
 .board-head > .day-tabs { margin: 8px 0 0; }
@@ -1254,7 +1279,9 @@ body:has(.board.locked.spot)::before { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .block-body { transition: none; } .block-body:not(.closed) > .block-inner { overflow: visible; } }
 
 /* Each block's own fold, in its header beside ✕ (Gianni) */
-.block-fold { font-size: 18px; font-weight: 800; line-height: 1; }   /* — open (tap to shrink), □ folded (tap to open) */
+.block-fold { font-size: 18px; font-weight: 800; line-height: 1; }   /* a narrow rectangle open (tap to shrink), □ folded (tap to open) */
+/* The open block's fold sign (Gianni): a narrow outlined rectangle, never a dash, which read as subtract or delete */
+.block-fold .fold-bar { display: block; width: 16px; height: 7px; border: 2px solid currentColor; border-radius: 2px; box-sizing: border-box; }
 /* The time range: a soft grey dash, so the two hours read easily */
 .summary .dash { margin: 0 .25em; color: rgba(54, 38, 67, .45); font-weight: 400; }
 /* Capture: when the keyboard moves the visible screen, the panel follows smoothly instead of jumping */
@@ -1794,7 +1821,8 @@ html[data-theme='graphite'] .board > .overdue-tray { --tray-edge: #d27870; --tra
 :root { --foot-h: calc(20px + env(safe-area-inset-bottom)); }
 .foot-countdown { position: fixed; z-index: 16; left: 0; right: 0; bottom: 0; height: var(--foot-h); box-sizing: border-box;
   padding-bottom: env(safe-area-inset-bottom); border-radius: 0; pointer-events: none; overflow: hidden;
-  background: color-mix(in srgb, var(--countdown) 24%, var(--page)); box-shadow: 0 -1px 0 color-mix(in srgb, var(--countdown) 45%, transparent);
+  /* the time already spent (Gianni, v66: much less pink): a quiet grey from the page and its ink, only a hint of the bar's colour */
+  background: color-mix(in srgb, var(--countdown) 7%, color-mix(in srgb, var(--ink) 13%, var(--page))); box-shadow: 0 -1px 0 color-mix(in srgb, var(--ink) 16%, transparent);
   transform: translateY(100%); visibility: hidden;
   transition: transform .9s cubic-bezier(.4, 0, .2, 1), visibility 0s linear .9s; }
 .foot-countdown.up { transform: none; visibility: visible; transition: transform .9s cubic-bezier(.4, 0, .2, 1), visibility 0s; }
@@ -1840,7 +1868,7 @@ html:not(.countdown-up) .menu-fab:not(.open) { transition: transform .34s cubic-
 .look-pill button { width: 60px; height: 60px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .1); color: var(--ink); font-size: 24px; font-weight: 400; }
 .look-pill button:disabled { opacity: .35; }
 .look-value { min-width: 70px; text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; font-size: 18px; }
-html.tilt :is(.look-row, .look-fab, .look-pill, .look-pill button, .theme-tile, .palette-row) { rotate: none; translate: none; }   /* the palette rows stay straight and in their list (Gianni: they looked crooked) */
+html.tilt :is(.look-row, .look-fab, .look-pill, .look-pill button, .theme-tile, .levels-btn, .palette-row) { rotate: none; translate: none; }   /* the palette rows stay straight and in their list (Gianni: they looked crooked) */
 html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='office'], [data-theme='goepiclight']) .look-pill button { background: color-mix(in srgb, var(--ink) 10%, transparent); }
 @media (prefers-reduced-motion: reduce) { .look-row, .look-pill, .look-pill.closing { animation: none; } }
 /* The edit tools have their own colour, never the main menu's (Gianni: in Pink Pop both were the same pink, so you
@@ -1861,6 +1889,8 @@ html:not([data-theme]) body .capture-fab.finish-fab.finish-fab.finish-fab, html[
 html .capture-fab.look-fab.look-fab.open { background: var(--edit-open); color: var(--edit-open-ink) !important; border-color: var(--edit-open); }
 html body :is(.capture-fab.look-fab.look-fab.look-fab:not(.open), .capture-fab.finish-fab.finish-fab.finish-fab):hover:not(:disabled) { background: color-mix(in srgb, var(--edit-fab) 82%, #fff) !important; }
 html:is(:not([data-theme]), [data-theme='epic']) body .capture-fab.finish-fab.finish-fab.finish-fab.finish-fab:hover:not(:disabled) { background: color-mix(in srgb, var(--teal) 85%, #000) !important; }
+/* the round ✓ Finish means OK (Gianni, v66): a green ring as thick as the menu's ✎ Edit red one, in every theme */
+html:is([data-theme], :not([data-theme])) body .capture-fab.finish-fab.finish-fab.finish-fab { box-shadow: 0 0 0 4.5px var(--edit-green, #22a34a), 0 4px 14px rgba(0, 0, 0, .28); }
 
 /* A delete waits 8 s with a Cancel (Undo, Gianni), in the same question window: the seconds left, Cancel first and a red
    line along the window's foot that shrinks to nothing as the time runs out; what waits is dimmed where it shows */
@@ -2115,10 +2145,19 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
 
 /* A theme's palette window (Gianni): a tap on a theme's tile opens it over the themes; only the palettes (one row each,
    its name over its colours, the list scrolling inside the window), Only the edge below them and OK, always in sight */
-.palette-window[open] { display: flex; flex-direction: column; overflow: hidden; }
+.palette-window[open], .levels-window[open] { display: flex; flex-direction: column; overflow: hidden; }
+/* Letreros: the six sets, each its name over its five level names */
+.levels-window .settings-head { flex: none; }
+.levels-hint { flex: none; margin: 10px 0 0; color: var(--ink-soft); font-size: 14px; line-height: 1.4; }
+.levels-window .levels-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin-top: 12px; padding: 2px; display: grid; gap: 10px; align-content: start; overscroll-behavior: contain; }
+.palette-row.levels-row { grid-template-areas: 'name tick' 'words tick'; }
+.levels-words { grid-area: words; font-size: 15px; line-height: 1.4; color: var(--ink); text-align: left; }
+.levels-window .levels-foot { flex: none; margin-top: 14px; display: flex; justify-content: flex-end; gap: 10px; }
+.levels-window .levels-foot button { min-height: 48px; min-width: 110px; }
 .palette-window .settings-head { flex: none; }
-.palette-window .palette-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; margin-top: 12px; padding: 2px; overscroll-behavior: contain; }
-.palette-window .edge-row { flex: none; margin-top: 14px; }
+.palette-window .palette-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 2px; }
+.palette-window .palette-list { margin-top: 12px; }
+.palette-window .edge-row { margin-top: 14px; }
 .palette-window .settings-foot { flex: none; margin-top: 14px; }
 .palette-ok { min-width: 120px; min-height: 48px; font-size: 18px; }
 .palette-list { display: flex; flex-direction: column; gap: 8px; }

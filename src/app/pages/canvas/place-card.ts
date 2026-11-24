@@ -85,7 +85,7 @@ const LEVELS: Record<'epic' | 'feature' | 'story' | 'task', PlaceLevel[]> = {
       @if (openLevel(); as level) {
         <nav #fanBox class="page-fan pick-fan" [attr.aria-label]="i18n.t('canvas.' + level)">
           @if (!ready(level)) {
-            <p #tile class="page-tile pick-tile pick-note">{{ i18n.t('canvas.chooseFirst', { level: i18n.t('canvas.' + above(level)) }) }}</p>
+            <p #tile class="page-tile pick-tile pick-note">{{ i18n.t('canvas.chooseFirst.' + above(level)) }}</p>
           } @else {
             @for (option of choices; track option.id) {
               <button #tile type="button" class="page-tile pick-tile" [class.on]="option.id === value()[level]"

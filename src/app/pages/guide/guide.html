@@ -30,7 +30,7 @@
 <text class="ga-cap" x="34" y="36">{{ i18n.t('canvas.area').toUpperCase() }}</text>
 <text class="ga-name" x="34" y="53">{{ i18n.t('area.temple') }}</text><path class="ga-tri" d="M198 46 h10 l-5 6 z"/>
 <rect class="ga-rule" x="34" y="62" width="168" height="1"/>
-<text class="ga-cap" x="34" y="80">EPIC</text>
+<text class="ga-cap" x="34" y="80">{{ i18n.t('canvas.epic').toUpperCase() }}</text>
 <text class="ga-name" x="34" y="97">{{ i18n.t('guide.d.athlete') }}</text><path class="ga-tri" d="M198 90 h10 l-5 6 z"/>
 <rect class="ga-block" x="30" y="110" width="176" height="30" rx="10"/><rect class="ga-ink-bar" x="42" y="122" width="84" height="6" rx="3"/>
 <rect class="ga-block" x="30" y="146" width="176" height="30" rx="10"/><rect class="ga-ink-bar" x="42" y="158" width="62" height="6" rx="3"/>
@@ -38,17 +38,17 @@
 <rect class="ga-tile" x="230" y="56" width="76" height="28" rx="10"/>
 <text class="ga-tile-text" x="268" y="74">{{ i18n.t('guide.d.athlete') }} ✓</text>
 <rect class="ga-tile on" x="230" y="92" width="76" height="28" rx="10"/>
-<text class="ga-tile-text" x="268" y="110">+ Epic</text></svg>
+<text class="ga-tile-text" x="268" y="110">+ {{ i18n.t('canvas.epic') }}</text></svg>
       }
       @case ('levels') {
 <svg viewBox="0 0 320 200" class="ga-svg"><rect class="ga-screen" x="6" y="6" width="308" height="188" rx="18"/>
 <rect class="ga-day" x="16" y="14" width="288" height="172" rx="18"/>
-<text class="ga-cap" x="30" y="33">EPIC</text>
+<text class="ga-cap" x="30" y="33">{{ i18n.t('canvas.epic').toUpperCase() }}</text>
 <text class="ga-name" x="30" y="50">{{ i18n.t('guide.d.athlete') }}</text>
 <rect class="ga-block" x="28" y="60" width="264" height="116" rx="14"/>
-<text class="ga-cap ink" x="40" y="77">FEATURE</text><rect class="ga-ink-bar" x="40" y="83" width="110" height="5" rx="2.5"/>
+<text class="ga-cap ink" x="40" y="77">{{ i18n.t('canvas.feature').toUpperCase() }}</text><rect class="ga-ink-bar" x="40" y="83" width="110" height="5" rx="2.5"/>
 <rect class="ga-story" x="38" y="96" width="244" height="72" rx="12"/>
-<text class="ga-cap story" x="50" y="112">STORY</text>
+<text class="ga-cap story" x="50" y="112">{{ i18n.t('canvas.story').toUpperCase() }}</text>
 <g class="ga-card c0"><rect class="body" x="50" y="120" width="108" height="40" rx="7"/><rect class="edge" x="50" y="120" width="4" height="40" rx="2"/><rect class="ln" x="62" y="149" width="54" height="5" rx="2.5"/><text class="ga-cap card" x="62" y="134">{{ i18n.t('guide.d.activity') }}</text></g><g class="ga-card c4"><rect class="body" x="164" y="120" width="108" height="40" rx="7"/><rect class="edge" x="164" y="120" width="4" height="40" rx="2"/><rect class="ln" x="176" y="149" width="54" height="5" rx="2.5"/><text class="ga-cap card" x="176" y="134">{{ i18n.t('guide.d.activity') }}</text></g></svg>
       }
       @case ('undefined') {
@@ -58,12 +58,28 @@
 <circle class="ga-count" cx="274" cy="34" r="11"/><text class="ga-count-text" x="274" y="38">3</text>
 <path class="ga-arrow" d="M160 54 V 64"/>
 <rect class="ga-day" x="36" y="66" width="248" height="120" rx="16"/>
-<text class="ga-cap" x="50" y="86">{{ i18n.t('canvas.area').toUpperCase() }}</text><rect class="ga-text-bar" x="96" y="80" width="90" height="5" rx="2.5"/><circle class="ga-check" cx="262" cy="82" r="7"/><path class="ga-check-ink" d="M258.85 82 l2.24 2.4499999999999997 l4.2 -4.8999999999999995"/>
-<text class="ga-cap" x="50" y="106">EPIC</text><rect class="ga-text-bar" x="96" y="100" width="70" height="5" rx="2.5"/><circle class="ga-check" cx="262" cy="102" r="7"/><path class="ga-check-ink" d="M258.85 102 l2.24 2.4499999999999997 l4.2 -4.8999999999999995"/>
+<text class="ga-cap" x="50" y="86">{{ i18n.t('canvas.area').toUpperCase() }}</text><rect class="ga-text-bar" x="150" y="80" width="90" height="5" rx="2.5"/><circle class="ga-check" cx="262" cy="82" r="7"/><path class="ga-check-ink" d="M258.85 82 l2.24 2.4499999999999997 l4.2 -4.8999999999999995"/>
+<text class="ga-cap" x="50" y="106">{{ i18n.t('canvas.epic').toUpperCase() }}</text><rect class="ga-text-bar" x="150" y="100" width="70" height="5" rx="2.5"/><circle class="ga-check" cx="262" cy="102" r="7"/><path class="ga-check-ink" d="M258.85 102 l2.24 2.4499999999999997 l4.2 -4.8999999999999995"/>
 <rect class="ga-block" x="46" y="114" width="228" height="28" rx="9"/>
-<text class="ga-cap ink" x="56" y="132">FEATURE</text><rect class="ga-ink-bar" x="116" y="126" width="80" height="5" rx="2.5"/><circle class="ga-check" cx="262" cy="128" r="7"/><path class="ga-check-ink" d="M258.85 128 l2.24 2.4499999999999997 l4.2 -4.8999999999999995"/>
+<text class="ga-cap ink" x="56" y="132">{{ i18n.t('canvas.feature').toUpperCase() }}</text><rect class="ga-ink-bar" x="150" y="126" width="80" height="5" rx="2.5"/><circle class="ga-check" cx="262" cy="128" r="7"/><path class="ga-check-ink" d="M258.85 128 l2.24 2.4499999999999997 l4.2 -4.8999999999999995"/>
 <rect class="ga-story" x="54" y="148" width="212" height="28" rx="9"/>
-<text class="ga-cap story" x="64" y="166">STORY</text><rect class="ga-story-bar" x="112" y="160" width="70" height="5" rx="2.5"/><circle class="ga-check" cx="252" cy="162" r="7"/><path class="ga-check-ink" d="M248.85 162 l2.24 2.4499999999999997 l4.2 -4.8999999999999995"/></svg>
+<text class="ga-cap story" x="64" y="166">{{ i18n.t('canvas.story').toUpperCase() }}</text><rect class="ga-story-bar" x="150" y="160" width="70" height="5" rx="2.5"/><circle class="ga-check" cx="252" cy="162" r="7"/><path class="ga-check-ink" d="M248.85 162 l2.24 2.4499999999999997 l4.2 -4.8999999999999995"/></svg>
+      }
+      @case ('plan') {
+<svg viewBox="0 0 320 200" class="ga-svg ga-plan"><rect class="ga-screen" x="6" y="6" width="308" height="188" rx="18"/>
+<rect class="ga-day" x="16" y="14" width="140" height="172" rx="16"/>
+<text class="ga-cap" x="28" y="30">{{ i18n.t('canvas.epic').toUpperCase() }}</text>
+<text class="ga-name" x="28" y="45">{{ i18n.t('guide.d.athlete') }}</text>
+<rect class="ga-story" x="26" y="52" width="120" height="90" rx="12"/>
+<text class="ga-cap story" x="36" y="68">{{ i18n.t('canvas.story').toUpperCase() }}</text>
+<g class="ga-card c0"><rect class="body" x="36" y="74" width="100" height="18" rx="7"/><rect class="edge" x="36" y="74" width="4" height="18" rx="2"/><rect class="ln" x="48" y="80.5" width="60" height="5" rx="2.5"/></g><g class="ga-card c1"><rect class="body" x="36" y="96" width="100" height="18" rx="7"/><rect class="edge" x="36" y="96" width="4" height="18" rx="2"/><rect class="ln" x="48" y="102.5" width="44" height="5" rx="2.5"/></g><g class="ga-card c2"><rect class="body" x="36" y="118" width="100" height="18" rx="7"/><rect class="edge" x="36" y="118" width="4" height="18" rx="2"/><rect class="ln" x="48" y="124.5" width="70" height="5" rx="2.5"/></g>
+<text class="ga-cap" x="28" y="156">{{ i18n.t('canvas.undefined').toUpperCase() }}</text>
+<g class="ga-card c3"><rect class="body" x="36" y="162" width="100" height="18" rx="7"/><rect class="edge" x="36" y="162" width="4" height="18" rx="2"/><rect class="ln" x="48" y="168.5" width="52" height="5" rx="2.5"/></g>
+<rect class="ga-day" x="166" y="14" width="138" height="172" rx="16"/>
+<text class="ga-dayname" x="178" y="36">{{ i18n.t('capture.today') }}</text>
+<rect class="ga-block" x="174" y="46" width="122" height="132" rx="12"/>
+<rect class="ga-slot" x="184" y="56" width="102" height="18" rx="7"/><rect class="ga-slot" x="184" y="84" width="102" height="18" rx="7"/><rect class="ga-slot" x="184" y="112" width="102" height="18" rx="7"/><rect class="ga-slot" x="184" y="140" width="102" height="18" rx="7"/>
+<g class="ga-fly f1"><g class="ga-card c0"><rect class="body" x="36" y="74" width="100" height="18" rx="7"/><rect class="edge" x="36" y="74" width="4" height="18" rx="2"/><rect class="ln" x="48" y="80.5" width="60" height="5" rx="2.5"/></g></g><g class="ga-fly f2"><g class="ga-card c1"><rect class="body" x="36" y="96" width="100" height="18" rx="7"/><rect class="edge" x="36" y="96" width="4" height="18" rx="2"/><rect class="ln" x="48" y="102.5" width="44" height="5" rx="2.5"/></g></g><g class="ga-fly f3"><g class="ga-card c2"><rect class="body" x="36" y="118" width="100" height="18" rx="7"/><rect class="edge" x="36" y="118" width="4" height="18" rx="2"/><rect class="ln" x="48" y="124.5" width="70" height="5" rx="2.5"/></g></g><g class="ga-fly f4"><g class="ga-card c3"><rect class="body" x="36" y="162" width="100" height="18" rx="7"/><rect class="edge" x="36" y="162" width="4" height="18" rx="2"/><rect class="ln" x="48" y="168.5" width="52" height="5" rx="2.5"/></g></g></svg>
       }
       @case ('week') {
 <svg viewBox="0 0 320 200" class="ga-svg"><rect class="ga-screen" x="6" y="6" width="308" height="188" rx="18"/>
