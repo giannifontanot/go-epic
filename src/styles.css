@@ -558,7 +558,7 @@ html.tilt .title-btn { translate: none; }   /* it leans with its title, never sl
 /* two straight columns of square tiles (Gianni: a vertical menu, the dark themes on the left, the light ones on the
    right, each row a family: Epic | Clear Sky, Petal Punk | Pink Pop, Smoked Citrus | Sunburnt, Graphite | Office, Go Epic Dark | Go Epic Light); they
    never lean with the phone, so they stay square and never overlap. Each wears its own theme's page colour and ink. */
-/* Letreros (Gianni): a long button on top of the tiles, across both columns, in the theme that is on */
+/* Letreros (Gianni): a long button at the foot of the tiles, under the last row, across both columns, in the theme that is on */
 .theme-tiles { display: contents; }
 .levels-btn { grid-column: 1 / -1; min-height: 48px; padding: 0 16px; border: 1px solid var(--win-edge, transparent); border-radius: 16px;
   background: var(--navy-card); color: var(--ink); font: inherit; font-weight: 700; cursor: pointer; box-shadow: 0 6px 18px rgba(1, 6, 29, .35); }
