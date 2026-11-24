@@ -1,4 +1,4 @@
-import { BAR_VEIL, DARK_THEMES, LIGHT_THEMES, THEMES, THEME_BAR, manifestFor, parseTheme, shadeBar } from './theme';
+import { BAR_VEIL, COUNTDOWN_RED, COUNTDOWN_THEME, countdownColour, DARK_THEMES, LIGHT_THEMES, THEMES, THEME_BAR, manifestFor, parseTheme, shadeBar } from './theme';
 
 describe('themes', () => {
   it('reads a stored theme, anything unknown being the Epic look', () => {
@@ -30,5 +30,17 @@ describe('themes', () => {
     expect(shadeBar('#fbeaf3', 1)).toBe('#000000');
     expect(shadeBar('#808080', -1)).toBe('#808080');
     for (const theme of THEMES) expect(shadeBar(THEME_BAR[theme], BAR_VEIL)).toMatch(/^#[0-9a-f]{6}$/);
+  });
+
+  it('colours the countdown bar red when the box is ticked and with the theme when it is not, in every theme', () => {
+    for (const theme of THEMES) {
+      expect(countdownColour(theme, true)).toBe(COUNTDOWN_RED[theme]);
+      expect(countdownColour(theme, false)).toBe(COUNTDOWN_THEME[theme]);
+      expect(countdownColour(theme, true)).toMatch(/^#[0-9a-f]{6}$/);
+      expect(countdownColour(theme, false)).toMatch(/^#[0-9a-f]{6}$/);
+      // unticking always changes the bar (Gianni: in Epic it stayed red)
+      expect(countdownColour(theme, false)).not.toBe(countdownColour(theme, true));
+    }
+    expect(countdownColour('epic', false)).toBe('#f4a8b7');
   });
 });
