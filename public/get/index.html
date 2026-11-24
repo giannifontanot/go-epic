@@ -3,7 +3,7 @@
   Get Go Epic: the promotional landing page, served at the root "/" (firebase.json) and at /get/, separate from the
   app itself (app.html, opened at /app). getgoepic.com/ is this page.
   A plain static page: no Angular, no Firebase, so it loads fast and search engines read it as it is.
-  One screen, a carousel: Next / Back (or swipe, or ← →) steps through eight slides, and each one plays
+  One screen, a carousel in the Epic theme's colours (Gianni): the arrows (or swipe, or ← →) step through eight slides, and each one plays
   its own small motion on the phone. English in the HTML (for search engines); Spanish comes from the
   ES dictionary in the script below (browser language es-*, the EN/ES switch, or ?lang=es).
   The emblem (emblem.webp) is Gianni's winged-sword logo, on a transparent background.
@@ -17,7 +17,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Get Go Epic · Plan your week in blocks, live each day one step at a time</title>
-  <meta name="description" content="Go Epic is a free planner app for your phone and computer: plan your week in time blocks, capture tasks in a second, grow streaks, and turn who you want to be into small daily steps. Works offline." />
+  <meta name="description" content="Go Epic is a free planner app for your phone and computer: plan your week in time blocks, give the four areas of your life their place, capture tasks in a second, grow streaks and live the year in seasons. Works offline." />
   <meta name="keywords" content="Go Epic, weekly planner, time blocking app, habit tracker, streaks, task capture, life planner, daily routine, planner app free" />
   <link rel="canonical" href="https://getgoepic.com/" />
   <link rel="alternate" hreflang="en" href="https://getgoepic.com/" />
@@ -69,7 +69,7 @@
       }
     } catch (e) {}
   </script>
-  <meta name="theme-color" content="#fbfbfd" />
+  <meta name="theme-color" content="#101b42" />
   <!-- the app's own manifest: installing from here installs the Go Epic app itself (start "/") -->
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="icon" type="image/png" href="/get/emblem-48.png" />
@@ -126,26 +126,29 @@
     @property --tn { syntax: '<color>'; inherits: true; initial-value: #ff3b30; }
 
     :root {
-      --bg: #fbfbfd; --ink: #1d1d1f; --mute: #6e6e73; --soft: rgba(0, 0, 0, .05); --seg: #fff;
-      --btn: #1d1d1f; --btn-ink: #fff; --dot: rgba(0, 0, 0, .2);
+      /* The Epic theme, as in the app's Canvas (Gianni): navy page, cream ink, pink buttons, teal focus, gold accents */
+      --bg: #101b42; --ink: #fff4e9; --mute: rgba(255, 244, 233, .74); --soft: rgba(255, 244, 233, .1); --seg: #16224f;
+      --btn: #f4a8b7; --btn-ink: #302746; --dot: rgba(255, 244, 233, .3);
+      --gold: #f5c945; --gold-soft: #e0b34a; --teal: #76e0d0; --plum-a: #8f2859; --plum-b: #621c4b; --win-edge: rgba(146, 176, 255, .45);
       --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Inter, 'Segoe UI', Roboto, Arial, sans-serif;
       --serif: Georgia, 'Times New Roman', serif;
       --spring: cubic-bezier(.16, 1, .3, 1);
       --bounce: cubic-bezier(.34, 1.56, .64, 1);
       --wm: clamp(24px, 7.4vw, 34px);
-      color-scheme: light;
+      color-scheme: dark;
     }
     * { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; }
+    html { -webkit-text-size-adjust: 100%; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+    input, textarea, select, [contenteditable] { -webkit-user-select: text; user-select: text; }
     html, body { margin: 0; }
     body { min-height: 100vh; min-height: 100svh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr);
-      background: var(--bg); color: var(--ink); font: 17px/1.47 var(--font); -webkit-font-smoothing: antialiased;
+      background: radial-gradient(120% 70% at 50% -10%, #1c2a66 0, var(--bg) 62%) fixed, var(--bg); color: var(--ink); font: 17px/1.47 var(--font); -webkit-font-smoothing: antialiased;
       transition: background-color .8s ease, color .8s ease; -webkit-tap-highlight-color: transparent; }
     html.js body { height: 100vh; height: 100svh; overflow: hidden; }
     h1, h2, p { margin: 0; }
     img { display: block; max-width: 100%; }
     button { font: inherit; color: inherit; }
-    :focus-visible { outline: 3px solid #0a84ff; outline-offset: 3px; border-radius: 10px; }
+    :focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; border-radius: 10px; }
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
     /* ── Top ─────────────────────────────────────────────────── */
@@ -157,11 +160,11 @@
     /* First slide: the three words in the name's carved letters, one per line (Gianni), a little bigger than the name;
        the mission under them is Gandalf's line about time */
     .copy { container-type: inline-size; }
-    .motto { margin: 0; font: 900 var(--wm)/1.04 'Cinzel Decorative', Georgia, serif; letter-spacing: .01em; color: #101b42; white-space: nowrap;
+    .motto { margin: 0; font: 900 var(--wm)/1.04 'Cinzel Decorative', Georgia, serif; letter-spacing: .01em; color: var(--ink); white-space: nowrap;
       font-size: min(calc(var(--wm) * 1.2), 13vw); font-size: min(calc(var(--wm) * 1.2), 100cqw / 6.4); }
     .motto span { display: block; }
     .mission .eyebrow { display: block; margin-bottom: 6px; font: 700 12px/1.2 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      letter-spacing: .14em; text-transform: uppercase; color: #9a6a12; }
+      letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
     .mission q { font-style: italic; quotes: '\201C' '\201D'; }
     html[lang="es"] .mission q { quotes: '\00AB' '\00BB'; }
     @media (min-width: 880px) { .slide .mission { margin-top: 30px; } }
@@ -169,16 +172,16 @@
     /* Why Epic?: the page that tells why the app has its name (Gianni), under the mission on the first slide and,
        where there is room, at the top beside the language */
     .mission .why { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; margin-top: 4px; font-size: max(.78em, 14px); font-weight: 600;
-      color: #9a6a12; text-decoration: none; }
+      letter-spacing: 1.5px; color: var(--gold); text-decoration: none; }
     .mission .why span { transition: transform .2s var(--spring); }
     .mission .why:hover span { transform: translateX(3px); }
     .why-top { display: none; margin-left: auto; align-items: center; min-height: 40px; padding: 0 10px; border-radius: 999px;
-      color: var(--mute); font-size: 14px; font-weight: 500; text-decoration: none; }
-    .why-top:hover { color: #101b42; }
+      color: var(--mute); font-size: 15px; letter-spacing: 1.5px; font-weight: 500; text-decoration: none; }
+    .why-top:hover { color: var(--ink); }
     @media (min-width: 880px) { .why-top { display: inline-flex; } .why-top + .lang { margin-left: 0; } }
     /* the mission has two copies: in the first slide's words (side by side) and under the emblem (phones) */
     .stage > .mission { display: none; text-align: center; margin: 0 auto; }
-    .motto b { color: #b8860b; }
+    .motto b { color: var(--gold); }
     .lead.mission { color: var(--ink); font-weight: 600; }
     /* Phones: room to breathe at the top (Gianni found it crowded). One quiet language chip instead of the two-part switch,
        the motto on three lines with space around it, the mission set apart under a short gold rule. */
@@ -188,7 +191,7 @@
       .lang .lang-code { display: inline; }
       .top { padding-bottom: 10px; }
       .mission { padding-top: 14px; position: relative; max-width: 20em; }
-      .mission::before { content: ''; position: absolute; top: 0; left: 50%; width: 36px; height: 2px; margin-left: -18px; border-radius: 2px; background: #c9a227; }
+      .mission::before { content: ''; position: absolute; top: 0; left: 50%; width: 36px; height: 2px; margin-left: -18px; border-radius: 2px; background: var(--gold); }
       .lead.mission { font-size: clamp(17px, 4.6vw, 21px); }
       /* The first slide reads top to bottom as one group (Gianni): the motto on three lines, the emblem, then the mission.
          The emblem is centred in its room; the motto comes down and the mission up by --lift (set by fit()), so they hug it. */
@@ -202,22 +205,22 @@
     /* The language switch is a list, not a pair of buttons, so more languages can join it (Gianni): a pill with a globe,
        the language in use and a chevron, over an invisible native <select> that opens the list. */
     .lang { margin-left: auto; position: relative; display: inline-flex; align-items: center; gap: 6px; min-width: 40px; min-height: 40px;
-      padding: 0 12px; border-radius: 999px; background: rgba(255, 255, 255, .7); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .07);
-      color: var(--mute); font-size: 14px; font-weight: 500; cursor: pointer; transition: color .2s, box-shadow .2s; }
-    /* Light (Gianni): a white pill with a hairline edge and soft grey type, so it never competes with the name or Download */
+      padding: 0 12px; border-radius: 999px; background: rgba(22, 34, 79, .85); box-shadow: inset 0 0 0 1px rgba(255, 244, 233, .18);
+      color: var(--mute); font-size: 15px; letter-spacing: 1.5px; font-weight: 500; cursor: pointer; transition: color .2s, box-shadow .2s; }
+    /* Quiet (Gianni): a dark pill with a hairline edge and soft type, so it never competes with the name or Download */
     .lang svg { flex: none; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
-    .lang .globe { width: 17px; height: 17px; color: #a1a1a6; }
-    .lang .lang-chev { width: 10px; height: 10px; color: #a1a1a6; stroke-width: 1.6; }
+    .lang .globe { width: 17px; height: 17px; color: rgba(255, 244, 233, .55); }
+    .lang .lang-chev { width: 10px; height: 10px; color: rgba(255, 244, 233, .55); stroke-width: 1.6; }
     .lang-code { display: none; }
     .lang select { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; border: 0; border-radius: 999px; opacity: 0;
       cursor: pointer; font-size: 16px; -webkit-appearance: none; appearance: none; }
-    .lang:hover { color: #101b42; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .14); }
-    .lang:has(select:focus-visible) { outline: 2px solid #c9a227; outline-offset: 2px; }
+    .lang:hover { color: var(--ink); box-shadow: inset 0 0 0 1px rgba(255, 244, 233, .32); }
+    .lang:has(select:focus-visible) { outline: 2px solid var(--teal); outline-offset: 2px; }
     .pill { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; text-decoration: none;
-      background: var(--btn); color: var(--btn-ink); font-weight: 600; transition: background-color .8s, color .8s, transform .2s var(--spring); }
+      background: var(--btn); color: var(--btn-ink); font-size: 15px; letter-spacing: 1.5px; font-weight: 700; transition: background-color .8s, color .8s, transform .2s var(--spring); }
     .pill:hover { transform: scale(1.03); }
     .pill:active { transform: scale(.97); }
-    .pill.big { min-height: 52px; padding: 0 28px; font-size: 17px; }
+    .pill.big { min-height: 52px; padding: 0 28px; font-size: 15px; }
     /* The last slide's Download: a yellow ring that flashes, so the offer can't be missed */
     .slide .pill.big { position: relative; margin-block: 6px; box-shadow: 0 0 0 6px #f5c945; }
     .slide .pill.big::after { content: ''; position: absolute; inset: -6px; border-radius: inherit; pointer-events: none;
@@ -228,13 +231,13 @@
     /* Top right: a white download arrow on a black circle with the same flashing yellow ring as the last slide's
        Download (Gianni), instead of the word */
     .dl-top { position: relative; flex: none; display: grid; place-items: center; width: 40px; height: 40px; margin: 0 6px 0 4px;
-      border-radius: 50%; background: #111; color: #fff; box-shadow: 0 0 0 5px #f5c945; transition: transform .2s var(--spring); }
+      border-radius: 50%; background: var(--btn); color: var(--btn-ink); box-shadow: 0 0 0 5px #f5c945; transition: transform .2s var(--spring); }
     .dl-top svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
     .dl-top::after { content: ''; position: absolute; inset: -5px; border-radius: 50%; pointer-events: none;
       box-shadow: 0 0 0 5px #f5c945, 0 0 20px 6px rgba(245, 201, 69, .8); opacity: 0; animation: ring-flash 1.6s ease-out .9s infinite; }
     .dl-top:hover { transform: scale(1.06); }
     .dl-top:active { transform: scale(.94); }
-    .dl-top:focus-visible { outline: 2px solid #101b42; outline-offset: 8px; }
+    .dl-top:focus-visible { outline: 2px solid var(--teal); outline-offset: 8px; }
     @keyframes ring-flash {
       0% { opacity: 1; transform: scale(1); }
       70% { opacity: 0; transform: scale(1.14); }
@@ -262,14 +265,15 @@
     .kicker { font-size: 15px; font-weight: 600; color: var(--k, var(--mute)); letter-spacing: -.01em; }
     h2 { font-size: clamp(30px, 8.2vw, 68px); line-height: 1.06; font-weight: 700; letter-spacing: -.03em; text-wrap: balance; }
     /* The name: "Go" in the app's deep navy, "Epic!" in the gold of the emblem's ribbon. */
-    .go { color: #101b42; }
-    .gold { background: linear-gradient(100deg, #b8860b, #8a5a12); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .go { color: var(--ink); }
+    .gold { background: linear-gradient(100deg, #f5d77a, #e2b84a 55%, #c9a227); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .lead { font-size: clamp(16px, 4.2vw, 21px); line-height: 1.4; color: var(--mute); max-width: 28em; text-wrap: pretty; transition: color .8s; }
     .fine { font-size: 13px; color: var(--mute); }
     .steps { font-size: 13px; color: var(--mute); line-height: 1.5; }
     .steps b { color: var(--ink); font-weight: 600; }
     .swatches { display: flex; gap: 8px; justify-content: center; }
-    .swatches i { width: 18px; height: 18px; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .12); }
+    .swatches { flex-wrap: wrap; max-width: 15em; }
+    .swatches i { width: 18px; height: 18px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 1.5px rgba(255, 244, 233, .45); }
 
     @property --s { syntax: '<number>'; inherits: true; initial-value: .7; }
     .device { position: relative; flex: 1 1 auto; min-height: 0; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center;
@@ -277,13 +281,14 @@
     html:not(.js) .device { display: none; }
     .device::before { content: ''; position: absolute; left: 50%; top: 50%; width: min(96%, 640px); aspect-ratio: 1; border-radius: 50%;
       transform: translate(-50%, -50%); background: radial-gradient(closest-side, var(--g), transparent 92%); transition: --g 1s ease; pointer-events: none; }
-    body[data-slide="0"] { --g: rgba(224, 168, 58, .42); }
-    body[data-slide="1"] { --g: rgba(245, 201, 69, .4); }
-    body[data-slide="2"] { --g: rgba(167, 231, 227, .7); }
-    body[data-slide="3"] { --g: rgba(255, 196, 120, .55); }
-    body[data-slide="4"] { --g: rgba(244, 168, 183, .55); }
-    body[data-slide="5"] { --g: rgba(225, 243, 208, .85); }
-    body[data-slide="6"] { --g: rgba(224, 168, 58, .3); }
+    body[data-slide="0"] { --g: rgba(245, 201, 69, .3); }
+    body[data-slide="1"] { --g: rgba(143, 40, 89, .55); }
+    body[data-slide="2"] { --g: rgba(118, 224, 208, .3); }
+    body[data-slide="3"] { --g: rgba(245, 201, 69, .26); }
+    body[data-slide="4"] { --g: rgba(244, 168, 183, .3); }
+    body[data-slide="5"] { --g: rgba(167, 231, 227, .28); }
+    body[data-slide="6"] { --g: rgba(225, 215, 255, .26); }
+    body[data-slide="7"] { --g: rgba(245, 201, 69, .2); }
 
     /* The emblem (first slide) and the phone (the others) share the same spot */
     .emblem, .phone-box { grid-area: 1 / 1; transition: opacity .7s ease, transform .9s var(--spring), visibility 0s; }
@@ -291,7 +296,7 @@
     /* Gianni's emblem stands free on the page (its background is transparent); the shine only touches the emblem itself */
     .emblem .float { position: absolute; inset: 0; }
     .emblem img { width: 100%; height: 100%; object-fit: contain;
-      filter: drop-shadow(0 30px 34px rgba(60, 38, 8, .32)) drop-shadow(0 8px 12px rgba(0, 0, 0, .18)); }
+      filter: drop-shadow(0 30px 40px rgba(0, 0, 0, .5)) drop-shadow(0 0 26px rgba(245, 201, 69, .22)); }
     .emblem .sheen { position: absolute; inset: 0; mix-blend-mode: overlay; pointer-events: none;
       -webkit-mask: url(/get/emblem.webp) center / contain no-repeat; mask: url(/get/emblem.webp) center / contain no-repeat;
       background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, .85) 50%, transparent 62%) no-repeat; background-size: 300% 100%; background-position: 120% 0; }
@@ -301,17 +306,17 @@
                   linear-gradient(0deg, transparent 47%, rgba(255, 255, 255, .95) 50%, transparent 53%);
       -webkit-mask: radial-gradient(circle, #000 20%, transparent 70%); mask: radial-gradient(circle, #000 20%, transparent 70%); }
     .phone-box { position: relative; width: calc(320px * var(--s, .7)); height: calc(660px * var(--s, .7)); }
-    body[data-slide="0"] .phone-box, body[data-slide="6"] .phone-box,
-    body:not([data-slide="6"]) .quote,
+    body[data-slide="0"] .phone-box, body[data-slide="7"] .phone-box,
+    body:not([data-slide="7"]) .quote,
     body:not([data-slide="0"]) .emblem { opacity: 0; visibility: hidden; pointer-events: none;
       transition: opacity .5s ease, transform .7s var(--spring), visibility 0s linear .7s; }
     body[data-slide="0"] .phone-box { transform: translateY(14%) scale(.92); }
-    body[data-slide="6"] .phone-box { transform: scale(.92); }
+    body[data-slide="7"] .phone-box { transform: scale(.92); }
     /* The last slide: no picture, a line that inspires, so the eye rests and goes to Download (Gianni) */
     .quote { grid-area: 1 / 1; position: relative; z-index: 1; max-width: 17em; margin: 0; padding: 0 4px; text-align: center;
-      font: italic 400 clamp(22px, 6.2vw, 30px)/1.32 var(--serif); color: #101b42; text-wrap: balance;
+      font: italic 400 clamp(22px, 6.2vw, 30px)/1.32 var(--serif); color: var(--ink); text-wrap: balance;
       transition: opacity .7s ease, transform .9s var(--spring), visibility 0s; }
-    .quote::before { content: ''; display: block; width: 44px; height: 2px; margin: 0 auto 22px; border-radius: 2px; background: #c9a227; }
+    .quote::before { content: ''; display: block; width: 44px; height: 2px; margin: 0 auto 22px; border-radius: 2px; background: var(--gold); }
     /* the quotes share one grid cell, so the box is as tall as the longest and never jumps; one fades in as the last fades out */
     .q-track { display: grid; }
     .q { grid-area: 1 / 1; margin: 0; opacity: 0; transform: translateY(10px); visibility: hidden;
@@ -319,17 +324,17 @@
     .q.on { opacity: 1; transform: none; visibility: visible; transition: opacity .8s ease .25s, transform .9s var(--spring) .25s, visibility 0s; }
     .q p { margin: 0; }
     .q cite { display: block; margin-top: .7em; font: 600 .55em/1.2 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      font-style: normal; letter-spacing: .12em; text-transform: uppercase; color: #9a6a12; }
+      font-style: normal; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
     .q-dots { display: flex; align-items: center; justify-content: center; margin-top: 14px; }
-    .q-dots button { width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #8a8a96; cursor: pointer; display: grid; place-items: center; }
-    .q-dots button:hover { color: #101b42; }
-    .q-dots button:focus-visible { outline: 2px solid #c9a227; outline-offset: -2px; }
+    .q-dots button { width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: rgba(255, 244, 233, .6); cursor: pointer; display: grid; place-items: center; }
+    .q-dots button:hover { color: var(--ink); }
+    .q-dots button:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
     .q-dots svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     .q-pips { display: flex; gap: 5px; padding: 0 4px; }
-    .q-pips i { width: 6px; height: 6px; border-radius: 50%; background: rgba(16, 27, 66, .22); transition: background-color .4s, transform .4s; }
-    .q-pips i.on { background: #c9a227; transform: scale(1.4); }
+    .q-pips i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 244, 233, .25); transition: background-color .4s, transform .4s; }
+    .q-pips i.on { background: var(--gold); transform: scale(1.4); }
     .q-dots:not(:has(button)) { display: none; }
-    body:not([data-slide="6"]) .quote { transform: translateY(12px); }
+    body:not([data-slide="7"]) .quote { transform: translateY(12px); }
     @media (min-width: 880px) { .quote { font-size: clamp(26px, 2.4vw, 36px); } }
     body:not([data-slide="0"]) .emblem { transform: scale(.85); }
     body[data-slide="0"] .emblem { animation: forge 1.4s var(--spring) both; }
@@ -342,8 +347,8 @@
     @keyframes spark { 0% { opacity: 0; transform: scale(.2) rotate(0); } 12% { opacity: 1; transform: scale(1.6) rotate(45deg); } 30%, 100% { opacity: 0; transform: scale(.4) rotate(90deg); } }
 
     .phone { position: absolute; left: 0; top: 0; width: 320px; height: 660px; transform: scale(var(--s, .7)); transform-origin: 0 0;
-      padding: 11px; border-radius: 54px; background: #1d1d1f;
-      box-shadow: inset 0 0 0 1.5px #48484a, 0 50px 90px -30px rgba(0, 0, 0, .45), 0 20px 40px -20px rgba(0, 0, 0, .35); }
+      padding: 11px; border-radius: 54px; background: #05091c;
+      box-shadow: inset 0 0 0 1.5px #3b4573, 0 0 0 1px rgba(255, 244, 233, .12), 0 50px 90px -30px rgba(0, 0, 0, .7), 0 20px 40px -20px rgba(0, 0, 0, .5); }
     .phone::before { content: ''; position: absolute; top: 22px; left: 50%; width: 96px; height: 28px; margin-left: -48px; border-radius: 20px; background: #000; z-index: 5; }
     .glass { position: relative; width: 100%; height: 100%; border-radius: 43px; overflow: hidden; background: #101b42; }
     .screen { position: absolute; inset: 0; padding: 58px 14px 16px; opacity: 0; transform: scale(1.04); color: #fff4e9;
@@ -416,10 +421,7 @@
     .pin.ring { animation: nudge .7s ease 2; }
     @keyframes nudge { 50% { transform: scale(1.07); box-shadow: 0 0 0 3px #f5c945, 0 0 18px rgba(245, 201, 69, .95); } }
     /* the red time line moves down the running card while its countdown bar empties */
-    .runs small { bottom: 19px; }
-    .left { position: absolute; z-index: 1; left: 9px; bottom: 18px; font-size: 9.5px; font-weight: 800; color: #b3261e; }
-    .cd { position: absolute; z-index: 1; left: 8px; right: 8px; bottom: 6px; height: 8px; border-radius: 999px; background: rgba(201, 82, 76, .22); }
-    .cd i { position: absolute; right: 0; top: 0; bottom: 0; width: calc((1 - var(--p)) * 100%); border-radius: inherit; background: #d9483f; }
+    .runs small { bottom: 5px; }
     .now { position: absolute; z-index: 4; left: -17px; right: -17px; top: calc(4px + var(--p) * (100% - 10px)); height: 2px; background: #ff3b30;
       box-shadow: 0 0 6px rgba(255, 59, 48, .6); }
     .now b { position: absolute; right: 8px; top: -9px; padding: 3px 7px; border-radius: 999px; background: #ff3b30; color: #fff; font-size: 9.5px; font-weight: 800; }
@@ -438,20 +440,6 @@
     @keyframes fadein { from { opacity: 0; } }
 
     /* Canvas */
-    .ctb { display: flex; align-items: center; gap: 5px; margin: 0 0 9px; }
-    .ctb .dot { width: 8px; height: 8px; margin: 0 2px; border-radius: 50%; background: #76e0d0; }
-    .ctb .r { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: #16224f; color: rgba(255, 244, 233, .45); font-size: 12px; font-weight: 800; }
-    .ctb .c { padding: 7px 11px; border-radius: 999px; background: #16224f; color: rgba(255, 244, 233, .45); font-size: 10.5px; font-weight: 700; }
-    .ctb .save { background: #6e4a6e; color: #302746; }
-    .ws, .fsp { padding: 10px 9px; border-radius: 20px; background: linear-gradient(170deg, #8f2859, #621c4b); }
-    .ws-h { display: flex; align-items: center; gap: 8px; margin: 0 2px 8px; font: 700 14px/1 var(--serif); }
-    .ws-h span + span { padding: 6px 9px; border-radius: 999px; background: rgba(255, 255, 255, .12); font: 700 9.5px/1 var(--font); color: rgba(255, 244, 233, .8); }
-    .eps { display: flex; gap: 6px; margin-bottom: 7px; }
-    .eps .lb { display: grid; place-items: center; padding: 0 8px; border-radius: 10px; background: #f5c945; color: #362643; font-size: 8.5px; font-weight: 900; letter-spacing: .08em; }
-    .eps .tb { flex: 1; min-width: 0; padding: 6px 9px; border-radius: 12px; background: linear-gradient(150deg, #ffdf77, #f5c945); color: #362643; box-shadow: 0 3px 0 #c99a1e; }
-    .eps .tb b { display: block; font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .eps .tb small { font-size: 8.5px; font-weight: 700; opacity: .75; }
-    .crumb { margin: 0 3px 7px; font-size: 9px; color: rgba(255, 244, 233, .65); }
     .feat { padding: 7px 8px 8px; border-radius: 16px 20px 16px 22px; color: #362643; background: linear-gradient(150deg, #ffdf77, #f5c945);
       box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), 0 4px 0 #c99a1e; }
     .nb { display: flex; align-items: center; gap: 7px; font-size: 7.5px; font-weight: 700; letter-spacing: .14em; color: rgba(54, 38, 67, .75); }
@@ -465,21 +453,13 @@
     .slot { position: relative; margin-top: 5px; }
     .slot::before { content: ''; position: absolute; inset: 0; border-radius: 11px; border: 2px dashed rgba(48, 39, 70, .45); opacity: 0; }
     .slot .act { margin-top: 0; }
-    .fsp { margin-top: 9px; }
-    .fsp b { font: 700 14px/1 var(--serif); }
-    .fsp p { margin: 3px 0 0; font-size: 9px; color: rgba(255, 244, 233, .7); }
-    .fsp .act { position: relative; z-index: 5; }
     .s-canvas .src { opacity: 0; }
-    /* the story: an Activity is lifted out of Free Space and dropped into its Story; Save lights up */
+    /* the story: an Activity is lifted out of Undefined and dropped into its Story; the Canvas saves by itself */
     .s-canvas.run .src .tap { animation: tapfx .9s ease .5s both; }
     .s-canvas.run .slot::before { animation: slotOn 7.5s linear both; }
     .s-canvas.run .story { animation: wob .7s var(--bounce) 3.1s both; }
-    .s-canvas.run .ctb .save { animation: savelit 7.5s linear both; }
-    .s-canvas.run .ctb .dis { animation: dislit 7.5s linear both; }
     @keyframes slotOn { 0%, 15% { opacity: 0; } 19%, 40% { opacity: 1; } 41%, 100% { opacity: 0; } }
     @keyframes wob { 35% { transform: scale(1.04); } 70% { transform: scale(.99); } }
-    @keyframes savelit { 0%, 42% { background: #6e4a6e; transform: none; } 45% { background: #f4a8b7; transform: scale(1.15); } 50%, 100% { background: #f4a8b7; transform: none; } }
-    @keyframes dislit { 0%, 42% { color: rgba(255, 244, 233, .45); } 45%, 100% { color: #fff4e9; } }
 
     /* Progress */
     .legend { margin: -2px 3px 9px; font-size: 9px; line-height: 1.4; color: rgba(255, 244, 233, .75); }
@@ -557,8 +537,73 @@
     @keyframes noteOut { 0% { opacity: 1; } 60% { opacity: 0; transform: translateX(60px); max-height: 70px; margin-top: 6px; padding-block: 8px; }
       100% { opacity: 0; transform: translateX(60px); max-height: 0; margin-top: 0; padding-block: 0; } }
 
-    /* Themes: the same little day, cycling through the eight themes */
-    .s-themes { background: var(--tb); color: var(--tt); animation: themes 16s linear infinite paused; }
+    /* the state circle at the card's left, as in the app: To do an empty ring, Done a ✓ on teal */
+    .card { padding-left: 34px; }
+    .card .st { position: absolute; z-index: 1; left: 8px; top: 6px; width: 18px; height: 18px; border-radius: 50%; box-shadow: inset 0 0 0 1.6px rgba(42, 32, 24, .55); }
+    .card .ok { left: 8px; right: auto; top: 6px; width: 18px; height: 18px; box-shadow: none; font-size: 10px; }
+    /* the running activity's countdown: only at the very foot of the screen, edge to edge, its fill the minutes left */
+    .fcd { position: absolute; z-index: 7; left: 0; right: 0; bottom: 0; height: 14px; background: rgba(255, 244, 233, .13); }
+    .fcd i { position: absolute; right: 0; top: 0; bottom: 0; width: calc((1 - var(--p)) * 100%); background: #c9524c; }
+    .s-week .fab { bottom: 26px; }
+    .s-week.run .fcd { animation: fcdUp .6s var(--spring) 2.4s both; }
+    @keyframes fcdUp { from { transform: translateY(100%); } }
+    /* what opens a floating menu shows a filled triangle */
+    .tri { flex: none; width: 0; height: 0; margin-top: 2px; border: 4.5px solid transparent; border-top: 6px solid currentColor; border-bottom: 0; opacity: .7; }
+    /* Canvas: the «Undefined» button, turquoise, with how many wait in a navy circle */
+    .und { position: relative; z-index: 6; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 34px; margin: 0 0 12px;
+      border-radius: 999px; background: #76e0d0; color: #101b42; font-size: 11.5px; font-weight: 800; letter-spacing: .06em; box-shadow: inset 0 0 0 1px #4fbfae; }
+    .und .cnt { display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 999px; background: #101b42; color: #fff4e9;
+      font-size: 10px; text-decoration: none; letter-spacing: 0; }
+    .und .src { position: absolute; left: 14%; right: 14%; top: 3px; margin: 0; letter-spacing: 0; }
+    .s-canvas.run .und .cnt { animation: bump .6s var(--bounce) 3.15s both; }
+    .ws { padding: 10px 9px; border-radius: 20px; background: linear-gradient(170deg, #8f2859, #621c4b); }
+    .pk { position: relative; margin: 0 0 7px; padding: 6px 26px 6px 10px; border-radius: 12px; text-align: center; background: rgba(255, 255, 255, .08);
+      box-shadow: inset 0 0 0 1px rgba(255, 244, 233, .2); }
+    .pk small { display: block; font-size: 7.5px; font-weight: 800; letter-spacing: .16em; color: rgba(255, 244, 233, .7); }
+    .pk b { font: 700 12.5px/1.2 var(--serif); }
+    .pk em { font: 700 11px/1.2 var(--serif); font-style: normal; color: rgba(255, 244, 233, .78); }
+    .pk .pen { font-size: 11px; font-style: normal; display: inline-block; transform: scaleX(-1); }
+    .pk .tri { position: absolute; right: 10px; top: 50%; margin-top: -2px; }
+    .act .pen { display: inline-block; transform: scaleX(-1); }
+    /* Progress: its two tabs */
+    .ptabs { display: flex; gap: 14px; margin: -2px 3px 9px; border-bottom: 1.5px solid rgba(255, 244, 233, .18); }
+    .ptabs span { padding: 0 2px 6px; font-size: 11px; font-weight: 700; color: rgba(255, 244, 233, .6); }
+    .ptabs .on { color: #fff4e9; box-shadow: 0 2.5px 0 #f4a8b7; }
+    /* Year: the same light season cards in every theme; each sprint one line of 21 days, today in neon green, a day with notes in red */
+    .ypick { display: flex; gap: 6px; margin: 0 2px 10px; }
+    .ypick span { flex: 1; padding: 6px 0; border-radius: 10px; text-align: center; font-size: 11px; font-weight: 800; background: #16224f;
+      box-shadow: inset 0 0 0 1.5px rgba(255, 244, 233, .16); }
+    .ypick .on { background: #f4a8b7; color: #302746; box-shadow: none; }
+    .season { position: relative; padding: 10px 9px 11px; border-radius: 18px; color: #3d2a17; background: #fbefe2; box-shadow: inset 0 0 0 1.5px #e7c9a4; }
+    .sh { display: flex; justify-content: space-between; align-items: baseline; margin: 0 2px 8px; }
+    .sh b { font: 700 15px/1 var(--serif); }
+    .sh small { font-size: 9.5px; font-weight: 700; color: #8a6a4a; }
+    .sp { margin-top: 7px; }
+    .sp em { display: block; margin: 0 2px 3px; font-style: normal; font-size: 9.5px; font-weight: 800; color: #7a4a1e; }
+    .yl { display: flex; gap: 4px; }
+    .yl > span { flex: 1; display: grid; grid-template-columns: repeat(7, 1fr); gap: 1.5px; }
+    .yl i { display: grid; place-items: center; aspect-ratio: 1; border-radius: 3px; font-size: 6.5px; font-weight: 700; font-style: normal; color: #111;
+      box-shadow: inset 0 0 0 1px #b8ab9c; }
+    .yl i.p { color: #a99c8c; }
+    .yl i.td { box-shadow: inset 0 0 0 1.8px #39ff14; }
+    .yl i.rd { box-shadow: inset 0 0 0 1.8px #e5281e; }
+    .rest .yl > span { flex: 0 0 calc((100% - 8px) / 3); }
+    .rest .band { flex: 1; border-radius: 5px; background: repeating-linear-gradient(135deg, rgba(122, 74, 30, .2) 0 4px, transparent 4px 8px); }
+    /* the finger holds Friday the 20th and its window shows above it, with the day's note */
+    .ypop { position: absolute; z-index: 3; right: 6px; top: 56px; width: 150px; padding: 8px 10px; border-radius: 12px; background: #1b2757; color: #fff4e9;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, .4), inset 0 0 0 1px rgba(146, 176, 255, .45); opacity: 0; transform: translateY(8px) scale(.6);
+      transform-origin: 78% 100%; transition: opacity .3s ease, transform .45s var(--spring); }
+    .ypop::after { content: ''; position: absolute; left: calc(78% - 6px); bottom: -6px; border: 6px solid transparent; border-top-color: #1b2757; border-bottom: 0; }
+    .ypop b { display: block; font-size: 10.5px; }
+    .ypop span { display: block; margin-top: 3px; font-size: 10.5px; font-weight: 700; color: #f5c945; }
+    .ypop span span { display: inline; margin: 0; color: #fff4e9; }
+    .s-year.held .ypop { opacity: 1; transform: none; }
+    .s-year .yt { left: 85.5%; top: 118px; }
+    .s-year.run .yt { animation: hold 1.6s ease .9s both; }
+    @keyframes hold { 0% { opacity: 0; transform: scale(1.7); } 25%, 80% { opacity: 1; transform: scale(.8); } 100% { opacity: 0; transform: scale(1.5); } }
+
+    /* Themes: the same little day, cycling through the ten themes */
+    .s-themes { background: var(--tb); color: var(--tt); animation: themes 20s linear infinite paused; }
     .screen.on.s-themes { animation-play-state: running; }
     .s-themes .chev { border-color: var(--tt); opacity: .6; }
     .s-themes .bulb { background: transparent; box-shadow: inset 0 0 0 1.5px var(--te); }
@@ -567,36 +612,47 @@
     .s-themes .blk { background: var(--tk); color: var(--tbi); box-shadow: inset 0 0 0 1.5px var(--te), 0 5px 0 var(--te), 0 12px 18px rgba(0, 0, 0, .18); }
     .s-themes .bh b { color: inherit; opacity: .8; }
     .s-themes .rng i { color: inherit; opacity: .4; }
-    .s-themes .card { color: var(--tci); }
+    .s-themes .card { padding-left: 9px; color: var(--tci); }
     .s-themes .card .t i, .s-themes .card small { color: inherit; opacity: .7; }
     .s-themes .c1 { background: var(--tc1); } .s-themes .c2 { background: var(--tc2); }
     .s-themes .now, .s-themes .now b { background: var(--tn); }
     .s-themes .now { top: 55%; }
     .s-themes .now b { color: var(--tb); }
     .tname { position: relative; height: 26px; margin: 14px 0 8px; text-align: center; font: 700 19px/26px var(--serif); }
-    .tname span { position: absolute; inset: 0; opacity: 0; animation: tname 16s linear infinite paused; animation-delay: calc(var(--i) * 2s - 16s); }
+    .tname span { position: absolute; inset: 0; opacity: 0; animation: tname 20s linear infinite paused; animation-delay: calc(var(--i) * 2s - 20s); }
     .tname span:first-child { opacity: 1; }
     .screen.on .tname span { animation-play-state: running; }
-    .tdots { position: relative; display: flex; justify-content: center; gap: 10px; }
-    .tdots i { width: 16px; height: 16px; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .2); }
-    .tdots::after { content: ''; position: absolute; top: -3px; left: calc(50% - 116px); width: 22px; height: 22px; border-radius: 50%;
-      box-shadow: 0 0 0 2px var(--tt); animation: ring 16s linear infinite paused; }
+    .tdots { position: relative; display: flex; justify-content: center; gap: 8px; }
+    .tdots i { flex: none; width: 14px; height: 14px; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1px rgba(128, 128, 128, .45); }
+    /* ten dots of 14px, 8px apart: 212px; the ring (20px) starts 3px before the first */
+    .tdots::after { content: ''; position: absolute; top: -3px; left: calc(50% - 109px); width: 20px; height: 20px; border-radius: 50%;
+      box-shadow: 0 0 0 2px var(--tt); animation: ring 20s linear infinite paused; }
     .screen.on .tdots::after { animation-play-state: running; }
-    @keyframes tname { 0% { opacity: 0; transform: translateY(8px) scale(.9); } 1.5%, 11% { opacity: 1; transform: none; } 12.5%, 100% { opacity: 0; transform: translateY(-8px); } }
+    @keyframes tname { 0% { opacity: 0; transform: translateY(8px) scale(.9); } 1.2%, 8.8% { opacity: 1; transform: none; } 10%, 100% { opacity: 0; transform: translateY(-8px); } }
     @keyframes ring {
-      0%, 10.5% { transform: translateX(0); } 12.5%, 23% { transform: translateX(26px); } 25%, 35.5% { transform: translateX(52px); }
-      37.5%, 48% { transform: translateX(78px); } 50%, 60.5% { transform: translateX(104px); } 62.5%, 73% { transform: translateX(130px); }
-      75%, 85.5% { transform: translateX(156px); } 87.5%, 98% { transform: translateX(182px); } 100% { transform: translateX(0); }
+      0%, 8.5% { transform: translateX(0px); }
+      10%, 18.5% { transform: translateX(22px); }
+      20%, 28.5% { transform: translateX(44px); }
+      30%, 38.5% { transform: translateX(66px); }
+      40%, 48.5% { transform: translateX(88px); }
+      50%, 58.5% { transform: translateX(110px); }
+      60%, 68.5% { transform: translateX(132px); }
+      70%, 78.5% { transform: translateX(154px); }
+      80%, 88.5% { transform: translateX(176px); }
+      90%, 98.5% { transform: translateX(198px); }
+      100% { transform: translateX(0); }
     }
     @keyframes themes {
-      0%, 10.5%, 100% { --tb: #101b42; --td: #7a2454; --tk: #f5c945; --te: #c99a1e; --tt: #fff4e9; --tbi: #362643; --tc1: #a7e7e3; --tc2: #ffd5bd; --tci: #302746; --tn: #ff3b30; }
-      12.5%, 23% { --tb: #fbeaf3; --td: #f3d3e0; --tk: #f6eff1; --te: #b04a73; --tt: #4a2338; --tbi: #4a2338; --tc1: #e1d7ff; --tc2: #ffd5bd; --tci: #302746; --tn: #d64545; }
-      25%, 35.5% { --tb: #1b141f; --td: #2a1f30; --tk: #33283a; --te: #e39bbf; --tt: #f6e7f0; --tbi: #f6e7f0; --tc1: #a7e7e3; --tc2: #e1d7ff; --tci: #302746; --tn: #f5c945; }
-      37.5%, 48% { --tb: #fff6ef; --td: #fde2cc; --tk: #f7efe8; --te: #b9562a; --tt: #4a2a1a; --tbi: #4a2a1a; --tc1: #e1f3d0; --tc2: #ffd5bd; --tci: #302746; --tn: #e5484d; }
-      50%, 60.5% { --tb: #1a1918; --td: #262422; --tk: #47433e; --te: #fb923c; --tt: #f4ede6; --tbi: #f4ede6; --tc1: #ffd5bd; --tc2: #e1f3d0; --tci: #302746; --tn: #bef264; }
-      62.5%, 73% { --tb: #fff1e5; --td: #f7dcc0; --tk: #f4ead8; --te: #b5652a; --tt: #4a2c16; --tbi: #4a2c16; --tc1: #ffd5bd; --tc2: #a7e7e3; --tci: #302746; --tn: #e5484d; }
-      75%, 85.5% { --tb: #c6c9cd; --td: #babdc1; --tk: #b1b5ba; --te: #9aa2ab; --tt: #2f3337; --tbi: #2f3337; --tc1: #d5d8db; --tc2: #cdd0d4; --tci: #2f3337; --tn: #5b6470; }
-      87.5%, 98% { --tb: #2b2e33; --td: #34373c; --tk: #3a3e44; --te: #59616b; --tt: #d4d7db; --tbi: #d4d7db; --tc1: #4a4f56; --tc2: #454a50; --tci: #d4d7db; --tn: #8a939e; }
+      0%, 8.5%, 100% { --tb: #101b42; --td: #7a2454; --tk: #f5c945; --te: #c99a1e; --tt: #fff4e9; --tbi: #362643; --tc1: #a7e7e3; --tc2: #ffd5bd; --tci: #302746; --tn: #ff3b30; }
+      10%, 18.5% { --tb: #eef4fc; --td: #d3e1f5; --tk: #eff4fb; --te: #93b0e0; --tt: #1f2937; --tbi: #1e2a44; --tc1: #bfe3f7; --tc2: #d9efc4; --tci: #1e2a44; --tn: #dc2626; }
+      20%, 28.5% { --tb: #1b141f; --td: #4a3a52; --tk: #33283a; --te: #e39bbf; --tt: #f6e7f0; --tbi: #f6e7f0; --tc1: #7a3b5e; --tc2: #5a2a4a; --tci: #f6e7f0; --tn: #f5c945; }
+      30%, 38.5% { --tb: #fbeaf3; --td: #efcadb; --tk: #f7f0f2; --te: #b04a73; --tt: #4a2338; --tbi: #4a2338; --tc1: #ffd6e4; --tc2: #ffe1cf; --tci: #4a2338; --tn: #d64545; }
+      40%, 48.5% { --tb: #1a1918; --td: #56514a; --tk: #47433e; --te: #fb923c; --tt: #f4ede6; --tbi: #f4ede6; --tc1: #c2581c; --tc2: #9a4317; --tci: #f4ede6; --tn: #bef264; }
+      50%, 58.5% { --tb: #fff1e5; --td: #f2d8bc; --tk: #f8efe1; --te: #b5652a; --tt: #4a2c16; --tbi: #4a2c16; --tc1: #f3b9a4; --tc2: #d9e6b8; --tci: #4a2c16; --tn: #e5484d; }
+      60%, 68.5% { --tb: #2b2e33; --td: #34373c; --tk: #464b52; --te: #59616b; --tt: #d4d7db; --tbi: #d4d7db; --tc1: #50565e; --tc2: #5c636b; --tci: #d4d7db; --tn: #8a939e; }
+      70%, 78.5% { --tb: #c6c9cd; --td: #a9aeb4; --tk: #b1b5ba; --te: #9aa2ab; --tt: #2f3337; --tbi: #2f3337; --tc1: #f4f1ea; --tc2: #eef0f2; --tci: #2f3337; --tn: #5b6470; }
+      80%, 88.5% { --tb: #0a1130; --td: #16214f; --tk: #2f428c; --te: #c9a227; --tt: #f5f5f7; --tbi: #f5f5f7; --tc1: #17204b; --tc2: #17204b; --tci: #f5f5f7; --tn: #f5c945; }
+      90%, 98.5% { --tb: #fbfbfd; --td: #f0f0f4; --tk: #d9d9e2; --te: #b8901e; --tt: #1d1d1f; --tbi: #1d1d1f; --tc1: #ffffff; --tc2: #ffffff; --tci: #1d1d1f; --tn: #8a6508; }
     }
 
     /* ── Bottom: the dots; left and right: thin arrows (Apple-style) ── */
@@ -615,26 +671,30 @@
     .edge.prev { left: max(2px, env(safe-area-inset-left)); }
     .edge.next { right: max(2px, env(safe-area-inset-right)); }
     .edge svg { width: 16px; height: 40px; }
-    .edge:hover, .edge:focus-visible { opacity: .9; background: rgba(0, 0, 0, .04); }
+    .edge:hover, .edge:focus-visible { opacity: .9; background: rgba(255, 244, 233, .06); }
     .edge:active { opacity: 1; }
     .edge[hidden] { display: grid; visibility: hidden; opacity: 0; transition: opacity .3s, visibility 0s linear .3s; }
     .toast { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom)); z-index: 40; max-width: min(92vw, 420px);
-      padding: 13px 20px; border-radius: 16px; background: rgba(29, 29, 31, .92); color: #fff; font-size: 15px; text-align: center;
+      padding: 13px 20px; border-radius: 16px; background: rgba(27, 39, 87, .96); color: var(--ink); font-size: 15px; text-align: center;
+      box-shadow: inset 0 0 0 1px var(--win-edge);
       transform: translate(-50%, 16px); opacity: 0; pointer-events: none; transition: opacity .3s, transform .4s var(--spring);
       -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
     /* How to add the app where the browser has no install window of its own (iPhone, Firefox, already installed) */
-    .install { width: min(92vw, 400px); margin: auto; padding: 24px 22px 20px; border: 0; border-radius: 24px; background: #fff; color: var(--ink);
-      box-shadow: 0 24px 60px rgba(0, 0, 0, .22); }
-    .install::backdrop { background: rgba(16, 27, 66, .35); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+    .install { width: min(92vw, 400px); margin: auto; padding: 24px 22px 20px; border: 1px solid var(--win-edge); border-radius: 24px; background: #1b2757; color: var(--ink);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, .5); }
+    .install::backdrop { background: rgba(5, 9, 28, .6); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
     .install h2 { margin: 0 0 6px; font-size: 22px; line-height: 1.2; letter-spacing: -.01em; }
     .install p { margin: 0 0 12px; color: var(--mute); font-size: 15px; line-height: 1.45; }
     .install ol { margin: 0 0 18px; padding-left: 1.3em; font-size: 16px; line-height: 1.5; }
     .install li + li { margin-top: 6px; }
     .install .row { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
-    .install .row > * { min-height: 44px; padding: 0 20px; font-size: 16px; }
-    .install .quiet { border: 0; border-radius: 999px; background: var(--soft); color: var(--ink); font: inherit; font-weight: 600; cursor: pointer; }
-    .install .quiet:focus-visible, .install .pill:focus-visible { outline: 2px solid #c9a227; outline-offset: 2px; }
+    /* the app's window buttons (Gianni): Cancel in cream, the answer in turquoise, each with a thin edge */
+    .install .row > * { min-height: 44px; padding: 0 20px; font-size: 15px; letter-spacing: 1.5px; }
+    .install .quiet { border: 1px solid #d9c6ad; border-radius: 999px; background: #fff4e9; color: #101b42; font: inherit; font-size: 15px; letter-spacing: 1.5px; font-weight: 700; cursor: pointer; }
+    .install .pill { border: 1px solid #4fbfae; background: var(--teal); color: #101b42; }
+    .install b { color: var(--gold); }
+    .install .quiet:focus-visible, .install .pill:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
 
     @media (min-width: 720px) {
       .nav { padding-top: 10px; }
@@ -686,43 +746,49 @@
   <main class="stage" id="tour" aria-roledescription="carousel" aria-label="Go Epic tour">
     <div class="copy">
       <div class="slides">
-        <section class="slide on" aria-roledescription="slide" aria-label="1 / 7">
+        <section class="slide on" aria-roledescription="slide" aria-label="1 / 8">
           <h1 class="motto" data-i="k0"><span>Plan<b>.</b></span> <span>Focus<b>.</b></span> <span>Grow<b>.</b></span></h1>
           <p class="lead mission" data-i="l0"><span class="eyebrow">Our mission</span><q>All we have to decide is what to do with the time that is given us.</q> <cite>Gandalf · J.R.R. Tolkien</cite><a class="why" href="/why-epic/">Why Epic? <span aria-hidden="true">→</span></a></p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="2 / 7">
-          <p class="kicker" style="--k:#c4302b" data-i="k1">Week board</p>
+        <section class="slide" aria-roledescription="slide" aria-label="2 / 8">
+          <p class="kicker" style="--k:#ff8a80" data-i="k1">Week board</p>
           <h2 data-i="h1">Every hour has a home.</h2>
-          <p class="lead" data-i="l1">Give each part of your day a block. A red line shows where you are, and one tap marks it done, in gold.</p>
+          <p class="lead" data-i="l1">Give each part of your day a block. A red line shows where you are, a bar at the foot counts down the minutes left, and one tap marks it done, in gold.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="3 / 7">
-          <p class="kicker" style="--k:#0f8f80" data-i="k3">Canvas</p>
+        <section class="slide" aria-roledescription="slide" aria-label="3 / 8">
+          <p class="kicker" style="--k:#76e0d0" data-i="k3">Canvas</p>
           <h2 data-i="h3">Start with who you want to be.</h2>
-          <p class="lead" data-i="l3">Area, Epic, Feature, Story, Activity: from who you are down to today's small step.</p>
+          <p class="lead" data-i="l3">Four areas of life: the Temple, the Castle, the Tower and the Arena. In each one, Epic, Feature, Story and Activity lead from who you are to today's small step.</p>
+          <p class="fine" data-i="f3">An idea without a place waits in Undefined until you give it one.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="4 / 7">
-          <p class="kicker" style="--k:#c47a12" data-i="k4">Progress</p>
+        <section class="slide" aria-roledescription="slide" aria-label="4 / 8">
+          <p class="kicker" style="--k:#f5c945" data-i="k4">Progress</p>
           <h2 data-i="h4">Streaks that keep you going.</h2>
-          <p class="lead" data-i="l4">Every activity becomes a habit with its own streak. A skipped day pauses it instead of breaking it.</p>
+          <p class="lead" data-i="l4">Every activity you follow grows its own streak, and a skipped day pauses it instead of breaking it. Areas of life shows whether each part of your life gets its time.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="5 / 7">
-          <p class="kicker" style="--k:#c2456b" data-i="k5">Capture</p>
+        <section class="slide" aria-roledescription="slide" aria-label="5 / 8">
+          <p class="kicker" style="--k:#f4a8b7" data-i="k5">Capture</p>
           <h2 data-i="h5">Catch it before it slips away.</h2>
-          <p class="lead" data-i="l5">Type it and press Enter. It lands on the right day and hour of your week.</p>
+          <p class="lead" data-i="l5">Type it and press Enter. It lands on its day and hour, and whatever slips past waits in a folder at the foot of the screen.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="6 / 7">
-          <p class="kicker" style="--k:#5f7d3a" data-i="k6">Themes</p>
-          <h2 data-i="h6">Eight looks. One you.</h2>
-          <p class="lead" data-i="l6">Bright for home, quiet greys for the office. The whole app follows.</p>
+        <section class="slide" aria-roledescription="slide" aria-label="6 / 8">
+          <p class="kicker" style="--k:#a7e7e3" data-i="k8">Year</p>
+          <h2 data-i="h8">A year in four seasons.</h2>
+          <p class="lead" data-i="l8">Each season holds four sprints of three weeks and one week to rest and look back. Hold a day to write down what matters on it.</p>
+        </section>
+        <section class="slide" aria-roledescription="slide" aria-label="7 / 8">
+          <p class="kicker" style="--k:#e1d7ff" data-i="k6">Themes</p>
+          <h2 data-i="h6">Ten looks. One you.</h2>
+          <p class="lead" data-i="l6">Pick a theme, its palette of colours, and even the names of your levels. The whole app follows.</p>
           <div class="swatches" aria-hidden="true">
-            <i style="--c:#101b42"></i><i style="--c:#fbeaf3"></i><i style="--c:#1b141f"></i><i style="--c:#fff6ef"></i>
-            <i style="--c:#1a1918"></i><i style="--c:#fff1e5"></i><i style="--c:#c6c9cd"></i><i style="--c:#2b2e33"></i>
+            <i style="--c:#101b42"></i><i style="--c:#eef4fc"></i><i style="--c:#1b141f"></i><i style="--c:#fbeaf3"></i><i style="--c:#1a1918"></i>
+            <i style="--c:#fff1e5"></i><i style="--c:#2b2e33"></i><i style="--c:#c6c9cd"></i><i style="--c:#0a1130"></i><i style="--c:#fbfbfd"></i>
           </div>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="7 / 7">
+        <section class="slide" aria-roledescription="slide" aria-label="8 / 8">
           <p class="kicker gold" data-i="k7">Ready?</p>
           <h2 data-i="h7">Your epic week starts now.</h2>
-          <p class="lead" data-i="l7">Sign in with Google and add it to your home screen. Free, and it works offline.</p>
+          <p class="lead" data-i="l7">Sign in with Google and add it to your home screen. It's free, and it keeps working without the internet.</p>
           <a class="pill big js-get" href="/app" data-i="get_long2">Download Go Epic, it's free</a>
           <p class="steps" data-i="steps"><b>iPhone:</b> Safari → Share → Add to Home Screen · <b>Android and computer:</b> Chrome → Install app</p>
         </section>
@@ -774,24 +840,25 @@
                 <div class="blk">
                   <div class="bh"><span data-i="p_dawn">Dawn</span><b data-i="p_full">✓ Full</b></div>
                   <div class="rng">06:00 <i>–</i> 06:45</div>
-                  <div class="card won paper" style="--tone:#fff1c9"><div class="t"><i>06:00</i><span data-i="p_pray">Read 1 verse and pray</span></div><small>10 MIN</small><i class="ok">✓</i><i class="tap" style="left:42%;top:50%"></i></div>
-                  <div class="card paper" style="--tone:#d9efc4"><div class="t"><i>06:10</i><span data-i="p_walk">Walk 10 min</span></div><small>10 MIN</small></div>
+                  <div class="card won paper" style="--tone:#fff1c9"><i class="st"></i><div class="t"><i>06:00</i><span data-i="p_pray">Read 1 verse and pray</span></div><small>10 MIN</small><i class="ok">✓</i><i class="tap" style="left:17px;top:15px"></i></div>
+                  <div class="card paper" style="--tone:#d9efc4"><i class="st"></i><div class="t"><i>06:10</i><span data-i="p_walk">Walk 10 min</span></div><small>10 MIN</small></div>
                   <div class="card paper runs" style="--tone:#e6dcff;--h:86px">
                     <div class="pin"><i class="bx"></i><span data-i="p_dentist">Call the dentist</span><time>06:40</time><i class="ed">✎</i></div>
-                    <div class="t"><i>06:20</i><span data-i="p_breakfast">Breakfast with family</span></div>
-                    <span class="left" data-i="p_left15">15 min left</span><small>25 MIN</small>
-                    <div class="cd"><i></i></div><div class="now"><b>06:30</b></div>
+                    <i class="st"></i><div class="t"><i>06:20</i><span data-i="p_breakfast">Breakfast with family</span></div>
+                    <small>25 MIN</small>
+                    <div class="now"><b>06:30</b></div>
                   </div>
                 </div>
                 <div class="blk b2">
                   <div class="bh"><span data-i="p_deep">Deep work</span><b data-i="p_free">10 min free</b></div>
                   <div class="rng">08:00 <i>–</i> 09:30</div>
-                  <div class="card paper old" style="--tone:#ffd5bd;--h:62px"><div class="t"><i>08:00</i><span data-i="p_report">Write the report</span></div><small>1 H</small></div>
-                  <div class="card paper" style="--tone:#bfe9e5"><div class="t"><i>09:00</i><span data-i="p_study">Study 20 min</span></div><small>20 MIN</small></div>
+                  <div class="card paper old" style="--tone:#ffd5bd;--h:62px"><i class="st"></i><div class="t"><i>08:00</i><span data-i="p_report">Write the report</span></div><small>1 H</small></div>
+                  <div class="card paper" style="--tone:#bfe9e5"><i class="st"></i><div class="t"><i>09:00</i><span data-i="p_study">Study 20 min</span></div><small>20 MIN</small></div>
                   <div class="band"></div>
                 </div>
               </div>
             </div>
+            <div class="fcd"><i></i></div>
             <span class="fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2.2"/></svg></span>
           </div>
 
@@ -799,12 +866,13 @@
           <div class="screen s-canvas" data-n="2">
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="live">
-              <div class="hdr"><h3>Canvas <span class="spk">✦</span><i class="chev"></i></h3><span class="bulb">💡</span></div>
-              <div class="ctb"><i class="dot"></i><span class="r">↶</span><span class="r">↷</span><span class="c dis" data-i="p_discard">Discard</span><span class="c save" data-i="p_save">Save</span></div>
+              <div class="hdr"><h3>Canvas <i class="tri"></i></h3><span class="bulb">💡</span></div>
+              <div class="und"><span data-i="p_undef">Undefined</span><u class="cnt">1</u>
+                <div class="act src" style="--tone:#ffd5bd"><span data-i="p_water">Drink a glass of water</span><i class="pen">✎</i><i class="tap" style="left:30%;top:50%"></i></div>
+              </div>
               <div class="ws">
-                <div class="ws-h"><span data-i="p_ws">Epic workspace</span><span data-i="p_addf">+ Feature</span></div>
-                <div class="eps"><span class="lb">EPICS:</span><span class="tb"><b><span data-i="p_epic1">I am strong and healthy</span> ✎</b><small data-i="p_temple">The Temple</small></span></div>
-                <p class="crumb" data-i="p_crumb">The Temple / I am strong and healthy</p>
+                <div class="pk"><small data-i="p_area">AREA</small><b data-i="p_temple">The Temple</b> <em data-i="p_health">Health</em><i class="tri"></i></div>
+                <div class="pk"><small>EPIC</small><b><span data-i="p_epic1">I am strong and healthy</span> <i class="pen">✎</i></b><i class="tri"></i></div>
                 <div class="feat">
                   <div class="nb"><span class="g">⠿</span>FEATURE<i class="chev dk"></i></div>
                   <b data-i="p_feat">I move every day and eat well</b>
@@ -817,9 +885,6 @@
                   </div>
                 </div>
               </div>
-              <div class="fsp"><b data-i="p_freesp">Free Space</b><p data-i="p_freehint">What is not filed yet waits here.</p>
-                <div class="act src" style="--tone:#ffd5bd"><span class="g">⠿</span><span data-i="p_water">Drink a glass of water</span><i class="pen">✎</i><i class="tap" style="left:22%;top:50%"></i></div>
-              </div>
             </div>
             <span class="fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2.2"/></svg></span>
           </div>
@@ -829,6 +894,7 @@
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="live">
               <div class="hdr"><h3><span data-i="p_progress">Progress</span><i class="chev"></i></h3><span class="bulb">💡</span></div>
+              <div class="ptabs"><span class="on" data-i="p_cons">Consistency</span><span data-i="p_areas">Areas of life</span></div>
               <p class="legend" data-i="p_legend">Last 14 days: ● done · ✕ missed · ◎ today</p>
               <div class="hb" data-hit><div class="hd"><span data-i="p_pray">Read 1 verse and pray</span><span class="stk">🔥 <b class="n" data-base="13">14</b> <span data-i="p_days">days</span></span></div>
                 <div class="dts"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class="t"></i></div></div>
@@ -864,8 +930,27 @@
             </div>
           </div>
 
-          <!-- 6 · Themes -->
-          <div class="screen s-themes" data-n="5">
+          <!-- 6 · Year: a season of four sprints and a rest week; a finger holds a day and its note shows above it -->
+          <div class="screen s-year" data-n="5">
+            <span class="clock">9:41</span><span class="batt"></span>
+            <div class="live">
+              <div class="hdr"><h3><span data-i="p_year">Year</span> <i class="tri"></i></h3><span class="bulb">💡</span></div>
+              <div class="ypick"><span class="on">2026</span><span>2027</span></div>
+              <div class="season">
+                <div class="sh"><b><span aria-hidden="true">🍂</span> <span data-i="p_autumn">Autumn</span></b><small data-i="p_autrange">21 Sep - 20 Dec</small></div>
+                <div class="sp"><em>Sprint 1</em><div class="yl"><span><i class="p">21</i><i class="p">22</i><i class="p">23</i><i class="p">24</i><i class="p">25</i><i class="p">26</i><i class="p">27</i></span><span><i class="p">28</i><i class="p">29</i><i class="p">30</i><i class="p">1</i><i class="p">2</i><i class="p">3</i><i class="p">4</i></span><span><i class="p">5</i><i class="p">6</i><i class="p">7</i><i class="p">8</i><i class="p">9</i><i class="p">10</i><i class="p">11</i></span></div></div>
+                <div class="sp"><em>Sprint 2</em><div class="yl"><span><i class="p">12</i><i class="p">13</i><i class="p">14</i><i class="p">15</i><i class="p">16</i><i class="p">17</i><i class="p">18</i></span><span><i class="p">19</i><i class="p">20</i><i class="p">21</i><i class="p">22</i><i class="p">23</i><i class="p">24</i><i class="p">25</i></span><span><i class="p">26</i><i class="p">27</i><i class="p">28</i><i class="p">29</i><i class="p">30</i><i class="p">31</i><i class="p">1</i></span></div></div>
+                <div class="sp"><em>Sprint 3</em><div class="yl"><span><i class="p">2</i><i class="p">3</i><i class="p">4</i><i class="p">5</i><i class="p">6</i><i class="p">7</i><i class="p">8</i></span><span><i class="p">9</i><i class="p">10</i><i class="p">11</i><i class="p">12</i><i class="p">13</i><i class="p">14</i><i class="p">15</i></span><span><i class="p">16</i><i class="td">17</i><i>18</i><i>19</i><i class="rd">20</i><i>21</i><i>22</i></span></div></div>
+                <div class="sp"><em>Sprint 4</em><div class="yl"><span><i>23</i><i>24</i><i>25</i><i>26</i><i>27</i><i>28</i><i>29</i></span><span><i>30</i><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i></span><span><i>7</i><i>8</i><i>9</i><i>10</i><i>11</i><i>12</i><i>13</i></span></div></div>
+                <div class="sp rest"><em data-i="p_rest">Rest</em><div class="yl"><span><i>14</i><i>15</i><i>16</i><i>17</i><i>18</i><i>19</i><i>20</i></span><b class="band"></b></div></div>
+                <div class="ypop"><b data-i="p_popdate">Fri, Nov 20</b><span>★ <span data-i="p_popnote">Mom's birthday</span></span></div>
+                <i class="tap yt"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7 · Themes: the same little day, through the ten themes -->
+          <div class="screen s-themes" data-n="6">
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="hdr"><h3><span data-i="p_wb">Week board</span><i class="chev"></i></h3><span class="bulb">💡</span></div>
             <div class="dayc">
@@ -883,12 +968,12 @@
               </div>
             </div>
             <div class="tname">
-              <span style="--i:0">Epic</span><span style="--i:1">Pink Pop</span><span style="--i:2">Petal Punk</span><span style="--i:3">Squeeze Me</span>
-              <span style="--i:4">Smoked Citrus</span><span style="--i:5">Sunburnt Toast</span><span style="--i:6">Office</span><span style="--i:7">Graphite</span>
+              <span style="--i:0">Epic</span><span style="--i:1">Clear Sky</span><span style="--i:2">Petal Punk</span><span style="--i:3">Pink Pop</span><span style="--i:4">Smoked Citrus</span>
+              <span style="--i:5">Sunburnt Toast</span><span style="--i:6">Graphite</span><span style="--i:7">Office</span><span style="--i:8">Go Epic Dark</span><span style="--i:9">Go Epic Light</span>
             </div>
             <div class="tdots">
-              <i style="--c:#101b42"></i><i style="--c:#fbeaf3"></i><i style="--c:#1b141f"></i><i style="--c:#fff6ef"></i>
-              <i style="--c:#1a1918"></i><i style="--c:#fff1e5"></i><i style="--c:#c6c9cd"></i><i style="--c:#2b2e33"></i>
+              <i style="--c:#101b42"></i><i style="--c:#eef4fc"></i><i style="--c:#1b141f"></i><i style="--c:#fbeaf3"></i><i style="--c:#1a1918"></i>
+              <i style="--c:#fff1e5"></i><i style="--c:#2b2e33"></i><i style="--c:#c6c9cd"></i><i style="--c:#0a1130"></i><i style="--c:#fbfbfd"></i>
             </div>
           </div>
 
@@ -910,7 +995,7 @@
       <button type="button" data-go="0" aria-current="step"></button><button type="button" data-go="1"></button>
       <button type="button" data-go="2"></button><button type="button" data-go="3"></button>
       <button type="button" data-go="4"></button><button type="button" data-go="5"></button>
-      <button type="button" data-go="6"></button>
+      <button type="button" data-go="6"></button><button type="button" data-go="7"></button>
     </div>
   </nav>
 
@@ -931,12 +1016,18 @@
       get_short: 'Descargar', get_long2: 'Descarga Go Epic, es gratis',
       why_top: '¿Por qué Epic?',
       k0: '<span>Planea<b>.</b></span> <span>Enfócate<b>.</b></span> <span>Crece<b>.</b></span>', l0: '<span class="eyebrow">Nuestra misión</span><q>Todo lo que tenemos que decidir es qué hacer con el tiempo que se nos ha dado.</q> <cite>Gandalf · J.R.R. Tolkien</cite><a class="why" href="/why-epic/">¿Por qué Epic? <span aria-hidden="true">→</span></a>',
-      k1: 'Tablero semanal', h1: 'Cada hora tiene su lugar.',
-      l1: 'Dale a cada parte de tu día su bloque. Una línea roja te dice dónde estás, y un toque lo marca hecho, en oro.',
-      k3: 'Canvas', h3: 'Empieza por quién quieres ser.', l3: 'Área, Epic, Feature, Story, Actividad: de quién eres al pequeño paso de hoy.',
-      k4: 'Progreso', h4: 'Rachas que te impulsan.', l4: 'Cada actividad se vuelve un hábito con su propia racha. Un día omitido la pausa en vez de romperla.',
-      k5: 'Captura', h5: 'Atrápalo antes de que se escape.', l5: 'Escríbelo y presiona Enter. Cae en el día y la hora correctos de tu semana.',
-      k6: 'Temas', h6: 'Ocho estilos. Un solo tú.', l6: 'Alegre para la casa, grises tranquilos para la oficina. Toda la app lo sigue.',
+      k1: 'Semana', h1: 'Cada hora tiene su lugar.',
+      l1: 'Dale a cada parte de tu día su bloque. Una línea roja te dice dónde estás, una barra al pie cuenta los minutos que quedan, y un toque lo marca hecho, en oro.',
+      k3: 'Canvas', h3: 'Empieza por quién quieres ser.',
+      l3: 'Cuatro áreas de la vida: el Templo, el Castillo, la Torre y la Arena. En cada una, Epic, Feature, Story y Actividad te llevan de quién eres al pequeño paso de hoy.',
+      f3: 'Una idea sin lugar espera en «Sin definir» hasta que le des uno.',
+      k4: 'Progreso', h4: 'Rachas que te impulsan.',
+      l4: 'Cada actividad que sigues tiene su propia racha, y un día omitido la pausa en vez de romperla. Áreas de la vida te muestra si cada parte de tu vida recibe su tiempo.',
+      k5: 'Capturar', h5: 'Atrápalo antes de que se escape.',
+      l5: 'Escríbelo y presiona Enter. Cae en su día y su hora, y lo que se te pase te espera en una carpeta al pie de la pantalla.',
+      k8: 'Año', h8: 'Un año en cuatro temporadas.',
+      l8: 'Cada temporada tiene cuatro sprints de tres semanas y una semana para descansar y mirar atrás. Deja el dedo sobre un día para anotar lo que importa.',
+      k6: 'Temas', h6: 'Diez estilos. Un solo tú.', l6: 'Elige un tema, su paleta de colores y hasta los nombres de tus niveles. Toda la app lo sigue.',
       q7: '«No importa lo fuerte que golpees, sino lo fuerte que puedan golpearte y seguir avanzando.»',
       q8: '«No es que tengamos poco tiempo para vivir, sino que perdemos mucho.»',
       c8: 'Séneca',
@@ -957,22 +1048,22 @@
       c20: 'Ana de las Tejas Verdes',
       q21: '«Tú sigue nadando.»',
       q22: '«No es lo que soy por dentro, sino lo que hago lo que me define.»',
-      k7: '¿Listo?', h7: 'Tu semana épica empieza hoy.', l7: 'Entra con Google y agrégala a tu pantalla de inicio. Gratis, y funciona sin internet.',
+      k7: '¿Listo?', h7: 'Tu semana épica empieza hoy.', l7: 'Entra con Google y agrégala a tu pantalla de inicio. Es gratis, y sigue funcionando sin internet.',
       steps: '<b>iPhone:</b> Safari → Compartir → Agregar a inicio · <b>Android y computadora:</b> Chrome → Instalar app',
       p_wb: 'Semana', p_d1: 'Lun', p_d2: 'Mar', p_d3: 'Mié', p_d4: 'Jue', p_d5: 'Vie', p_d6: 'Sáb', p_d7: 'Dom', p_fri: 'Viernes',
       p_dawn: 'Amanecer', p_full: '✓ Lleno', p_pray: 'Leer 1 versículo y orar', p_walk: 'Caminar 10 min', p_dentist: 'Llamar al dentista',
-      p_breakfast: 'Desayunar en familia', p_left15: 'quedan 15 min', p_deep: 'Trabajo profundo', p_free: '10 min libres',
+      p_breakfast: 'Desayunar en familia', p_deep: 'Trabajo profundo', p_free: '10 min libres',
       p_report: 'Escribir el informe', p_study: 'Estudiar 20 min', 
       p_stretch: 'Estirarme 5 min',
-      p_discard: 'Descartar', p_save: 'Guardar', p_ws: 'Espacio del Epic',
-      p_addf: '+ Feature', p_epic1: 'Soy fuerte y saludable', p_temple: 'El Templo', p_crumb: 'El Templo / Soy fuerte y saludable',
+      p_undef: 'Sin definir', p_area: 'ÁREA', p_health: 'Salud', p_epic1: 'Soy fuerte y saludable', p_temple: 'El Templo',
       p_feat: 'Me muevo cada día y como sano',
       p_story: 'Como persona activa, quiero caminar cada mañana después del café, para tener energía todo el día.',
-      p_water: 'Tomar un vaso de agua', p_freesp: 'Espacio libre', p_freehint: 'Lo que aún no tiene lugar espera aquí.',
-      p_progress: 'Progreso', p_legend: 'Últimos 14 días: ● hecho · ✕ no hecho · ◎ hoy', p_days: 'días', p_day: 'día',
+      p_water: 'Tomar un vaso de agua',
+      p_progress: 'Progreso', p_cons: 'Constancia', p_areas: 'Áreas de la vida', p_legend: 'Últimos 14 días: ● hecho · ✕ no hecho · ◎ hoy', p_days: 'días', p_day: 'día',
       p_none: 'Aún sin racha', p_rep: 'Tareas que se repiten', p_gym: 'Gimnasio · Ma Ju', p_capture: 'Capturar',
       p_ph: 'Una tarea… (Enter)', p_typing: 'Comprar flores para mamá', p_add: 'Agregar', p_cur: 'Actuales', p_fin: 'Finalizadas',
-      p_today: 'Hoy', p_gym0: 'Gimnasio', p_tuth: 'Ma Ju · 07:00', p_bill: 'Pagar la luz', p_mon16: 'lun, 16 nov', p_today0640: 'Hoy · 06:40'
+      p_today: 'Hoy', p_gym0: 'Gimnasio', p_tuth: 'Ma Ju · 07:00', p_bill: 'Pagar la luz', p_mon16: 'lun, 16 nov', p_today0640: 'Hoy · 06:40',
+      p_year: 'Año', p_autumn: 'Otoño', p_autrange: '21 sep - 20 dic', p_rest: 'Descanso', p_popdate: 'vie, 20 nov', p_popnote: 'Cumpleaños de mamá'
     };
     var UI = {
       en: { back: 'Back', end: 'Go to the last slide', next: 'Next', again: 'Start over', step: 'Slide %n of %t', go: 'Go to slide %n', tour: 'Go Epic tour', nav: 'Tour',
@@ -983,7 +1074,7 @@
             macS: ['Click <b>Open Go Epic</b> below.', 'In Safari’s menu bar, choose <b>File › Add to Dock</b>.', 'Click <b>Add</b>.'],
             anyT: 'Install Go Epic', anyL: 'Already installed? Open it from your home screen or apps. If not:',
             anyS: ['Tap <b>Open Go Epic</b> below.', 'Open your browser’s menu (⋮ or ⋯).', 'Choose <b>Install app</b> or <b>Add to Home screen</b>.'],
-            left: '{n} min left', qs: 'Quotes', qp: 'Previous quote', qn: 'Next quote' },
+            qs: 'Quotes', qp: 'Previous quote', qn: 'Next quote' },
       es: { back: 'Atrás', end: 'Ir a la última lámina', next: 'Siguiente', again: 'Volver al inicio', step: 'Paso %n de %t', go: 'Ir al paso %n', tour: 'Recorrido por Go Epic', nav: 'Recorrido',
             installing: 'Instalando Go Epic… aparecerá con tus apps.', open: 'Abrir Go Epic', close: 'Cerrar',
             iosT: 'Agrega Go Epic a tu iPhone', iosL: 'Safari la instala desde la propia app, en tres toques:',
@@ -992,12 +1083,12 @@
             macS: ['Haz clic en <b>Abrir Go Epic</b> abajo.', 'En la barra de menús de Safari, elige <b>Archivo › Agregar al Dock</b>.', 'Haz clic en <b>Agregar</b>.'],
             anyT: 'Instala Go Epic', anyL: '¿Ya la tienes? Ábrela desde tu pantalla de inicio o tus apps. Si no:',
             anyS: ['Toca <b>Abrir Go Epic</b> abajo.', 'Abre el menú del navegador (⋮ o ⋯).', 'Elige <b>Instalar app</b> o <b>Agregar a pantalla principal</b>.'],
-            left: 'quedan {n} min', qs: 'Frases', qp: 'Frase anterior', qn: 'Frase siguiente' }
+            qs: 'Frases', qp: 'Frase anterior', qn: 'Frase siguiente' }
     };
     var META = {
       en: { title: document.title, desc: document.querySelector('meta[name="description"]').content },
       es: { title: 'Get Go Epic · Planea tu semana en bloques y vive cada día paso a paso',
-            desc: 'Go Epic es una app gratis para tu teléfono y tu computadora: planea tu semana en bloques de tiempo, anota tareas en un segundo, crea rachas y convierte quién quieres ser en pequeños pasos diarios. Funciona sin internet.' }
+            desc: 'Go Epic es una app gratis para tu teléfono y tu computadora: planea tu semana en bloques de tiempo, dale su lugar a las cuatro áreas de tu vida, anota tareas en un segundo, crea rachas y vive el año por temporadas. Funciona sin internet.' }
     };
 
     document.documentElement.classList.add('js');
@@ -1064,10 +1155,11 @@
         s.style.setProperty('--p', p.toFixed(4));
         q(s, '.now b').textContent = hhmm(380 + m);
         q(s, '.clock').textContent = hhmm(380 + m).replace(/^0/, '');
-        q(s, '.left').textContent = UI[lang].left.replace('{n}', 25 - m);
         q(s, '.pin').classList.toggle('ring', m >= 20);
       } },
-      2: { period: 7500, start: canvasStart },
+      2: { period: 7500, start: canvasStart, tick: function (s, t) {   // Canvas: one waits in Undefined until it lands
+        q(s, '.cnt').textContent = t < 3080 ? 1 : 0;
+      } },
       3: { period: 6500, still: 6000, tick: function (s, t) {   // Progress: today's dot fills, the streak grows by one
         s.querySelectorAll('.hb[data-hit]').forEach(function (h, i) {
           var hit = t > 2300 + i * 300, n = h.querySelector('.n');
@@ -1078,6 +1170,9 @@
       4: { period: 8000, tick: function (s, t) {   // Capture: 3 → 4 current when added, then 1 finished
         q(s, '.ncur').textContent = t < 2350 ? 3 : t < 5350 ? 4 : 3;
         q(s, '.nfin').textContent = t < 5350 ? 0 : 1;
+      } },
+      5: { period: 7000, still: 3000, tick: function (s, t) {   // Year: a finger holds a day and its window shows above it
+        s.classList.toggle('held', t > 1500 && t < 6100);
       } }
       // the last slide's home screen stands still (Gianni: only the Download ring may move there)
     };
@@ -1104,7 +1199,7 @@
       loopRaf = requestAnimationFrame(frame);
     }
     function play(s) {
-      if (loopS && loopS !== s) { stopAnims(); loopS.classList.remove('run', 'fade', 'snap', 'won'); }
+      if (loopS && loopS !== s) { stopAnims(); loopS.classList.remove('run', 'fade', 'snap', 'won', 'held'); }
       loopS = null;
       // Under reduced motion nothing loops: a screen whose story ends in a new state just shows that finished state
       if (reduce) { var R = s && LOOPS[s.dataset.n]; if (R && R.still != null) R.tick(s, R.still); return; }
