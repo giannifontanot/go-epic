@@ -1268,9 +1268,9 @@ app-pick-menu { display: block; min-width: 0; }
    It follows the name on the same line when it fits, else it wraps as a whole close under it. */
 /* Tones down (Gianni, v83): ONE number for how much softer every second text is than the name it follows, the area's
    description and the season's year («Invierno, 2026») alike, in every theme. Change --tones-down and all of them change.
-   A tone is 11% of the name's own ink (the old area description, 78%, was two); 3 tones = 67%. --tone-mix is the
+   A tone is 11% of the name's own ink (the old area description, 78%, was two); 5 tones = 45% (Gianni, v87; 3 until then). --tone-mix is the
    result; every such pair reads it: .tone-down, .area-desc, a season's range, a sprint's range (v85). */
-:root { --tones-down: 3; --tone-step: 11%; --tone-mix: calc(100% - var(--tones-down) * var(--tone-step)); }
+:root { --tones-down: 5; --tone-step: 11%; --tone-mix: calc(100% - var(--tones-down) * var(--tone-step)); }
 .tone-down { color: color-mix(in srgb, currentColor var(--tone-mix), transparent); }
 .area-desc { display: inline-block; margin-left: .3em; color: color-mix(in srgb, currentColor var(--tone-mix), transparent); }
 /* What opens a floating menu: at the far right, centred on its button, everywhere (Gianni), in the very tone of the name
@@ -2631,7 +2631,7 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
 .yr-row.rest .yr-cell.picked { background: var(--page); }
 .rest-mark { grid-column: 9 / -1; align-self: stretch; border-radius: 8px; border: 1.5px dashed color-mix(in srgb, var(--season) 45%, transparent);
   background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--season) 12%, transparent) 0 4px, transparent 4px 9px); }
-.yr-row + .yr-row { margin-top: 10px; }
+.yr-row + .yr-row { margin-top: 20px; }   /* the sprints twice as far apart (Gianni, v87) */
 /* the day's window: in the top layer, above the day touched (below it when there is no room), its tail on the day;
    it glides along with the finger and its date fades out as the next one fades in */
 .yr-pop { position: fixed; inset: auto; left: 0; top: 0; margin: 0; width: min(340px, calc(100vw - 16px)); height: auto;
