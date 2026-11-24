@@ -296,11 +296,12 @@
     body[data-slide="1"] { --g: rgba(184, 144, 30, .16); }
     body[data-slide="2"] { --g: rgba(184, 144, 30, .2); }
     body[data-slide="3"] { --g: rgba(16, 27, 66, .14); }
-    body[data-slide="4"] { --g: rgba(245, 201, 69, .24); }
-    body[data-slide="5"] { --g: rgba(59, 120, 216, .14); }
-    body[data-slide="6"] { --g: rgba(57, 255, 20, .1); }
-    body[data-slide="7"] { --g: rgba(107, 91, 210, .14); }
-    body[data-slide="8"] { --g: rgba(245, 201, 69, .2); }
+    body[data-slide="4"] { --g: rgba(118, 224, 208, .16); }
+    body[data-slide="5"] { --g: rgba(245, 201, 69, .24); }
+    body[data-slide="6"] { --g: rgba(59, 120, 216, .14); }
+    body[data-slide="7"] { --g: rgba(57, 255, 20, .1); }
+    body[data-slide="8"] { --g: rgba(107, 91, 210, .14); }
+    body[data-slide="9"] { --g: rgba(245, 201, 69, .2); }
 
     /* The emblem (first slide) and the phone (the others) share the same spot */
     .emblem, .phone-box { grid-area: 1 / 1; transition: opacity .7s ease, transform .9s var(--spring), visibility 0s; }
@@ -318,12 +319,12 @@
                   linear-gradient(0deg, transparent 47%, rgba(255, 255, 255, .95) 50%, transparent 53%);
       -webkit-mask: radial-gradient(circle, #000 20%, transparent 70%); mask: radial-gradient(circle, #000 20%, transparent 70%); }
     .phone-box { position: relative; width: calc(320px * var(--s, .7)); height: calc(660px * var(--s, .7)); }
-    body[data-slide="0"] .phone-box, body[data-slide="1"] .phone-box, body[data-slide="8"] .phone-box,
-    body:not([data-slide="8"]) .quote:not(.stories), body:not([data-slide="1"]) .stories,
+    body[data-slide="0"] .phone-box, body[data-slide="1"] .phone-box, body[data-slide="9"] .phone-box,
+    body:not([data-slide="9"]) .quote:not(.stories), body:not([data-slide="1"]) .stories,
     body:not([data-slide="0"]) .emblem { opacity: 0; visibility: hidden; pointer-events: none;
       transition: opacity .5s ease, transform .7s var(--spring), visibility 0s linear .7s; }
     body[data-slide="0"] .phone-box { transform: translateY(14%) scale(.92); }
-    body[data-slide="1"] .phone-box, body[data-slide="8"] .phone-box { transform: scale(.92); }
+    body[data-slide="1"] .phone-box, body[data-slide="9"] .phone-box { transform: scale(.92); }
     /* The last slide: no picture, a line that inspires, so the eye rests and goes to Download (Gianni) */
     .quote { grid-area: 1 / 1; position: relative; z-index: 1; max-width: 17em; margin: 0; padding: 0 4px; text-align: center;
       font: italic 400 clamp(22px, 6.2vw, 30px)/1.32 var(--serif); color: var(--ink); text-wrap: balance;
@@ -347,7 +348,7 @@
     .q-pips i { width: 6px; height: 6px; border-radius: 50%; background: rgba(16, 27, 66, .22); transition: background-color .4s, transform .4s; }
     .q-pips i.on { background: var(--gold); transform: scale(1.4); }
     .q-dots:not(:has(button)) { display: none; }
-    body:not([data-slide="8"]) .quote:not(.stories), body:not([data-slide="1"]) .stories { transform: translateY(12px); }
+    body:not([data-slide="9"]) .quote:not(.stories), body:not([data-slide="1"]) .stories { transform: translateY(12px); }
     /* The second slide, what being epic means (Gianni): short stories of ordinary people, turning like the quotes; they are
        told, not quoted, so upright, and who lived each one is named under it */
     .stories { font-style: normal; }
@@ -386,7 +387,7 @@
     .hdr { display: flex; align-items: center; justify-content: space-between; margin: 0 2px 9px; }
     .hdr h3 { margin: 0; display: flex; align-items: center; gap: 7px; font: 900 21px/1.05 'Cinzel Decorative', Georgia, serif; letter-spacing: .01em; color: #8a5a12; }
     /* the titles and day names in the wordmark's deep gold, as in the app */
-    :is(.s-week, .s-prog, .s-year) .hdr h3 > span, .cpan .hdr h3, .s-week .dh > span {
+    :is(.s-week, .s-plan, .s-prog, .s-year) .hdr h3 > span, .cpan .hdr h3, .s-week .dh > span {
       background: linear-gradient(100deg, #9a6f0c, #7d5210); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
     .hdr .tri { color: #8a5a12; }
     .chev { flex: none; width: 7px; height: 7px; margin: -4px 2px 0; border: solid rgba(138, 90, 18, .8); border-width: 0 2px 2px 0; transform: rotate(45deg); }
@@ -488,6 +489,34 @@
     @keyframes slotOn { 0%, 15% { opacity: 0; } 19%, 40% { opacity: 1; } 41%, 100% { opacity: 0; } }
     @keyframes wob { 35% { transform: scale(1.04); } 70% { transform: scale(.99); } }
 
+    /* From the Canvas to your day: a window on the Canvas (Epic, as in the app) over today's block; the Canvas goes by
+       and from each Goal, and last from Undefined, one Action is ringed and flies down into its place in the block */
+    .pcv { position: relative; height: 200px; margin: 0 0 10px; padding: 9px; border-radius: 22px; overflow: hidden; background: #101b42;
+      box-shadow: 0 6px 16px rgba(16, 27, 66, .18); }
+    .pscroll { will-change: transform; }
+    .pe { height: 122px; margin-bottom: 8px; padding: 7px 9px; border-radius: 16px; color: #fff4e9; background: linear-gradient(170deg, #8f2859, #621c4b); }
+    .pe small { display: block; font-size: 7.5px; font-weight: 800; letter-spacing: .16em; color: rgba(255, 244, 233, .7); }
+    .pe b { display: block; margin: 1px 0 1px; font: 700 12.5px/1.2 var(--serif); }
+    .pe.u { background: rgba(118, 224, 208, .12); box-shadow: inset 0 0 0 1.5px #76e0d0; }
+    .pe.u small { margin-bottom: 4px; color: #76e0d0; font-size: 8.5px; }
+    .pe .act { margin-top: 4px; padding: 5px 9px; }
+    .pe .act.pick { box-shadow: 0 0 0 2.5px #76e0d0, 0 3px 0 rgba(0, 0, 0, .12); transition: box-shadow .3s ease; }
+    .s-plan .fly { position: absolute; z-index: 7; margin: 0; pointer-events: none; }
+    .pday { padding-bottom: 1px; }
+    .pday .blk { margin-bottom: 8px; }
+    .pday .bh b { font: 700 11px/1 var(--font); color: #1d1d1f; }
+    .pday .bh b i { font-style: normal; color: rgba(29, 29, 31, .35); }
+    .pslot { position: relative; height: 30px; margin-top: 6px; border-radius: 11px; box-shadow: inset 0 0 0 1.5px rgba(29, 29, 31, .28); }
+    .pslot::before { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 1.5px dashed rgba(29, 29, 31, .25); }
+    .pc { position: absolute; inset: 0; display: flex; align-items: center; gap: 7px; padding: 0 9px; border-radius: 11px; color: #1d1d1f; background: #fff;
+      border-left: 6px solid var(--tone); font-size: 11px; font-weight: 700; opacity: 0; transform: scale(.96);
+      box-shadow: 0 0 0 1px rgba(16, 27, 66, .24), 0 3px 0 rgba(48, 39, 70, .2); transition: opacity .25s ease, transform .4s var(--bounce); }
+    .pc i { font-style: normal; font-weight: 500; font-size: 10px; color: rgba(29, 29, 31, .6); }
+    .pc small { margin-left: auto; font-size: 8.5px; font-weight: 800; letter-spacing: .06em; color: rgba(29, 29, 31, .68); }
+    .pslot.in .pc { opacity: 1; transform: none; }
+    .s-plan.run .pscroll { animation: pscroll 15s ease-in-out both; }
+    @keyframes pscroll { 0%, 17% { transform: none; } 24%, 37% { transform: translateY(-130px); } 44%, 57% { transform: translateY(-260px); }
+      64%, 100% { transform: translateY(-390px); } }
     /* Progress */
     .legend { margin: -2px 3px 9px; font-size: 9px; line-height: 1.4; color: #5c5c63; }
     .hb { margin-bottom: 7px; padding: 9px 10px 10px; border-radius: 16px; background: linear-gradient(170deg, #f0f0f4, #ececf1); box-shadow: 0 0 0 1px rgba(16, 27, 66, .12); }
@@ -809,43 +838,48 @@
   <main class="stage" id="tour" aria-roledescription="carousel" aria-label="Go Epic tour">
     <div class="copy">
       <div class="slides">
-        <section class="slide on" aria-roledescription="slide" aria-label="1 / 9">
+        <section class="slide on" aria-roledescription="slide" aria-label="1 / 10">
           <h1 class="motto" data-i="k0"><span>Plan<b>.</b></span> <span>Focus<b>.</b></span> <span>Grow<b>.</b></span></h1>
           <p class="lead mission" data-i="l0"><span class="eyebrow">Our mission</span><q>All we have to decide is what to do with the time that is given us.</q> <cite>Gandalf · J.R.R. Tolkien</cite></p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="2 / 9">
+        <section class="slide" aria-roledescription="slide" aria-label="2 / 10">
           <p class="kicker gold" data-i="e0">What epic means</p>
           <h2 data-i="e1">Epic doesn't mean famous.</h2>
           <p class="lead" data-i="e2">It means living your story on purpose: showing up, day after day, for the people and the things you love, even when no one is watching. We need it, because a life that no one writes ends up written by chance.</p>
           <p class="heart" data-i="e3">We don't live in the hearts of crowds, but in the heart of a friend, of a family.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="3 / 9">
+        <section class="slide" aria-roledescription="slide" aria-label="3 / 10">
           <p class="kicker" style="--k:#b91c1c" data-i="k1">Week board</p>
           <h2 data-i="h1">Every hour has a home.</h2>
           <p class="lead" data-i="l1">Give each part of your day a block. A line shows where you are, a bar at the foot counts down the minutes left, and one tap marks it done, in gold.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="4 / 9">
+        <section class="slide" aria-roledescription="slide" aria-label="4 / 10">
           <p class="kicker" style="--k:#0f766e" data-i="k3">Canvas</p>
           <h2 data-i="h3">Start with who you want to be.</h2>
           <p class="lead" data-i="l3">Four areas of life: the Temple, the Castle, the Tower and the Arena. In each one, a Goal, a Project, a Deliverable and an Action lead from who you are to today's small step.</p>
           <p class="fine" data-i="f3">An idea without a place waits in Undefined until you give it one.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="5 / 9">
+        <section class="slide" aria-roledescription="slide" aria-label="5 / 10">
+          <p class="kicker" style="--k:#0f766e" data-i="k9">Plan your day</p>
+          <h2 data-i="h9">From your Canvas to your day.</h2>
+          <p class="lead" data-i="l9">Each Goal keeps the Actions that make it real. Pick one from each, even one still in Undefined, and it lands in today's block. In the Canvas it stays in its place, ready for every day you want it.</p>
+        </section>
+        <section class="slide" aria-roledescription="slide" aria-label="6 / 10">
           <p class="kicker" style="--k:#94700f" data-i="k4">Progress</p>
           <h2 data-i="h4">Streaks that keep you going.</h2>
           <p class="lead" data-i="l4">Every action you follow grows its own streak, and a skipped day pauses it instead of breaking it. Areas of life shows whether each part of your life gets its time.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="6 / 9">
+        <section class="slide" aria-roledescription="slide" aria-label="7 / 10">
           <p class="kicker" style="--k:#be185d" data-i="k5">Capture</p>
           <h2 data-i="h5">Catch it before it slips away.</h2>
           <p class="lead" data-i="l5">Type it and press Enter. It lands on its day and hour, and whatever slips past waits in a folder at the foot of the screen.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="7 / 9">
+        <section class="slide" aria-roledescription="slide" aria-label="8 / 10">
           <p class="kicker" style="--k:#2f7a2a" data-i="k8">Year</p>
           <h2 data-i="h8">A year in four seasons.</h2>
           <p class="lead" data-i="l8">Each season holds four sprints of three weeks and one week to rest and look back. Hold a day to write down what matters on it.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="8 / 9">
+        <section class="slide" aria-roledescription="slide" aria-label="9 / 10">
           <p class="kicker" style="--k:#6b5bd2" data-i="k6">Themes</p>
           <h2 data-i="h6">Ten looks. One you.</h2>
           <p class="lead" data-i="l6">Pick a theme, its palette of colours, and even the names of your levels. The whole app follows.</p>
@@ -854,7 +888,7 @@
             <i style="--c:#fff1e5"></i><i style="--c:#2b2e33"></i><i style="--c:#c6c9cd"></i><i style="--c:#0a1130"></i><i style="--c:#fbfbfd"></i>
           </div>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="9 / 9">
+        <section class="slide" aria-roledescription="slide" aria-label="10 / 10">
           <p class="kicker gold" data-i="k7">Ready?</p>
           <h2 data-i="h7">Your epic week starts now.</h2>
           <p class="lead" data-i="l7">Sign in with Google and add it to your home screen. It's free, and it keeps working without the internet.</p>
@@ -971,8 +1005,38 @@
             <span class="fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2.2"/></svg></span>
           </div>
 
-          <!-- 4 · Progress: the days fill in, then today's dot fills and every streak grows by one -->
-          <div class="screen s-prog" data-n="4">
+          <!-- 4 · From the Canvas to your day: the Canvas goes by, and from each Goal (and Undefined) one Action flies into today's block -->
+          <div class="screen s-plan" data-n="4">
+            <span class="clock">9:41</span><span class="batt"></span>
+            <div class="live">
+              <div class="hdr"><h3><span data-i="p_today">Today</span><i class="chev"></i></h3><span class="bulb">💡</span></div>
+              <div class="pcv">
+                <div class="pscroll">
+                  <div class="pe"><small data-i="p_goal">GOAL</small><b data-i="p_athlete">I am an athlete</b>
+                    <div class="act" style="--tone:#ffd5bd"><span data-i="p_run">Run 3 km</span></div><div class="act" style="--tone:#e1d7ff" data-pick="0"><span data-i="p_stretch">Stretch 5 min</span></div><div class="act" style="--tone:#d4ecff"><span data-i="p_water">Drink a glass of water</span></div></div>
+                  <div class="pe"><small data-i="p_goal">GOAL</small><b data-i="p_student">I am a student</b>
+                    <div class="act" style="--tone:#ffe3a8"><span data-i="p_read">Read a chapter</span></div><div class="act" style="--tone:#e1f3d0"><span data-i="p_notes">Review my notes</span></div><div class="act" style="--tone:#cfe3ff" data-pick="1"><span data-i="p_study">Study 20 min</span></div></div>
+                  <div class="pe"><small data-i="p_goal">GOAL</small><b data-i="p_artist">I am an artist</b>
+                    <div class="act" style="--tone:#ffd5bd" data-pick="2"><span data-i="p_sketch">Sketch 15 min</span></div><div class="act" style="--tone:#f6d0e4"><span data-i="p_guitar">Practice the guitar</span></div><div class="act" style="--tone:#e1d7ff"><span data-i="p_museum">Visit a museum</span></div></div>
+                  <div class="pe u"><small data-i="p_undef">Undefined</small>
+                    <div class="act" style="--tone:#e1f3d0" data-pick="3"><span data-i="p_grandma">Call grandma</span></div><div class="act" style="--tone:#ffe3a8"><span data-i="p_shelf">Fix the shelf</span></div><div class="act" style="--tone:#d4ecff"><span data-i="p_trip">Plan the trip</span></div></div>
+                </div>
+              </div>
+              <div class="dayc pday">
+                <div class="blk">
+                  <div class="bh"><span data-i="p_morning">Morning</span><b>07:00 <i>–</i> 08:00</b></div>
+                  <div class="pslot" data-slot="0"><div class="pc" style="--tone:#6b5bd2"><i>07:00</i><span data-i="p_stretch">Stretch 5 min</span><small>5 MIN</small></div></div>
+                  <div class="pslot" data-slot="1"><div class="pc" style="--tone:#2f7fd6"><i>07:05</i><span data-i="p_study">Study 20 min</span><small>20 MIN</small></div></div>
+                  <div class="pslot" data-slot="2"><div class="pc" style="--tone:#c26a15"><i>07:25</i><span data-i="p_sketch">Sketch 15 min</span><small>15 MIN</small></div></div>
+                  <div class="pslot" data-slot="3"><div class="pc" style="--tone:#3a8f4f"><i>07:40</i><span data-i="p_grandma">Call grandma</span><small>10 MIN</small></div></div>
+                </div>
+              </div>
+            </div>
+            <span class="fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2.2"/></svg></span>
+          </div>
+
+          <!-- 5 · Progress: the days fill in, then today's dot fills and every streak grows by one -->
+          <div class="screen s-prog" data-n="5">
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="live">
               <div class="hdr"><h3><span data-i="p_progress">Progress</span><i class="chev"></i></h3><span class="bulb">💡</span></div>
@@ -993,8 +1057,8 @@
             <span class="fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="2.2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="2.2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="2.2"/></svg></span>
           </div>
 
-          <!-- 5 · Capture: a task is typed and added; another is ticked and moves to Finished -->
-          <div class="screen s-cap" data-n="5">
+          <!-- 6 · Capture: a task is typed and added; another is ticked and moves to Finished -->
+          <div class="screen s-cap" data-n="6">
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="live">
               <div class="cpan">
@@ -1013,8 +1077,8 @@
             <span class="fab capfab" aria-hidden="true">💡<i class="tap" style="left:50%;top:50%"></i></span>
           </div>
 
-          <!-- 6 · Year: a season of four sprints and a rest week; a finger holds a day and its note shows above it -->
-          <div class="screen s-year" data-n="6">
+          <!-- 7 · Year: a season of four sprints and a rest week; a finger holds a day and its note shows above it -->
+          <div class="screen s-year" data-n="7">
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="live">
               <div class="hdr"><h3><span data-i="p_year">Year</span> <i class="tri"></i></h3><span class="bulb">💡</span></div>
@@ -1032,8 +1096,8 @@
             </div>
           </div>
 
-          <!-- 7 · Themes: the same little day, through the ten themes -->
-          <div class="screen s-themes" data-n="7">
+          <!-- 8 · Themes: the same little day, through the ten themes -->
+          <div class="screen s-themes" data-n="8">
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="hdr"><h3><span data-i="p_wb">Week board</span><i class="chev"></i></h3><span class="bulb">💡</span></div>
             <div class="dayc">
@@ -1079,7 +1143,7 @@
       <button type="button" data-go="2"></button><button type="button" data-go="3"></button>
       <button type="button" data-go="4"></button><button type="button" data-go="5"></button>
       <button type="button" data-go="6"></button><button type="button" data-go="7"></button>
-      <button type="button" data-go="8"></button>
+      <button type="button" data-go="8"></button><button type="button" data-go="9"></button>
     </div>
   </nav>
 
@@ -1115,6 +1179,8 @@
       k3: 'Canvas', h3: 'Empieza por quién quieres ser.',
       l3: 'Cuatro áreas de la vida: el Templo, el Castillo, la Torre y la Arena. En cada una, un Objetivo, un Proyecto, una Entrega y una Acción te llevan de quién eres al pequeño paso de hoy.',
       f3: 'Una idea sin lugar espera en «Sin definir» hasta que le des uno.',
+      k9: 'Planea tu día', h9: 'Del Canvas a tu día.',
+      l9: 'Cada Objetivo guarda las Acciones que lo hacen realidad. Elige una de cada uno, incluso una que sigue en Sin definir, y cae en el bloque de hoy. En el Canvas se queda en su lugar, lista para todos los días que quieras.',
       k4: 'Progreso', h4: 'Rachas que te impulsan.',
       l4: 'Cada acción que sigues tiene su propia racha, y un día omitido la pausa en vez de romperla. Áreas de la vida te muestra si cada parte de tu vida recibe su tiempo.',
       k5: 'Capturar', h5: 'Atrápalo antes de que se escape.',
@@ -1149,6 +1215,9 @@
       p_breakfast: 'Desayunar en familia', p_deep: 'Trabajo profundo', p_free: '10 min libres',
       p_report: 'Escribir el informe', p_study: 'Estudiar 20 min', 
       p_stretch: 'Estirarme 5 min',
+      p_athlete: 'Soy atleta', p_student: 'Soy estudiante', p_artist: 'Soy artista', p_run: 'Correr 3 km', p_read: 'Leer un capítulo',
+      p_notes: 'Repasar mis apuntes', p_sketch: 'Dibujar 15 min', p_guitar: 'Practicar la guitarra', p_museum: 'Ir a un museo', p_grandma: 'Llamar a la abuela',
+      p_shelf: 'Arreglar el estante', p_trip: 'Planear el viaje', p_morning: 'Mañana',
       p_undef: 'Sin definir', p_area: 'ÁREA', p_goal: 'OBJETIVO', p_project: 'PROYECTO', p_deliv: 'ENTREGA', p_health: 'Salud', p_epic1: 'Soy fuerte y saludable', p_temple: 'El Templo',
       p_feat: 'Me muevo cada día y como sano',
       p_story: 'Como persona activa, quiero caminar cada mañana después del café, para tener energía todo el día.',
@@ -1247,6 +1316,31 @@
         { offset: 1, opacity: 1, transform: 'none' }
       ], o));
     }
+    // From the Canvas to your day: as each Goal comes into view one of its Actions is ringed, then a copy of it flies into
+    // its place in today's block (measured, so it lands exactly there) and the block's card appears
+    var PLAN_AT = [1300, 4300, 7300, 10300];
+    function planStart(s) {
+      s.querySelectorAll('.fly').forEach(function (f) { f.remove(); });
+      s._flown = [];
+    }
+    function planFly(s, i) {
+      var src = q(s, '[data-pick="' + i + '"]'), slot = q(s, '[data-slot="' + i + '"]'), live = q(s, '.live');
+      if (!src || !slot || !src.animate) return;
+      var L = live.getBoundingClientRect(), a = src.getBoundingClientRect(), b = slot.getBoundingClientRect(), k = L.width / live.offsetWidth || 1;
+      var f = src.cloneNode(true);
+      f.classList.remove('pick'); f.classList.add('fly'); f.removeAttribute('data-pick');
+      f.style.left = ((a.left - L.left) / k).toFixed(1) + 'px'; f.style.top = ((a.top - L.top) / k).toFixed(1) + 'px';
+      f.style.width = (a.width / k).toFixed(1) + 'px';
+      live.appendChild(f);
+      var to = 'translate(' + ((b.left - a.left) / k).toFixed(1) + 'px, ' + ((b.top - a.top) / k).toFixed(1) + 'px)';
+      var sx = (b.width / a.width).toFixed(3);
+      anims.push(f.animate([
+        { offset: 0, transform: 'none', boxShadow: '0 3px 0 rgba(0, 0, 0, .12)', opacity: 1 },
+        { offset: .2, transform: 'translateY(-6px) scale(1.08) rotate(-3deg)', boxShadow: '0 16px 24px rgba(0, 0, 0, .4)', opacity: 1, easing: 'cubic-bezier(.45, 0, .2, 1)' },
+        { offset: .88, transform: to + ' scale(' + sx + ', 1)', boxShadow: '0 6px 10px rgba(0, 0, 0, .25)', opacity: 1 },
+        { offset: 1, transform: to + ' scale(' + sx + ', 1)', boxShadow: '0 0 0 rgba(0, 0, 0, 0)', opacity: 0 }
+      ], { duration: 1000, fill: 'forwards' }));
+    }
     var LOOPS = {
       2: { period: 9000, tick: function (s, t) {   // Week board: 06:20 → 06:45 down the running card
         var p = clamp((t - 2600) / 5400), m = Math.round(25 * p);
@@ -1258,18 +1352,26 @@
       3: { period: 7500, start: canvasStart, tick: function (s, t) {   // Canvas: one waits in Undefined until it lands
         q(s, '.cnt').textContent = t < 3080 ? 1 : 0;
       } },
-      4: { period: 6500, still: 6000, tick: function (s, t) {   // Progress: today's dot fills, the streak grows by one
+      4: { period: 15000, still: 14000, start: planStart, tick: function (s, t) {   // From the Canvas to your day
+        PLAN_AT.forEach(function (at, i) {
+          var src = q(s, '[data-pick="' + i + '"]');
+          if (src) src.classList.toggle('pick', t > at - 600 && t < at + 1400);
+          if (t >= at && s.classList.contains('run') && s._flown && !s._flown[i]) { s._flown[i] = true; planFly(s, i); }
+          q(s, '[data-slot="' + i + '"]').classList.toggle('in', t > at + 950);
+        });
+      } },
+      5: { period: 6500, still: 6000, tick: function (s, t) {   // Progress: today's dot fills, the streak grows by one
         s.querySelectorAll('.hb[data-hit]').forEach(function (h, i) {
           var hit = t > 2300 + i * 300, n = h.querySelector('.n');
           h.classList.toggle('hit', hit);
           if (n) n.textContent = +n.dataset.base + (hit ? 1 : 0);
         });
       } },
-      5: { period: 9600, tick: function (s, t) {   // Capture: the 💡 opens it; 3 → 4 current when added, then 1 finished
+      6: { period: 9600, tick: function (s, t) {   // Capture: the 💡 opens it; 3 → 4 current when added, then 1 finished
         q(s, '.ncur').textContent = t < 3950 ? 3 : t < 6950 ? 4 : 3;
         q(s, '.nfin').textContent = t < 6950 ? 0 : 1;
       } },
-      6: { period: 7000, still: 3000, tick: function (s, t) {   // Year: a finger holds a day and its window shows above it
+      7: { period: 7000, still: 3000, tick: function (s, t) {   // Year: a finger holds a day and its window shows above it
         s.classList.toggle('held', t > 1500 && t < 6100);
       } }
       // the last slide's home screen stands still (Gianni: only the Download ring may move there)
