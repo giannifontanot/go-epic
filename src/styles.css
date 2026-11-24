@@ -513,7 +513,7 @@ html[data-theme='goepicdark'] .update-button { border-radius: 999px; background:
 .action-stack.open .capture-fab:disabled { opacity: .45; }   /* the day overview while today's plan loads: its place is kept */
 /* the menu's ✎ Edit opens another menu (the edit tools), so it wears a red ring (Gianni) */
 html .action-stack .capture-fab.act-fab.edit-fab.edit-fab { box-shadow: 0 0 0 4.5px var(--edit-red, #e5484d), 0 3px 10px rgba(1, 6, 29, .3); }   /* a little thicker (Gianni) */
-html:is([data-theme='office'], [data-theme='graphite']) { --edit-red: #b4504b; --edit-green: #4f8a5b; }
+html:is([data-theme='office'], [data-theme='graphite']) { --edit-red: #b4504b; }
 .page-fab { z-index: 22; }
 .page-fab.open, .theme-act.open { background: var(--teal); }
 /* the pages (Gianni): pills that fan out to the left of their button, the page you are on marked */
@@ -558,7 +558,7 @@ html.tilt .title-btn { translate: none; }   /* it leans with its title, never sl
 /* two straight columns of square tiles (Gianni: a vertical menu, the dark themes on the left, the light ones on the
    right, each row a family: Epic | Clear Sky, Petal Punk | Pink Pop, Smoked Citrus | Sunburnt, Graphite | Office, Go Epic Dark | Go Epic Light); they
    never lean with the phone, so they stay square and never overlap. Each wears its own theme's page colour and ink. */
-/* Letreros (Gianni): a long button on top of the tiles, across both columns, in the theme that is on */
+/* Letreros (Gianni): a long button at the foot of the tiles, under the last row, across both columns, in the theme that is on */
 .theme-tiles { display: contents; }
 .levels-btn { grid-column: 1 / -1; min-height: 48px; padding: 0 16px; border: 1px solid var(--win-edge, transparent); border-radius: 16px;
   background: var(--navy-card); color: var(--ink); font: inherit; font-weight: 700; cursor: pointer; box-shadow: 0 6px 18px rgba(1, 6, 29, .35); }
@@ -809,6 +809,29 @@ html[data-edge] .ga-card .edge { display: inline; }
 .ga-btn-text.del { fill: var(--btn-delete-ink, #9f1239); }
 .ga-btn-text.keep { fill: var(--btn-cancel-ink, #101b42); }
 .ga-focus { fill: none; stroke: var(--ink); stroke-width: 2; }
+/* v77's new cards: the minutes a card shows and the edit tools, the focus on what runs now, the palette window's boxes */
+.ga-min { font-size: 9px; font-weight: 700; fill: var(--act-ink, var(--card-ink)); text-anchor: end; opacity: .75; }
+.ga-handle { fill: var(--act-ink, var(--card-ink)); opacity: .6; }
+.ga-edit circle { fill: var(--edit-fab, #1b2550); stroke: var(--edit-ring, transparent); stroke-width: 1; }
+.ga-edit text { font-size: 11px; font-weight: 400; fill: var(--edit-ink, #fff); text-anchor: middle; }
+.ga-edit-line { fill: none; stroke: var(--edit-ink, #fff); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ga-pill-text { font-size: 11px; font-weight: 700; fill: var(--ink); text-anchor: middle; }
+.ga-head { fill: var(--page); stroke: var(--ink-soft); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.ga-head-away { animation: ga-head-away 6s cubic-bezier(.4, 0, .2, 1) infinite; }
+@keyframes ga-head-away { 0%, 15% { translate: 0 0; opacity: 1; } 40%, 85% { translate: 0 -22px; opacity: 0; } 100% { translate: 0 0; opacity: 1; } }
+.ga-dim { opacity: .45; }
+.ga-spent { fill: color-mix(in srgb, var(--ink) 13%, var(--page)); }
+.ga-shrink { transform-box: fill-box; transform-origin: right; animation: ga-shrink 6s linear infinite; }
+@keyframes ga-shrink { from { scale: 1 1; } to { scale: .35 1; } }
+.ga-grow { transform-box: fill-box; transform-origin: top; animation: ga-grow 4s ease-in-out infinite alternate; }
+.ga-pull { animation: ga-pull 4s ease-in-out infinite alternate; }
+@keyframes ga-grow { from { scale: 1 .8; } to { scale: 1 1; } }
+@keyframes ga-pull { from { translate: 0 -15.6px; } to { translate: 0 0; } }
+.ga-box { fill: none; stroke: var(--ink-soft); stroke-width: 1.3; }
+.ga-box.on { fill: var(--teal); stroke: var(--teal); }
+.ga-box-ink { fill: none; stroke: var(--g-on-ink, #0b2f2a); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.ga-now-bar { fill: var(--now); }
+@media (prefers-reduced-motion: reduce) { .ga-head-away { animation: none; opacity: 0; } .ga-shrink { animation: none; scale: .6 1; } .ga-grow, .ga-pull { animation: none; } }
 .ga-drain-bg { fill: color-mix(in srgb, var(--red) 20%, transparent); }
 .ga-drain { fill: var(--red); }
 .ga-suggest { fill: none; stroke: var(--teal); stroke-width: 2; }
@@ -914,6 +937,15 @@ app-pick-menu { display: block; min-width: 0; }
 .pick-new button { flex: none; min-height: 44px; padding: 0 16px; border-radius: 12px; font-size: 14px; font-weight: 800; }
 /* they belong to their panel and menu: they never lean or slide with the phone */
 html.tilt :is(.pick-btn, .pick-btn *, .pick-tile) { rotate: none; translate: none; }
+/* Every floating menu's choice has a thin edge in the theme's colour (Gianni, v73: so the choices stand off the page);
+   the grey themes take a grey deep enough to be seen, the Go Epic themes their gold */
+.page-tile { border: 1px solid var(--tile-edge, var(--pink)); }
+.pick-tile, .pick-tile.pick-add { border: 1px solid var(--tile-edge, var(--pink)); }
+.pick-tile.pick-add { box-shadow: none; }
+html[data-theme='office'] { --tile-edge: #6f757c; }
+html[data-theme='graphite'] { --tile-edge: #9199a2; }
+html[data-theme='goepiclight'] { --tile-edge: #b8901e; }
+html[data-theme='goepicdark'] { --tile-edge: #e2b84a; }
 html.tilt .menu-chev { translate: 0 -50%; }
 @media (prefers-reduced-motion: reduce) { .menu-chev { transition: none; } }
 
@@ -1458,7 +1490,6 @@ button.t-state:focus-visible { outline: 3px solid var(--teal); outline-offset: 3
    surfaces get their grey by hand. ───────────────────────────────────────────────────────────────────────────── */
 /* Office (Gianni): quiet light greys for a work screen */
 html[data-theme='office'] {
-  --countdown: #5f6770;
   --page: #c6c9cd; --ink: #26292d; --ink-soft: #4a4f55;
   --plum-a: #a9aeb4; --plum-b: #a3a8ae; --jelly-a: #cdd0d3; --jelly-b: #c6c9cd; --jelly-ink: #2a2d31; --card-ink: #2a2d31;
   --pink: #9aa2ab; --teal: #7f8b96; --red: #8f4444; --navy-card: #cfd1d4; --light: #dfe1e4;
@@ -1474,7 +1505,6 @@ html[data-theme='office'] {
 /* Graphite (Gianni): dark, but kind to the eyes: deep greys, never black, and soft grey ink instead of white, so the
    contrast stays gentle */
 html[data-theme='graphite'] {
-  --countdown: #9aa2ab;
   --page: #2b2e33; --ink: #c9ccd1; --ink-soft: #8f959d;
   --plum-a: #34383e; --plum-b: #31353a; --jelly-a: #464b52; --jelly-b: #42474e; --jelly-ink: #c9ccd1; --card-ink: #c9ccd1;
   --pink: #59616b; --teal: #6c7884; --red: #a85a54; --navy-card: #33373d; --light: #3d4147;
@@ -1491,7 +1521,6 @@ html[data-theme='graphite'] {
    palettes, not grey: pastel cards, gold Done and Canvas colours stay; the page, days, blocks and windows turn pink.
    They share the structural rules below with the grey themes (shadows, veils, accent inks, tints) through --g-*. */
 html[data-theme='pinkpop'] {
-  --countdown: #b5546d;
   --page: #fbeaf3; --ink: #2a1f2b; --ink-soft: #6b5566;
   --plum-a: #efcadb; --plum-b: #e6bacf; --jelly-a: #fdfafa; --jelly-b: #f7f0f2; --jelly-ink: #3b2a35; --card-ink: #2a1f2b;   /* porcelain blocks, blush days */
   --block-edge: #d98fb2;                                           /* the pink stays only on the block's border (Gianni: not loud) */
@@ -1504,7 +1533,6 @@ html[data-theme='pinkpop'] {
 }
 html[data-theme='pinkpop'] body { min-height: 100dvh; background: linear-gradient(135deg, #fff7fb 0%, #fbeaf3 35%, #f5d6e7 70%, #fff7fb 100%) fixed; }
 html[data-theme='petalpunk'] {
-  --countdown: #f2b3bf;
   --page: #1b141f; --ink: #f6e9f1; --ink-soft: #c7b2c1;
   --plum-a: #2e2238; --plum-b: #251b2d; --jelly-a: #4a3a52; --jelly-b: #413349; --jelly-ink: #f4e6ef; --card-ink: #2a1020;   /* plum velvet blocks (Gianni: the hot pink shouted) */
   --block-edge: #c98aac;                                           /* a rose border is all the pink a block keeps */
@@ -1521,7 +1549,6 @@ html[data-theme='petalpunk'] body { min-height: 100dvh; background: linear-gradi
    light themes looked too much like the pinks and the citrus; a panel gave each column one family: blue, pink, orange,
    grey). Pale sky pages, soft blue days, porcelain blocks with a periwinkle edge, a muted cobalt accent. */
 html[data-theme='squeezeme'] {
-  --countdown: #3f5f9c;
   --page: #eef4fc; --ink: #1f2937; --ink-soft: #4a5872;
   --plum-a: #d3e1f5; --plum-b: #c3d6f0; --jelly-a: #fbfdff; --jelly-b: #eff4fb; --jelly-ink: #1e2a44; --card-ink: #1f2937;   /* porcelain blocks, sky days */
   --block-edge: #93b0e0;                                           /* periwinkle border */
@@ -1534,7 +1561,6 @@ html[data-theme='squeezeme'] {
 }
 html[data-theme='squeezeme'] body { min-height: 100dvh; background: linear-gradient(135deg, #f8fbff 0%, #eef4fc 35%, #dde9f8 70%, #f8fbff 100%) fixed; }
 html[data-theme='smokedcitrus'] {
-  --countdown: #d7773f;
   --page: #1a1918; --ink: #f5efe8; --ink-soft: #cfc3b6;
   --plum-a: #2c2b29; --plum-b: #232220; --jelly-a: #56514a; --jelly-b: #4a4640; --jelly-ink: #f3ece4; --card-ink: #2a1406;   /* blocks in warm smoked stone (Gianni: the orange blocks shouted) */
   --pink: #fb923c; --teal: #fdba74; --red: #f87171; --navy-card: #2c2b29; --light: #ffedd5;
@@ -1552,7 +1578,6 @@ html[data-theme='smokedcitrus'] .block-window input { color-scheme: dark; }
 html[data-theme='smokedcitrus'] input.block-name { border-bottom-color: rgba(253, 186, 116, .5); }
 /* Sunburnt Toast (light): Epic Manager's golden orange ("Pro_SunburntToast"): warm toast pages, golden blocks */
 html[data-theme='sunburnt'] {
-  --countdown: #a9522f;
   --page: #fff1e5; --ink: #1f2937; --ink-soft: #5c4633;
   --plum-a: #f2d8bc; --plum-b: #e9c7a2; --jelly-a: #fdf8ef; --jelly-b: #f8efe1; --jelly-ink: #3b2a12; --card-ink: #1f2937;   /* oat blocks, toast days */
   --block-edge: #d19c4a;                                           /* honey border */
@@ -1569,7 +1594,6 @@ html[data-theme='sunburnt'] body { min-height: 100dvh; background: linear-gradie
    buttons and the wordmark's Cinzel Decorative in navy for the page titles. Dark is the same page at night: deep navy
    (the wordmark's "Go"), navy days and blocks with a gold edge, gold buttons and the titles in the wordmark's gold. */
 html[data-theme='goepiclight'] {
-  --countdown: #a87b14;
   --page: #fbfbfd; --ink: #1d1d1f; --ink-soft: #5c5c63;          /* the soft ink darkened to read on the grey days (5.6:1) */
   --plum-a: #f0f0f4; --plum-b: #ececf1; --jelly-a: #d9d9e2; --jelly-b: #cfcfd9; --jelly-ink: #1d1d1f; --card-ink: #1d1d1f;   /* pale grey blocks on near-white days (Gianni: white blocks were lost on the page and their header; a panel chose it) */
   --block-edge: #b8901e;                                           /* the wordmark's gold, deep enough to outline the block (2.2:1 or more) */
@@ -1583,7 +1607,6 @@ html[data-theme='goepiclight'] {
 }
 html[data-theme='goepiclight'] body { min-height: 100dvh; background: #fbfbfd; }
 html[data-theme='goepicdark'] {
-  --countdown: #f0cf6e;
   --page: #0a1130; --ink: #f5f5f7; --ink-soft: #a9afc6;
   --plum-a: #16214f; --plum-b: #111a42; --jelly-a: #2f428c; --jelly-b: #283a7e; --jelly-ink: #f5f5f7; --card-ink: #22203a;   /* navy blocks with a gold edge */
   --block-edge: #c9a227;
@@ -1619,11 +1642,8 @@ html:is([data-theme='goepiclight'], [data-theme='goepicdark']) .board-head .day-
   background: linear-gradient(100deg, #f0cf6e, #d9b54a 50%, #b8860b); border-color: #b8860b; color: #101b42 !important; }
 html:is([data-theme='office'], [data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepiclight'], [data-theme='goepicdark'])[data-red-line] { --now: #e0463b; --now-ink: #fff; }     /* Ajustes › red line */
 html[data-theme='graphite'][data-red-line] { --now: #d0564c; }
-/* Ajustes › red countdown bar (Gianni: red by default, in every theme, Office and Graphite too, since the box is
-   respected); off, each theme keeps its own muted --countdown (a quiet grey in Office and Graphite). Epic's own is
-   already its soft red. */
-html[data-red-countdown]:is([data-theme='graphite'], [data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goepicdark']) { --countdown: #d0524a; }
-html[data-red-countdown]:is([data-theme='office'], [data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'], [data-theme='goepiclight']) { --countdown: #c0392b; }
+/* The countdown bar's colour (--countdown) is set on <html> by ThemeService (countdownColour in core/theme.ts): red when
+   the palette window's box is ticked, otherwise the theme's own colour. The :root value is only the first paint's. */
 
 html:is([data-theme='office'], [data-theme='graphite']) :is(main:not(:has(.board, .year-page)), dialog) { filter: grayscale(1); }
 /* the Year keeps its own colours in every theme (Gianni), so only what is around its seasons is grayed */
@@ -1821,8 +1841,8 @@ html[data-theme='graphite'] .board > .overdue-tray { --tray-edge: #d27870; --tra
 :root { --foot-h: calc(20px + env(safe-area-inset-bottom)); }
 .foot-countdown { position: fixed; z-index: 16; left: 0; right: 0; bottom: 0; height: var(--foot-h); box-sizing: border-box;
   padding-bottom: env(safe-area-inset-bottom); border-radius: 0; pointer-events: none; overflow: hidden;
-  /* the time already spent (Gianni, v66: much less pink): a quiet grey from the page and its ink, only a hint of the bar's colour */
-  background: color-mix(in srgb, var(--countdown) 7%, color-mix(in srgb, var(--ink) 13%, var(--page))); box-shadow: 0 -1px 0 color-mix(in srgb, var(--ink) 16%, transparent);
+  /* the time already spent: a soft tint of the bar's own colour (Gianni, v73: the pink is back) */
+  background: color-mix(in srgb, var(--countdown) 24%, var(--page)); box-shadow: 0 -1px 0 color-mix(in srgb, var(--countdown) 45%, transparent);
   transform: translateY(100%); visibility: hidden;
   transition: transform .9s cubic-bezier(.4, 0, .2, 1), visibility 0s linear .9s; }
 .foot-countdown.up { transform: none; visibility: visible; transition: transform .9s cubic-bezier(.4, 0, .2, 1), visibility 0s; }
@@ -1882,15 +1902,13 @@ html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'
   --edit-open: #fff; --edit-open-ink: color-mix(in srgb, var(--fab-ink) 55%, #16121c); }
 html .capture-fab.look-fab.look-fab.look-fab:not(.open), html .capture-fab.finish-fab.finish-fab {
   background: var(--edit-fab); color: var(--edit-ink); border: 1.5px solid var(--edit-ring); box-shadow: 0 4px 14px rgba(0, 0, 0, .28); }
-html .capture-fab.finish-fab.finish-fab { border: 0; box-shadow: 0 0 0 2.5px var(--pink), 0 4px 14px rgba(0, 0, 0, .28); }
+html .capture-fab.finish-fab.finish-fab { border: 0; box-shadow: 0 4px 14px rgba(0, 0, 0, .28); }   /* no ring (Gianni, v73) */
 html body .capture-fab.finish-fab.finish-fab.finish-fab { width: 60px; height: 60px; color: var(--edit-ink) !important; }   /* white ✓ on the dark button: stronger than the accent-ink rule, and the same 60px as the others */
 html:not([data-theme]) body .capture-fab.finish-fab.finish-fab.finish-fab, html[data-theme='epic'] body .capture-fab.finish-fab.finish-fab.finish-fab {
   background: var(--teal); color: #0b2f2a !important; box-shadow: none; }
 html .capture-fab.look-fab.look-fab.open { background: var(--edit-open); color: var(--edit-open-ink) !important; border-color: var(--edit-open); }
 html body :is(.capture-fab.look-fab.look-fab.look-fab:not(.open), .capture-fab.finish-fab.finish-fab.finish-fab):hover:not(:disabled) { background: color-mix(in srgb, var(--edit-fab) 82%, #fff) !important; }
 html:is(:not([data-theme]), [data-theme='epic']) body .capture-fab.finish-fab.finish-fab.finish-fab.finish-fab:hover:not(:disabled) { background: color-mix(in srgb, var(--teal) 85%, #000) !important; }
-/* the round ✓ Finish means OK (Gianni, v66): a green ring as thick as the menu's ✎ Edit red one, in every theme */
-html:is([data-theme], :not([data-theme])) body .capture-fab.finish-fab.finish-fab.finish-fab { box-shadow: 0 0 0 4.5px var(--edit-green, #22a34a), 0 4px 14px rgba(0, 0, 0, .28); }
 
 /* A delete waits 8 s with a Cancel (Undo, Gianni), in the same question window: the seconds left, Cancel first and a red
    line along the window's foot that shrinks to nothing as the time runs out; what waits is dimmed where it shows */
