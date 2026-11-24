@@ -5,7 +5,7 @@ import { THEMES, Theme } from './theme';
  * colours; the theme it is chosen for draws its 8 activity slots (--act-0…7, week.model toneVar) from it, a shorter
  * palette going round its own colours (slot 7 of a 7-colour palette is its first). Each theme's own palette (the one it
  * had before, mirrored from styles.css) is its default, so nothing changes until he picks; Petal Punk's is "Pinks"
- * and Smoked Citrus's "Oranges" (his words); "Light Roses" is the same roses in light tones (v57). Sunrise, Neon, Orchard, Terra and Sober come from Epic Manager's Settings.
+ * and Smoked Citrus's "Oranges" (his words); "Light Roses" is the same roses in light tones (v57), "Light Oranges" the same oranges (v74). Sunrise, Neon, Orchard, Terra and Sober come from Epic Manager's Settings.
  */
 export interface Palette { id: string; colors: readonly string[] }
 
@@ -18,6 +18,8 @@ export const PALETTES: readonly Palette[] = [
   // Light Roses (Gianni, v57): Petal Punk's roses in light tones, for dark ink
   { id: 'lightroses', colors: ['#f6c4d9', '#f0c3c6', '#ddc6e8', '#ecd2de', '#f3c2e7', '#e9cfcc', '#e6bccd', '#f2d3dc'] },
   { id: 'smokedcitrus', colors: ['#a84a0b', '#9c5200', '#7a1f10', '#a83c48', '#b33f1a', '#8a4a12', '#6e2c06', '#5e1420'] },
+  // Light Oranges (Gianni, v74): Smoked Citrus's oranges in light tones, for dark ink, as Light Roses
+  { id: 'lightoranges', colors: ['#f9c4a0', '#f6d3a2', '#efbcab', '#f4c7c6', '#f3b48a', '#ecd3b9', '#f0c8a8', '#f8dcc6'] },
   { id: 'office', colors: ['#f4f0eb', '#f1f1f1', '#e5e8ee', '#f6faff', '#ebe8e2', '#fdf9f4', '#edf1f6', '#e8e8e8'] },
   { id: 'graphite', colors: ['#5a5a5a', '#606060', '#242424', '#707070', '#686868', '#1e1e1e', '#2c2c2c', '#161616'] },
   { id: 'goepiclight', colors: ['#1f3a8a', '#3a8f4f', '#6b5bd2', '#c26a15', '#d0457e', '#a67c0a', '#2f7fd6', '#9a7656'] },
