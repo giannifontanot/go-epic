@@ -54,10 +54,19 @@ export class Guide {
   /** The round menu's actions on the menu card, from the top down, each beside its button. */
   protected readonly menuActions = ['settings.title', 'nav.edit', 'settings.theme', 'nav.pages', 'week.overview']
     .map((key, i) => ({ key, y: 22 + i * 30 }));
-  /** The Letreros sets on the last card, in the language in use, the chosen one ringed (it follows a new choice). */
-  protected readonly levelSets = computed(() => LEVEL_SETS.map((set, i) => ({
-    id: set.id, name: inLang(set.name, this.i18n.lang()) ?? set.id, y: 44 + i * 22, on: set.id === this.i18n.levels(),
-  })));
+  /** The Letreros sets on the last card, in the language in use, the chosen one ringed (it follows a new choice), each with
+   *  its five words in capitals, which the drawing shows in turn as a ring steps down the sets (v87). */
+  protected readonly levelSets = computed(() => {
+    const lang = this.i18n.lang();
+    return LEVEL_SETS.map((set, i) => {
+      const words = inLang(set.words, set.words[lang] ? lang : 'en')!;
+      const up = (l: keyof typeof words) => words[l].one.toLocaleUpperCase(this.i18n.locale());
+      return {
+        id: set.id, name: inLang(set.name, lang) ?? set.id, y: 44 + i * 22, on: set.id === this.i18n.levels(),
+        area: up('area'), epic: up('epic'), feature: up('feature'), story: up('story'), task: up('task'),
+      };
+    });
+  });
 
   protected go(to: number): void {
     const from = this.index();

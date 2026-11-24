@@ -667,21 +667,25 @@ html.tilt .capture-tabs button.on { translate: 0 0; }   /* the tabs belong to th
 .products-lead { margin: 0; color: var(--ink); font-size: calc(17px * var(--esc, 1)); font-weight: 600; }
 .products-empty .muted { margin: 0; font-size: calc(14px * var(--esc, 1)); }
 
-/* How to use (pages/guide, Gianni): a carousel of short cards, each a drawing of the real screen and a few words. The
+/* Instructions (pages/guide, Gianni): a carousel of short cards, each a title, an animated drawing of the real screen
+   across the card's whole width (v87: bigger, Gianni) and a few words under it. The
    drawings are painted with the theme's own tokens, so they wear the theme the user has on; the Year's keep the Year
    screen's fixed colours. The new card slides in from its side (nothing under reduced motion). */
 .guide-page { max-width: 640px; margin: 0 auto; }
 .guide { display: grid; gap: 14px; }
 .guide-stage { display: grid; overflow: hidden; border-radius: 26px; }
-.guide-slide { display: grid; gap: 14px; padding: 14px 14px 20px; border-radius: 26px; background: var(--navy-card); border: 1px solid var(--win-edge); }
+.guide-slide { display: grid; gap: 12px; padding: 16px 0 20px; border-radius: 26px; background: var(--navy-card); border: 1px solid var(--win-edge); }
 .guide-slide[data-dir] { animation: guide-in .45s cubic-bezier(0, 0, .6, 1) both; }
 .guide-slide[data-dir='right'] { --guide-from: 44px; }
 .guide-slide[data-dir='left'] { --guide-from: -44px; }
 @keyframes guide-in { from { opacity: 0; translate: var(--guide-from, 44px) 0; } }
-.guide-art { border-radius: 18px; overflow: hidden; }
+.guide-art { overflow: hidden; background: var(--page); border-block: 1px solid color-mix(in srgb, var(--ink-soft) 30%, transparent); }
+.guide-art .ga-svg { max-height: 62vh; }
+.guide-art .ga-screen { stroke: none; }
+.guide-h { margin: 0; padding: 0 18px; font-size: calc(22px * var(--esc, 1)); color: var(--ink); }
+@media (max-width: 640px) { .guide-stage { margin-inline: -10px; } }
 .ga-svg { display: block; width: 100%; height: auto; max-height: 44vh; margin: 0 auto; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
-.guide-text { padding: 0 6px; min-height: 8.5em; }
-.guide-text h2 { margin: 0 0 6px; font-size: calc(22px * var(--esc, 1)); color: var(--ink); }
+.guide-text { padding: 0 18px; min-height: 7.5em; }
 .guide-text p { margin: 0; font-size: calc(16px * var(--esc, 1)); line-height: 1.5; color: var(--ink); }
 .guide-end { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
 .guide-end button { min-height: 44px; padding: 0 18px; }
@@ -833,26 +837,370 @@ html[data-edge] .ga-card .edge { display: inline; }
 .ga-edit-line { fill: none; stroke: var(--edit-ink, #fff); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .ga-pill-text { font-size: 11px; font-weight: 700; fill: var(--ink); text-anchor: middle; }
 .ga-head { fill: var(--page); stroke: var(--ink-soft); stroke-width: 1.2; stroke-dasharray: 3 3; }
-.ga-head-away { animation: ga-head-away 6s cubic-bezier(.4, 0, .2, 1) infinite; }
-@keyframes ga-head-away { 0%, 15% { translate: 0 0; opacity: 1; } 40%, 85% { translate: 0 -22px; opacity: 0; } 100% { translate: 0 0; opacity: 1; } }
 .ga-dim { opacity: .45; }
 .ga-spent { fill: color-mix(in srgb, var(--ink) 13%, var(--page)); }
-.ga-shrink { transform-box: fill-box; transform-origin: right; animation: ga-shrink 6s linear infinite; }
-@keyframes ga-shrink { from { scale: 1 1; } to { scale: .35 1; } }
-.ga-grow { transform-box: fill-box; transform-origin: top; animation: ga-grow 4s ease-in-out infinite alternate; }
-.ga-pull { animation: ga-pull 4s ease-in-out infinite alternate; }
-@keyframes ga-grow { from { scale: 1 .8; } to { scale: 1 1; } }
-@keyframes ga-pull { from { translate: 0 -15.6px; } to { translate: 0 0; } }
 .ga-box { fill: none; stroke: var(--ink-soft); stroke-width: 1.3; }
 .ga-box.on { fill: var(--teal); stroke: var(--teal); }
 .ga-box-ink { fill: none; stroke: var(--g-on-ink, #0b2f2a); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .ga-now-bar { fill: var(--now); }
-@media (prefers-reduced-motion: reduce) { .ga-head-away { animation: none; opacity: 0; } .ga-shrink { animation: none; scale: .6 1; } .ga-grow, .ga-pull { animation: none; } }
 .ga-drain-bg { fill: color-mix(in srgb, var(--red) 20%, transparent); }
 .ga-drain { fill: var(--red); }
 .ga-suggest { fill: none; stroke: var(--teal); stroke-width: 2; }
 .ga-theme { stroke: color-mix(in srgb, var(--ink) 30%, transparent); }
 .ga-theme.on { stroke: var(--teal); stroke-width: 3; }
+/* v84: every Instrucciones card plays what it explains (Gianni: animations, not a text telling it). A finger's touch is a
+   soft disc that presses in and ripples out; each card loops on its own clock. The still picture (no animation, as under
+   reduced motion, where every animation stops) is the end of the story, so nothing is missing without motion. */
+.ga-tap { fill: color-mix(in srgb, var(--ink) 28%, transparent); stroke: var(--ink); stroke-width: 1.5; opacity: 0; pointer-events: none; }
+.ga-tap.dark { fill: rgb(0 0 0 / .22); stroke: #1d2433; }
+.ep-cover { fill: var(--plum-b); scale: 0 1; }
+.ep-new, .ud-n2, .td-menu, .td-half, .fc-head, .cp-type, .cp-new, .sz-35, .mn-sq, .th-wash, .th-ring, .th-edge, .lb-ring, .lb-s, .dl-d, .dl-d3 { opacity: 0; }
+.lb-s.on, .dl-d.d8 { opacity: 1; }
+.fc-shrink { scale: .6 1; }
+.yr-cover { fill: #fff; scale: 0 1; }
+.dl-drain { scale: .6 1; }
+.ga-paper.n2 { --tone: var(--note-2, #e1d7ff); }
+.cp-tick { fill: var(--teal); }
+.cp-tick-ink { fill: none; stroke: var(--g-on-ink, #0b2f2a); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.td-sp { fill: #f5c542; opacity: 0; }
+.td-pick { fill: color-mix(in srgb, var(--teal) 40%, transparent); opacity: 0; }
+.th-ring { fill: none; stroke: var(--teal); stroke-width: 3; }
+.lb-ring { fill: none; stroke: var(--pink); stroke-width: 3; }
+.dl-name { font: 700 13px Georgia, 'Times New Roman', serif; fill: var(--act-ink, var(--card-ink)); text-anchor: middle; }
+@keyframes k-wl-title { 0.00% { opacity: 0; translate: -14px 0px } 2.50% { opacity: 0; translate: -14px 0px } 8.75% { opacity: 1; translate: 0 0 } 87.50% { opacity: 1; translate: 0 0 } 92.50% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: -14px 0px } }
+.ga-svg .wl-title { animation: k-wl-title 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wl-spark { 0.00% { opacity: 0; scale: 0; rotate: -90deg } 7.50% { opacity: 0; scale: 0; rotate: -90deg } 13.75% { opacity: 1; scale: 1.5; rotate: 0deg } 17.50% { opacity: 1; scale: 1; rotate: 0deg } 47.50% { opacity: 1; scale: 1; rotate: 0deg } 51.25% { opacity: 1; scale: 1.6; rotate: 45deg } 55.00% { opacity: 1; scale: 1; rotate: 90deg } 87.50% { opacity: 1; scale: 1; rotate: 90deg } 92.50% { opacity: 0; scale: 1; rotate: 90deg } 100.00% { opacity: 0; scale: 0; rotate: -90deg } }
+.ga-svg .wl-spark { animation: k-wl-spark 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wl-day { 0.00% { opacity: 0; translate: 0px 24px } 8.75% { opacity: 0; translate: 0px 24px } 15.00% { opacity: 1; translate: 0 0 } 87.50% { opacity: 1; translate: 0 0 } 92.50% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: 0px 24px } }
+.ga-svg .wl-day { animation: k-wl-day 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wl-b1 { 0.00% { opacity: 0; translate: 0px 12px } 13.75% { opacity: 0; translate: 0px 12px } 20.00% { opacity: 1; translate: 0 0 } 87.50% { opacity: 1; translate: 0 0 } 92.50% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: 0px 12px } }
+.ga-svg .wl-b1 { animation: k-wl-b1 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wl-c0 { 0.00% { opacity: 0; translate: -18px 0px } 18.12% { opacity: 0; translate: -18px 0px } 24.38% { opacity: 1; translate: 0 0 } 87.50% { opacity: 1; translate: 0 0 } 92.50% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: -18px 0px } }
+.ga-svg .wl-c0 { animation: k-wl-c0 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wl-c1 { 0.00% { opacity: 0; translate: -18px 0px } 21.88% { opacity: 0; translate: -18px 0px } 28.12% { opacity: 1; translate: 0 0 } 87.50% { opacity: 1; translate: 0 0 } 92.50% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: -18px 0px } }
+.ga-svg .wl-c1 { animation: k-wl-c1 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wl-b2 { 0.00% { opacity: 0; translate: 0px 12px } 26.88% { opacity: 0; translate: 0px 12px } 33.12% { opacity: 1; translate: 0 0 } 87.50% { opacity: 1; translate: 0 0 } 92.50% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: 0px 12px } }
+.ga-svg .wl-b2 { animation: k-wl-b2 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wl-c2 { 0.00% { opacity: 0; translate: -18px 0px } 31.25% { opacity: 0; translate: -18px 0px } 37.50% { opacity: 1; translate: 0 0 } 87.50% { opacity: 1; translate: 0 0 } 92.50% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: -18px 0px } }
+.ga-svg .wl-c2 { animation: k-wl-c2 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wl-f1 { 0.00% { opacity: 0; scale: .3 } 37.50% { opacity: 0; scale: .3 } 41.25% { opacity: 1; scale: 1.12 } 43.12% { opacity: 1; scale: 1 } 87.50% { opacity: 1; scale: 1 } 92.50% { opacity: 0; scale: 1 } 100.00% { opacity: 0; scale: .3 } }
+.ga-svg .wl-f1 { animation: k-wl-f1 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wl-f2 { 0.00% { opacity: 0; scale: .3 } 41.25% { opacity: 0; scale: .3 } 45.00% { opacity: 1; scale: 1.12 } 46.88% { opacity: 1; scale: 1 } 87.50% { opacity: 1; scale: 1 } 92.50% { opacity: 0; scale: 1 } 100.00% { opacity: 0; scale: .3 } }
+.ga-svg .wl-f2 { animation: k-wl-f2 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wl-t0 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 58.75% { opacity: 0; scale: .5; translate: 0 0 } 60.63% { opacity: .9; scale: 1; translate: 0 0 } 60.63% { opacity: .9; scale: 1; translate: 0 0 } 65.62% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .wl-t0 { animation: k-wl-t0 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-mn-f0 { 0.00% { opacity: 0; translate: 0 30px } 13.33% { opacity: 0; translate: 0 30px } 18.33% { opacity: 1; translate: 0 0 } 84.67% { opacity: 1; translate: 0 0 } 89.11% { opacity: 0; translate: 0 30px } 100.00% { opacity: 0; translate: 0 30px } }
+.ga-svg .mn-f0 { animation: k-mn-f0 9s cubic-bezier(.3, 0, .2, 1) infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-mn-f1 { 0.00% { opacity: 0; translate: 0 60px } 14.22% { opacity: 0; translate: 0 60px } 19.22% { opacity: 1; translate: 0 0 } 83.78% { opacity: 1; translate: 0 0 } 88.22% { opacity: 0; translate: 0 60px } 100.00% { opacity: 0; translate: 0 60px } }
+.ga-svg .mn-f1 { animation: k-mn-f1 9s cubic-bezier(.3, 0, .2, 1) infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-mn-f2 { 0.00% { opacity: 0; translate: 0 90px } 15.11% { opacity: 0; translate: 0 90px } 20.11% { opacity: 1; translate: 0 0 } 82.89% { opacity: 1; translate: 0 0 } 87.33% { opacity: 0; translate: 0 90px } 100.00% { opacity: 0; translate: 0 90px } }
+.ga-svg .mn-f2 { animation: k-mn-f2 9s cubic-bezier(.3, 0, .2, 1) infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-mn-f3 { 0.00% { opacity: 0; translate: 0 120px } 16.00% { opacity: 0; translate: 0 120px } 21.00% { opacity: 1; translate: 0 0 } 82.00% { opacity: 1; translate: 0 0 } 86.44% { opacity: 0; translate: 0 120px } 100.00% { opacity: 0; translate: 0 120px } }
+.ga-svg .mn-f3 { animation: k-mn-f3 9s cubic-bezier(.3, 0, .2, 1) infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-mn-f4 { 0.00% { opacity: 0; translate: 0 150px } 16.89% { opacity: 0; translate: 0 150px } 21.89% { opacity: 1; translate: 0 0 } 81.11% { opacity: 1; translate: 0 0 } 85.56% { opacity: 0; translate: 0 150px } 100.00% { opacity: 0; translate: 0 150px } }
+.ga-svg .mn-f4 { animation: k-mn-f4 9s cubic-bezier(.3, 0, .2, 1) infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-mn-lab { 0.00% { opacity: 0; translate: 26px 0px } 16.67% { opacity: 0; translate: 26px 0px } 21.11% { opacity: 1; translate: 0 0 } 80.00% { opacity: 1; translate: 0 0 } 84.44% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: 26px 0px } }
+.ga-svg .mn-lab { animation: k-mn-lab 9s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-mn-veil { 0.00% { opacity: 0 } 11.11% { opacity: 0 } 15.56% { opacity: 1 } 86.67% { opacity: 1 } 92.22% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .mn-veil { animation: k-mn-veil 9s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-mn-x { 0.00% { opacity: 0 } 11.11% { opacity: 0 } 13.33% { opacity: 1 } 87.78% { opacity: 1 } 90.00% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .mn-x { animation: k-mn-x 9s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-mn-sq { 0.00% { opacity: 1 } 11.11% { opacity: 1 } 13.33% { opacity: 0 } 87.78% { opacity: 0 } 90.00% { opacity: 1 } 100.00% { opacity: 1 } }
+.ga-svg .mn-sq { animation: k-mn-sq 9s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-mn-t0 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 7.78% { opacity: 0; scale: .5; translate: 0 0 } 9.44% { opacity: .9; scale: 1; translate: 0 0 } 9.44% { opacity: .9; scale: 1; translate: 0 0 } 13.89% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .mn-t0 { animation: k-mn-t0 9s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ar-a0 { 0.00% { opacity: 0; scale: .3 } 3.75% { opacity: 0; scale: .3 } 7.50% { opacity: 1; scale: 1.12 } 9.38% { opacity: 1; scale: 1 } 87.50% { opacity: 1; scale: 1 } 92.50% { opacity: 0; scale: 1 } 100.00% { opacity: 0; scale: .3 } }
+.ga-svg .ar-a0 { animation: k-ar-a0 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ar-i0 { 0.00% { stroke-dashoffset: 1; opacity: 1 } 7.50% { stroke-dashoffset: 1; opacity: 1 } 17.50% { stroke-dashoffset: 0; opacity: 1 } 87.50% { stroke-dashoffset: 0; opacity: 1 } 92.50% { stroke-dashoffset: 0; opacity: 0 } 100.00% { stroke-dashoffset: 1; opacity: 0 } }
+.ga-svg .ar-i0 { animation: k-ar-i0 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; stroke-dasharray: 1 1; }
+@keyframes k-ar-l0 { 0.00% { opacity: 0; translate: 0px 8px } 11.25% { opacity: 0; translate: 0px 8px } 17.50% { opacity: 1; translate: 0 0 } 87.50% { opacity: 1; translate: 0 0 } 92.50% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: 0px 8px } }
+.ga-svg .ar-l0 { animation: k-ar-l0 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ar-a1 { 0.00% { opacity: 0; scale: .3 } 15.00% { opacity: 0; scale: .3 } 18.75% { opacity: 1; scale: 1.12 } 20.62% { opacity: 1; scale: 1 } 87.50% { opacity: 1; scale: 1 } 92.50% { opacity: 0; scale: 1 } 100.00% { opacity: 0; scale: .3 } }
+.ga-svg .ar-a1 { animation: k-ar-a1 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ar-i1 { 0.00% { stroke-dashoffset: 1; opacity: 1 } 18.75% { stroke-dashoffset: 1; opacity: 1 } 28.75% { stroke-dashoffset: 0; opacity: 1 } 87.50% { stroke-dashoffset: 0; opacity: 1 } 92.50% { stroke-dashoffset: 0; opacity: 0 } 100.00% { stroke-dashoffset: 1; opacity: 0 } }
+.ga-svg .ar-i1 { animation: k-ar-i1 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; stroke-dasharray: 1 1; }
+@keyframes k-ar-l1 { 0.00% { opacity: 0; translate: 0px 8px } 22.50% { opacity: 0; translate: 0px 8px } 28.75% { opacity: 1; translate: 0 0 } 87.50% { opacity: 1; translate: 0 0 } 92.50% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: 0px 8px } }
+.ga-svg .ar-l1 { animation: k-ar-l1 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ar-a2 { 0.00% { opacity: 0; scale: .3 } 26.25% { opacity: 0; scale: .3 } 30.00% { opacity: 1; scale: 1.12 } 31.88% { opacity: 1; scale: 1 } 87.50% { opacity: 1; scale: 1 } 92.50% { opacity: 0; scale: 1 } 100.00% { opacity: 0; scale: .3 } }
+.ga-svg .ar-a2 { animation: k-ar-a2 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ar-i2 { 0.00% { stroke-dashoffset: 1; opacity: 1 } 30.00% { stroke-dashoffset: 1; opacity: 1 } 40.00% { stroke-dashoffset: 0; opacity: 1 } 87.50% { stroke-dashoffset: 0; opacity: 1 } 92.50% { stroke-dashoffset: 0; opacity: 0 } 100.00% { stroke-dashoffset: 1; opacity: 0 } }
+.ga-svg .ar-i2 { animation: k-ar-i2 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; stroke-dasharray: 1 1; }
+@keyframes k-ar-l2 { 0.00% { opacity: 0; translate: 0px 8px } 33.75% { opacity: 0; translate: 0px 8px } 40.00% { opacity: 1; translate: 0 0 } 87.50% { opacity: 1; translate: 0 0 } 92.50% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: 0px 8px } }
+.ga-svg .ar-l2 { animation: k-ar-l2 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ar-a3 { 0.00% { opacity: 0; scale: .3 } 37.50% { opacity: 0; scale: .3 } 41.25% { opacity: 1; scale: 1.12 } 43.12% { opacity: 1; scale: 1 } 87.50% { opacity: 1; scale: 1 } 92.50% { opacity: 0; scale: 1 } 100.00% { opacity: 0; scale: .3 } }
+.ga-svg .ar-a3 { animation: k-ar-a3 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ar-i3 { 0.00% { stroke-dashoffset: 1; opacity: 1 } 41.25% { stroke-dashoffset: 1; opacity: 1 } 51.25% { stroke-dashoffset: 0; opacity: 1 } 87.50% { stroke-dashoffset: 0; opacity: 1 } 92.50% { stroke-dashoffset: 0; opacity: 0 } 100.00% { stroke-dashoffset: 1; opacity: 0 } }
+.ga-svg .ar-i3 { animation: k-ar-i3 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; stroke-dasharray: 1 1; }
+@keyframes k-ar-l3 { 0.00% { opacity: 0; translate: 0px 8px } 45.00% { opacity: 0; translate: 0px 8px } 51.25% { opacity: 1; translate: 0 0 } 87.50% { opacity: 1; translate: 0 0 } 92.50% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: 0px 8px } }
+.ga-svg .ar-l3 { animation: k-ar-l3 8s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ep-arrow { 0.00% { opacity: 0 } 11.00% { opacity: 0 } 14.00% { opacity: 1 } 31.00% { opacity: 1 } 34.00% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .ep-arrow { animation: k-ep-arrow 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ep-tile1 { 0.00% { opacity: 0; translate: -26px 6px; scale: .6 } 12.00% { opacity: 0; translate: -26px 6px; scale: .6 } 16.00% { opacity: 1; translate: 0 0; scale: 1 } 31.00% { opacity: 1; translate: 0 0; scale: 1 } 35.00% { opacity: 0; translate: -26px 6px; scale: .6 } 100.00% { opacity: 0; translate: -26px 6px; scale: .6 } }
+.ga-svg .ep-tile1 { animation: k-ep-tile1 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: 0 50%; }
+@keyframes k-ep-tile2 { 0.00% { opacity: 0; translate: -26px 6px; scale: .6 } 13.50% { opacity: 0; translate: -26px 6px; scale: .6 } 17.50% { opacity: 1; translate: 0 0; scale: 1 } 32.50% { opacity: 1; translate: 0 0; scale: 1 } 36.50% { opacity: 0; translate: -26px 6px; scale: .6 } 100.00% { opacity: 0; translate: -26px 6px; scale: .6 } }
+.ga-svg .ep-tile2 { animation: k-ep-tile2 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: 0 50%; }
+@keyframes k-ep-old { 0.00% { opacity: 1 } 34.00% { opacity: 1 } 37.00% { opacity: 0 } 93.00% { opacity: 0 } 97.00% { opacity: 1 } 100.00% { opacity: 1 } }
+.ga-svg .ep-old { animation: k-ep-old 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ep-new { 0.00% { opacity: 0 } 38.00% { opacity: 0 } 38.50% { opacity: 1 } 92.00% { opacity: 1 } 95.00% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .ep-new { animation: k-ep-new 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ep-cover { 0.00% { scale: 0 1 } 37.50% { scale: 0 1 } 38.00% { scale: 1 1 } 50.00% { scale: 0 1 } 100.00% { scale: 0 1 } }
+.ga-svg .ep-cover { animation: k-ep-cover 10s steps(9, end) infinite both; transform-box: fill-box; transform-origin: 100% 50%; }
+@keyframes k-ep-f0 { 0.00% { opacity: 1; translate: 0 0 } 34.00% { opacity: 1; translate: 0 0 } 37.00% { opacity: 0; translate: 0 0 } 54.00% { opacity: 0; translate: 0 12px } 59.00% { opacity: 1; translate: 0 0 } 100.00% { opacity: 1; translate: 0 0 } }
+.ga-svg .ep-f0 { animation: k-ep-f0 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ep-f1 { 0.00% { opacity: 1; translate: 0 0 } 34.00% { opacity: 1; translate: 0 0 } 37.00% { opacity: 0; translate: 0 0 } 59.00% { opacity: 0; translate: 0 12px } 64.00% { opacity: 1; translate: 0 0 } 100.00% { opacity: 1; translate: 0 0 } }
+.ga-svg .ep-f1 { animation: k-ep-f1 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ep-t0 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 8.00% { opacity: 0; scale: .5; translate: 0 0 } 9.50% { opacity: .9; scale: 1; translate: 0 0 } 9.50% { opacity: .9; scale: 1; translate: 0 0 } 13.50% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .ep-t0 { animation: k-ep-t0 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ep-t1 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 25.00% { opacity: 0; scale: .5; translate: 0 0 } 26.50% { opacity: .9; scale: 1; translate: 0 0 } 26.50% { opacity: .9; scale: 1; translate: 0 0 } 30.50% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .ep-t1 { animation: k-ep-t1 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-lv-feat { 0.00% { opacity: 0; scale: 1 0 } 5.56% { opacity: 0; scale: 1 0 } 6.67% { opacity: 1; scale: 1 0 } 11.11% { opacity: 1; scale: 1 1 } 88.89% { opacity: 1; scale: 1 1 } 93.33% { opacity: 0; scale: 1 1 } 100.00% { opacity: 0; scale: 1 0 } }
+.ga-svg .lv-feat { animation: k-lv-feat 9s ease-in-out infinite both; transform-box: fill-box; transform-origin: 50% 0; }
+@keyframes k-lv-fc { 0.00% { opacity: 0; translate: 0px 6px } 11.11% { opacity: 0; translate: 0px 6px } 16.67% { opacity: 1; translate: 0 0 } 88.89% { opacity: 1; translate: 0 0 } 93.33% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: 0px 6px } }
+.ga-svg .lv-fc { animation: k-lv-fc 9s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-lv-story { 0.00% { opacity: 0; scale: 1 0 } 15.56% { opacity: 0; scale: 1 0 } 16.67% { opacity: 1; scale: 1 0 } 21.11% { opacity: 1; scale: 1 1 } 88.89% { opacity: 1; scale: 1 1 } 93.33% { opacity: 0; scale: 1 1 } 100.00% { opacity: 0; scale: 1 0 } }
+.ga-svg .lv-story { animation: k-lv-story 9s ease-in-out infinite both; transform-box: fill-box; transform-origin: 50% 0; }
+@keyframes k-lv-sc { 0.00% { opacity: 0; translate: 0px 6px } 20.00% { opacity: 0; translate: 0px 6px } 25.56% { opacity: 1; translate: 0 0 } 88.89% { opacity: 1; translate: 0 0 } 93.33% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: 0px 6px } }
+.ga-svg .lv-sc { animation: k-lv-sc 9s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-lv-plus { 0.00% { opacity: 0; scale: .3 } 21.11% { opacity: 0; scale: .3 } 24.44% { opacity: 1; scale: 1.12 } 26.11% { opacity: 1; scale: 1 } 88.89% { opacity: 1; scale: 1 } 93.33% { opacity: 0; scale: 1 } 100.00% { opacity: 0; scale: .3 } }
+.ga-svg .lv-plus { animation: k-lv-plus 9s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-lv-c0 { 0.00% { opacity: 0; scale: .3 } 25.56% { opacity: 0; scale: .3 } 28.89% { opacity: 1; scale: 1.12 } 30.56% { opacity: 1; scale: 1 } 88.89% { opacity: 1; scale: 1 } 93.33% { opacity: 0; scale: 1 } 100.00% { opacity: 0; scale: .3 } }
+.ga-svg .lv-c0 { animation: k-lv-c0 9s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-lv-c4 { 0.00% { opacity: 0; scale: .3 } 38.89% { opacity: 0; scale: .3 } 42.22% { opacity: 1; scale: 1.12 } 43.89% { opacity: 1; scale: 1 } 88.89% { opacity: 1; scale: 1 } 93.33% { opacity: 0; scale: 1 } 100.00% { opacity: 0; scale: .3 } }
+.ga-svg .lv-c4 { animation: k-lv-c4 9s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-lv-t0 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 34.44% { opacity: 0; scale: .5; translate: 0 0 } 36.11% { opacity: .9; scale: 1; translate: 0 0 } 36.11% { opacity: .9; scale: 1; translate: 0 0 } 40.56% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .lv-t0 { animation: k-lv-t0 9s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ud-panel { 0.00% { opacity: 0; scale: 1 .2 } 8.00% { opacity: 0; scale: 1 .2 } 13.00% { opacity: 1; scale: 1 1 } 66.00% { opacity: 1; scale: 1 1 } 71.00% { opacity: 0; scale: 1 .2 } 100.00% { opacity: 0; scale: 1 .2 } }
+.ga-svg .ud-panel { animation: k-ud-panel 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: 50% 0; }
+@keyframes k-ud-b0 { 0.00% { scale: 0 1 } 20.00% { scale: 0 1 } 25.00% { scale: 1 1 } 100.00% { scale: 1 1 } }
+.ga-svg .ud-b0 { animation: k-ud-b0 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: 0 50%; }
+@keyframes k-ud-c0 { 0.00% { scale: 0 } 24.00% { scale: 0 } 27.00% { scale: 1.25 } 28.50% { scale: 1 } 100.00% { scale: 1 } }
+.ga-svg .ud-c0 { animation: k-ud-c0 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ud-k0 { 0.00% { stroke-dashoffset: 1; opacity: 1 } 27.50% { stroke-dashoffset: 1; opacity: 1 } 31.00% { stroke-dashoffset: 0; opacity: 1 } 100.00% { stroke-dashoffset: 0; opacity: 1 } }
+.ga-svg .ud-k0 { animation: k-ud-k0 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; stroke-dasharray: 1 1; }
+@keyframes k-ud-t0 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 17.50% { opacity: 0; scale: .5; translate: 0 0 } 19.00% { opacity: .9; scale: 1; translate: 0 0 } 19.00% { opacity: .9; scale: 1; translate: 0 0 } 23.00% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .ud-t0 { animation: k-ud-t0 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ud-b1 { 0.00% { scale: 0 1 } 30.00% { scale: 0 1 } 35.00% { scale: 1 1 } 100.00% { scale: 1 1 } }
+.ga-svg .ud-b1 { animation: k-ud-b1 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: 0 50%; }
+@keyframes k-ud-c1 { 0.00% { scale: 0 } 34.00% { scale: 0 } 37.00% { scale: 1.25 } 38.50% { scale: 1 } 100.00% { scale: 1 } }
+.ga-svg .ud-c1 { animation: k-ud-c1 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ud-k1 { 0.00% { stroke-dashoffset: 1; opacity: 1 } 37.50% { stroke-dashoffset: 1; opacity: 1 } 41.00% { stroke-dashoffset: 0; opacity: 1 } 100.00% { stroke-dashoffset: 0; opacity: 1 } }
+.ga-svg .ud-k1 { animation: k-ud-k1 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; stroke-dasharray: 1 1; }
+@keyframes k-ud-t1 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 27.50% { opacity: 0; scale: .5; translate: 0 0 } 29.00% { opacity: .9; scale: 1; translate: 0 0 } 29.00% { opacity: .9; scale: 1; translate: 0 0 } 33.00% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .ud-t1 { animation: k-ud-t1 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ud-b2 { 0.00% { scale: 0 1 } 40.00% { scale: 0 1 } 45.00% { scale: 1 1 } 100.00% { scale: 1 1 } }
+.ga-svg .ud-b2 { animation: k-ud-b2 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: 0 50%; }
+@keyframes k-ud-c2 { 0.00% { scale: 0 } 44.00% { scale: 0 } 47.00% { scale: 1.25 } 48.50% { scale: 1 } 100.00% { scale: 1 } }
+.ga-svg .ud-c2 { animation: k-ud-c2 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ud-k2 { 0.00% { stroke-dashoffset: 1; opacity: 1 } 47.50% { stroke-dashoffset: 1; opacity: 1 } 51.00% { stroke-dashoffset: 0; opacity: 1 } 100.00% { stroke-dashoffset: 0; opacity: 1 } }
+.ga-svg .ud-k2 { animation: k-ud-k2 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; stroke-dasharray: 1 1; }
+@keyframes k-ud-t2 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 37.50% { opacity: 0; scale: .5; translate: 0 0 } 39.00% { opacity: .9; scale: 1; translate: 0 0 } 39.00% { opacity: .9; scale: 1; translate: 0 0 } 43.00% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .ud-t2 { animation: k-ud-t2 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ud-b3 { 0.00% { scale: 0 1 } 50.00% { scale: 0 1 } 55.00% { scale: 1 1 } 100.00% { scale: 1 1 } }
+.ga-svg .ud-b3 { animation: k-ud-b3 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: 0 50%; }
+@keyframes k-ud-c3 { 0.00% { scale: 0 } 54.00% { scale: 0 } 57.00% { scale: 1.25 } 58.50% { scale: 1 } 100.00% { scale: 1 } }
+.ga-svg .ud-c3 { animation: k-ud-c3 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ud-k3 { 0.00% { stroke-dashoffset: 1; opacity: 1 } 57.50% { stroke-dashoffset: 1; opacity: 1 } 61.00% { stroke-dashoffset: 0; opacity: 1 } 100.00% { stroke-dashoffset: 0; opacity: 1 } }
+.ga-svg .ud-k3 { animation: k-ud-k3 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; stroke-dasharray: 1 1; }
+@keyframes k-ud-t3 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 47.50% { opacity: 0; scale: .5; translate: 0 0 } 49.00% { opacity: .9; scale: 1; translate: 0 0 } 49.00% { opacity: .9; scale: 1; translate: 0 0 } 53.00% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .ud-t3 { animation: k-ud-t3 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ud-n3 { 0.00% { opacity: 1 } 63.00% { opacity: 1 } 65.00% { opacity: 0 } 95.00% { opacity: 0 } 98.00% { opacity: 1 } 100.00% { opacity: 1 } }
+.ga-svg .ud-n3 { animation: k-ud-n3 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ud-n2 { 0.00% { opacity: 0 } 64.00% { opacity: 0 } 66.00% { opacity: 1 } 94.00% { opacity: 1 } 97.00% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .ud-n2 { animation: k-ud-n2 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ud-cnt { 0.00% { scale: 1 } 63.00% { scale: 1 } 65.50% { scale: 1.4 } 69.00% { scale: 1 } 100.00% { scale: 1 } }
+.ga-svg .ud-cnt { animation: k-ud-cnt 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-ud-t9 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 5.00% { opacity: 0; scale: .5; translate: 0 0 } 6.50% { opacity: .9; scale: 1; translate: 0 0 } 6.50% { opacity: .9; scale: 1; translate: 0 0 } 10.50% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .ud-t9 { animation: k-ud-t9 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wk-edge { 0.00% { opacity: 0 } 10.00% { opacity: 0 } 14.00% { opacity: 1 } 74.00% { opacity: 1 } 78.00% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .wk-edge { animation: k-wk-edge 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+.ga-svg .wk-edge { animation-name: k-wk-edge-s; }
+@keyframes k-wk-edge-s { 0.00% { stroke-opacity: 0 } 10.00% { stroke-opacity: 0 } 14.00% { stroke-opacity: 1 } 74.00% { stroke-opacity: 1 } 78.00% { stroke-opacity: 0 } 100.00% { stroke-opacity: 0 } }
+@keyframes k-wk-tool { 0.00% { opacity: 0 } 11.00% { opacity: 0 } 15.00% { opacity: 1 } 74.00% { opacity: 1 } 78.00% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .wk-tool { animation: k-wk-tool 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wk-b2 { 0.00% { opacity: 0; scale: 1 .2 } 26.00% { opacity: 0; scale: 1 .2 } 31.00% { opacity: 1; scale: 1 1 } 86.00% { opacity: 1; scale: 1 1 } 91.00% { opacity: 0; scale: 1 .4 } 100.00% { opacity: 0; scale: 1 .2 } }
+.ga-svg .wk-b2 { animation: k-wk-b2 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: 50% 0; }
+@keyframes k-wk-c0 { 0.00% { translate: 0 0 } 47.00% { translate: 0 0 } 53.00% { translate: 0 18px } 86.00% { translate: 0 18px } 92.00% { translate: 0 0 } 100.00% { translate: 0 0 } }
+.ga-svg .wk-c0 { animation: k-wk-c0 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wk-c1 { 0.00% { translate: 0 0 } 47.00% { translate: 0 0 } 53.00% { translate: 0 -18px } 86.00% { translate: 0 -18px } 92.00% { translate: 0 0 } 100.00% { translate: 0 0 } }
+.ga-svg .wk-c1 { animation: k-wk-c1 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wk-t0 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 6.00% { opacity: 0; scale: .5; translate: 0 0 } 7.50% { opacity: .9; scale: 1; translate: 0 0 } 7.50% { opacity: .9; scale: 1; translate: 0 0 } 11.50% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .wk-t0 { animation: k-wk-t0 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wk-t1 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 22.00% { opacity: 0; scale: .5; translate: 0 0 } 23.50% { opacity: .9; scale: 1; translate: 0 0 } 23.50% { opacity: .9; scale: 1; translate: 0 0 } 27.50% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .wk-t1 { animation: k-wk-t1 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wk-t2 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 44.00% { opacity: 0; scale: .5; translate: 0 0 } 45.50% { opacity: .9; scale: 1; translate: 0 0 } 53.50% { opacity: .9; scale: 1; translate: 0px -18px } 57.50% { opacity: 0; scale: 1.9; translate: 0px -18px } 100.00% { opacity: 0; scale: 1.9; translate: 0px -18px } }
+.ga-svg .wk-t2 { animation: k-wk-t2 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-wk-t3 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 70.00% { opacity: 0; scale: .5; translate: 0 0 } 71.50% { opacity: .9; scale: 1; translate: 0 0 } 71.50% { opacity: .9; scale: 1; translate: 0 0 } 75.50% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .wk-t3 { animation: k-wk-t3 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-sz-grow { 0.00% { scale: 1 .8 } 14.00% { scale: 1 .8 } 30.00% { scale: 1 1 } 84.00% { scale: 1 1 } 94.00% { scale: 1 .8 } 100.00% { scale: 1 .8 } }
+.ga-svg .sz-grow { animation: k-sz-grow 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: 50% 0; }
+@keyframes k-sz-pull { 0.00% { translate: 0 -15.6px } 14.00% { translate: 0 -15.6px } 30.00% { translate: 0 0 } 84.00% { translate: 0 0 } 94.00% { translate: 0 -15.6px } 100.00% { translate: 0 -15.6px } }
+.ga-svg .sz-pull { animation: k-sz-pull 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-sz-fing { 0.00% { opacity: 0; translate: 0 -15.6px } 10.00% { opacity: 0; translate: 0 -15.6px } 13.00% { opacity: .9; translate: 0 -15.6px } 14.00% { opacity: .9; translate: 0 -15.6px } 30.00% { opacity: .9; translate: 0 0 } 34.00% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: 0 -15.6px } }
+.ga-svg .sz-fing { animation: k-sz-fing 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-sz-45 { 0.00% { opacity: 0 } 22.00% { opacity: 0 } 24.00% { opacity: 1 } 89.00% { opacity: 1 } 91.00% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .sz-45 { animation: k-sz-45 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-sz-35 { 0.00% { opacity: 1 } 22.00% { opacity: 1 } 24.00% { opacity: 0 } 89.00% { opacity: 0 } 91.00% { opacity: 1 } 100.00% { opacity: 1 } }
+.ga-svg .sz-35 { animation: k-sz-35 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-sz-pill { 0.00% { opacity: 0; scale: .2 1 } 43.00% { opacity: 0; scale: .2 1 } 47.00% { opacity: 1; scale: 1 1 } 72.00% { opacity: 1; scale: 1 1 } 76.00% { opacity: 0; scale: .2 1 } 100.00% { opacity: 0; scale: .2 1 } }
+.ga-svg .sz-pill { animation: k-sz-pill 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: 100% 50%; }
+@keyframes k-sz-ln { 0.00% { scale: 1 } 54.00% { scale: 1 } 59.00% { scale: 1.3 } 84.00% { scale: 1.3 } 89.00% { scale: 1 } 100.00% { scale: 1 } }
+.ga-svg .sz-ln { animation: k-sz-ln 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: 0 50%; }
+@keyframes k-sz-t1 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 40.00% { opacity: 0; scale: .5; translate: 0 0 } 41.50% { opacity: .9; scale: 1; translate: 0 0 } 41.50% { opacity: .9; scale: 1; translate: 0 0 } 45.50% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .sz-t1 { animation: k-sz-t1 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-sz-t2 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 52.00% { opacity: 0; scale: .5; translate: 0 0 } 53.50% { opacity: .9; scale: 1; translate: 0 0 } 53.50% { opacity: .9; scale: 1; translate: 0 0 } 57.50% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .sz-t2 { animation: k-sz-t2 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-td-done { 0.00% { opacity: 0; scale: 1 } 12.00% { opacity: 0; scale: 1 } 13.50% { opacity: 1; scale: 1.07 } 17.00% { opacity: 1; scale: 1 } 93.00% { opacity: 1; scale: 1 } 96.00% { opacity: 0; scale: 1 } 100.00% { opacity: 0; scale: 1 } }
+.ga-svg .td-done { animation: k-td-done 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-td-ck { 0.00% { stroke-dashoffset: 1; opacity: 1 } 14.00% { stroke-dashoffset: 1; opacity: 1 } 18.00% { stroke-dashoffset: 0; opacity: 1 } 100.00% { stroke-dashoffset: 0; opacity: 1 } }
+.ga-svg .td-ck { animation: k-td-ck 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; stroke-dasharray: 1 1; }
+@keyframes k-td-sp0 { 0.00% { opacity: 0; translate: 0 0 } 13.50% { opacity: 0; translate: 0 0 } 14.50% { opacity: 1; translate: 0 0 } 21.00% { opacity: 0; translate: -17px -13px } 100.00% { opacity: 0; translate: -17px -13px } }
+.ga-svg .td-sp0 { animation: k-td-sp0 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-td-sp1 { 0.00% { opacity: 0; translate: 0 0 } 13.50% { opacity: 0; translate: 0 0 } 14.50% { opacity: 1; translate: 0 0 } 21.00% { opacity: 0; translate: 17px -13px } 100.00% { opacity: 0; translate: 17px -13px } }
+.ga-svg .td-sp1 { animation: k-td-sp1 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-td-sp2 { 0.00% { opacity: 0; translate: 0 0 } 13.50% { opacity: 0; translate: 0 0 } 14.50% { opacity: 1; translate: 0 0 } 21.00% { opacity: 0; translate: -15px 13px } 100.00% { opacity: 0; translate: -15px 13px } }
+.ga-svg .td-sp2 { animation: k-td-sp2 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-td-sp3 { 0.00% { opacity: 0; translate: 0 0 } 13.50% { opacity: 0; translate: 0 0 } 14.50% { opacity: 1; translate: 0 0 } 21.00% { opacity: 0; translate: 19px 11px } 100.00% { opacity: 0; translate: 19px 11px } }
+.ga-svg .td-sp3 { animation: k-td-sp3 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-td-half { 0.00% { opacity: 0 } 64.00% { opacity: 0 } 67.00% { opacity: 1 } 93.00% { opacity: 1 } 96.00% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .td-half { animation: k-td-half 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-td-now { 0.00% { opacity: 0; translate: 0 -40px } 3.00% { opacity: 1; translate: 0 -40px } 90.00% { opacity: 1; translate: 0 0 } 94.00% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: 0 -40px } }
+.ga-svg .td-now { animation: k-td-now 10s linear infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-td-menu { 0.00% { opacity: 0; scale: .3 } 44.00% { opacity: 0; scale: .3 } 48.00% { opacity: 1; scale: 1 } 62.00% { opacity: 1; scale: 1 } 65.00% { opacity: 0; scale: .3 } 100.00% { opacity: 0; scale: .3 } }
+.ga-svg .td-menu { animation: k-td-menu 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: 10% 100%; }
+@keyframes k-td-pick { 0.00% { opacity: 0 } 54.00% { opacity: 0 } 56.00% { opacity: 1 } 100.00% { opacity: 1 } }
+.ga-svg .td-pick { animation: k-td-pick 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-td-t0 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 10.00% { opacity: 0; scale: .5; translate: 0 0 } 11.50% { opacity: .9; scale: 1; translate: 0 0 } 11.50% { opacity: .9; scale: 1; translate: 0 0 } 15.50% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .td-t0 { animation: k-td-t0 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-td-t1 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 36.00% { opacity: 0; scale: .5; translate: 0 0 } 37.50% { opacity: .9; scale: 1; translate: 0 0 } 45.50% { opacity: .9; scale: 1; translate: 0 0 } 49.50% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .td-t1 { animation: k-td-t1 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-td-t2 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 53.50% { opacity: 0; scale: .5; translate: 0 0 } 55.00% { opacity: .9; scale: 1; translate: 0 0 } 55.00% { opacity: .9; scale: 1; translate: 0 0 } 59.00% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .td-t2 { animation: k-td-t2 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-fc-head { 0.00% { opacity: 1; translate: 0 0 } 14.00% { opacity: 1; translate: 0 0 } 23.00% { opacity: 0; translate: 0 -22px } 72.00% { opacity: 0; translate: 0 -22px } 81.00% { opacity: 1; translate: 0 0 } 100.00% { opacity: 1; translate: 0 0 } }
+.ga-svg .fc-head { animation: k-fc-head 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-fc-dim { 0.00% { opacity: 1 } 14.00% { opacity: 1 } 23.00% { opacity: 0.45 } 72.00% { opacity: 0.45 } 81.00% { opacity: 1 } 100.00% { opacity: 1 } }
+.ga-svg .fc-dim { animation: k-fc-dim 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-fc-bar { 0.00% { translate: 0 18px } 22.00% { translate: 0 18px } 29.00% { translate: 0 0 } 72.00% { translate: 0 0 } 79.00% { translate: 0 18px } 100.00% { translate: 0 18px } }
+.ga-svg .fc-bar { animation: k-fc-bar 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-fc-shrink { 0.00% { scale: 1 1 } 29.00% { scale: 1 1 } 70.00% { scale: .4 1 } 79.00% { scale: .4 1 } 100.00% { scale: 1 1 } }
+.ga-svg .fc-shrink { animation: k-fc-shrink 10s linear infinite both; transform-box: fill-box; transform-origin: 100% 50%; }
+@keyframes k-fc-sw { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 67.00% { opacity: 0; scale: .5; translate: 0 0 } 68.50% { opacity: .9; scale: 1; translate: 0 0 } 74.50% { opacity: .9; scale: 1; translate: 0px -36px } 78.50% { opacity: 0; scale: 1.9; translate: 0px -36px } 100.00% { opacity: 0; scale: 1.9; translate: 0px -36px } }
+.ga-svg .fc-sw { animation: k-fc-sw 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-cp-type { 0.00% { opacity: 1; scale: 0 1 } 12.73% { opacity: 1; scale: 0 1 } 23.64% { opacity: 1; scale: 1 1 } 28.18% { opacity: 1; scale: 1 1 } 29.09% { opacity: 0; scale: 1 1 } 100.00% { opacity: 0; scale: 0 1 } }
+.ga-svg .cp-type { animation: k-cp-type 11s steps(8, end) infinite both; transform-box: fill-box; transform-origin: 0 50%; }
+@keyframes k-cp-caret { 0.00% { translate: 0 0 } 12.73% { translate: 0 0 } 23.64% { translate: 92px 0 } 28.18% { translate: 92px 0 } 29.09% { translate: 0 0 } 100.00% { translate: 0 0 } }
+.ga-svg .cp-caret { animation: k-cp-caret 11s steps(8, end) infinite both; transform-box: fill-box; transform-origin: center; }
+.ga-svg .cp-blink { animation: k-blink 1s steps(1, end) infinite; }
+@keyframes k-blink { 50% { opacity: 0; } }
+@keyframes k-cp-down { 0.00% { translate: 0 0 } 29.09% { translate: 0 0 } 33.64% { translate: 0 26px } 60.00% { translate: 0 26px } 64.55% { translate: 0 0 } 100.00% { translate: 0 0 } }
+.ga-svg .cp-down { animation: k-cp-down 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-cp-new { 0.00% { opacity: 0; translate: 0 0; scale: .9 } 30.00% { opacity: 0; translate: 0 0; scale: .9 } 34.55% { opacity: 1; translate: 0 0; scale: 1 } 55.45% { opacity: 1; translate: 0 0; scale: 1 } 60.91% { opacity: 0; translate: 130px 0; scale: 1 } 100.00% { opacity: 0; translate: 0 0; scale: .9 } }
+.ga-svg .cp-new { animation: k-cp-new 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-cp-tick { 0.00% { opacity: 0 } 47.27% { opacity: 0 } 48.64% { opacity: 1 } 100.00% { opacity: 1 } }
+.ga-svg .cp-tick { animation: k-cp-tick 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-cp-tick-ink { 0.00% { stroke-dashoffset: 1; opacity: 1 } 48.64% { stroke-dashoffset: 1; opacity: 1 } 51.82% { stroke-dashoffset: 0; opacity: 1 } 100.00% { stroke-dashoffset: 0; opacity: 1 } }
+.ga-svg .cp-tick-ink { animation: k-cp-tick-ink 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; stroke-dasharray: 1 1; }
+@keyframes k-cp-win { 0.00% { opacity: 0; scale: .15 } 5.45% { opacity: 0; scale: .15 } 10.00% { opacity: 1; scale: 1 } 92.73% { opacity: 1; scale: 1 } 96.36% { opacity: 0; scale: .15 } 100.00% { opacity: 0; scale: .15 } }
+.ga-svg .cp-win { animation: k-cp-win 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: 100% 100%; }
+@keyframes k-cp-folder { 0.00% { translate: 0 0 } 72.73% { translate: 0 0 } 78.18% { translate: 0 13px } 85.45% { translate: 0 13px } 90.91% { translate: 0 0 } 100.00% { translate: 0 0 } }
+.ga-svg .cp-folder { animation: k-cp-folder 11s cubic-bezier(.4, 0, .2, 1) infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-cp-t0 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 2.73% { opacity: 0; scale: .5; translate: 0 0 } 4.09% { opacity: .9; scale: 1; translate: 0 0 } 4.09% { opacity: .9; scale: 1; translate: 0 0 } 7.73% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .cp-t0 { animation: k-cp-t0 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-cp-t1 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 26.36% { opacity: 0; scale: .5; translate: 0 0 } 27.73% { opacity: .9; scale: 1; translate: 0 0 } 27.73% { opacity: .9; scale: 1; translate: 0 0 } 31.36% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .cp-t1 { animation: k-cp-t1 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-cp-t2 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 45.45% { opacity: 0; scale: .5; translate: 0 0 } 46.82% { opacity: .9; scale: 1; translate: 0 0 } 46.82% { opacity: .9; scale: 1; translate: 0 0 } 50.45% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .cp-t2 { animation: k-cp-t2 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-cp-t3 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 70.00% { opacity: 0; scale: .5; translate: 0 0 } 71.36% { opacity: .9; scale: 1; translate: 0 0 } 71.36% { opacity: .9; scale: 1; translate: 0 0 } 75.00% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .cp-t3 { animation: k-cp-t3 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-pg-dot { 0.00% { opacity: 0; scale: 0 } 3.00% { opacity: 1; scale: 1.4 } 4.50% { opacity: 1; scale: 1 } 78.00% { opacity: 1; scale: 1 } 81.00% { opacity: 0; scale: 1 } 100.00% { opacity: 0; scale: 0 } }
+.ga-svg .pg-dot { animation: k-pg-dot 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-pg-st { 0.00% { opacity: 0; scale: .4 } 3.00% { opacity: 1; scale: 1.45 } 6.00% { opacity: 1; scale: 1 } 74.00% { opacity: 1; scale: 1 } 78.00% { opacity: 0; scale: 1 } 100.00% { opacity: 0; scale: .4 } }
+.ga-svg .pg-st { animation: k-pg-st 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: 100% 50%; }
+.ga-svg .pg-fl { animation: k-flick .7s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes k-flick { from { scale: 1 1; } to { scale: .9 1.2; } }
+@keyframes k-pg-rd { 0.00% { opacity: 0; scale: .05 } 22.00% { opacity: 0; scale: .05 } 34.00% { opacity: 1; scale: 1 } 55.00% { opacity: 1; scale: 1 } 62.00% { opacity: 1; scale: 1.08 } 69.00% { opacity: 1; scale: 1 } 86.00% { opacity: 1; scale: 1 } 90.00% { opacity: 0; scale: 1 } 100.00% { opacity: 0; scale: .05 } }
+.ga-svg .pg-rd { animation: k-pg-rd 10s ease-in-out infinite both; transform-box: view-box; transform-origin: 262px 100px; }
+@keyframes k-pg-ac { 0.00% { translate: 0 0 } 44.00% { translate: 0 0 } 49.00% { translate: 72px 0 } 84.00% { translate: 72px 0 } 89.00% { translate: 0 0 } 100.00% { translate: 0 0 } }
+.ga-svg .pg-ac { animation: k-pg-ac 10s cubic-bezier(.3, 1.4, .5, 1) infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-pg-t0 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 41.00% { opacity: 0; scale: .5; translate: 0 0 } 42.50% { opacity: .9; scale: 1; translate: 0 0 } 42.50% { opacity: .9; scale: 1; translate: 0 0 } 46.50% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .pg-t0 { animation: k-pg-t0 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+.ga-svg .yr-today { animation: k-glow 1.4s ease-in-out infinite alternate; }
+@keyframes k-glow { from { stroke-width: 2.2; } to { stroke-width: 3.6; } }
+@keyframes k-yr-note { 0.00% { stroke: #8a8f98; stroke-width: 1; scale: 1 } 9.00% { stroke: #8a8f98; stroke-width: 1; scale: 1 } 13.00% { stroke: #8a8f98; stroke-width: 1; scale: 1.6 } 22.00% { stroke: #8a8f98; stroke-width: 1; scale: 1.6 } 25.00% { stroke: #8a8f98; stroke-width: 1; scale: 1 } 34.00% { stroke: #8a8f98; stroke-width: 1; scale: 1 } 36.00% { stroke: #ff1f3d; stroke-width: 2.8; scale: 1.2 } 39.00% { stroke: #ff1f3d; stroke-width: 2.2; scale: 1 } 93.00% { stroke: #ff1f3d; stroke-width: 2.2; scale: 1 } 96.00% { stroke: #8a8f98; stroke-width: 1; scale: 1 } 100.00% { stroke: #8a8f98; stroke-width: 1; scale: 1 } }
+.ga-svg .yr-note { animation: k-yr-note 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-yr-pop { 0.00% { opacity: 0; scale: .2 } 18.00% { opacity: 0; scale: .2 } 22.00% { opacity: 1; scale: 1 } 76.00% { opacity: 1; scale: 1 } 80.00% { opacity: 0; scale: .2 } 100.00% { opacity: 0; scale: .2 } }
+.ga-svg .yr-pop { animation: k-yr-pop 10s ease-in-out infinite both; transform-box: view-box; transform-origin: 223px 95px; }
+@keyframes k-yr-cover { 0.00% { scale: 1 1 } 24.00% { scale: 1 1 } 34.00% { scale: 0 1 } 100.00% { scale: 0 1 } }
+.ga-svg .yr-cover { animation: k-yr-cover 10s steps(9, end) infinite both; transform-box: fill-box; transform-origin: 100% 50%; }
+@keyframes k-yr-t0 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 9.00% { opacity: 0; scale: .5; translate: 0 0 } 10.50% { opacity: .9; scale: 1; translate: 0 0 } 19.50% { opacity: .9; scale: 1; translate: 0 0 } 23.50% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .yr-t0 { animation: k-yr-t0 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-dl-item { 0.00% { opacity: .35; scale: 1 } 69.00% { opacity: .35; scale: 1 } 73.00% { opacity: 1; scale: 1.06 } 76.00% { opacity: 1; scale: 1 } 94.00% { opacity: 1; scale: 1 } 97.00% { opacity: .35; scale: 1 } 100.00% { opacity: .35; scale: 1 } }
+.ga-svg .dl-item { animation: k-dl-item 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-dl-veil { 0.00% { opacity: 0 } 4.00% { opacity: 1 } 64.00% { opacity: 1 } 69.00% { opacity: 0 } 96.00% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .dl-veil { animation: k-dl-veil 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-dl-d { 0.00% { opacity: 0; scale: 1.2 } 0.20% { opacity: 1; scale: 1.2 } 3.00% { opacity: 1; scale: 1 } 9.50% { opacity: 1; scale: 1 } 10.00% { opacity: 0; scale: 1 } 100.00% { opacity: 0; scale: 1 } }
+.ga-svg .dl-d { animation: k-dl-d 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-dl-d3 { 0.00% { opacity: 0; scale: 1.2 } 50.00% { opacity: 0; scale: 1.2 } 50.20% { opacity: 1; scale: 1.2 } 53.00% { opacity: 1; scale: 1 } 100.00% { opacity: 1; scale: 1 } }
+.ga-svg .dl-d3 { animation: k-dl-d3 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-dl-drain { 0.00% { scale: 1 1 } 60.00% { scale: .25 1 } 100.00% { scale: .25 1 } }
+.ga-svg .dl-drain { animation: k-dl-drain 10s linear infinite both; transform-box: fill-box; transform-origin: 100% 50%; }
+@keyframes k-dl-win { 0.00% { opacity: 0; scale: .3 } 0.50% { opacity: 0; scale: .3 } 4.00% { opacity: 1; scale: 1 } 64.00% { opacity: 1; scale: 1 } 69.00% { opacity: 0; scale: .3 } 100.00% { opacity: 0; scale: .3 } }
+.ga-svg .dl-win { animation: k-dl-win 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-dl-t0 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 59.00% { opacity: 0; scale: .5; translate: 0 0 } 60.50% { opacity: .9; scale: 1; translate: 0 0 } 60.50% { opacity: .9; scale: 1; translate: 0 0 } 64.50% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .dl-t0 { animation: k-dl-t0 10s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-w0 { 0.00% { opacity: 0 } 11.67% { opacity: 0 } 14.17% { opacity: 0.9 } 27.50% { opacity: 0.9 } 30.00% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .w0 { animation: k-w0 12s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-w6 { 0.00% { opacity: 0 } 28.33% { opacity: 0 } 30.83% { opacity: 0.9 } 44.17% { opacity: 0.9 } 46.67% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .w6 { animation: k-w6 12s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-w2 { 0.00% { opacity: 0 } 45.00% { opacity: 0 } 47.50% { opacity: 0.9 } 60.83% { opacity: 0.9 } 63.33% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .w2 { animation: k-w2 12s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-w8 { 0.00% { opacity: 0 } 61.67% { opacity: 0 } 64.17% { opacity: 0.9 } 77.50% { opacity: 0.9 } 80.00% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .w8 { animation: k-w8 12s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-th-tile { 0.00% { opacity: 0; translate: 30px 0px } 5.00% { opacity: 0; translate: 30px 0px } 8.33% { opacity: 1; translate: 0 0 } 88.33% { opacity: 1; translate: 0 0 } 91.67% { opacity: 0; translate: 0 0 } 100.00% { opacity: 0; translate: 30px 0px } }
+.ga-svg .th-tile { animation: k-th-tile 12s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-th-win { 0.00% { opacity: 0; scale: .3 } 12.50% { opacity: 0; scale: .3 } 15.83% { opacity: 1; scale: 1 } 88.33% { opacity: 1; scale: 1 } 91.67% { opacity: 0; scale: .3 } 100.00% { opacity: 0; scale: .3 } }
+.ga-svg .th-win { animation: k-th-win 12s ease-in-out infinite both; transform-box: fill-box; transform-origin: 100% 50%; }
+@keyframes k-th-edge { 0.00% { opacity: 0 } 68.33% { opacity: 0 } 69.58% { opacity: 1 } 81.67% { opacity: 1 } 83.33% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .th-edge { animation: k-th-edge 12s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-th-t0 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 10.42% { opacity: 0; scale: .5; translate: 0 0 } 11.67% { opacity: .9; scale: 1; translate: 0 0 } 11.67% { opacity: .9; scale: 1; translate: 0 0 } 15.00% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .th-t0 { animation: k-th-t0 12s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-th-t1 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 27.08% { opacity: 0; scale: .5; translate: 0 0 } 28.33% { opacity: .9; scale: 1; translate: 0 0 } 28.33% { opacity: .9; scale: 1; translate: 0 0 } 31.67% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .th-t1 { animation: k-th-t1 12s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-th-t2 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 43.75% { opacity: 0; scale: .5; translate: 0 0 } 45.00% { opacity: .9; scale: 1; translate: 0 0 } 45.00% { opacity: .9; scale: 1; translate: 0 0 } 48.33% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .th-t2 { animation: k-th-t2 12s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-th-t3 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 60.42% { opacity: 0; scale: .5; translate: 0 0 } 61.67% { opacity: .9; scale: 1; translate: 0 0 } 61.67% { opacity: .9; scale: 1; translate: 0 0 } 65.00% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .th-t3 { animation: k-th-t3 12s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-th-ring { 0.00% { opacity: 0; translate: 0 0 } 10.00% { opacity: 0; translate: 0px 0px } 11.67% { opacity: 1; translate: 0px 0px } 25.42% { opacity: 1; translate: 0px 0px } 28.33% { opacity: 1; translate: 54px 32px } 42.08% { opacity: 1; translate: 54px 32px } 45.00% { opacity: 1; translate: 0px 64px } 58.75% { opacity: 1; translate: 0px 64px } 61.67% { opacity: 1; translate: 54px 96px } 78.33% { opacity: 1; translate: 54px 96px } 80.83% { opacity: 0; translate: 54px 96px } 100.00% { opacity: 0; translate: 0 0 } }
+.ga-svg .th-ring { animation: k-th-ring 12s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-th-tp { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 2.50% { opacity: 0; scale: .5; translate: 0 0 } 3.75% { opacity: .9; scale: 1; translate: 0 0 } 3.75% { opacity: .9; scale: 1; translate: 0 0 } 7.08% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .th-tp { animation: k-th-tp 12s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-th-t9 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 66.67% { opacity: 0; scale: .5; translate: 0 0 } 67.92% { opacity: .9; scale: 1; translate: 0 0 } 67.92% { opacity: .9; scale: 1; translate: 0 0 } 71.25% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .th-t9 { animation: k-th-t9 12s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-lb-t0 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 4.09% { opacity: 0; scale: .5; translate: 0 0 } 5.45% { opacity: .9; scale: 1; translate: 0 0 } 5.45% { opacity: .9; scale: 1; translate: 0 0 } 9.09% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .lb-t0 { animation: k-lb-t0 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-s0 { 0.00% { opacity: 1 } 20.00% { opacity: 1 } 22.27% { opacity: 0 } 97.27% { opacity: 0 } 100.00% { opacity: 1 } }
+.ga-svg .s0 { animation: k-s0 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-lb-t1 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 18.64% { opacity: 0; scale: .5; translate: 0 0 } 20.00% { opacity: .9; scale: 1; translate: 0 0 } 20.00% { opacity: .9; scale: 1; translate: 0 0 } 23.64% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .lb-t1 { animation: k-lb-t1 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-s1 { 0.00% { opacity: 0 } 20.00% { opacity: 0 } 22.27% { opacity: 1 } 34.55% { opacity: 1 } 36.82% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .s1 { animation: k-s1 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-lb-t2 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 33.18% { opacity: 0; scale: .5; translate: 0 0 } 34.55% { opacity: .9; scale: 1; translate: 0 0 } 34.55% { opacity: .9; scale: 1; translate: 0 0 } 38.18% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .lb-t2 { animation: k-lb-t2 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-s2 { 0.00% { opacity: 0 } 34.55% { opacity: 0 } 36.82% { opacity: 1 } 49.09% { opacity: 1 } 51.36% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .s2 { animation: k-s2 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-lb-t3 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 47.73% { opacity: 0; scale: .5; translate: 0 0 } 49.09% { opacity: .9; scale: 1; translate: 0 0 } 49.09% { opacity: .9; scale: 1; translate: 0 0 } 52.73% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .lb-t3 { animation: k-lb-t3 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-s3 { 0.00% { opacity: 0 } 49.09% { opacity: 0 } 51.36% { opacity: 1 } 63.64% { opacity: 1 } 65.91% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .s3 { animation: k-s3 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-lb-t4 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 62.27% { opacity: 0; scale: .5; translate: 0 0 } 63.64% { opacity: .9; scale: 1; translate: 0 0 } 63.64% { opacity: .9; scale: 1; translate: 0 0 } 67.27% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .lb-t4 { animation: k-lb-t4 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-s4 { 0.00% { opacity: 0 } 63.64% { opacity: 0 } 65.91% { opacity: 1 } 78.18% { opacity: 1 } 80.45% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .s4 { animation: k-s4 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-lb-t5 { 0.00% { opacity: 0; scale: .5; translate: 0 0 } 76.82% { opacity: 0; scale: .5; translate: 0 0 } 78.18% { opacity: .9; scale: 1; translate: 0 0 } 78.18% { opacity: .9; scale: 1; translate: 0 0 } 81.82% { opacity: 0; scale: 1.9; translate: 0 0 } 100.00% { opacity: 0; scale: 1.9; translate: 0 0 } }
+.ga-svg .lb-t5 { animation: k-lb-t5 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-s5 { 0.00% { opacity: 0 } 78.18% { opacity: 0 } 80.45% { opacity: 1 } 92.73% { opacity: 1 } 95.00% { opacity: 0 } 100.00% { opacity: 0 } }
+.ga-svg .s5 { animation: k-s5 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
+@keyframes k-lb-ring { 0.00% { opacity: 0; translate: 0 0 } 3.64% { opacity: 0; translate: 0 0 } 5.45% { opacity: 1; translate: 0 0 } 17.27% { opacity: 1; translate: 0 0px } 20.00% { opacity: 1; translate: 0 22px } 31.82% { opacity: 1; translate: 0 22px } 34.55% { opacity: 1; translate: 0 44px } 46.36% { opacity: 1; translate: 0 44px } 49.09% { opacity: 1; translate: 0 66px } 60.91% { opacity: 1; translate: 0 66px } 63.64% { opacity: 1; translate: 0 88px } 75.45% { opacity: 1; translate: 0 88px } 78.18% { opacity: 1; translate: 0 110px } 92.73% { opacity: 1; translate: 0 110px } 95.45% { opacity: 0; translate: 0 110px } 100.00% { opacity: 0; translate: 0 0 } }
+.ga-svg .lb-ring { animation: k-lb-ring 11s ease-in-out infinite both; transform-box: fill-box; transform-origin: center; }
 .habits { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .habit { padding: 12px 14px; border-radius: 18px; background: linear-gradient(155deg, var(--plum-a), var(--plum-b) 86%); }
 .h-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
