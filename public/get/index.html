@@ -1383,8 +1383,8 @@
       to(0, true);
       return { box: box, prev: prev, next: next, tick: tick };
     }
-    // the quotes every 5 s (Gianni); a story is longer to read, so 7 s
-    var quotes = turner(document.querySelector('.quote:not(.stories)'), N - 1, 5000);
+    // the quotes every 10 s (Gianni, v92: twice the 5 s they had); a story every 7 s
+    var quotes = turner(document.querySelector('.quote:not(.stories)'), N - 1, 10000);
     var stories = turner(document.querySelector('.stories'), 1, 7000);
 
     // Both arrows go round: the last slide starts over, and Back on the first goes to the last
