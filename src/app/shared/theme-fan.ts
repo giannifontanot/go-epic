@@ -1,11 +1,11 @@
 import { Component, ElementRef, Injectable, Injector, afterNextRender, effect, inject, signal, untracked, viewChild, viewChildren } from '@angular/core';
-import { I18n } from '../core/i18n';
+import { I18n, inLang } from '../core/i18n';
 import { closeDialog, isBackdropClick, openDialog } from '../core/dialog';
 import { PaletteService } from '../core/palette';
 import { PALETTES, defaultPalette, edgeFor, paletteFor } from '../core/palette.model';
 import { flyTiles, placeBelow, placeLeft } from './fan';
 import { DARK_THEMES, LIGHT_THEMES, THEME_BAR, Theme, ThemeService } from '../core/theme';
-import { LEVELS, LEVEL_SETS, LevelSetId } from '../core/levels.model';
+import { LEVELS, LEVEL_SETS, LevelSet, LevelSetId } from '../core/levels.model';
 
 
 /** Who asks for the themes: the button they fan out of (the edit bar's Themes), or null while they are away. */
@@ -75,7 +75,7 @@ export class ThemePicker {
         @for (set of levelSets; track set.id) {
           <button type="button" role="radio" class="palette-row levels-row" [class.on]="i18n.levels() === set.id"
                   [attr.aria-checked]="i18n.levels() === set.id" (click)="i18n.previewLevels(set.id)">
-            <span class="palette-name">{{ set.name[i18n.lang()] }}</span>
+            <span class="palette-name">{{ setName(set) }}</span>
             <span class="levels-words">{{ wordsOf(set.id) }}</span>
             <span class="palette-tick" aria-hidden="true">{{ i18n.levels() === set.id ? '✓' : '' }}</span>
           </button>
@@ -167,9 +167,13 @@ export class ThemeFan {
   private readonly levelsWindow = viewChild.required<ElementRef<HTMLDialogElement>>('levelsWindow');
   /** The set kept before the Letreros window opened, put back if it closes without Aplicar; null while it is shut. */
   private levelsKept: LevelSetId | null = null;
+  /** A set's name in the language in use (English while it has none of its own). */
+  protected setName(set: LevelSet): string {
+    return inLang(set.name, this.i18n.lang())!;
+  }
   /** A set's five names in the language in use: Área · Epic · Feature · Story · Actividad. */
   protected wordsOf(id: LevelSetId): string {
-    const words = LEVEL_SETS.find((s) => s.id === id)!.words[this.i18n.lang()];
+    const words = inLang(LEVEL_SETS.find((s) => s.id === id)!.words, this.i18n.lang())!;
     return LEVELS.map((level) => words[level].one).join(' · ');
   }
 

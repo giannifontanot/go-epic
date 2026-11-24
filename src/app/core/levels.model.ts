@@ -1,4 +1,4 @@
-import type { Lang } from './i18n';
+import { inLang, type Lang, type Texts } from './i18n';
 
 /**
  * Letreros / Labels (Gianni): the names the app gives its five levels. One of six sets is chosen (no names of one's
@@ -28,8 +28,9 @@ export interface LevelWord {
 
 export interface LevelSet {
   id: LevelSetId;
-  name: Record<Lang, string>;
-  words: Record<Lang, Record<Level, LevelWord>>;
+  name: Texts;
+  /** English and Spanish required; another language may have its own (else English is used). */
+  words: Texts<Record<Level, LevelWord>>;
 }
 
 const w = (one: string, many: string, f = false, elUn = false): LevelWord => ({ one, many, ...(f ? { f } : {}), ...(elUn ? { elUn } : {}) });
@@ -106,7 +107,9 @@ function article(word: LevelWord, lang: Lang, form: 'a' | 'el' | 'los'): string 
 /** Fills in a label's level tokens with the chosen set's words in that language. */
 export function levelText(text: string, id: LevelSetId, lang: Lang): string {
   if (!text.includes('[')) return text;
-  const words = levelSet(id).words[lang];
+  const set = levelSet(id);
+  if (!set.words[lang]) lang = 'en';   // a language with no words of its own uses the English ones
+  const words = inLang(set.words, lang)!;
   let out = text.replace(TOKEN, (_all, level: Level, form: string | undefined, masc: string | undefined, fem: string | undefined) => {
     const word = words[level];
     if (masc !== undefined) return word.f ? fem ?? '' : masc;

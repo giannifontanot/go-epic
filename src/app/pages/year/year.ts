@@ -655,9 +655,9 @@ export class Year {
     return new Date(y, m - 1, d);
   }
   protected shortDate(key: string): string {
-    return this.dateOf(key).toLocaleDateString(this.i18n.lang(), { day: 'numeric', month: 'short' });
+    return this.dateOf(key).toLocaleDateString(this.i18n.locale(), { day: 'numeric', month: 'short' });
   }
   protected longDate(key: string): string {
-    return this.dateOf(key).toLocaleDateString(this.i18n.lang(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    return this.dateOf(key).toLocaleDateString(this.i18n.locale(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   }
 }

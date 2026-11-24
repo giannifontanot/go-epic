@@ -1,4 +1,4 @@
-import type { Lang } from './i18n';
+import type { Texts } from './i18n';
 
 /**
  * The "Why?" window of every screen (Gianni): which part of your life the screen orders, and why you need it. Only the
@@ -20,7 +20,8 @@ export interface WhyText {
 
 export const WHY_SCREENS: WhyScreen[] = ['week', 'canvas', 'progress', 'capture', 'focus', 'year'];
 
-export const WHY: Record<WhyScreen, Record<Lang, WhyText>> = {
+/** English and Spanish always; another language may come later (it falls back to English until then, `inLang`). */
+export const WHY: Record<WhyScreen, Texts<WhyText>> = {
   week: {
     es: {
       title: '¿Por qué la Semana?',
