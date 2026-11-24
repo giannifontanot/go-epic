@@ -55,7 +55,7 @@ export class Guide {
   protected readonly menuActions = ['settings.title', 'nav.edit', 'settings.theme', 'nav.pages', 'week.overview']
     .map((key, i) => ({ key, y: 22 + i * 30 }));
   /** The Letreros sets on the last card, in the language in use, the chosen one ringed (it follows a new choice), each with
-   *  its five words in capitals, which the drawing shows in turn as a ring steps down the sets (v87). */
+   *  its five words in capitals, which the drawing shows in turn as a ring steps down the sets (v89). */
   protected readonly levelSets = computed(() => {
     const lang = this.i18n.lang();
     return LEVEL_SETS.map((set, i) => {
