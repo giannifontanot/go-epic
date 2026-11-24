@@ -726,21 +726,32 @@ html[data-edge] .ga-card .edge { display: inline; }
 /* the Canvas-to-today card: copies of the Canvas's Activities (three in a Story, one still undefined; Gianni) fly, one
    after another, into today's block (looping); each lands on its own slot, `--dy` */
 .ga-slot { fill: none; stroke: var(--jelly-ink); stroke-width: 1.2; stroke-dasharray: 4 3; opacity: .45; }
-.ga-fly { opacity: 0; transform-box: fill-box; transform-origin: center; animation: 8s cubic-bezier(.45, 0, .25, 1) infinite both; }
+.ga-fly { opacity: 0; transform-box: fill-box; transform-origin: center; animation: 15s ease-in-out infinite both; }
 .ga-fly .body { filter: drop-shadow(0 3px 3px rgb(0 0 0 / .25)); }
-.ga-fly.f1 { --dy: 9px; --up: -23px; animation-name: ga-fly1; }
-.ga-fly.f2 { --dy: -5px; --up: -37px; animation-name: ga-fly2; }
-.ga-fly.f3 { --dy: -19px; --up: -51px; animation-name: ga-fly3; }
-.ga-fly.f4 { --dy: -26px; --up: -58px; animation-name: ga-fly4; }
-@keyframes ga-fly1 { 0%, 6% { opacity: 0; transform: none; } 9% { opacity: 1; transform: none; } 15% { transform: translate(74px, var(--up)) scale(1.08); }
-  24%, 88% { opacity: 1; transform: translate(148px, var(--dy)); } 96%, 100% { opacity: 0; transform: translate(148px, var(--dy)); } }
-@keyframes ga-fly2 { 0%, 24% { opacity: 0; transform: none; } 27% { opacity: 1; transform: none; } 33% { transform: translate(74px, var(--up)) scale(1.08); }
-  42%, 88% { opacity: 1; transform: translate(148px, var(--dy)); } 96%, 100% { opacity: 0; transform: translate(148px, var(--dy)); } }
-@keyframes ga-fly3 { 0%, 42% { opacity: 0; transform: none; } 45% { opacity: 1; transform: none; } 51% { transform: translate(74px, var(--up)) scale(1.08); }
-  60%, 88% { opacity: 1; transform: translate(148px, var(--dy)); } 96%, 100% { opacity: 0; transform: translate(148px, var(--dy)); } }
-@keyframes ga-fly4 { 0%, 60% { opacity: 0; transform: none; } 63% { opacity: 1; transform: none; } 69% { transform: translate(74px, var(--up)) scale(1.08); }
-  78%, 88% { opacity: 1; transform: translate(148px, var(--dy)); } 96%, 100% { opacity: 0; transform: translate(148px, var(--dy)); } }
-@media (prefers-reduced-motion: reduce) { .ga-fly { animation: none; opacity: 1; transform: translate(148px, var(--dy)); } }
+.ga-fly.f1 { --dy: -17px; animation-name: ga-fly1; }
+.ga-fly.f2 { --dy: -10px; animation-name: ga-fly2; }
+.ga-fly.f3 { --dy: 60px; animation-name: ga-fly3; }
+.ga-fly.f4 { --dy: 102px; animation-name: ga-fly4; }
+.ga-scroll { animation: ga-scroll 15s infinite both; }
+.ga-pick { fill: none; stroke: var(--teal); stroke-width: 2.5; opacity: 0; animation: 15s ease-in-out infinite both; }
+.ga-pick.p1 { animation-name: ga-pick1; }
+.ga-pick.p2 { animation-name: ga-pick2; }
+.ga-pick.p3 { animation-name: ga-pick3; }
+.ga-pick.p4 { animation-name: ga-pick4; }
+@keyframes ga-fly1 { 0%, 8.00% { opacity: 0; transform: none; } 8.67% { opacity: 1; transform: none; } 12.00% { transform: translate(74px, -38px) scale(1.08); }
+  16.00%, 90.00% { opacity: 1; transform: translate(148px, var(--dy)); } 94.67%, 100% { opacity: 0; transform: translate(148px, var(--dy)); } }
+@keyframes ga-fly2 { 0%, 28.00% { opacity: 0; transform: none; } 28.67% { opacity: 1; transform: none; } 32.00% { transform: translate(74px, -35px) scale(1.08); }
+  36.00%, 90.00% { opacity: 1; transform: translate(148px, var(--dy)); } 94.67%, 100% { opacity: 0; transform: translate(148px, var(--dy)); } }
+@keyframes ga-fly3 { 0%, 48.00% { opacity: 0; transform: none; } 48.67% { opacity: 1; transform: none; } 52.00% { transform: translate(74px, 0px) scale(1.08); }
+  56.00%, 90.00% { opacity: 1; transform: translate(148px, var(--dy)); } 94.67%, 100% { opacity: 0; transform: translate(148px, var(--dy)); } }
+@keyframes ga-fly4 { 0%, 68.00% { opacity: 0; transform: none; } 68.67% { opacity: 1; transform: none; } 72.00% { transform: translate(74px, 21px) scale(1.08); }
+  76.00%, 90.00% { opacity: 1; transform: translate(148px, var(--dy)); } 94.67%, 100% { opacity: 0; transform: translate(148px, var(--dy)); } }
+@keyframes ga-scroll { 0% { opacity: 1; transform: translateY(0px); animation-timing-function: ease-in-out; } 17.33% { opacity: 1; transform: translateY(0px); animation-timing-function: ease-in-out; } 24.00% { opacity: 1; transform: translateY(-104px); animation-timing-function: ease-in-out; } 37.33% { opacity: 1; transform: translateY(-104px); animation-timing-function: ease-in-out; } 44.00% { opacity: 1; transform: translateY(-208px); animation-timing-function: ease-in-out; } 57.33% { opacity: 1; transform: translateY(-208px); animation-timing-function: ease-in-out; } 64.00% { opacity: 1; transform: translateY(-312px); animation-timing-function: ease-in-out; } 90.00% { opacity: 1; transform: translateY(-312px); animation-timing-function: ease-in-out; } 94.67% { opacity: 0; transform: translateY(-312px); animation-timing-function: ease-in-out; } 95.33% { opacity: 0; transform: translateY(0px); animation-timing-function: ease-in-out; } 100% { opacity: 1; transform: translateY(0px); animation-timing-function: ease-in-out; } }
+@keyframes ga-pick1 { 0%, 4.00% { opacity: 0; } 6.00%, 16.67% { opacity: 1; } 19.33%, 100% { opacity: 0; } }
+@keyframes ga-pick2 { 0%, 24.00% { opacity: 0; } 26.00%, 36.67% { opacity: 1; } 39.33%, 100% { opacity: 0; } }
+@keyframes ga-pick3 { 0%, 44.00% { opacity: 0; } 46.00%, 56.67% { opacity: 1; } 59.33%, 100% { opacity: 0; } }
+@keyframes ga-pick4 { 0%, 64.00% { opacity: 0; } 66.00%, 76.67% { opacity: 1; } 79.33%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .ga-fly { animation: none; opacity: 1; transform: translate(148px, var(--dy)); } .ga-scroll, .ga-pick { animation: none; } }
 .ga-label { font-size: 13px; font-weight: 700; fill: var(--ink); text-anchor: middle; }
 .ga-icon { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .ga-spark { fill: var(--pink); }
