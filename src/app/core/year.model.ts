@@ -1,4 +1,5 @@
 import { addDays, daysBetween } from './period.model';
+import type { Lang, Texts } from './i18n';
 
 /**
  * The Year screen (Gianni): each year as 4 quarters, one per season, winter first. Each quarter starts on the Monday
@@ -127,16 +128,23 @@ export function sprintRange(sprint: Sprint): { from: string; to: string } {
   return { from: sprint.weeks[0][0], to: last[last.length - 1] };
 }
 
-const MONTHS: Record<'en' | 'es', string[]> = {
+/** Three-letter months for the sprint ranges; a language added later without its own list uses its locale's. */
+const MONTHS: Texts<string[]> = {
   en: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   es: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
 };
 /** A day as a sprint's range shows it (Gianni): two-digit day and three-letter month, "05 Oct". */
-export function dayMonth(key: string, lang: 'en' | 'es'): string {
-  return `${key.slice(8, 10)} ${MONTHS[lang][Number(key.slice(5, 7)) - 1]}`;
+export function dayMonth(key: string, lang: Lang): string {
+  const m = Number(key.slice(5, 7)) - 1;
+  return `${key.slice(8, 10)} ${MONTHS[lang]?.[m] ?? localeMonth(m, lang)}`;
+}
+function localeMonth(month: number, lang: Lang): string {
+  const name = new Intl.DateTimeFormat(lang, { month: 'short', timeZone: 'UTC' })
+    .format(new Date(Date.UTC(2026, month, 15))).replace('.', '');
+  return name.charAt(0).toLocaleUpperCase(lang) + name.slice(1);
 }
 /** A sprint's range as its line shows it after its name (Gianni): "05 Oct - 18 Oct". */
-export function sprintRangeLabel(sprint: Sprint, lang: 'en' | 'es'): string {
+export function sprintRangeLabel(sprint: Sprint, lang: Lang): string {
   const { from, to } = sprintRange(sprint);
   return `${dayMonth(from, lang)} - ${dayMonth(to, lang)}`;
 }

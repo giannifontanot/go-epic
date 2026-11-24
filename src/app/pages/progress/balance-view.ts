@@ -183,8 +183,7 @@ export class BalanceView {
 
   protected readonly rangeLabel = computed(() => {
     const { current } = periodWindows(this.period(), this.today());
-    const locale = this.i18n.lang() === 'es' ? 'es' : 'en';
-    const fmt = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' });
+    const fmt = new Intl.DateTimeFormat(this.i18n.locale(), { day: 'numeric', month: 'short' });
     const day = (key: string) => { const [y, m, d] = key.split('-').map(Number); return fmt.format(new Date(y, m - 1, d)); };
     return this.i18n.t(this.period() === '3w' ? 'balance.range3w' : 'balance.rangeQ', { from: day(current.from), to: day(current.to) });
   });

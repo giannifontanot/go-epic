@@ -238,7 +238,7 @@ export class CapturePanel {
     const [y, m, d] = todo.date.split('-').map(Number);
     const day = todo.date === dateKey(now) ? this.i18n.t('capture.today')
       : todo.date === dateKey(tomorrow) ? this.i18n.t('capture.tomorrow')
-      : new Date(y, m - 1, d).toLocaleDateString(this.i18n.lang(), { weekday: 'short', day: 'numeric', month: 'short' });
+      : new Date(y, m - 1, d).toLocaleDateString(this.i18n.locale(), { weekday: 'short', day: 'numeric', month: 'short' });
     return todo.time ? `${day} · ${todo.time}` : day;
   }
 

@@ -218,11 +218,11 @@ export class Progress {
   }
   protected longDate(key: string): string {
     const [y, m, d] = key.split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString(this.i18n.lang(), { day: 'numeric', month: 'short', year: 'numeric' });
+    return new Date(y, m - 1, d).toLocaleDateString(this.i18n.locale(), { day: 'numeric', month: 'short', year: 'numeric' });
   }
   protected shortDate(key: string): string {
     const [y, m, d] = key.split('-').map(Number);
-    return new Date(y, m - 1, d).toLocaleDateString(this.i18n.lang(), { day: 'numeric', month: 'short' });
+    return new Date(y, m - 1, d).toLocaleDateString(this.i18n.locale(), { day: 'numeric', month: 'short' });
   }
 
   constructor() {

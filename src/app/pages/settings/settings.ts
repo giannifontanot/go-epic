@@ -21,12 +21,14 @@ import { ThemeService } from '../../core/theme';
         <button type="button" class="drawer-close" [attr.aria-label]="i18n.t('nav.close')" (click)="close()">×</button>
       </header>
       @if (auth.user(); as user) { <p class="settings-user">{{ user.displayName || user.email }}</p> }
-      <!-- English / Español (Gianni: the ☰ menu that held the switch is gone) -->
+      <!-- One button per language in LANGS (core/i18n), each named in its own language (Gianni: the ☰ menu that held the switch is gone) -->
       <div class="setting-row lang-row" role="group" [attr.aria-label]="i18n.t('settings.language')">
         <strong class="setting-text">{{ i18n.t('settings.language') }}</strong>
         <div class="capture-tabs lang-choice">
-          <button type="button" [class.on]="i18n.lang() === 'en'" [attr.aria-pressed]="i18n.lang() === 'en'" (click)="i18n.setLang('en')">English</button>
-          <button type="button" [class.on]="i18n.lang() === 'es'" [attr.aria-pressed]="i18n.lang() === 'es'" (click)="i18n.setLang('es')">Español</button>
+          @for (l of i18n.langs; track l.code) {
+            <button type="button" [attr.lang]="l.code" [class.on]="i18n.lang() === l.code" [attr.aria-pressed]="i18n.lang() === l.code"
+                    (click)="i18n.setLang(l.code)">{{ l.name }}</button>
+          }
         </div>
       </div>
       <!-- Weighted buttons: everything leans when the phone leans (core/tilt) -->
