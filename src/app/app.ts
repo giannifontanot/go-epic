@@ -188,7 +188,7 @@ export class App {
   protected shortDate(date: string): string {
     const d = new Date(`${date}T12:00:00`);
     if (isNaN(d.getTime())) return date;
-    return d.toLocaleDateString(this.i18n.lang() === 'es' ? 'es' : 'en', { day: 'numeric', month: 'short' });
+    return d.toLocaleDateString(this.i18n.locale(), { day: 'numeric', month: 'short' });
   }
 
   protected reload(): void {

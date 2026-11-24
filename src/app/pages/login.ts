@@ -1,7 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../core/auth.service';
-import { I18n } from '../core/i18n';
+import { I18n, langInfo, nextLang } from '../core/i18n';
 
 @Component({
   selector: 'app-login',
@@ -16,13 +16,15 @@ import { I18n } from '../core/i18n';
         <h2>{{ i18n.t('setup.title') }}</h2>
         <p class="lead">{{ i18n.t('setup.body') }}</p>
       }
-      <button type="button" class="chip quiet" (click)="i18n.toggle()">{{ i18n.lang() === 'en' ? 'Español' : 'English' }}</button>
+      <button type="button" class="chip quiet" (click)="i18n.toggle()" [attr.lang]="nextLang().code">{{ nextLang().name }}</button>
     </section>
   `,
 })
 export class Login {
   protected readonly auth = inject(AuthService);
   protected readonly i18n = inject(I18n);
+  /** The language the switch moves to (the next one in the list). */
+  protected readonly nextLang = computed(() => langInfo(nextLang(this.i18n.lang())));
   private readonly router = inject(Router);
   protected readonly busy = signal(false);
   protected readonly error = signal('');

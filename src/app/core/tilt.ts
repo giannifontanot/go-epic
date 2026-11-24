@@ -47,7 +47,7 @@ export function pileShift(k: number, roomLeft: number, roomRight: number): numbe
  *  summaries, hints) only lean, in place, so they never slide over each other; nothing positioned by its own translate
  *  (the card's state badge, the now-line) is in either list, nor an invisible control laid over its visible one (a
  *  minute chip's radio, the Where card's select): it must stay exactly under what the finger sees, so its chip moves it. */
-export const TILT_BODIES = 'button:not(.theme-tile):not(.yr-cell):not(.palette-row), .block, .task, .now-card, .habit, .capture-list li, .object, .pc-feature, .pc-story, .pc-activity, .day, .field, .min-chip, input:not([type=radio]), select:not(.pc-head > select), .todo-note, .todo-strip, .stepper, .linked-chip';
+export const TILT_BODIES = 'button:not(.theme-tile):not(.levels-btn):not(.yr-cell):not(.palette-row), .block, .task, .now-card, .habit, .capture-list li, .object, .pc-feature, .pc-story, .pc-activity, .day, .field, .min-chip, input:not([type=radio]), select:not(.pc-head > select), .todo-note, .todo-strip, .stepper, .linked-chip';
 
 const STORAGE_KEY = 'go-epic-tilt';
 type PermissionFn = () => Promise<'granted' | 'denied'>;
