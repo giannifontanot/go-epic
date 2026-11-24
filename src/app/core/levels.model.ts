@@ -42,7 +42,7 @@ export const LEVEL_SETS: readonly LevelSet[] = [
   {
     id: 'current', name: { es: 'Actual', en: 'Current' },
     words: {
-      es: { area: w('Area', 'Areas', true, true), epic: w('Epic', 'Epics'), feature: w('Feature', 'Features'), story: w('Story', 'Stories', true), task: w('Activity', 'Activities', true) },   // all in English (Gianni, v79), Spanish genders kept: el Area, la Activity
+      es: { area: w('Area', 'Areas', true, true), epic: w('Epic', 'Epics'), feature: w('Feature', 'Features'), story: w('Story', 'Stories', true), task: w('Activity', 'Activities', true) },   // all in English (Gianni, v80), Spanish genders kept: el Area, la Activity
       en: { area: AREA_EN, epic: w('Epic', 'Epics'), feature: w('Feature', 'Features'), story: w('Story', 'Stories'), task: w('Activity', 'Activities') },
     },
   },
@@ -83,7 +83,7 @@ export const LEVEL_SETS: readonly LevelSet[] = [
   },
 ];
 
-/** Sencillo / Simple until someone picks another (Gianni, v79: understood at first sight, with no English or method needed). */
+/** Sencillo / Simple until someone picks another (Gianni, v80: understood at first sight, with no English or method needed). */
 export const DEFAULT_LEVEL_SET: LevelSetId = 'simple';
 
 /** A stored choice, or the default for anything unknown. */
