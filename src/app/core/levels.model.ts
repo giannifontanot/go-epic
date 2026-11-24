@@ -37,12 +37,12 @@ const w = (one: string, many: string, f = false, elUn = false): LevelWord => ({ 
 const AREA_ES = w('Área', 'Áreas', true, true);
 const AREA_EN = w('Area', 'Areas');
 
-/** The six sets, in Gianni's order (Aventura, not Gesta). The first is the app's own and the default. */
+/** The six sets, in Gianni's order (Aventura, not Gesta). The first is the app's own names; the default is DEFAULT_LEVEL_SET (Sencillo). */
 export const LEVEL_SETS: readonly LevelSet[] = [
   {
     id: 'current', name: { es: 'Actual', en: 'Current' },
     words: {
-      es: { area: AREA_ES, epic: w('Epic', 'Epics'), feature: w('Feature', 'Features'), story: w('Story', 'Stories', true), task: w('Actividad', 'Actividades', true) },
+      es: { area: w('Area', 'Areas', true, true), epic: w('Epic', 'Epics'), feature: w('Feature', 'Features'), story: w('Story', 'Stories', true), task: w('Activity', 'Activities', true) },   // all in English (Gianni, v80), Spanish genders kept: el Area, la Activity
       en: { area: AREA_EN, epic: w('Epic', 'Epics'), feature: w('Feature', 'Features'), story: w('Story', 'Stories'), task: w('Activity', 'Activities') },
     },
   },
@@ -83,7 +83,8 @@ export const LEVEL_SETS: readonly LevelSet[] = [
   },
 ];
 
-export const DEFAULT_LEVEL_SET: LevelSetId = 'current';
+/** Sencillo / Simple until someone picks another (Gianni, v80: understood at first sight, with no English or method needed). */
+export const DEFAULT_LEVEL_SET: LevelSetId = 'simple';
 
 /** A stored choice, or the default for anything unknown. */
 export function parseLevelSet(value: unknown): LevelSetId {
@@ -91,7 +92,7 @@ export function parseLevelSet(value: unknown): LevelSetId {
 }
 
 export function levelSet(id: LevelSetId): LevelSet {
-  return LEVEL_SETS.find((s) => s.id === id) ?? LEVEL_SETS[0];
+  return LEVEL_SETS.find((s) => s.id === id) ?? LEVEL_SETS.find((s) => s.id === DEFAULT_LEVEL_SET)!;
 }
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
