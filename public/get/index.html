@@ -546,17 +546,23 @@
     .ci .bt { margin-left: auto; display: flex; gap: 4px; opacity: 1; }
     .ci .bt i { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .45); font-size: 9.5px; font-style: normal; }
     .ghost { margin-top: 12px; opacity: .3; }
-    /* the story: a task is typed, Add drops it into the list; another is ticked and moves to Finished */
-    .s-cap.run .fld .ph { animation: phx 8s linear both; }
-    .s-cap.run .typed { animation: type 1.5s steps(22) .35s both, gone .25s ease 2.2s forwards, caret .8s steps(1) .35s 3; }
-    .s-cap.run .add .tap { animation: tapfx .9s ease 1.8s both; }
-    .s-cap.run .add { animation: pressbtn .4s ease 2.15s both; }
-    .s-cap.run .ci.new { animation: noteIn .75s var(--bounce) 2.35s both; }
-    .s-cap.run .ci.dent .tap { animation: tapfx .9s ease 4.05s both; }
-    .s-cap.run .ci.dent .ck { animation: ckIn .4s var(--bounce) 4.45s forwards; }
-    .s-cap.run .ci.dent { animation: noteOut .65s ease 5.05s forwards; }
-    .s-cap.run .ctabs .fin u { animation: bump .6s var(--bounce) 5.35s both; }
-    .s-cap.run .ctabs .on u { animation: bump .6s var(--bounce) 2.4s both; }
+    /* the story (Gianni): a finger taps the 💡 and Capture grows out of it, softly; then a task is typed, Add drops it into the list; another is ticked and moves to Finished */
+    .s-cap.run .fld .ph { animation: phx 8s linear 1.6s both; }
+    .s-cap.run .typed { animation: type 1.5s steps(22) 1.95s both, gone .25s ease 3.8s forwards, caret .8s steps(1) 1.95s 3; }
+    .s-cap.run .add .tap { animation: tapfx .9s ease 3.4s both; }
+    .s-cap.run .add { animation: pressbtn .4s ease 3.75s both; }
+    .s-cap.run .ci.new { animation: noteIn .75s var(--bounce) 3.95s both; }
+    .s-cap.run .ci.dent .tap { animation: tapfx .9s ease 5.65s both; }
+    .s-cap.run .ci.dent .ck { animation: ckIn .4s var(--bounce) 6.05s forwards; }
+    .s-cap.run .ci.dent { animation: noteOut .65s ease 6.65s forwards; }
+    .s-cap.run .ctabs .fin u { animation: bump .6s var(--bounce) 6.95s both; }
+    .s-cap.run .ctabs .on u { animation: bump .6s var(--bounce) 4s both; }
+    .capfab { font-size: 19px; }
+    .s-cap .cpan { transform-origin: 271px 565px; }
+    .s-cap.run .capfab .tap { animation: tapfx .9s ease .2s both; }
+    .s-cap.run .capfab { animation: pressbtn .4s ease .5s both; }
+    .s-cap.run .cpan { animation: capIn .75s cubic-bezier(0, 0, .6, 1) .75s both; }
+    @keyframes capIn { from { opacity: 0; transform: scale(.06); } 40% { opacity: 1; } }
     @keyframes phx { 0%, 4% { opacity: 1; } 5%, 29% { opacity: 0; } 31%, 100% { opacity: 1; } }
     @keyframes type { from { max-width: 0; } to { max-width: 15em; } }
     @keyframes gone { to { opacity: 0; } }
@@ -1004,6 +1010,7 @@
               </div>
               <div class="dayc ghost"><div class="blk"><div class="bh"><span data-i="p_deep">Deep work</span><b data-i="p_free">10 min free</b></div><div class="rng">08:00 <i>–</i> 09:30</div></div></div>
             </div>
+            <span class="fab capfab" aria-hidden="true">💡<i class="tap" style="left:50%;top:50%"></i></span>
           </div>
 
           <!-- 6 · Year: a season of four sprints and a rest week; a finger holds a day and its note shows above it -->
@@ -1112,7 +1119,7 @@
       l4: 'Cada acción que sigues tiene su propia racha, y un día omitido la pausa en vez de romperla. Áreas de la vida te muestra si cada parte de tu vida recibe su tiempo.',
       k5: 'Capturar', h5: 'Atrápalo antes de que se escape.',
       l5: 'Escríbelo y presiona Enter. Cae en su día y su hora, y lo que se te pase te espera en una carpeta al pie de la pantalla.',
-      k8: 'Año', h8: 'Un año en cuatro temporadas.',
+      k8: 'Year', h8: 'Un año en cuatro temporadas.',
       l8: 'Cada temporada tiene cuatro sprints de tres semanas y una semana para descansar y mirar atrás. Deja el dedo sobre un día para anotar lo que importa.',
       k6: 'Temas', h6: 'Diez estilos. Un solo tú.', l6: 'Elige un tema, su paleta de colores y hasta los nombres de tus niveles. Toda la app lo sigue.',
       q7: '«No importa lo fuerte que golpees, sino lo fuerte que puedan golpearte y seguir avanzando.»',
@@ -1150,7 +1157,7 @@
       p_none: 'Aún sin racha', p_rep: 'Tareas que se repiten', p_gym: 'Gimnasio · Ma Ju', p_capture: 'Capturar',
       p_ph: 'Una tarea… (Enter)', p_typing: 'Comprar flores para mamá', p_add: 'Agregar', p_cur: 'Actuales', p_fin: 'Finalizadas',
       p_today: 'Hoy', p_gym0: 'Gimnasio', p_tuth: 'Ma Ju · 07:00', p_bill: 'Pagar la luz', p_mon16: 'lun, 16 nov', p_today0640: 'Hoy · 06:40',
-      p_year: 'Año', p_autumn: 'Otoño', p_autrange: '21 sep - 20 dic', p_rest: 'Descanso', p_popdate: 'vie, 20 nov', p_popnote: 'Cumpleaños de mamá'
+      p_year: 'Year', p_autumn: 'Otoño', p_autrange: '21 sep - 20 dic', p_rest: 'Descanso', p_popdate: 'vie, 20 nov', p_popnote: 'Cumpleaños de mamá'
     };
     var UI = {
       en: { back: 'Back', end: 'Go to the last slide', next: 'Next', again: 'Start over', step: 'Slide %n of %t', go: 'Go to slide %n', tour: 'Go Epic tour', nav: 'Tour',
@@ -1258,9 +1265,9 @@
           if (n) n.textContent = +n.dataset.base + (hit ? 1 : 0);
         });
       } },
-      5: { period: 8000, tick: function (s, t) {   // Capture: 3 → 4 current when added, then 1 finished
-        q(s, '.ncur').textContent = t < 2350 ? 3 : t < 5350 ? 4 : 3;
-        q(s, '.nfin').textContent = t < 5350 ? 0 : 1;
+      5: { period: 9600, tick: function (s, t) {   // Capture: the 💡 opens it; 3 → 4 current when added, then 1 finished
+        q(s, '.ncur').textContent = t < 3950 ? 3 : t < 6950 ? 4 : 3;
+        q(s, '.nfin').textContent = t < 6950 ? 0 : 1;
       } },
       6: { period: 7000, still: 3000, tick: function (s, t) {   // Year: a finger holds a day and its window shows above it
         s.classList.toggle('held', t > 1500 && t < 6100);
