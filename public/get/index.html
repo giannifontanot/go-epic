@@ -3,7 +3,7 @@
   Get Go Epic: the promotional landing page, served at the root "/" (firebase.json) and at /get/, separate from the
   app itself (app.html, opened at /app). getgoepic.com/ is this page.
   A plain static page: no Angular, no Firebase, so it loads fast and search engines read it as it is.
-  One screen, a carousel in the Epic theme's colours (Gianni): the arrows (or swipe, or ← →) step through eight slides, and each one plays
+  One screen, a carousel in the app's Go Epic Light theme (Gianni): the arrows (or swipe, or ← →) step through eight slides, and each one plays
   its own small motion on the phone. English in the HTML (for search engines); Spanish comes from the
   ES dictionary in the script below (browser language es-*, the EN/ES switch, or ?lang=es).
   The emblem (emblem.webp) is Gianni's winged-sword logo, on a transparent background.
@@ -69,7 +69,7 @@
       }
     } catch (e) {}
   </script>
-  <meta name="theme-color" content="#101b42" />
+  <meta name="theme-color" content="#fbfbfd" />
   <!-- the app's own manifest: installing from here installs the Go Epic app itself (start "/") -->
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="icon" type="image/png" href="/get/emblem-48.png" />
@@ -126,29 +126,30 @@
     @property --tn { syntax: '<color>'; inherits: true; initial-value: #ff3b30; }
 
     :root {
-      /* The Epic theme, as in the app's Canvas (Gianni): navy page, cream ink, pink buttons, teal focus, gold accents */
-      --bg: #101b42; --ink: #fff4e9; --mute: rgba(255, 244, 233, .74); --soft: rgba(255, 244, 233, .1); --seg: #16224f;
-      --btn: #f4a8b7; --btn-ink: #302746; --dot: rgba(255, 244, 233, .3);
-      --gold: #f5c945; --gold-soft: #e0b34a; --teal: #76e0d0; --plum-a: #8f2859; --plum-b: #621c4b; --win-edge: rgba(146, 176, 255, .45);
+      /* The app's Go Epic Light theme (Gianni): the near-white page, near-black ink, black pill buttons with a yellow
+         ring, the wordmark's navy and deep gold, gold focus, the windows' thin blue edge */
+      --bg: #fbfbfd; --ink: #1d1d1f; --mute: #5c5c63; --soft: rgba(16, 27, 66, .05); --seg: #fff;
+      --btn: #1d1d1f; --btn-ink: #fbfbfd; --dot: rgba(29, 29, 31, .22);
+      --gold: #b8901e; --navy: #101b42; --focus: #b8860b; --win-edge: rgba(59, 120, 216, .45);
       --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Inter, 'Segoe UI', Roboto, Arial, sans-serif;
       --serif: Georgia, 'Times New Roman', serif;
       --spring: cubic-bezier(.16, 1, .3, 1);
       --bounce: cubic-bezier(.34, 1.56, .64, 1);
       --wm: clamp(24px, 7.4vw, 34px);
-      color-scheme: dark;
+      color-scheme: light;
     }
     * { box-sizing: border-box; }
     html { -webkit-text-size-adjust: 100%; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
     input, textarea, select, [contenteditable] { -webkit-user-select: text; user-select: text; }
     html, body { margin: 0; }
     body { min-height: 100vh; min-height: 100svh; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; grid-template-columns: minmax(0, 1fr);
-      background: radial-gradient(120% 70% at 50% -10%, #1c2a66 0, var(--bg) 62%) fixed, var(--bg); color: var(--ink); font: 17px/1.47 var(--font); -webkit-font-smoothing: antialiased;
+      background: var(--bg); color: var(--ink); font: 17px/1.47 var(--font); -webkit-font-smoothing: antialiased;
       transition: background-color .8s ease, color .8s ease; -webkit-tap-highlight-color: transparent; }
     html.js body { height: 100vh; height: 100svh; overflow: hidden; }
     h1, h2, p { margin: 0; }
     img { display: block; max-width: 100%; }
     button { font: inherit; color: inherit; }
-    :focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; border-radius: 10px; }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 10px; }
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
     /* ── Top ─────────────────────────────────────────────────── */
@@ -205,17 +206,17 @@
     /* The language switch is a list, not a pair of buttons, so more languages can join it (Gianni): a pill with a globe,
        the language in use and a chevron, over an invisible native <select> that opens the list. */
     .lang { margin-left: auto; position: relative; display: inline-flex; align-items: center; gap: 6px; min-width: 40px; min-height: 40px;
-      padding: 0 12px; border-radius: 999px; background: rgba(22, 34, 79, .85); box-shadow: inset 0 0 0 1px rgba(255, 244, 233, .18);
+      padding: 0 12px; border-radius: 999px; background: rgba(255, 255, 255, .8); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08);
       color: var(--mute); font-size: 15px; letter-spacing: 1.5px; font-weight: 500; cursor: pointer; transition: color .2s, box-shadow .2s; }
-    /* Quiet (Gianni): a dark pill with a hairline edge and soft type, so it never competes with the name or Download */
+    /* Quiet (Gianni): a white pill with a hairline edge and soft grey type, so it never competes with the name or Download */
     .lang svg { flex: none; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
-    .lang .globe { width: 17px; height: 17px; color: rgba(255, 244, 233, .55); }
-    .lang .lang-chev { width: 10px; height: 10px; color: rgba(255, 244, 233, .55); stroke-width: 1.6; }
+    .lang .globe { width: 17px; height: 17px; color: #a1a1a6; }
+    .lang .lang-chev { width: 10px; height: 10px; color: #a1a1a6; stroke-width: 1.6; }
     .lang-code { display: none; }
     .lang select { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; border: 0; border-radius: 999px; opacity: 0;
       cursor: pointer; font-size: 16px; -webkit-appearance: none; appearance: none; }
-    .lang:hover { color: var(--ink); box-shadow: inset 0 0 0 1px rgba(255, 244, 233, .32); }
-    .lang:has(select:focus-visible) { outline: 2px solid var(--teal); outline-offset: 2px; }
+    .lang:hover { color: var(--navy); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .16); }
+    .lang:has(select:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
     .pill { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; text-decoration: none;
       background: var(--btn); color: var(--btn-ink); font-size: 15px; letter-spacing: 1.5px; font-weight: 700; transition: background-color .8s, color .8s, transform .2s var(--spring); }
     .pill:hover { transform: scale(1.03); }
@@ -237,7 +238,7 @@
       box-shadow: 0 0 0 5px #f5c945, 0 0 20px 6px rgba(245, 201, 69, .8); opacity: 0; animation: ring-flash 1.6s ease-out .9s infinite; }
     .dl-top:hover { transform: scale(1.06); }
     .dl-top:active { transform: scale(.94); }
-    .dl-top:focus-visible { outline: 2px solid var(--teal); outline-offset: 8px; }
+    .dl-top:focus-visible { outline: 2px solid var(--navy); outline-offset: 8px; }
     @keyframes ring-flash {
       0% { opacity: 1; transform: scale(1); }
       70% { opacity: 0; transform: scale(1.14); }
@@ -265,15 +266,15 @@
     .kicker { font-size: 15px; font-weight: 600; color: var(--k, var(--mute)); letter-spacing: -.01em; }
     h2 { font-size: clamp(30px, 8.2vw, 68px); line-height: 1.06; font-weight: 700; letter-spacing: -.03em; text-wrap: balance; }
     /* The name: "Go" in the app's deep navy, "Epic!" in the gold of the emblem's ribbon. */
-    .go { color: var(--ink); }
-    .gold { background: linear-gradient(100deg, #f5d77a, #e2b84a 55%, #c9a227); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .go { color: var(--navy); }
+    .gold { background: linear-gradient(100deg, #b8860b, #8a5a12); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .lead { font-size: clamp(16px, 4.2vw, 21px); line-height: 1.4; color: var(--mute); max-width: 28em; text-wrap: pretty; transition: color .8s; }
     .fine { font-size: 13px; color: var(--mute); }
     .steps { font-size: 13px; color: var(--mute); line-height: 1.5; }
     .steps b { color: var(--ink); font-weight: 600; }
     .swatches { display: flex; gap: 8px; justify-content: center; }
     .swatches { flex-wrap: wrap; max-width: 15em; }
-    .swatches i { width: 18px; height: 18px; border-radius: 50%; background: var(--c); box-shadow: 0 0 0 1.5px rgba(255, 244, 233, .45); }
+    .swatches i { width: 18px; height: 18px; border-radius: 50%; background: var(--c); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .14); }
 
     @property --s { syntax: '<number>'; inherits: true; initial-value: .7; }
     .device { position: relative; flex: 1 1 auto; min-height: 0; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center;
@@ -281,13 +282,13 @@
     html:not(.js) .device { display: none; }
     .device::before { content: ''; position: absolute; left: 50%; top: 50%; width: min(96%, 640px); aspect-ratio: 1; border-radius: 50%;
       transform: translate(-50%, -50%); background: radial-gradient(closest-side, var(--g), transparent 92%); transition: --g 1s ease; pointer-events: none; }
-    body[data-slide="0"] { --g: rgba(245, 201, 69, .3); }
-    body[data-slide="1"] { --g: rgba(143, 40, 89, .55); }
-    body[data-slide="2"] { --g: rgba(118, 224, 208, .3); }
-    body[data-slide="3"] { --g: rgba(245, 201, 69, .26); }
-    body[data-slide="4"] { --g: rgba(244, 168, 183, .3); }
-    body[data-slide="5"] { --g: rgba(167, 231, 227, .28); }
-    body[data-slide="6"] { --g: rgba(225, 215, 255, .26); }
+    body[data-slide="0"] { --g: rgba(245, 201, 69, .28); }
+    body[data-slide="1"] { --g: rgba(184, 144, 30, .2); }
+    body[data-slide="2"] { --g: rgba(16, 27, 66, .14); }
+    body[data-slide="3"] { --g: rgba(245, 201, 69, .24); }
+    body[data-slide="4"] { --g: rgba(59, 120, 216, .14); }
+    body[data-slide="5"] { --g: rgba(57, 255, 20, .1); }
+    body[data-slide="6"] { --g: rgba(107, 91, 210, .14); }
     body[data-slide="7"] { --g: rgba(245, 201, 69, .2); }
 
     /* The emblem (first slide) and the phone (the others) share the same spot */
@@ -296,7 +297,7 @@
     /* Gianni's emblem stands free on the page (its background is transparent); the shine only touches the emblem itself */
     .emblem .float { position: absolute; inset: 0; }
     .emblem img { width: 100%; height: 100%; object-fit: contain;
-      filter: drop-shadow(0 30px 40px rgba(0, 0, 0, .5)) drop-shadow(0 0 26px rgba(245, 201, 69, .22)); }
+      filter: drop-shadow(0 30px 34px rgba(60, 38, 8, .32)) drop-shadow(0 8px 12px rgba(0, 0, 0, .18)); }
     .emblem .sheen { position: absolute; inset: 0; mix-blend-mode: overlay; pointer-events: none;
       -webkit-mask: url(/get/emblem.webp) center / contain no-repeat; mask: url(/get/emblem.webp) center / contain no-repeat;
       background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, .85) 50%, transparent 62%) no-repeat; background-size: 300% 100%; background-position: 120% 0; }
@@ -326,12 +327,12 @@
     .q cite { display: block; margin-top: .7em; font: 600 .55em/1.2 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       font-style: normal; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
     .q-dots { display: flex; align-items: center; justify-content: center; margin-top: 14px; }
-    .q-dots button { width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: rgba(255, 244, 233, .6); cursor: pointer; display: grid; place-items: center; }
+    .q-dots button { width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #8a8a96; cursor: pointer; display: grid; place-items: center; }
     .q-dots button:hover { color: var(--ink); }
-    .q-dots button:focus-visible { outline: 2px solid var(--teal); outline-offset: -2px; }
+    .q-dots button:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
     .q-dots svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
     .q-pips { display: flex; gap: 5px; padding: 0 4px; }
-    .q-pips i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 244, 233, .25); transition: background-color .4s, transform .4s; }
+    .q-pips i { width: 6px; height: 6px; border-radius: 50%; background: rgba(16, 27, 66, .22); transition: background-color .4s, transform .4s; }
     .q-pips i.on { background: var(--gold); transform: scale(1.4); }
     .q-dots:not(:has(button)) { display: none; }
     body:not([data-slide="7"]) .quote { transform: translateY(12px); }
@@ -347,35 +348,41 @@
     @keyframes spark { 0% { opacity: 0; transform: scale(.2) rotate(0); } 12% { opacity: 1; transform: scale(1.6) rotate(45deg); } 30%, 100% { opacity: 0; transform: scale(.4) rotate(90deg); } }
 
     .phone { position: absolute; left: 0; top: 0; width: 320px; height: 660px; transform: scale(var(--s, .7)); transform-origin: 0 0;
-      padding: 11px; border-radius: 54px; background: #05091c;
-      box-shadow: inset 0 0 0 1.5px #3b4573, 0 0 0 1px rgba(255, 244, 233, .12), 0 50px 90px -30px rgba(0, 0, 0, .7), 0 20px 40px -20px rgba(0, 0, 0, .5); }
+      padding: 11px; border-radius: 54px; background: #1d1d1f;
+      box-shadow: inset 0 0 0 1.5px #48484a, 0 50px 90px -30px rgba(0, 0, 0, .45), 0 20px 40px -20px rgba(0, 0, 0, .35); }
     .phone::before { content: ''; position: absolute; top: 22px; left: 50%; width: 96px; height: 28px; margin-left: -48px; border-radius: 20px; background: #000; z-index: 5; }
-    .glass { position: relative; width: 100%; height: 100%; border-radius: 43px; overflow: hidden; background: #101b42; }
-    .screen { position: absolute; inset: 0; padding: 58px 14px 16px; opacity: 0; transform: scale(1.04); color: #fff4e9;
-      font: 12px/1.3 var(--font); background: #101b42; transition: opacity .45s ease, transform .6s var(--spring); }
+    .glass { position: relative; width: 100%; height: 100%; border-radius: 43px; overflow: hidden; background: #fbfbfd; }
+    .screen { position: absolute; inset: 0; padding: 58px 14px 16px; opacity: 0; transform: scale(1.04); color: #1d1d1f;
+      font: 12px/1.3 var(--font); background: #fbfbfd; transition: opacity .45s ease, transform .6s var(--spring); }
     .screen.on { opacity: 1; transform: none; }
     .clock { position: absolute; top: 24px; left: 34px; font-weight: 600; font-size: 14px; }
     .batt { position: absolute; top: 28px; right: 32px; width: 24px; height: 11px; border-radius: 3px; border: 1.5px solid currentColor; opacity: .85; }
     .batt::after { content: ''; position: absolute; inset: 1.5px 6px 1.5px 1.5px; border-radius: 1px; background: currentColor; }
-    /* ── The phone screens, drawn like the app today: navy page, plum days, yellow jelly blocks, cards on paper.
+    /* ── The phone screens, drawn like the app today in Go Epic Light: the near-white page, pale grey days, grey blocks
+       with a gold edge, white cards with a coloured left edge, titles in the wordmark's gold; the Canvas keeps the Epic
+       look, as it does in the app.
        Each screen plays a small story in a loop (class .run, restarted by the script), big and slow enough that
        anyone sees what happens; .fade dims the story for a moment before it starts again. ── */
     .screen .live { position: relative; transition: opacity .45s ease; }
     .screen.fade .live { opacity: 0; }
     .screen.snap .live * { transition: none !important; }
     .hdr { display: flex; align-items: center; justify-content: space-between; margin: 0 2px 9px; }
-    .hdr h3 { margin: 0; display: flex; align-items: center; gap: 7px; font: 700 25px/1.05 var(--serif); letter-spacing: -.01em; }
-    .chev { flex: none; width: 7px; height: 7px; margin: -4px 2px 0; border: solid rgba(255, 244, 233, .6); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+    .hdr h3 { margin: 0; display: flex; align-items: center; gap: 7px; font: 900 21px/1.05 'Cinzel Decorative', Georgia, serif; letter-spacing: .01em; color: #8a5a12; }
+    /* the titles and day names in the wordmark's deep gold, as in the app */
+    :is(.s-week, .s-prog, .s-year) .hdr h3 > span, .cpan .hdr h3, .s-week .dh > span {
+      background: linear-gradient(100deg, #9a6f0c, #7d5210); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; }
+    .hdr .tri { color: #8a5a12; }
+    .chev { flex: none; width: 7px; height: 7px; margin: -4px 2px 0; border: solid rgba(138, 90, 18, .8); border-width: 0 2px 2px 0; transform: rotate(45deg); }
     .chev.dk { border-color: rgba(54, 38, 67, .7); margin: -3px 2px 0 auto; }
     .spk { color: #f5c945; font: 16px/1 var(--font); }
-    .bulb { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 15px; background: #16224f;
-      box-shadow: inset 0 0 0 1.5px rgba(255, 244, 233, .22); }
+    .bulb { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 15px; background: #fff;
+      box-shadow: inset 0 0 0 1.5px rgba(29, 29, 31, .22); }
     .fab { position: absolute; right: 14px; bottom: 16px; z-index: 6; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center;
-      background: #f4a8b7; color: #302746; box-shadow: 0 6px 14px rgba(0, 0, 0, .4); }
+      background: #1d1d1f; color: #fbfbfd; box-shadow: 0 0 0 2px rgba(245, 201, 69, .9), 0 4px 14px rgba(0, 0, 0, .18); }
     .fab svg { width: 19px; height: 19px; }
     /* a finger's tap: comes down, presses, lets go */
     .tap { position: absolute; z-index: 8; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; pointer-events: none; opacity: 0;
-      background: rgba(255, 255, 255, .5); box-shadow: 0 0 0 2.5px #fff, 0 3px 10px rgba(0, 0, 0, .35); }
+      background: rgba(16, 27, 66, .22); box-shadow: 0 0 0 2.5px #101b42, 0 3px 10px rgba(0, 0, 0, .25); }
     @keyframes tapfx { 0% { opacity: 0; transform: scale(1.7); } 30% { opacity: 1; transform: scale(.95); } 50% { opacity: 1; transform: scale(.7); } 100% { opacity: 0; transform: scale(1.6); } }
     @keyframes pressbtn { 50% { transform: scale(.9); } }
     @keyframes pop { from { transform: scale(0) rotate(-30deg); } }
@@ -387,28 +394,30 @@
     /* Week board */
     .s-week { --p: .4; }
     .chips { display: flex; gap: 3px; margin: 0 0 9px; }
-    .chips span { flex: 1; padding: 6px 0; border-radius: 10px; text-align: center; font-size: 10px; font-weight: 700; background: #16224f;
-      box-shadow: inset 0 0 0 1.5px rgba(255, 244, 233, .16); }
-    .chips .on { background: #f4a8b7; color: #302746; box-shadow: none; }
-    .dayc { position: relative; padding: 9px 9px 4px; border-radius: 22px; background: linear-gradient(170deg, #8f2859, #621c4b);
-      box-shadow: 0 0 0 1.5px rgba(244, 168, 183, .75); }
-    .dh { display: flex; justify-content: space-between; align-items: center; margin: 1px 3px 8px 5px; font: 700 17px/1 var(--serif); color: #f3dfe6; }
-    .dh i { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 600 13px/1 var(--font); font-style: normal;
-      background: rgba(255, 255, 255, .1); box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .2); }
-    .blk { position: relative; margin-bottom: 12px; padding: 8px 8px 9px; border-radius: 18px 22px 18px 24px; color: #362643;
-      background: linear-gradient(150deg, #ffdf77, #f5c945);
-      box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), inset 0 -3px 0 rgba(0, 0, 0, .08), 0 5px 0 #c99a1e, 0 12px 18px rgba(0, 0, 0, .25); }
-    .bh { display: flex; justify-content: space-between; align-items: baseline; padding: 0 3px; font: 700 14px/1.1 var(--serif); }
-    .bh b { font: 800 10px/1 var(--font); color: #0d8f80; }
+    .chips span { flex: 1; padding: 6px 0; border-radius: 10px; text-align: center; font-size: 10px; font-weight: 700; background: #fff;
+      box-shadow: inset 0 0 0 1px rgba(16, 27, 66, .16); }
+    .chips .on, .ypick .on { background: linear-gradient(100deg, #f0cf6e, #d9b54a 50%, #b8860b); color: #101b42; box-shadow: inset 0 0 0 1px #b8860b; }
+    .dayc { position: relative; padding: 9px 9px 4px; border-radius: 22px; background: linear-gradient(170deg, #f0f0f4, #ececf1);
+      box-shadow: 0 0 0 1px rgba(16, 27, 66, .12), 0 6px 16px rgba(16, 27, 66, .09); }
+    .dh { display: flex; justify-content: space-between; align-items: center; margin: 1px 3px 8px 5px; font: 900 15px/1 'Cinzel Decorative', Georgia, serif; color: #8a5a12; }
+    .dh i { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 600 13px/1 var(--font); font-style: normal; color: #1d1d1f;
+      background: rgba(16, 27, 66, .06); box-shadow: inset 0 0 0 1.5px rgba(29, 29, 31, .35); }
+    /* a block: pale grey with the wordmark's gold edge */
+    .blk { position: relative; margin-bottom: 12px; padding: 8px 8px 9px; border-radius: 18px 22px 18px 24px; color: #1d1d1f;
+      background: linear-gradient(150deg, #d9d9e2, #cfcfd9);
+      box-shadow: inset 0 0 0 1.5px #b8901e, 0 4px 0 #c4c4cc, 0 8px 14px rgba(16, 27, 66, .09); }
+    .bh { display: flex; justify-content: space-between; align-items: baseline; padding: 0 3px; font: 700 14px/1.1 var(--font); }
+    .bh b { font: 800 10px/1 var(--font); color: #101b42; }
     .rng { margin: 5px 0 1px; text-align: center; font-weight: 700; font-size: 11.5px; }
-    .rng i { font-style: normal; color: rgba(54, 38, 67, .35); }
-    .card { position: relative; margin-top: 6px; padding: 7px 9px 17px; min-height: var(--h, 42px); border-radius: 13px; color: #2a2018;
-      box-shadow: 0 3px 0 rgba(0, 0, 0, .14); }
+    .rng i { font-style: normal; color: rgba(29, 29, 31, .35); }
+    /* an activity: a white card whose left edge wears its colour */
+    .card { position: relative; margin-top: 6px; padding: 7px 9px 17px; min-height: var(--h, 42px); border-radius: 13px; color: #1d1d1f;
+      background: #fff; border-left: 6px solid var(--tone, transparent); box-shadow: 0 0 0 1px rgba(16, 27, 66, .24), 0 4px 0 rgba(48, 39, 70, .2); }
     .card .t { position: relative; z-index: 1; display: flex; gap: 7px; align-items: baseline; font-size: 11.5px; font-weight: 700; line-height: 1.25; }
-    .card .t i { font-style: normal; font-weight: 500; font-size: 10.5px; color: rgba(42, 32, 24, .62); }
-    .card small { position: absolute; z-index: 1; right: 9px; bottom: 5px; font-size: 8.5px; font-weight: 800; letter-spacing: .06em; color: rgba(42, 32, 24, .7); }
+    .card .t i { font-style: normal; font-weight: 500; font-size: 10.5px; color: rgba(29, 29, 31, .6); }
+    .card small { position: absolute; z-index: 1; right: 9px; bottom: 5px; font-size: 8.5px; font-weight: 800; letter-spacing: .06em; color: rgba(29, 29, 31, .68); }
     .ok { position: absolute; z-index: 2; top: 6px; right: 7px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
-      font-size: 11px; font-weight: 900; font-style: normal; background: #76e0d0; color: #0b2f2a; box-shadow: 0 0 0 2px rgba(255, 255, 255, .65); }
+      font-size: 11px; font-weight: 900; font-style: normal; background: #d9b54a; color: #101b42; box-shadow: 0 0 0 2px rgba(255, 255, 255, .65); }
     /* a done card: pressed in, on pale gold with a gold rim */
     .card.won { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0, 0, 0, .14); }
     .card.won::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(150deg, #fff6d2, #f6d77a);
@@ -420,12 +429,13 @@
     .pin .ed { width: 19px; height: 19px; border-radius: 50%; display: grid; place-items: center; font-size: 9px; font-style: normal; background: rgba(255, 255, 255, .55); }
     .pin.ring { animation: nudge .7s ease 2; }
     @keyframes nudge { 50% { transform: scale(1.07); box-shadow: 0 0 0 3px #f5c945, 0 0 18px rgba(245, 201, 69, .95); } }
-    /* the red time line moves down the running card while its countdown bar empties */
+    /* the time line moves down the running card while its countdown bar empties */
     .runs small { bottom: 5px; }
-    .now { position: absolute; z-index: 4; left: -17px; right: -17px; top: calc(4px + var(--p) * (100% - 10px)); height: 2px; background: #ff3b30;
-      box-shadow: 0 0 6px rgba(255, 59, 48, .6); }
-    .now b { position: absolute; right: 8px; top: -9px; padding: 3px 7px; border-radius: 999px; background: #ff3b30; color: #fff; font-size: 9.5px; font-weight: 800; }
-    .band { height: 12px; margin-top: 7px; border-radius: 8px; background: repeating-linear-gradient(135deg, rgba(54, 38, 67, .14) 0 5px, transparent 5px 10px); }
+    /* the time line in the theme's gold (red with the palette's Red time line box) */
+    .now { position: absolute; z-index: 4; left: -23px; right: -17px; top: calc(4px + var(--p) * (100% - 10px)); height: 2px; background: #8a6508;
+      box-shadow: 0 0 6px rgba(138, 101, 8, .5); }
+    .now b { position: absolute; right: 8px; top: -9px; padding: 3px 7px; border-radius: 999px; background: #8a6508; color: #fff; font-size: 9.5px; font-weight: 800; }
+    .band { height: 12px; margin-top: 7px; border-radius: 8px; background: repeating-linear-gradient(135deg, rgba(16, 27, 66, .2) 0 5px, transparent 5px 10px); }
     /* the story: the blocks rise into the day, a tap turns the first card gold, then time runs */
     .s-week.run .blk { animation: riseUp 1.15s var(--bounce) both; }
     .s-week.run .blk.b2 { animation-delay: .3s; }
@@ -462,50 +472,52 @@
     @keyframes wob { 35% { transform: scale(1.04); } 70% { transform: scale(.99); } }
 
     /* Progress */
-    .legend { margin: -2px 3px 9px; font-size: 9px; line-height: 1.4; color: rgba(255, 244, 233, .75); }
-    .hb { margin-bottom: 7px; padding: 9px 10px 10px; border-radius: 16px; background: linear-gradient(170deg, #8f2859, #621c4b); }
+    .legend { margin: -2px 3px 9px; font-size: 9px; line-height: 1.4; color: #5c5c63; }
+    .hb { margin-bottom: 7px; padding: 9px 10px 10px; border-radius: 16px; background: linear-gradient(170deg, #f0f0f4, #ececf1); box-shadow: 0 0 0 1px rgba(16, 27, 66, .12); }
     .hb .hd { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 7px; font-size: 11.5px; font-weight: 700; }
     .stk { flex: none; padding: 4px 8px; border-radius: 999px; background: #f5c945; color: #3b2a14; font-size: 10px; font-weight: 800; white-space: nowrap; }
-    .stk.no { background: rgba(255, 255, 255, .12); color: rgba(255, 244, 233, .6); }
+    .stk.no { background: rgba(16, 27, 66, .08); color: #5c5c63; }
     .stk.no .one { display: none; }
     .hb.hit .stk.no { background: #f5c945; color: #3b2a14; }
     .hb.hit .stk.no .nos { display: none; }
     .hb.hit .stk.no .one { display: inline; }
     .dts { display: grid; grid-template-columns: repeat(14, 1fr); gap: 3px; }
     .dts i { aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; font-size: 7px; font-style: normal; font-weight: 900; color: #fff;
-      background: radial-gradient(circle, #101b42 0 26%, #76e0d0 31%); }
-    .dts i.x { background: #b3263a; }
-    .dts i.e { background: none; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .2); }
-    .dts i.t { background: radial-gradient(circle, transparent 0 22%, #f4a8b7 27% 40%, transparent 45%); box-shadow: inset 0 0 0 1.6px #f4a8b7; }
-    .hb.paper { color: #2a2018; }
+      background: radial-gradient(circle, #f0f0f4 0 26%, #1d1d1f 31%); }
+    .dts i.x { background: #b91c1c; }
+    .dts i.e { background: none; box-shadow: inset 0 0 0 1px rgba(16, 27, 66, .22); }
+    .dts i.t { background: radial-gradient(circle, transparent 0 22%, #b8901e 27% 40%, transparent 45%); box-shadow: inset 0 0 0 1.6px #b8901e; }
+    .hb { color: #1d1d1f; }
+    .hb.paper { color: #2a2018; box-shadow: 0 2px 5px rgba(0, 0, 0, .14); }
     .hb.paper .dts i { background: radial-gradient(circle, #f3ead2 0 26%, #3f6b3a 31%); }
     .hb.paper .dts i.e { background: none; box-shadow: inset 0 0 0 1px rgba(42, 32, 24, .28); }
     .hb.paper .stk { background: rgba(255, 255, 255, .55); color: #2a2018; }
-    .rep-l { margin: 11px 4px 7px; font: 700 13px/1 var(--serif); }
+    .rep-l { margin: 11px 4px 7px; font: 700 13px/1 var(--font); }
     /* the story: the days fill in one by one, then today's dot fills and every streak grows by one */
     .s-prog.run .dts i { animation: dotpop .4s var(--bounce) both; animation-delay: calc(.2s + var(--i, 0) * 75ms); }
-    .s-prog .hb.hit .dts i.t { background: radial-gradient(circle, #101b42 0 26%, #76e0d0 31%); box-shadow: 0 0 0 2px #fff4e9; animation: pop .55s var(--bounce) both; }
+    .s-prog .hb.hit .dts i.t { background: radial-gradient(circle, #f0f0f4 0 26%, #1d1d1f 31%); box-shadow: 0 0 0 2px #b8901e; animation: pop .55s var(--bounce) both; }
     .s-prog .hb.hit .stk { animation: bump .65s var(--bounce) both; }
     @keyframes dotpop { from { transform: scale(0); opacity: 0; } }
 
     /* Capture */
-    .s-cap { background: #0b1433; }
-    .cpan { padding: 12px 11px 11px; border-radius: 22px; background: #1b2757; box-shadow: 0 20px 40px rgba(0, 0, 0, .45), inset 0 0 0 1px rgba(146, 176, 255, .25); }
-    .cpan .hdr h3 { font-size: 21px; }
-    .cpan .x { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: #16224f; font-size: 11px; }
+    .s-cap { background: #c9c9d1; }
+    .cpan { padding: 12px 11px 11px; border-radius: 22px; background: #fff; box-shadow: 0 20px 40px rgba(16, 27, 66, .22), inset 0 0 0 1px rgba(59, 120, 216, .45); }
+    .cpan .hdr h3 { font-size: 19px; }
+    /* the discreet red × at its top right */
+    .cpan .x { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; color: #b91c1c; font-size: 11px; box-shadow: inset 0 0 0 1.5px #b91c1c; }
     .cin { display: flex; gap: 7px; }
-    .fld { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; height: 36px; padding: 0 11px; border-radius: 12px; border: 1.5px solid #6f8fe8;
-      background: #101b42; font-size: 11.5px; white-space: nowrap; overflow: hidden; }
-    .fld .ph { position: absolute; left: 11px; color: rgba(255, 244, 233, .45); }
-    .typed { display: inline-block; max-width: 0; overflow: hidden; vertical-align: bottom; color: #fff4e9; font-weight: 600; border-right: 2px solid transparent; }
-    .add { position: relative; display: grid; place-items: center; padding: 0 14px; border-radius: 999px; background: #f4a8b7; color: #302746; font-weight: 800; font-size: 11.5px; }
+    .fld { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; height: 36px; padding: 0 11px; border-radius: 12px; border: 1.5px solid #3b78d8;
+      background: #fff; font-size: 11.5px; white-space: nowrap; overflow: hidden; }
+    .fld .ph { position: absolute; left: 11px; color: #8e8e93; }
+    .typed { display: inline-block; max-width: 0; overflow: hidden; vertical-align: bottom; color: #1d1d1f; font-weight: 600; border-right: 2px solid transparent; }
+    .add { position: relative; display: grid; place-items: center; padding: 0 14px; border-radius: 999px; background: #1d1d1f; color: #fbfbfd; font-weight: 800; font-size: 11.5px; }
     .ctabs { display: flex; gap: 5px; margin: 12px 0 0; padding: 0 3px; }
     .ctabs > span { display: flex; align-items: center; gap: 6px; padding: 7px 11px 6px; border-radius: 12px 12px 0 0; font-size: 11px; font-weight: 800;
-      background: #24306a; color: rgba(255, 244, 233, .75); }
-    .ctabs > .on { background: #fff; color: #302746; box-shadow: inset 0 3px 0 #f4a8b7; }
+      background: #ececf1; color: #5c5c63; }
+    .ctabs > .on { background: #f4f4f7; color: #1d1d1f; box-shadow: inset 0 3px 0 #1d1d1f; }
     .ctabs u { min-width: 17px; padding: 2px 5px; border-radius: 999px; background: rgba(0, 0, 0, .12); font-size: 9.5px; text-align: center; text-decoration: none; }
-    .ctabs > :not(.on) u { background: rgba(255, 255, 255, .14); }
-    .clist { padding: 7px; border-radius: 0 14px 14px 14px; background: #fff; }
+    .ctabs > :not(.on) u { background: rgba(16, 27, 66, .08); }
+    .clist { padding: 7px; border-radius: 0 14px 14px 14px; background: #f4f4f7; }
     .ci { display: flex; align-items: center; gap: 9px; max-height: 70px; margin-top: 6px; padding: 8px; border-radius: 13px; color: #2a2018; overflow: hidden;
       box-shadow: 0 2px 5px rgba(0, 0, 0, .18); }
     .ci:first-child { margin-top: 0; }
@@ -531,7 +543,7 @@
     @keyframes phx { 0%, 4% { opacity: 1; } 5%, 29% { opacity: 0; } 31%, 100% { opacity: 1; } }
     @keyframes type { from { max-width: 0; } to { max-width: 15em; } }
     @keyframes gone { to { opacity: 0; } }
-    @keyframes caret { 0% { border-right-color: #fff4e9; } 50% { border-right-color: transparent; } }
+    @keyframes caret { 0% { border-right-color: #1d1d1f; } 50% { border-right-color: transparent; } }
     @keyframes noteIn { from { opacity: 0; max-height: 0; padding-block: 0; transform: translateY(-16px) scale(.9); } }
     @keyframes ckIn { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: none; } }
     @keyframes noteOut { 0% { opacity: 1; } 60% { opacity: 0; transform: translateX(60px); max-height: 70px; margin-top: 6px; padding-block: 8px; }
@@ -539,16 +551,23 @@
 
     /* the state circle at the card's left, as in the app: To do an empty ring, Done a ✓ on teal */
     .card { padding-left: 34px; }
-    .card .st { position: absolute; z-index: 1; left: 8px; top: 6px; width: 18px; height: 18px; border-radius: 50%; box-shadow: inset 0 0 0 1.6px rgba(42, 32, 24, .55); }
+    .card .st { position: absolute; z-index: 1; left: 8px; top: 6px; width: 18px; height: 18px; border-radius: 50%; box-shadow: inset 0 0 0 1.6px rgba(29, 29, 31, .55); }
     .card .ok { left: 8px; right: auto; top: 6px; width: 18px; height: 18px; box-shadow: none; font-size: 10px; }
     /* the running activity's countdown: only at the very foot of the screen, edge to edge, its fill the minutes left */
-    .fcd { position: absolute; z-index: 7; left: 0; right: 0; bottom: 0; height: 14px; background: rgba(255, 244, 233, .13); }
-    .fcd i { position: absolute; right: 0; top: 0; bottom: 0; width: calc((1 - var(--p)) * 100%); background: #c9524c; }
+    .fcd { position: absolute; z-index: 7; left: 0; right: 0; bottom: 0; height: 14px; background: rgba(192, 57, 43, .24); }
+    .fcd i { position: absolute; right: 0; top: 0; bottom: 0; width: calc((1 - var(--p)) * 100%); background: #c0392b; }
     .s-week .fab { bottom: 26px; }
     .s-week.run .fcd { animation: fcdUp .6s var(--spring) 2.4s both; }
     @keyframes fcdUp { from { transform: translateY(100%); } }
     /* what opens a floating menu shows a filled triangle */
     .tri { flex: none; width: 0; height: 0; margin-top: 2px; border: 4.5px solid transparent; border-top: 6px solid currentColor; border-bottom: 0; opacity: .7; }
+    /* Canvas: always the Epic theme, as in the app (Gianni): navy page, cream ink, the pink menu button */
+    .s-canvas { background: #101b42; color: #fff4e9; }
+    .s-canvas .hdr h3 { font: 700 25px/1.05 var(--serif); letter-spacing: -.01em; color: #fff4e9; }
+    .s-canvas .hdr .tri { color: #fff4e9; }
+    .s-canvas .bulb { background: #16224f; box-shadow: inset 0 0 0 1.5px rgba(255, 244, 233, .22); }
+    .s-canvas .fab { background: #f4a8b7; color: #302746; box-shadow: 0 6px 14px rgba(0, 0, 0, .4); }
+    .s-canvas .tap { background: rgba(255, 255, 255, .5); box-shadow: 0 0 0 2.5px #fff, 0 3px 10px rgba(0, 0, 0, .35); }
     /* Canvas: the «Undefined» button, turquoise, with how many wait in a navy circle */
     .und { position: relative; z-index: 6; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 34px; margin: 0 0 12px;
       border-radius: 999px; background: #76e0d0; color: #101b42; font-size: 11.5px; font-weight: 800; letter-spacing: .06em; box-shadow: inset 0 0 0 1px #4fbfae; }
@@ -566,14 +585,13 @@
     .pk .tri { position: absolute; right: 10px; top: 50%; margin-top: -2px; }
     .act .pen { display: inline-block; transform: scaleX(-1); }
     /* Progress: its two tabs */
-    .ptabs { display: flex; gap: 14px; margin: -2px 3px 9px; border-bottom: 1.5px solid rgba(255, 244, 233, .18); }
-    .ptabs span { padding: 0 2px 6px; font-size: 11px; font-weight: 700; color: rgba(255, 244, 233, .6); }
-    .ptabs .on { color: #fff4e9; box-shadow: 0 2.5px 0 #f4a8b7; }
+    .ptabs { display: flex; gap: 14px; margin: -2px 3px 9px; border-bottom: 1.5px solid rgba(16, 27, 66, .14); }
+    .ptabs span { padding: 0 2px 6px; font-size: 11px; font-weight: 700; color: #5c5c63; }
+    .ptabs .on { color: #1d1d1f; box-shadow: 0 2.5px 0 #1d1d1f; }
     /* Year: the same light season cards in every theme; each sprint one line of 21 days, today in neon green, a day with notes in red */
     .ypick { display: flex; gap: 6px; margin: 0 2px 10px; }
-    .ypick span { flex: 1; padding: 6px 0; border-radius: 10px; text-align: center; font-size: 11px; font-weight: 800; background: #16224f;
-      box-shadow: inset 0 0 0 1.5px rgba(255, 244, 233, .16); }
-    .ypick .on { background: #f4a8b7; color: #302746; box-shadow: none; }
+    .ypick span { flex: 1; padding: 6px 0; border-radius: 10px; text-align: center; font-size: 11px; font-weight: 800; background: #fff;
+      box-shadow: inset 0 0 0 1px rgba(16, 27, 66, .16); }
     .season { position: relative; padding: 10px 9px 11px; border-radius: 18px; color: #3d2a17; background: #fbefe2; box-shadow: inset 0 0 0 1.5px #e7c9a4; }
     .sh { display: flex; justify-content: space-between; align-items: baseline; margin: 0 2px 8px; }
     .sh b { font: 700 15px/1 var(--serif); }
@@ -590,13 +608,13 @@
     .rest .yl > span { flex: 0 0 calc((100% - 8px) / 3); }
     .rest .band { flex: 1; border-radius: 5px; background: repeating-linear-gradient(135deg, rgba(122, 74, 30, .2) 0 4px, transparent 4px 8px); }
     /* the finger holds Friday the 20th and its window shows above it, with the day's note */
-    .ypop { position: absolute; z-index: 3; right: 6px; top: 56px; width: 150px; padding: 8px 10px; border-radius: 12px; background: #1b2757; color: #fff4e9;
-      box-shadow: 0 10px 24px rgba(0, 0, 0, .4), inset 0 0 0 1px rgba(146, 176, 255, .45); opacity: 0; transform: translateY(8px) scale(.6);
+    .ypop { position: absolute; z-index: 3; right: 6px; top: 56px; width: 150px; padding: 8px 10px; border-radius: 12px; background: #fff; color: #1d1d1f;
+      box-shadow: 0 10px 24px rgba(16, 27, 66, .22), inset 0 0 0 1px rgba(59, 120, 216, .45); opacity: 0; transform: translateY(8px) scale(.6);
       transform-origin: 78% 100%; transition: opacity .3s ease, transform .45s var(--spring); }
-    .ypop::after { content: ''; position: absolute; left: calc(78% - 6px); bottom: -6px; border: 6px solid transparent; border-top-color: #1b2757; border-bottom: 0; }
+    .ypop::after { content: ''; position: absolute; left: calc(78% - 6px); bottom: -6px; border: 6px solid transparent; border-top-color: #fff; border-bottom: 0; filter: drop-shadow(0 1px 0 rgba(59, 120, 216, .45)); }
     .ypop b { display: block; font-size: 10.5px; }
-    .ypop span { display: block; margin-top: 3px; font-size: 10.5px; font-weight: 700; color: #f5c945; }
-    .ypop span span { display: inline; margin: 0; color: #fff4e9; }
+    .ypop span { display: block; margin-top: 3px; font-size: 10.5px; font-weight: 700; color: #8a6508; }
+    .ypop span span { display: inline; margin: 0; color: #1d1d1f; }
     .s-year.held .ypop { opacity: 1; transform: none; }
     .s-year .yt { left: 85.5%; top: 118px; }
     .s-year.run .yt { animation: hold 1.6s ease .9s both; }
@@ -606,13 +624,19 @@
     .s-themes { background: var(--tb); color: var(--tt); animation: themes 20s linear infinite paused; }
     .screen.on.s-themes { animation-play-state: running; }
     .s-themes .chev { border-color: var(--tt); opacity: .6; }
+    .s-themes .dayc { box-shadow: 0 0 0 1.5px var(--te); }
     .s-themes .bulb { background: transparent; box-shadow: inset 0 0 0 1.5px var(--te); }
     .s-themes .dayc { background: var(--td); box-shadow: 0 0 0 1.5px var(--te); }
     .s-themes .dh { color: var(--tt); }
     .s-themes .blk { background: var(--tk); color: var(--tbi); box-shadow: inset 0 0 0 1.5px var(--te), 0 5px 0 var(--te), 0 12px 18px rgba(0, 0, 0, .18); }
     .s-themes .bh b { color: inherit; opacity: .8; }
     .s-themes .rng i { color: inherit; opacity: .4; }
-    .s-themes .card { padding-left: 9px; color: var(--tci); }
+    .s-themes .card { padding-left: 9px; color: var(--tci); border-left: 0; box-shadow: 0 3px 0 rgba(0, 0, 0, .14); }
+    .s-themes .hdr h3 { font: 700 25px/1.05 var(--serif); color: var(--tt); }
+    .s-themes .dh { font: 700 17px/1 var(--serif); }
+    .s-themes .dh i { color: inherit; background: transparent; box-shadow: inset 0 0 0 1.5px var(--te); }
+    .s-themes .bh { font-family: var(--serif); }
+    .s-themes .now { left: -17px; }
     .s-themes .card .t i, .s-themes .card small { color: inherit; opacity: .7; }
     .s-themes .c1 { background: var(--tc1); } .s-themes .c2 { background: var(--tc2); }
     .s-themes .now, .s-themes .now b { background: var(--tn); }
@@ -671,30 +695,29 @@
     .edge.prev { left: max(2px, env(safe-area-inset-left)); }
     .edge.next { right: max(2px, env(safe-area-inset-right)); }
     .edge svg { width: 16px; height: 40px; }
-    .edge:hover, .edge:focus-visible { opacity: .9; background: rgba(255, 244, 233, .06); }
+    .edge:hover, .edge:focus-visible { opacity: .9; background: rgba(0, 0, 0, .04); }
     .edge:active { opacity: 1; }
     .edge[hidden] { display: grid; visibility: hidden; opacity: 0; transition: opacity .3s, visibility 0s linear .3s; }
     .toast { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom)); z-index: 40; max-width: min(92vw, 420px);
-      padding: 13px 20px; border-radius: 16px; background: rgba(27, 39, 87, .96); color: var(--ink); font-size: 15px; text-align: center;
-      box-shadow: inset 0 0 0 1px var(--win-edge);
+      padding: 13px 20px; border-radius: 16px; background: rgba(29, 29, 31, .92); color: #fff; font-size: 15px; text-align: center;
       transform: translate(-50%, 16px); opacity: 0; pointer-events: none; transition: opacity .3s, transform .4s var(--spring);
       -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
     /* How to add the app where the browser has no install window of its own (iPhone, Firefox, already installed) */
-    .install { width: min(92vw, 400px); margin: auto; padding: 24px 22px 20px; border: 1px solid var(--win-edge); border-radius: 24px; background: #1b2757; color: var(--ink);
-      box-shadow: 0 24px 60px rgba(0, 0, 0, .5); }
-    .install::backdrop { background: rgba(5, 9, 28, .6); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+    .install { width: min(92vw, 400px); margin: auto; padding: 24px 22px 20px; border: 1px solid var(--win-edge); border-radius: 24px; background: #fff; color: var(--ink);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, .22); }
+    .install::backdrop { background: rgba(16, 27, 66, .32); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
     .install h2 { margin: 0 0 6px; font-size: 22px; line-height: 1.2; letter-spacing: -.01em; }
     .install p { margin: 0 0 12px; color: var(--mute); font-size: 15px; line-height: 1.45; }
     .install ol { margin: 0 0 18px; padding-left: 1.3em; font-size: 16px; line-height: 1.5; }
     .install li + li { margin-top: 6px; }
     .install .row { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
-    /* the app's window buttons (Gianni): Cancel in cream, the answer in turquoise, each with a thin edge */
+    /* the app's window buttons in Go Epic Light (Gianni): Cancel white, the answer in mint turquoise, each with a thin edge */
     .install .row > * { min-height: 44px; padding: 0 20px; font-size: 15px; letter-spacing: 1.5px; }
-    .install .quiet { border: 1px solid #d9c6ad; border-radius: 999px; background: #fff4e9; color: #101b42; font: inherit; font-size: 15px; letter-spacing: 1.5px; font-weight: 700; cursor: pointer; }
-    .install .pill { border: 1px solid #4fbfae; background: var(--teal); color: #101b42; }
-    .install b { color: var(--gold); }
-    .install .quiet:focus-visible, .install .pill:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+    .install .quiet { border: 1.5px solid #c7c7cf; border-radius: 999px; background: #fff; color: #1d1d1f; font: inherit; font-size: 15px; letter-spacing: 1.5px; font-weight: 700; cursor: pointer; }
+    .install .pill { border: 1.5px solid #3fae9d; background: #76e0d0; color: #101b42; }
+    .install b { color: var(--navy); }
+    .install .quiet:focus-visible, .install .pill:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
     @media (min-width: 720px) {
       .nav { padding-top: 10px; }
@@ -751,33 +774,33 @@
           <p class="lead mission" data-i="l0"><span class="eyebrow">Our mission</span><q>All we have to decide is what to do with the time that is given us.</q> <cite>Gandalf · J.R.R. Tolkien</cite><a class="why" href="/why-epic/">Why Epic? <span aria-hidden="true">→</span></a></p>
         </section>
         <section class="slide" aria-roledescription="slide" aria-label="2 / 8">
-          <p class="kicker" style="--k:#ff8a80" data-i="k1">Week board</p>
+          <p class="kicker" style="--k:#b91c1c" data-i="k1">Week board</p>
           <h2 data-i="h1">Every hour has a home.</h2>
-          <p class="lead" data-i="l1">Give each part of your day a block. A red line shows where you are, a bar at the foot counts down the minutes left, and one tap marks it done, in gold.</p>
+          <p class="lead" data-i="l1">Give each part of your day a block. A line shows where you are, a bar at the foot counts down the minutes left, and one tap marks it done, in gold.</p>
         </section>
         <section class="slide" aria-roledescription="slide" aria-label="3 / 8">
-          <p class="kicker" style="--k:#76e0d0" data-i="k3">Canvas</p>
+          <p class="kicker" style="--k:#0f766e" data-i="k3">Canvas</p>
           <h2 data-i="h3">Start with who you want to be.</h2>
-          <p class="lead" data-i="l3">Four areas of life: the Temple, the Castle, the Tower and the Arena. In each one, Epic, Feature, Story and Activity lead from who you are to today's small step.</p>
+          <p class="lead" data-i="l3">Four areas of life: the Temple, the Castle, the Tower and the Arena. In each one, a Goal, a Project, a Deliverable and an Action lead from who you are to today's small step.</p>
           <p class="fine" data-i="f3">An idea without a place waits in Undefined until you give it one.</p>
         </section>
         <section class="slide" aria-roledescription="slide" aria-label="4 / 8">
-          <p class="kicker" style="--k:#f5c945" data-i="k4">Progress</p>
+          <p class="kicker" style="--k:#94700f" data-i="k4">Progress</p>
           <h2 data-i="h4">Streaks that keep you going.</h2>
           <p class="lead" data-i="l4">Every activity you follow grows its own streak, and a skipped day pauses it instead of breaking it. Areas of life shows whether each part of your life gets its time.</p>
         </section>
         <section class="slide" aria-roledescription="slide" aria-label="5 / 8">
-          <p class="kicker" style="--k:#f4a8b7" data-i="k5">Capture</p>
+          <p class="kicker" style="--k:#be185d" data-i="k5">Capture</p>
           <h2 data-i="h5">Catch it before it slips away.</h2>
           <p class="lead" data-i="l5">Type it and press Enter. It lands on its day and hour, and whatever slips past waits in a folder at the foot of the screen.</p>
         </section>
         <section class="slide" aria-roledescription="slide" aria-label="6 / 8">
-          <p class="kicker" style="--k:#a7e7e3" data-i="k8">Year</p>
+          <p class="kicker" style="--k:#2f7a2a" data-i="k8">Year</p>
           <h2 data-i="h8">A year in four seasons.</h2>
           <p class="lead" data-i="l8">Each season holds four sprints of three weeks and one week to rest and look back. Hold a day to write down what matters on it.</p>
         </section>
         <section class="slide" aria-roledescription="slide" aria-label="7 / 8">
-          <p class="kicker" style="--k:#e1d7ff" data-i="k6">Themes</p>
+          <p class="kicker" style="--k:#6b5bd2" data-i="k6">Themes</p>
           <h2 data-i="h6">Ten looks. One you.</h2>
           <p class="lead" data-i="l6">Pick a theme, its palette of colours, and even the names of your levels. The whole app follows.</p>
           <div class="swatches" aria-hidden="true">
@@ -829,7 +852,7 @@
       <div class="phone-box" aria-hidden="true">
         <div class="phone"><div class="glass">
 
-          <!-- 2 · Week board: the blocks rise, a tap turns a card gold, the red line runs down while the countdown empties -->
+          <!-- 2 · Week board: the blocks rise, a tap turns a card gold, the gold line runs down while the countdown empties -->
           <div class="screen s-week" data-n="1">
             <span class="clock">6:30</span><span class="batt"></span>
             <div class="live">
@@ -840,9 +863,9 @@
                 <div class="blk">
                   <div class="bh"><span data-i="p_dawn">Dawn</span><b data-i="p_full">✓ Full</b></div>
                   <div class="rng">06:00 <i>–</i> 06:45</div>
-                  <div class="card won paper" style="--tone:#fff1c9"><i class="st"></i><div class="t"><i>06:00</i><span data-i="p_pray">Read 1 verse and pray</span></div><small>10 MIN</small><i class="ok">✓</i><i class="tap" style="left:17px;top:15px"></i></div>
-                  <div class="card paper" style="--tone:#d9efc4"><i class="st"></i><div class="t"><i>06:10</i><span data-i="p_walk">Walk 10 min</span></div><small>10 MIN</small></div>
-                  <div class="card paper runs" style="--tone:#e6dcff;--h:86px">
+                  <div class="card won" style="--tone:#a67c0a"><i class="st"></i><div class="t"><i>06:00</i><span data-i="p_pray">Read 1 verse and pray</span></div><small>10 MIN</small><i class="ok">✓</i><i class="tap" style="left:17px;top:15px"></i></div>
+                  <div class="card" style="--tone:#3a8f4f"><i class="st"></i><div class="t"><i>06:10</i><span data-i="p_walk">Walk 10 min</span></div><small>10 MIN</small></div>
+                  <div class="card runs" style="--tone:#6b5bd2;--h:86px">
                     <div class="pin"><i class="bx"></i><span data-i="p_dentist">Call the dentist</span><time>06:40</time><i class="ed">✎</i></div>
                     <i class="st"></i><div class="t"><i>06:20</i><span data-i="p_breakfast">Breakfast with family</span></div>
                     <small>25 MIN</small>
@@ -852,8 +875,8 @@
                 <div class="blk b2">
                   <div class="bh"><span data-i="p_deep">Deep work</span><b data-i="p_free">10 min free</b></div>
                   <div class="rng">08:00 <i>–</i> 09:30</div>
-                  <div class="card paper old" style="--tone:#ffd5bd;--h:62px"><i class="st"></i><div class="t"><i>08:00</i><span data-i="p_report">Write the report</span></div><small>1 H</small></div>
-                  <div class="card paper" style="--tone:#bfe9e5"><i class="st"></i><div class="t"><i>09:00</i><span data-i="p_study">Study 20 min</span></div><small>20 MIN</small></div>
+                  <div class="card" style="--tone:#c26a15;--h:62px"><i class="st"></i><div class="t"><i>08:00</i><span data-i="p_report">Write the report</span></div><small>1 H</small></div>
+                  <div class="card" style="--tone:#2f7fd6"><i class="st"></i><div class="t"><i>09:00</i><span data-i="p_study">Study 20 min</span></div><small>20 MIN</small></div>
                   <div class="band"></div>
                 </div>
               </div>
@@ -872,12 +895,12 @@
               </div>
               <div class="ws">
                 <div class="pk"><small data-i="p_area">AREA</small><b data-i="p_temple">The Temple</b> <em data-i="p_health">Health</em><i class="tri"></i></div>
-                <div class="pk"><small>EPIC</small><b><span data-i="p_epic1">I am strong and healthy</span> <i class="pen">✎</i></b><i class="tri"></i></div>
+                <div class="pk"><small data-i="p_goal">GOAL</small><b><span data-i="p_epic1">I am strong and healthy</span> <i class="pen">✎</i></b><i class="tri"></i></div>
                 <div class="feat">
-                  <div class="nb"><span class="g">⠿</span>FEATURE<i class="chev dk"></i></div>
+                  <div class="nb"><span class="g">⠿</span><span data-i="p_project">PROJECT</span><i class="chev dk"></i></div>
                   <b data-i="p_feat">I move every day and eat well</b>
                   <div class="story">
-                    <div class="nb"><span class="g">⠿</span>STORY<i class="chev dk"></i></div>
+                    <div class="nb"><span class="g">⠿</span><span data-i="p_deliv">DELIVERABLE</span><i class="chev dk"></i></div>
                     <p data-i="p_story">As an active person, I want to walk every morning after coffee, so that I have energy all day.</p>
                     <div class="act" style="--tone:#e1f3d0"><span class="g">⠿</span><span data-i="p_walk">Walk 10 min</span><i class="pen">✎</i></div>
                     <div class="act" style="--tone:#e1d7ff"><span class="g">⠿</span><span data-i="p_stretch">Stretch 5 min</span><i class="pen">✎</i></div>
@@ -1017,9 +1040,9 @@
       why_top: '¿Por qué Epic?',
       k0: '<span>Planea<b>.</b></span> <span>Enfócate<b>.</b></span> <span>Crece<b>.</b></span>', l0: '<span class="eyebrow">Nuestra misión</span><q>Todo lo que tenemos que decidir es qué hacer con el tiempo que se nos ha dado.</q> <cite>Gandalf · J.R.R. Tolkien</cite><a class="why" href="/why-epic/">¿Por qué Epic? <span aria-hidden="true">→</span></a>',
       k1: 'Semana', h1: 'Cada hora tiene su lugar.',
-      l1: 'Dale a cada parte de tu día su bloque. Una línea roja te dice dónde estás, una barra al pie cuenta los minutos que quedan, y un toque lo marca hecho, en oro.',
+      l1: 'Dale a cada parte de tu día su bloque. Una línea te dice dónde estás, una barra al pie cuenta los minutos que quedan, y un toque lo marca hecho, en oro.',
       k3: 'Canvas', h3: 'Empieza por quién quieres ser.',
-      l3: 'Cuatro áreas de la vida: el Templo, el Castillo, la Torre y la Arena. En cada una, Epic, Feature, Story y Actividad te llevan de quién eres al pequeño paso de hoy.',
+      l3: 'Cuatro áreas de la vida: el Templo, el Castillo, la Torre y la Arena. En cada una, un Objetivo, un Proyecto, una Entrega y una Acción te llevan de quién eres al pequeño paso de hoy.',
       f3: 'Una idea sin lugar espera en «Sin definir» hasta que le des uno.',
       k4: 'Progreso', h4: 'Rachas que te impulsan.',
       l4: 'Cada actividad que sigues tiene su propia racha, y un día omitido la pausa en vez de romperla. Áreas de la vida te muestra si cada parte de tu vida recibe su tiempo.',
@@ -1055,7 +1078,7 @@
       p_breakfast: 'Desayunar en familia', p_deep: 'Trabajo profundo', p_free: '10 min libres',
       p_report: 'Escribir el informe', p_study: 'Estudiar 20 min', 
       p_stretch: 'Estirarme 5 min',
-      p_undef: 'Sin definir', p_area: 'ÁREA', p_health: 'Salud', p_epic1: 'Soy fuerte y saludable', p_temple: 'El Templo',
+      p_undef: 'Sin definir', p_area: 'ÁREA', p_goal: 'OBJETIVO', p_project: 'PROYECTO', p_deliv: 'ENTREGA', p_health: 'Salud', p_epic1: 'Soy fuerte y saludable', p_temple: 'El Templo',
       p_feat: 'Me muevo cada día y como sano',
       p_story: 'Como persona activa, quiero caminar cada mañana después del café, para tener energía todo el día.',
       p_water: 'Tomar un vaso de agua',
