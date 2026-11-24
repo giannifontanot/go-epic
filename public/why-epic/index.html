@@ -148,6 +148,23 @@
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
     }
+    /* The language menu (Gianni): with JavaScript the pill is a button that opens a floating menu drawn and moving like the
+       app's pages menu: a light veil, and one tile per language sliding out of the pill and back into it (the pages menu's
+       340 ms, 40 ms apart), the language in use filled and marked ✓, in the Go Epic Light look. */
+    button.lang { border: 0; font-family: inherit; }
+    button.lang:focus-visible { outline: 2px solid #b8860b; outline-offset: 2px; }
+    button.lang[aria-expanded="true"] { color: var(--navy); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .16); }
+    button.lang[aria-expanded="true"] .lang-chev { rotate: 180deg; }
+    .lang .lang-chev { transition: rotate .25s; }
+    .lang-veil { position: fixed; inset: 0; z-index: 90; background: rgba(4, 9, 30, .18); -webkit-tap-highlight-color: transparent; }
+    .lang-menu { position: fixed; z-index: 91; display: grid; gap: 8px; min-width: 180px; max-width: calc(100vw - 32px); }
+    .lang-tile { position: relative; display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-radius: 16px;
+      border: 1px solid #b8901e; background: #fff; color: #1d1d1f; font: 700 17px/1.2 var(--font); text-align: left; cursor: pointer;
+      box-shadow: 0 6px 18px rgba(1, 6, 29, .35); }
+    .lang-tile.on { background: #1d1d1f; color: #fbfbfd; box-shadow: 0 0 0 3px #b8860b, 0 6px 18px rgba(1, 6, 29, .35); }
+    .lang-tile:focus-visible { outline: 3px solid #b8860b; outline-offset: 3px; }
+    .lang-check { position: absolute; top: -5px; right: -5px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%;
+      background: #0d9488; color: #fff; font-size: 13px; font-weight: 700; }
   </style>
 </head>
 <body>
@@ -265,6 +282,96 @@
       if (!wanted) wanted = (navigator.language || '').toLowerCase().split('-')[0];
       wanted = (wanted || '').toLowerCase();
       setLang(DICTS[wanted] ? wanted : 'en');
+    })();
+  </script>
+  <script>
+    // The language menu (Gianni): the pill becomes a button that opens a floating menu like the app's pages menu.
+    // Without JavaScript the native <select> under the pill still works.
+    (function () {
+      var label = document.querySelector('label.lang'), select = label && label.querySelector('select');
+      if (!select || !document.body.animate) return;
+      var btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'lang';
+      btn.setAttribute('aria-haspopup', 'true'); btn.setAttribute('aria-expanded', 'false');
+      btn.setAttribute('aria-label', select.getAttribute('aria-label') || 'Language');
+      Array.prototype.slice.call(label.childNodes).forEach(function (n) { if (n !== select) btn.appendChild(n); });
+      label.parentNode.insertBefore(btn, label);
+      label.style.display = 'none';
+      var FAN_MS = 340, STEP_MS = 40, veil = null, menu = null, tiles = [], closing = false;
+      function still() { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+      // the pages menu's own motion: each tile flies out of the button's centre, the nearest first, and back the other way
+      function fly(out) {
+        if (still()) return [];
+        var b = btn.getBoundingClientRect(), fx = b.left + b.width / 2, fy = b.top + b.height / 2;
+        var rects = tiles.map(function (t) { return t.getBoundingClientRect(); });
+        var dist = rects.map(function (r) { return Math.hypot(fx - (r.left + r.width / 2), fy - (r.top + r.height / 2)); });
+        var near = Math.min.apply(null, dist), far = Math.max.apply(null, dist);
+        return tiles.map(function (t, i) {
+          var r = rects[i], dx = fx - (r.left + r.width / 2), dy = fy - (r.top + r.height / 2);
+          var order = far > near ? Math.round((dist[i] - near) / (far - near) * 3) : 0;
+          var home = { transform: 'none', opacity: 1 }, away = { transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(.3)', opacity: 0 };
+          return t.animate(out ? [away, home] : [home, away], { duration: FAN_MS, delay: (out ? order : 3 - order) * STEP_MS,
+            easing: out ? 'cubic-bezier(0, 0, .2, 1)' : 'cubic-bezier(.4, 0, 1, 1)', fill: 'both' });
+        });
+      }
+      function place() {
+        if (!menu) return;
+        var b = btn.getBoundingClientRect(), w = menu.offsetWidth, vw = document.documentElement.clientWidth;
+        menu.style.left = Math.max(16, Math.min(b.right - w, vw - 16 - w)) + 'px';
+        menu.style.top = (b.bottom + 10) + 'px';
+      }
+      function open() {
+        if (menu) return;
+        closing = false;
+        veil = document.createElement('div'); veil.className = 'lang-veil';
+        veil.addEventListener('click', function () { close(true); });
+        menu = document.createElement('div'); menu.className = 'lang-menu'; menu.setAttribute('role', 'menu');
+        menu.setAttribute('aria-label', btn.getAttribute('aria-label'));
+        tiles = Array.prototype.map.call(select.options, function (o) {
+          var t = document.createElement('button'), on = o.value === select.value;
+          t.type = 'button'; t.className = 'lang-tile' + (on ? ' on' : ''); t.setAttribute('role', 'menuitemradio');
+          t.setAttribute('aria-checked', on ? 'true' : 'false'); t.lang = o.value; t.textContent = o.textContent;
+          if (on) { var c = document.createElement('span'); c.className = 'lang-check'; c.setAttribute('aria-hidden', 'true'); c.textContent = '✓'; t.appendChild(c); }
+          t.addEventListener('click', function () {
+            if (select.value !== o.value) { select.value = o.value; select.dispatchEvent(new Event('change', { bubbles: true })); }
+            close(true);
+          });
+          menu.appendChild(t);
+          return t;
+        });
+        document.body.appendChild(veil); document.body.appendChild(menu);
+        place();
+        btn.setAttribute('aria-expanded', 'true');
+        if (!still()) veil.animate([{ opacity: 0 }, { opacity: 1 }], { duration: FAN_MS, easing: 'ease-out' });
+        fly(true);
+        var chosen = menu.querySelector('.on') || tiles[0];
+        if (chosen) chosen.focus({ preventScroll: true });
+      }
+      function close(back) {
+        if (!menu || closing) return;
+        closing = true;
+        var m = menu, v = veil, done = function () { m.remove(); v.remove(); if (menu === m) { menu = veil = null; tiles = []; } closing = false; };
+        btn.setAttribute('aria-expanded', 'false');
+        if (back) btn.focus({ preventScroll: true });
+        var anims = fly(false);
+        if (!anims.length) { done(); return; }
+        v.animate([{ opacity: 1 }, { opacity: 0 }], { duration: FAN_MS + 3 * STEP_MS, easing: 'ease-in', fill: 'both' });
+        Promise.all(anims.map(function (a) { return a.finished; })).then(done, done);
+      }
+      btn.addEventListener('click', function () { if (menu && !closing) close(false); else if (!menu) open(); });
+      // while it is open, the keys belong to the menu (the tour's ← → wait)
+      window.addEventListener('keydown', function (e) {
+        if (!menu || closing) return;
+        var i = tiles.indexOf(document.activeElement);
+        if (e.key === 'Escape') { e.preventDefault(); close(true); }
+        else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); tiles[(i + 1) % tiles.length].focus(); }
+        else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); tiles[(i - 1 + tiles.length) % tiles.length].focus(); }
+        else if (e.key === 'Tab') { e.preventDefault(); close(true); return; }
+        else return;
+        e.stopImmediatePropagation();
+      }, true);
+      window.addEventListener('resize', place);
+      window.addEventListener('scroll', place, { passive: true });
     })();
   </script>
 </body>
