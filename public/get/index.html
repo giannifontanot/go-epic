@@ -293,13 +293,14 @@
     .device::before { content: ''; position: absolute; left: 50%; top: 50%; width: min(96%, 640px); aspect-ratio: 1; border-radius: 50%;
       transform: translate(-50%, -50%); background: radial-gradient(closest-side, var(--g), transparent 92%); transition: --g 1s ease; pointer-events: none; }
     body[data-slide="0"] { --g: rgba(245, 201, 69, .28); }
-    body[data-slide="1"] { --g: rgba(184, 144, 30, .2); }
-    body[data-slide="2"] { --g: rgba(16, 27, 66, .14); }
-    body[data-slide="3"] { --g: rgba(245, 201, 69, .24); }
-    body[data-slide="4"] { --g: rgba(59, 120, 216, .14); }
-    body[data-slide="5"] { --g: rgba(57, 255, 20, .1); }
-    body[data-slide="6"] { --g: rgba(107, 91, 210, .14); }
-    body[data-slide="7"] { --g: rgba(245, 201, 69, .2); }
+    body[data-slide="1"] { --g: rgba(184, 144, 30, .16); }
+    body[data-slide="2"] { --g: rgba(184, 144, 30, .2); }
+    body[data-slide="3"] { --g: rgba(16, 27, 66, .14); }
+    body[data-slide="4"] { --g: rgba(245, 201, 69, .24); }
+    body[data-slide="5"] { --g: rgba(59, 120, 216, .14); }
+    body[data-slide="6"] { --g: rgba(57, 255, 20, .1); }
+    body[data-slide="7"] { --g: rgba(107, 91, 210, .14); }
+    body[data-slide="8"] { --g: rgba(245, 201, 69, .2); }
 
     /* The emblem (first slide) and the phone (the others) share the same spot */
     .emblem, .phone-box { grid-area: 1 / 1; transition: opacity .7s ease, transform .9s var(--spring), visibility 0s; }
@@ -317,19 +318,19 @@
                   linear-gradient(0deg, transparent 47%, rgba(255, 255, 255, .95) 50%, transparent 53%);
       -webkit-mask: radial-gradient(circle, #000 20%, transparent 70%); mask: radial-gradient(circle, #000 20%, transparent 70%); }
     .phone-box { position: relative; width: calc(320px * var(--s, .7)); height: calc(660px * var(--s, .7)); }
-    body[data-slide="0"] .phone-box, body[data-slide="7"] .phone-box,
-    body:not([data-slide="7"]) .quote,
+    body[data-slide="0"] .phone-box, body[data-slide="1"] .phone-box, body[data-slide="8"] .phone-box,
+    body:not([data-slide="8"]) .quote:not(.stories), body:not([data-slide="1"]) .stories,
     body:not([data-slide="0"]) .emblem { opacity: 0; visibility: hidden; pointer-events: none;
       transition: opacity .5s ease, transform .7s var(--spring), visibility 0s linear .7s; }
     body[data-slide="0"] .phone-box { transform: translateY(14%) scale(.92); }
-    body[data-slide="7"] .phone-box { transform: scale(.92); }
+    body[data-slide="1"] .phone-box, body[data-slide="8"] .phone-box { transform: scale(.92); }
     /* The last slide: no picture, a line that inspires, so the eye rests and goes to Download (Gianni) */
     .quote { grid-area: 1 / 1; position: relative; z-index: 1; max-width: 17em; margin: 0; padding: 0 4px; text-align: center;
       font: italic 400 clamp(22px, 6.2vw, 30px)/1.32 var(--serif); color: var(--ink); text-wrap: balance;
       transition: opacity .7s ease, transform .9s var(--spring), visibility 0s; }
     .quote::before { content: ''; display: block; width: 44px; height: 2px; margin: 0 auto 22px; border-radius: 2px; background: var(--gold); }
     /* the quotes share one grid cell, so the box is as tall as the longest and never jumps; one fades out, the box stays
-       blank for half a second (Gianni), then the next fades in (quoteTo waits for it) */
+       blank for half a second (Gianni), then the next fades in (turner waits for it) */
     .q-track { display: grid; }
     .q { grid-area: 1 / 1; margin: 0; opacity: 0; transform: translateY(10px); visibility: hidden;
       transition: opacity .6s ease, transform .6s ease, visibility 0s linear .6s; }
@@ -346,7 +347,12 @@
     .q-pips i { width: 6px; height: 6px; border-radius: 50%; background: rgba(16, 27, 66, .22); transition: background-color .4s, transform .4s; }
     .q-pips i.on { background: var(--gold); transform: scale(1.4); }
     .q-dots:not(:has(button)) { display: none; }
-    body:not([data-slide="7"]) .quote { transform: translateY(12px); }
+    body:not([data-slide="8"]) .quote:not(.stories), body:not([data-slide="1"]) .stories { transform: translateY(12px); }
+    /* The second slide, what being epic means (Gianni): short stories of ordinary people, turning like the quotes; they are
+       told, not quoted, so upright, and who lived each one is named under it */
+    .stories { font-style: normal; }
+    .heart { margin: 18px 0 0; padding-left: 14px; border-left: 2px solid var(--gold); max-width: 30em;
+      font: italic 600 clamp(17px, 4.4vw, 21px)/1.4 var(--serif); color: var(--ink); text-wrap: pretty; }
     @media (min-width: 880px) { .quote { font-size: clamp(26px, 2.4vw, 36px); } }
     body:not([data-slide="0"]) .emblem { transform: scale(.85); }
     body[data-slide="0"] .emblem { animation: forge 1.4s var(--spring) both; }
@@ -797,37 +803,43 @@
   <main class="stage" id="tour" aria-roledescription="carousel" aria-label="Go Epic tour">
     <div class="copy">
       <div class="slides">
-        <section class="slide on" aria-roledescription="slide" aria-label="1 / 8">
+        <section class="slide on" aria-roledescription="slide" aria-label="1 / 9">
           <h1 class="motto" data-i="k0"><span>Plan<b>.</b></span> <span>Focus<b>.</b></span> <span>Grow<b>.</b></span></h1>
           <p class="lead mission" data-i="l0"><span class="eyebrow">Our mission</span><q>All we have to decide is what to do with the time that is given us.</q> <cite>Gandalf · J.R.R. Tolkien</cite></p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="2 / 8">
+        <section class="slide" aria-roledescription="slide" aria-label="2 / 9">
+          <p class="kicker gold" data-i="e0">What epic means</p>
+          <h2 data-i="e1">Epic doesn't mean famous.</h2>
+          <p class="lead" data-i="e2">It means living your story on purpose: showing up, day after day, for the people and the things you love, even when no one is watching. We need it, because a life that no one writes ends up written by chance.</p>
+          <p class="heart" data-i="e3">We don't live in the hearts of crowds, but in the heart of a friend, of a family.</p>
+        </section>
+        <section class="slide" aria-roledescription="slide" aria-label="3 / 9">
           <p class="kicker" style="--k:#b91c1c" data-i="k1">Week board</p>
           <h2 data-i="h1">Every hour has a home.</h2>
           <p class="lead" data-i="l1">Give each part of your day a block. A line shows where you are, a bar at the foot counts down the minutes left, and one tap marks it done, in gold.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="3 / 8">
+        <section class="slide" aria-roledescription="slide" aria-label="4 / 9">
           <p class="kicker" style="--k:#0f766e" data-i="k3">Canvas</p>
           <h2 data-i="h3">Start with who you want to be.</h2>
           <p class="lead" data-i="l3">Four areas of life: the Temple, the Castle, the Tower and the Arena. In each one, a Goal, a Project, a Deliverable and an Action lead from who you are to today's small step.</p>
           <p class="fine" data-i="f3">An idea without a place waits in Undefined until you give it one.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="4 / 8">
+        <section class="slide" aria-roledescription="slide" aria-label="5 / 9">
           <p class="kicker" style="--k:#94700f" data-i="k4">Progress</p>
           <h2 data-i="h4">Streaks that keep you going.</h2>
           <p class="lead" data-i="l4">Every action you follow grows its own streak, and a skipped day pauses it instead of breaking it. Areas of life shows whether each part of your life gets its time.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="5 / 8">
+        <section class="slide" aria-roledescription="slide" aria-label="6 / 9">
           <p class="kicker" style="--k:#be185d" data-i="k5">Capture</p>
           <h2 data-i="h5">Catch it before it slips away.</h2>
           <p class="lead" data-i="l5">Type it and press Enter. It lands on its day and hour, and whatever slips past waits in a folder at the foot of the screen.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="6 / 8">
+        <section class="slide" aria-roledescription="slide" aria-label="7 / 9">
           <p class="kicker" style="--k:#2f7a2a" data-i="k8">Year</p>
           <h2 data-i="h8">A year in four seasons.</h2>
           <p class="lead" data-i="l8">Each season holds four sprints of three weeks and one week to rest and look back. Hold a day to write down what matters on it.</p>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="7 / 8">
+        <section class="slide" aria-roledescription="slide" aria-label="8 / 9">
           <p class="kicker" style="--k:#6b5bd2" data-i="k6">Themes</p>
           <h2 data-i="h6">Ten looks. One you.</h2>
           <p class="lead" data-i="l6">Pick a theme, its palette of colours, and even the names of your levels. The whole app follows.</p>
@@ -836,7 +848,7 @@
             <i style="--c:#fff1e5"></i><i style="--c:#2b2e33"></i><i style="--c:#c6c9cd"></i><i style="--c:#0a1130"></i><i style="--c:#fbfbfd"></i>
           </div>
         </section>
-        <section class="slide" aria-roledescription="slide" aria-label="8 / 8">
+        <section class="slide" aria-roledescription="slide" aria-label="9 / 9">
           <p class="kicker gold" data-i="k7">Ready?</p>
           <h2 data-i="h7">Your epic week starts now.</h2>
           <p class="lead" data-i="l7">Sign in with Google and add it to your home screen. It's free, and it keeps working without the internet.</p>
@@ -847,6 +859,19 @@
     </div>
 
     <div class="device">
+      <!-- the second slide: ordinary people who live epic lives in their own small world, turning like the quotes (Gianni) -->
+      <div class="quote stories" role="group" aria-roledescription="carousel" aria-label="Stories">
+       <div class="q-track">
+        <blockquote class="q on" data-q="0"><p data-i="s1">For eleven years she read to her son every night. Today he reads to his own children.</p><cite data-i="w1">A mother</cite></blockquote>
+        <blockquote class="q" data-q="1" aria-hidden="true"><p data-i="s2">Every Saturday he fixed his grandson's bike, and taught him that what breaks can be mended.</p><cite data-i="w2">A grandfather</cite></blockquote>
+        <blockquote class="q" data-q="2" aria-hidden="true"><p data-i="s3">She called her friend every evening through the hardest year of his life. Ten minutes, every evening.</p><cite data-i="w3">A friend</cite></blockquote>
+        <blockquote class="q" data-q="3" aria-hidden="true"><p data-i="s4">At fifty-two he went back to school at night. His daughter cheered from the front row at his graduation.</p><cite data-i="w4">A father</cite></blockquote>
+        <blockquote class="q" data-q="4" aria-hidden="true"><p data-i="s5">Every morning he waits at the bus stop with his neighbour, so she never starts the day alone.</p><cite data-i="w5">A neighbour</cite></blockquote>
+        <blockquote class="q" data-q="5" aria-hidden="true"><p data-i="s6">She saved a little every month for three years and took her parents to see the sea for the first time.</p><cite data-i="w6">A daughter</cite></blockquote>
+        <blockquote class="q" data-q="6" aria-hidden="true"><p data-i="s7">She fell, started over and fell again. From her, her children learned how to get back up.</p><cite data-i="w7">A mother of three</cite></blockquote>
+       </div>
+       <div class="q-dots"></div>
+      </div>
       <!-- the last slide: a small carousel of quotes, fading on its own (Gianni) -->
       <div class="quote" role="group" aria-roledescription="carousel" aria-label="Quotes">
        <div class="q-track">
@@ -881,7 +906,7 @@
         <div class="phone"><div class="glass">
 
           <!-- 2 · Week board: the blocks rise, a tap turns a card gold, the gold line runs down while the countdown empties -->
-          <div class="screen s-week" data-n="1">
+          <div class="screen s-week" data-n="2">
             <span class="clock">6:30</span><span class="batt"></span>
             <div class="live">
               <div class="hdr"><h3><span data-i="p_wb">Week board</span><i class="chev"></i></h3><span class="bulb">💡</span></div>
@@ -914,7 +939,7 @@
           </div>
 
           <!-- 3 · Canvas: an Activity is lifted out of Free Space and dropped into its Story -->
-          <div class="screen s-canvas" data-n="2">
+          <div class="screen s-canvas" data-n="3">
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="live">
               <div class="hdr"><h3>Canvas <i class="tri"></i></h3><span class="bulb">💡</span></div>
@@ -941,7 +966,7 @@
           </div>
 
           <!-- 4 · Progress: the days fill in, then today's dot fills and every streak grows by one -->
-          <div class="screen s-prog" data-n="3">
+          <div class="screen s-prog" data-n="4">
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="live">
               <div class="hdr"><h3><span data-i="p_progress">Progress</span><i class="chev"></i></h3><span class="bulb">💡</span></div>
@@ -963,7 +988,7 @@
           </div>
 
           <!-- 5 · Capture: a task is typed and added; another is ticked and moves to Finished -->
-          <div class="screen s-cap" data-n="4">
+          <div class="screen s-cap" data-n="5">
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="live">
               <div class="cpan">
@@ -982,7 +1007,7 @@
           </div>
 
           <!-- 6 · Year: a season of four sprints and a rest week; a finger holds a day and its note shows above it -->
-          <div class="screen s-year" data-n="5">
+          <div class="screen s-year" data-n="6">
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="live">
               <div class="hdr"><h3><span data-i="p_year">Year</span> <i class="tri"></i></h3><span class="bulb">💡</span></div>
@@ -1001,7 +1026,7 @@
           </div>
 
           <!-- 7 · Themes: the same little day, through the ten themes -->
-          <div class="screen s-themes" data-n="6">
+          <div class="screen s-themes" data-n="7">
             <span class="clock">9:41</span><span class="batt"></span>
             <div class="hdr"><h3><span data-i="p_wb">Week board</span><i class="chev"></i></h3><span class="bulb">💡</span></div>
             <div class="dayc">
@@ -1047,6 +1072,7 @@
       <button type="button" data-go="2"></button><button type="button" data-go="3"></button>
       <button type="button" data-go="4"></button><button type="button" data-go="5"></button>
       <button type="button" data-go="6"></button><button type="button" data-go="7"></button>
+      <button type="button" data-go="8"></button>
     </div>
   </nav>
 
@@ -1067,6 +1093,16 @@
       get_short: 'Descargar', get_long2: 'Descarga Go Epic, es gratis',
       why_top: '¿Por qué Epic?',
       k0: '<span>Planea<b>.</b></span> <span>Enfócate<b>.</b></span> <span>Crece<b>.</b></span>', l0: '<span class="eyebrow">Nuestra misión</span><q>Todo lo que tenemos que decidir es qué hacer con el tiempo que se nos ha dado.</q> <cite>Gandalf · J.R.R. Tolkien</cite>',
+      e0: 'Qué es ser épico', e1: 'Épico no es ser famoso.',
+      e2: 'Es vivir tu historia a propósito: estar ahí, día tras día, para la gente y las cosas que amas, aunque nadie te vea. Lo necesitamos, porque una vida que nadie escribe la termina escribiendo el azar.',
+      e3: 'No vivimos en el corazón de multitudes, sino en el corazón de un amigo, de un familiar.',
+      s1: 'Durante once años le leyó a su hijo cada noche. Hoy él les lee a sus propios hijos.', w1: 'Una mamá',
+      s2: 'Cada sábado le arreglaba la bicicleta a su nieto, y le enseñó que lo que se rompe se puede reparar.', w2: 'Un abuelo',
+      s3: 'Llamó a su amigo cada noche durante el año más duro de su vida. Diez minutos, cada noche.', w3: 'Una amiga',
+      s4: 'A los cincuenta y dos años volvió a estudiar de noche. Su hija le aplaudió desde la primera fila en su graduación.', w4: 'Un papá',
+      s5: 'Cada mañana espera el autobús con su vecina, para que ella nunca empiece el día sola.', w5: 'Un vecino',
+      s6: 'Ahorró un poco cada mes durante tres años y llevó a sus papás a ver el mar por primera vez.', w6: 'Una hija',
+      s7: 'Se cayó, empezó de nuevo y se volvió a caer. De ella, sus hijos aprendieron a levantarse.', w7: 'Una mamá de tres',
       k1: 'Semana', h1: 'Cada hora tiene su lugar.',
       l1: 'Dale a cada parte de tu día su bloque. Una línea te dice dónde estás, una barra al pie cuenta los minutos que quedan, y un toque lo marca hecho, en oro.',
       k3: 'Canvas', h3: 'Empieza por quién quieres ser.',
@@ -1125,7 +1161,8 @@
             macS: ['Click <b>Open Go Epic</b> below.', 'In Safari’s menu bar, choose <b>File › Add to Dock</b>.', 'Click <b>Add</b>.'],
             anyT: 'Install Go Epic', anyL: 'Already installed? Open it from your home screen or apps. If not:',
             anyS: ['Tap <b>Open Go Epic</b> below.', 'Open your browser’s menu (⋮ or ⋯).', 'Choose <b>Install app</b> or <b>Add to Home screen</b>.'],
-            qs: 'Quotes', qp: 'Previous quote', qn: 'Next quote' },
+            qs: 'Quotes', qp: 'Previous quote', qn: 'Next quote',
+            ss: 'Stories', sp: 'Previous story', sn: 'Next story' },
       es: { back: 'Atrás', end: 'Ir a la última lámina', next: 'Siguiente', again: 'Volver al inicio', step: 'Paso %n de %t', go: 'Ir al paso %n', tour: 'Recorrido por Go Epic', nav: 'Recorrido',
             installing: 'Instalando Go Epic… aparecerá con tus apps.', open: 'Abrir Go Epic', close: 'Cerrar',
             iosT: 'Agrega Go Epic a tu iPhone', iosL: 'Safari la instala desde la propia app, en tres toques:',
@@ -1134,7 +1171,8 @@
             macS: ['Haz clic en <b>Abrir Go Epic</b> abajo.', 'En la barra de menús de Safari, elige <b>Archivo › Agregar al Dock</b>.', 'Haz clic en <b>Agregar</b>.'],
             anyT: 'Instala Go Epic', anyL: '¿Ya la tienes? Ábrela desde tu pantalla de inicio o tus apps. Si no:',
             anyS: ['Toca <b>Abrir Go Epic</b> abajo.', 'Abre el menú del navegador (⋮ o ⋯).', 'Elige <b>Instalar app</b> o <b>Agregar a pantalla principal</b>.'],
-            qs: 'Frases', qp: 'Frase anterior', qn: 'Frase siguiente' }
+            qs: 'Frases', qp: 'Frase anterior', qn: 'Frase siguiente',
+            ss: 'Historias', sp: 'Historia anterior', sn: 'Historia siguiente' }
     };
     var META = {
       en: { title: document.title, desc: document.querySelector('meta[name="description"]').content },
@@ -1166,8 +1204,10 @@
       slides.forEach(function (s, i) { s.setAttribute('aria-label', fmt(t.step, i)); });
       document.getElementById('tour').setAttribute('aria-label', t.tour);
       document.querySelector('.nav').setAttribute('aria-label', t.nav);
-      qBox.setAttribute('aria-label', t.qs);
-      qPrev.setAttribute('aria-label', t.qp); qNext.setAttribute('aria-label', t.qn);
+      quotes.box.setAttribute('aria-label', t.qs);
+      quotes.prev.setAttribute('aria-label', t.qp); quotes.next.setAttribute('aria-label', t.qn);
+      stories.box.setAttribute('aria-label', t.ss);
+      stories.prev.setAttribute('aria-label', t.sp); stories.next.setAttribute('aria-label', t.sn);
     }
 
     // Each phone screen plays its little story in a loop (CSS keyed on .run, numbers here), so anyone sees what happens.
@@ -1201,28 +1241,28 @@
       ], o));
     }
     var LOOPS = {
-      1: { period: 9000, tick: function (s, t) {   // Week board: 06:20 → 06:45 down the running card
+      2: { period: 9000, tick: function (s, t) {   // Week board: 06:20 → 06:45 down the running card
         var p = clamp((t - 2600) / 5400), m = Math.round(25 * p);
         s.style.setProperty('--p', p.toFixed(4));
         q(s, '.now b').textContent = hhmm(380 + m);
         q(s, '.clock').textContent = hhmm(380 + m).replace(/^0/, '');
         q(s, '.pin').classList.toggle('ring', m >= 20);
       } },
-      2: { period: 7500, start: canvasStart, tick: function (s, t) {   // Canvas: one waits in Undefined until it lands
+      3: { period: 7500, start: canvasStart, tick: function (s, t) {   // Canvas: one waits in Undefined until it lands
         q(s, '.cnt').textContent = t < 3080 ? 1 : 0;
       } },
-      3: { period: 6500, still: 6000, tick: function (s, t) {   // Progress: today's dot fills, the streak grows by one
+      4: { period: 6500, still: 6000, tick: function (s, t) {   // Progress: today's dot fills, the streak grows by one
         s.querySelectorAll('.hb[data-hit]').forEach(function (h, i) {
           var hit = t > 2300 + i * 300, n = h.querySelector('.n');
           h.classList.toggle('hit', hit);
           if (n) n.textContent = +n.dataset.base + (hit ? 1 : 0);
         });
       } },
-      4: { period: 8000, tick: function (s, t) {   // Capture: 3 → 4 current when added, then 1 finished
+      5: { period: 8000, tick: function (s, t) {   // Capture: 3 → 4 current when added, then 1 finished
         q(s, '.ncur').textContent = t < 2350 ? 3 : t < 5350 ? 4 : 3;
         q(s, '.nfin').textContent = t < 5350 ? 0 : 1;
       } },
-      5: { period: 7000, still: 3000, tick: function (s, t) {   // Year: a finger holds a day and its window shows above it
+      6: { period: 7000, still: 3000, tick: function (s, t) {   // Year: a finger holds a day and its window shows above it
         s.classList.toggle('held', t > 1500 && t < 6100);
       } }
       // the last slide's home screen stands still (Gianni: only the Download ring may move there)
@@ -1278,60 +1318,67 @@
       });
       play(shown);
       body.dataset.slide = n;
-      quoteTick();
+      quotes.tick(); stories.tick();
       dots.forEach(function (d, i) { if (i === n) d.setAttribute('aria-current', 'step'); else d.removeAttribute('aria-current'); });
       labels();
       announce.textContent = fmt(UI[lang].step, n);
     }
 
-    // The last slide's quotes turn by themselves every 5 s while that slide is shown (Gianni: always moving, also under
-    // reduced motion, where they just switch without the fade), with half a second of blank between two. ‹ › (40px taps) step them and start the 5 s again, never
-    // stopping the turning; the small pips between only show where you are; only keyboard focus inside them pauses it.
-    var qBox = document.querySelector('.quote'), qs = [].slice.call(qBox.querySelectorAll('.q')), qDots = [];
-    var qNav = qBox.querySelector('.q-dots'), qPips = document.createElement('span');
-    function qButton(path, step) {
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.innerHTML = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="' + path + '"/></svg>';
-      b.addEventListener('click', function () {
-        quoteTo(qAt + step); quoteTick();
-        // a chosen quote is read out (the turning by itself stays silent)
-        var q = qs[qAt], c = q.querySelector('cite');
-        announce.textContent = q.querySelector('p').textContent + (c ? ' ' + c.textContent : '');
-      });
-      return b;
-    }
-    var qPrev = qButton('M9 2 4 7l5 5', -1), qNext = qButton('M5 2l5 5-5 5', 1);
-    qPips.className = 'q-pips';
-    qPips.setAttribute('aria-hidden', 'true');
-    var qAt = 0, qTimer = 0, qFocus = false, qShow = 0;
-    // The quote on screen fades out (0.6 s), the box stays blank for half a second (Gianni), then the next fades in;
+    // The last slide's quotes, and the second slide's stories of ordinary people, turn by themselves while their slide is
+    // shown (Gianni: always moving, also under reduced motion, where they just switch without the fade), with half a second
+    // of blank between two. ‹ › (40px taps) step them and start the wait again, never stopping the turning; the small pips
+    // between only show where you are; only keyboard focus inside them pauses it.
+    // The one on screen fades out (0.6 s), the box stays blank for half a second (Gianni), then the next fades in;
     // under reduced motion it just goes, the same half second blank, and the next appears. A tap meanwhile moves on from there.
     var Q_GAP = reduce ? 500 : 1100;
-    function quoteTo(i, now) {
-      qAt = (i + qs.length) % qs.length;
-      clearTimeout(qShow); qShow = 0;
-      qs.forEach(function (el) { el.classList.remove('on'); el.setAttribute('aria-hidden', 'true'); });
-      qDots.forEach(function (d, k) { d.classList.toggle('on', k === qAt); });
-      function appear() { qShow = 0; qs[qAt].classList.add('on'); qs[qAt].removeAttribute('aria-hidden'); }
-      if (now) appear(); else qShow = setTimeout(appear, Q_GAP);
+    function turner(box, slide, every) {
+      var qs = [].slice.call(box.querySelectorAll('.q')), qDots = [];
+      var qNav = box.querySelector('.q-dots'), qPips = document.createElement('span');
+      var qAt = 0, qTimer = 0, qFocus = false, qShow = 0;
+      function qButton(path, step) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.innerHTML = '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="' + path + '"/></svg>';
+        b.addEventListener('click', function () {
+          to(qAt + step); tick();
+          // a chosen one is read out (the turning by itself stays silent)
+          var q = qs[qAt], c = q.querySelector('cite');
+          announce.textContent = q.querySelector('p').textContent + (c ? ' ' + c.textContent : '');
+        });
+        return b;
+      }
+      var prev = qButton('M9 2 4 7l5 5', -1), next = qButton('M5 2l5 5-5 5', 1);
+      qPips.className = 'q-pips';
+      qPips.setAttribute('aria-hidden', 'true');
+      function to(i, now) {
+        qAt = (i + qs.length) % qs.length;
+        clearTimeout(qShow); qShow = 0;
+        qs.forEach(function (el) { el.classList.remove('on'); el.setAttribute('aria-hidden', 'true'); });
+        qDots.forEach(function (d, k) { d.classList.toggle('on', k === qAt); });
+        function appear() { qShow = 0; qs[qAt].classList.add('on'); qs[qAt].removeAttribute('aria-hidden'); }
+        if (now) appear(); else qShow = setTimeout(appear, Q_GAP);
+      }
+      function tick() {
+        clearTimeout(qTimer); qTimer = 0;
+        if (qFocus || cur !== slide || document.hidden) return;
+        qTimer = setTimeout(function () { to(qAt + 1); tick(); }, every);
+      }
+      qs.forEach(function () { var d = document.createElement('i'); qPips.appendChild(d); qDots.push(d); });
+      qNav.appendChild(prev); qNav.appendChild(qPips); qNav.appendChild(next);
+      // A tap also focuses the button on phones, so only a keyboard focus (:focus-visible) holds it still
+      box.addEventListener('focusin', function (e) {
+        var kb = true;
+        try { kb = e.target.matches(':focus-visible'); } catch (err) { kb = false; }
+        qFocus = kb; tick();
+      });
+      box.addEventListener('focusout', function (e) { if (!box.contains(e.relatedTarget)) { qFocus = false; tick(); } });
+      document.addEventListener('visibilitychange', tick);
+      to(0, true);
+      return { box: box, prev: prev, next: next, tick: tick };
     }
-    function quoteTick() {
-      clearTimeout(qTimer); qTimer = 0;
-      if (qFocus || cur !== N - 1 || document.hidden) return;
-      qTimer = setTimeout(function () { quoteTo(qAt + 1); quoteTick(); }, 5000);
-    }
-    qs.forEach(function () { var d = document.createElement('i'); qPips.appendChild(d); qDots.push(d); });
-    qNav.appendChild(qPrev); qNav.appendChild(qPips); qNav.appendChild(qNext);
-    // A tap also focuses the button on phones, so only a keyboard focus (:focus-visible) holds the quote still
-    qBox.addEventListener('focusin', function (e) {
-      var kb = true;
-      try { kb = e.target.matches(':focus-visible'); } catch (err) { kb = false; }
-      qFocus = kb; quoteTick();
-    });
-    qBox.addEventListener('focusout', function (e) { if (!qBox.contains(e.relatedTarget)) { qFocus = false; quoteTick(); } });
-    document.addEventListener('visibilitychange', quoteTick);
-    quoteTo(0, true);
+    // the quotes every 5 s (Gianni); a story is longer to read, so 7 s
+    var quotes = turner(document.querySelector('.quote:not(.stories)'), N - 1, 5000);
+    var stories = turner(document.querySelector('.stories'), 1, 7000);
 
     // Both arrows go round: the last slide starts over, and Back on the first goes to the last
     function forward() { show(cur === N - 1 ? 0 : cur + 1); }
