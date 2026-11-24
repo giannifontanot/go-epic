@@ -10,7 +10,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Why Epic? · Go Epic</title>
-  <meta name="description" content="Every day is a page and every life is a story. Why our planner is called Go Epic: from who you want to be down to today's small step." />
+  <meta name="description" content="Every day is a page and every life is a story. Why our planner is called Go Epic: from who you are down to today's small step." />
   <link rel="canonical" href="https://getgoepic.com/why-epic/" />
   <link rel="alternate" hreflang="en" href="https://getgoepic.com/why-epic/" />
   <link rel="alternate" hreflang="es" href="https://getgoepic.com/why-epic/?lang=es" />
@@ -110,6 +110,13 @@
     section p + p { margin-top: 14px; }
     em { font-style: italic; }
 
+    /* The four areas of life, one line each with a gold mark */
+    .areas { list-style: none; margin: 16px 0; padding: 0; display: grid; gap: 8px; }
+    .areas li { position: relative; padding: 10px 14px 10px 30px; border-radius: 14px; background: #fff; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08);
+      color: #3a3a3c; line-height: 1.4; }
+    .areas li::before { content: ''; position: absolute; left: 13px; top: 1.05em; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+    .areas b { color: var(--ink); }
+
     /* The five levels of the app, drawn in the Canvas's colours, each one step further in */
     .ladder { list-style: none; margin: 20px 0 18px; padding: 0; display: grid; gap: 10px; }
     .ladder li { margin-left: calc(var(--n) * min(18px, 4vw)); padding: 12px 16px; border-radius: 16px; background: var(--tone); color: var(--ink2, #302746);
@@ -201,16 +208,35 @@
     </section>
 
     <section>
-      <h2 data-i="h_app">How Go Epic is built</h2>
-      <p data-i="p_app1">In software teams, an epic is a large piece of work that is told in stories and achieved step by step. Go Epic takes that idea and brings it to your life, in five levels:</p>
+      <h2 data-i="h_areas">Your life in four areas</h2>
+      <p data-i="p_areas1">A life is not one thing. Go Epic gives it four places, so that none of them is forgotten:</p>
+      <ul class="areas">
+        <li data-i="ar_temple"><b>The Temple</b> · Health: body, faith and finances.</li>
+        <li data-i="ar_castle"><b>The Castle</b> · Family: home, family and friends.</li>
+        <li data-i="ar_tower"><b>The Tower</b> · Career: work and learning.</li>
+        <li data-i="ar_arena"><b>The Arena</b> · Fun: joy, hobbies and adventures.</li>
+      </ul>
+      <p data-i="p_areas2">When one of them goes quiet for weeks, you notice. And when all four get their time, your life feels whole.</p>
+    </section>
+
+    <section>
+      <h2 data-i="h_app">From who you are to today's step</h2>
+      <p data-i="p_app1">Inside each area, Go Epic goes from the big picture down to the step you can take today, in five levels:</p>
       <ol class="ladder">
-        <li class="area" style="--n:0"><b data-i="lv_area">Area</b><span data-i="lv_area_t">Where it plays out: health, family, work, rest.</span><q data-i="lv_area_e">The Temple</q></li>
-        <li class="epic" style="--n:1"><b>Epic</b><span data-i="lv_epic_t">Who you decide to be.</span><q data-i="lv_epic_e">I am strong and healthy</q></li>
-        <li class="feat" style="--n:2"><b>Feature</b><span data-i="lv_feat_t">What you already live when you are.</span><q data-i="lv_feat_e">I move every day and eat well</q></li>
-        <li class="stry" style="--n:3"><b>Story</b><span data-i="lv_stry_t">The road that takes you there.</span><q data-i="lv_stry_e">As an active person, I want to walk every morning after coffee, so that I have energy all day.</q></li>
-        <li class="act" style="--n:4"><b data-i="lv_act">Activity</b><span data-i="lv_act_t">Today's small step.</span><q data-i="lv_act_e">Walk 10 min</q></li>
+        <li class="area" style="--n:0"><b data-i="lv_area">Area</b><span data-i="lv_area_t">Where it plays out.</span><q data-i="lv_area_e">The Temple</q></li>
+        <li class="epic" style="--n:1"><b data-i="lv_epic">Goal</b><span data-i="lv_epic_t">Who you are.</span><q data-i="lv_epic_e">I am strong and healthy</q></li>
+        <li class="feat" style="--n:2"><b data-i="lv_feat">Project</b><span data-i="lv_feat_t">What you live because you are.</span><q data-i="lv_feat_e">I move every day and eat well</q></li>
+        <li class="stry" style="--n:3"><b data-i="lv_stry">Deliverable</b><span data-i="lv_stry_t">The road that takes you there.</span><q data-i="lv_stry_e">As an active person, I want to walk every morning after coffee, so that I have energy all day.</q></li>
+        <li class="act" style="--n:4"><b data-i="lv_act">Action</b><span data-i="lv_act_t">Today's small step.</span><q data-i="lv_act_e">Walk 10 min</q></li>
       </ol>
-      <p data-i="p_app2">So walking ten minutes stops being one more box to tick. It becomes a line in your story, and it points to who you want to be.</p>
+      <p data-i="p_app2">So walking ten minutes stops being one more box to tick. It becomes a line in your story, and it points to who you are.</p>
+      <p data-i="p_app3">And if an idea has no place yet, that is fine: it waits in Undefined until you give it one.</p>
+    </section>
+
+    <section>
+      <h2 data-i="h_days">Your week, your days, your year</h2>
+      <p data-i="p_days1">Each Action finds its hour on your week. A line shows where you are in the day, and one tap marks it done, in gold. Progress shows the streaks you are keeping and whether each area of your life gets its time.</p>
+      <p data-i="p_days2">The year comes in four seasons, each with a week to rest and look back. Because a good story also has its pauses.</p>
     </section>
 
     <section>
@@ -239,14 +265,25 @@
         h_epic: 'Épico no quiere decir enorme',
         p_epic1: 'Épico no quiere decir famoso, ni perfecto. Las grandes historias casi nunca tratan de alguien que lo tenía todo resuelto. Tratan de gente común que decidió qué hacer con el tiempo que se le dio, y siguió caminando cuando costaba.',
         p_epic2: 'Ahí vive lo épico: en la fidelidad. Levantarse, volver a empezar, dar el siguiente paso. Una mañana tranquila de oración, diez minutos de caminata, una hora de trabajo honesto, una cena sin teléfonos. Nadie les escribe canciones, y sin embargo de eso está hecha una vida.',
-        h_app: 'Así está hecho Go Epic',
-        p_app1: 'En los equipos de software, una épica es una obra grande que se cuenta en historias y se logra paso a paso. Go Epic toma esa idea y la lleva a tu vida, en cinco niveles:',
-        lv_area: 'Área', lv_area_t: 'Dónde se juega: la salud, la familia, el trabajo, el descanso.', lv_area_e: 'El Templo',
-        lv_epic_t: 'Quién decides ser.', lv_epic_e: 'Soy fuerte y saludable',
-        lv_feat_t: 'Lo que ya vives cuando lo eres.', lv_feat_e: 'Me muevo cada día y como sano',
-        lv_stry_t: 'El camino que te lleva ahí.', lv_stry_e: 'Como persona activa, quiero caminar cada mañana después del café, para tener energía todo el día.',
-        lv_act: 'Actividad', lv_act_t: 'El pequeño paso de hoy.', lv_act_e: 'Caminar 10 min',
-        p_app2: 'Así, caminar diez minutos deja de ser una casilla más. Se vuelve una línea de tu historia, y apunta a quien quieres ser.',
+        h_areas: 'Tu vida en cuatro áreas',
+        p_areas1: 'Una vida no es una sola cosa. Go Epic le da cuatro lugares, para que ninguno se quede olvidado:',
+        ar_temple: '<b>El Templo</b> · Salud: cuerpo, fe y finanzas.',
+        ar_castle: '<b>El Castillo</b> · Familia: hogar, familia y amigos.',
+        ar_tower: '<b>La Torre</b> · Carrera: trabajo y aprendizaje.',
+        ar_arena: '<b>La Arena</b> · Diversión: alegría, pasatiempos y aventuras.',
+        p_areas2: 'Cuando una de ellas se queda callada por semanas, lo notas. Y cuando las cuatro reciben su tiempo, tu vida se siente completa.',
+        h_app: 'De quién eres al paso de hoy',
+        p_app1: 'Dentro de cada área, Go Epic va de lo grande al paso que puedes dar hoy, en cinco niveles:',
+        lv_area: 'Área', lv_area_t: 'Dónde se juega.', lv_area_e: 'El Templo',
+        lv_epic: 'Objetivo', lv_epic_t: 'Quién eres.', lv_epic_e: 'Soy fuerte y saludable',
+        lv_feat: 'Proyecto', lv_feat_t: 'Lo que vives porque lo eres.', lv_feat_e: 'Me muevo cada día y como sano',
+        lv_stry: 'Entrega', lv_stry_t: 'El camino que te lleva ahí.', lv_stry_e: 'Como persona activa, quiero caminar cada mañana después del café, para tener energía todo el día.',
+        lv_act: 'Acción', lv_act_t: 'El pequeño paso de hoy.', lv_act_e: 'Caminar 10 min',
+        p_app2: 'Así, caminar diez minutos deja de ser una casilla más. Se vuelve una línea de tu historia, y apunta a quien eres.',
+        p_app3: 'Y si una idea todavía no tiene lugar, no pasa nada: espera en «Sin definir» hasta que le des uno.',
+        h_days: 'Tu semana, tus días, tu año',
+        p_days1: 'Cada Acción encuentra su hora en tu semana. Una línea te dice dónde vas en el día, y un toque la marca hecha, en oro. Progreso te muestra las rachas que llevas y si cada área de tu vida recibe su tiempo.',
+        p_days2: 'El año viene en cuatro temporadas, cada una con una semana para descansar y mirar atrás. Porque una buena historia también tiene sus pausas.',
         h_write: 'Escríbela a propósito',
         p_write1: 'No controlas todo lo que pasa en tu historia. Pero sí decides qué hacer con cada hora que se te da. Para eso existe Go Epic: para que tu semana tenga forma, tus días tengan sentido y, poco a poco, tu vida cuente algo épico.',
         end_so: 'Por eso:', end_lead: 'Tu historia ya se está escribiendo. Hazla épica.',
@@ -255,7 +292,7 @@
       var META = {
         en: { title: document.title, desc: document.querySelector('meta[name="description"]').content },
         es: { title: '¿Por qué Epic? · Go Epic',
-              desc: 'Cada día es una página y cada vida es una historia. Por qué nuestra app se llama Go Epic: desde quién quieres ser hasta el pequeño paso de hoy.' }
+              desc: 'Cada día es una página y cada vida es una historia. Por qué nuestra app se llama Go Epic: desde quién eres hasta el pequeño paso de hoy.' }
       };
       var nodes = document.querySelectorAll('[data-i]'), EN = {};
       nodes.forEach(function (el) { EN[el.dataset.i] = el.innerHTML; });
