@@ -154,6 +154,7 @@ const LABELS: Record<string, Texts> = {
   'palette.petalpunk': { en: 'Pinks', es: 'Rosas' },
   'palette.lightroses': { en: 'Light Roses', es: 'Rosas Claros' },
   'palette.smokedcitrus': { en: 'Oranges', es: 'Naranjas' },
+  'palette.lightoranges': { en: 'Light Oranges', es: 'Naranjas Claros' },
   'palette.office': { en: 'Office', es: 'Oficina' },
   'palette.graphite': { en: 'Graphite', es: 'Grafito' },
   'palette.goepiclight': { en: 'Go Epic Light', es: 'Go Epic Claro' },
