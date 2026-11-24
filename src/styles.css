@@ -1872,7 +1872,7 @@ html:is([data-theme='pinkpop'], [data-theme='squeezeme'], [data-theme='sunburnt'
   --edit-open: #fff; --edit-open-ink: color-mix(in srgb, var(--fab-ink) 55%, #16121c); }
 html .capture-fab.look-fab.look-fab.look-fab:not(.open), html .capture-fab.finish-fab.finish-fab {
   background: var(--edit-fab); color: var(--edit-ink); border: 1.5px solid var(--edit-ring); box-shadow: 0 4px 14px rgba(0, 0, 0, .28); }
-html .capture-fab.finish-fab.finish-fab { border: 0; box-shadow: 0 0 0 2.5px var(--pink), 0 4px 14px rgba(0, 0, 0, .28); }
+html .capture-fab.finish-fab.finish-fab { border: 0; box-shadow: 0 4px 14px rgba(0, 0, 0, .28); }   /* no ring (Gianni, v73) */
 html body .capture-fab.finish-fab.finish-fab.finish-fab { width: 60px; height: 60px; color: var(--edit-ink) !important; }   /* white ✓ on the dark button: stronger than the accent-ink rule, and the same 60px as the others */
 html:not([data-theme]) body .capture-fab.finish-fab.finish-fab.finish-fab, html[data-theme='epic'] body .capture-fab.finish-fab.finish-fab.finish-fab {
   background: var(--teal); color: #0b2f2a !important; box-shadow: none; }
