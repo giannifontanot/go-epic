@@ -328,11 +328,12 @@
       font: italic 400 clamp(22px, 6.2vw, 30px)/1.32 var(--serif); color: var(--ink); text-wrap: balance;
       transition: opacity .7s ease, transform .9s var(--spring), visibility 0s; }
     .quote::before { content: ''; display: block; width: 44px; height: 2px; margin: 0 auto 22px; border-radius: 2px; background: var(--gold); }
-    /* the quotes share one grid cell, so the box is as tall as the longest and never jumps; one fades in as the last fades out */
+    /* the quotes share one grid cell, so the box is as tall as the longest and never jumps; one fades out, the box stays
+       blank for half a second (Gianni), then the next fades in (quoteTo waits for it) */
     .q-track { display: grid; }
     .q { grid-area: 1 / 1; margin: 0; opacity: 0; transform: translateY(10px); visibility: hidden;
-      transition: opacity .8s ease, transform .9s var(--spring), visibility 0s linear .9s; }
-    .q.on { opacity: 1; transform: none; visibility: visible; transition: opacity .8s ease .25s, transform .9s var(--spring) .25s, visibility 0s; }
+      transition: opacity .6s ease, transform .6s ease, visibility 0s linear .6s; }
+    .q.on { opacity: 1; transform: none; visibility: visible; transition: opacity .8s ease, transform .9s var(--spring), visibility 0s; }
     .q p { margin: 0; }
     .q cite { display: block; margin-top: .7em; font: 600 .55em/1.2 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       font-style: normal; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
@@ -1284,7 +1285,7 @@
     }
 
     // The last slide's quotes turn by themselves every 5 s while that slide is shown (Gianni: always moving, also under
-    // reduced motion, where they just switch without the fade). ‹ › (40px taps) step them and start the 5 s again, never
+    // reduced motion, where they just switch without the fade), with half a second of blank between two. ‹ › (40px taps) step them and start the 5 s again, never
     // stopping the turning; the small pips between only show where you are; only keyboard focus inside them pauses it.
     var qBox = document.querySelector('.quote'), qs = [].slice.call(qBox.querySelectorAll('.q')), qDots = [];
     var qNav = qBox.querySelector('.q-dots'), qPips = document.createElement('span');
@@ -1303,15 +1304,17 @@
     var qPrev = qButton('M9 2 4 7l5 5', -1), qNext = qButton('M5 2l5 5-5 5', 1);
     qPips.className = 'q-pips';
     qPips.setAttribute('aria-hidden', 'true');
-    var qAt = 0, qTimer = 0, qFocus = false;
-    function quoteTo(i) {
+    var qAt = 0, qTimer = 0, qFocus = false, qShow = 0;
+    // The quote on screen fades out (0.6 s), the box stays blank for half a second (Gianni), then the next fades in;
+    // under reduced motion it just goes, the same half second blank, and the next appears. A tap meanwhile moves on from there.
+    var Q_GAP = reduce ? 500 : 1100;
+    function quoteTo(i, now) {
       qAt = (i + qs.length) % qs.length;
-      qs.forEach(function (el, k) {
-        var on = k === qAt;
-        el.classList.toggle('on', on);
-        if (on) el.removeAttribute('aria-hidden'); else el.setAttribute('aria-hidden', 'true');
-      });
+      clearTimeout(qShow); qShow = 0;
+      qs.forEach(function (el) { el.classList.remove('on'); el.setAttribute('aria-hidden', 'true'); });
       qDots.forEach(function (d, k) { d.classList.toggle('on', k === qAt); });
+      function appear() { qShow = 0; qs[qAt].classList.add('on'); qs[qAt].removeAttribute('aria-hidden'); }
+      if (now) appear(); else qShow = setTimeout(appear, Q_GAP);
     }
     function quoteTick() {
       clearTimeout(qTimer); qTimer = 0;
@@ -1328,7 +1331,7 @@
     });
     qBox.addEventListener('focusout', function (e) { if (!qBox.contains(e.relatedTarget)) { qFocus = false; quoteTick(); } });
     document.addEventListener('visibilitychange', quoteTick);
-    quoteTo(0);
+    quoteTo(0, true);
 
     // Both arrows go round: the last slide starts over, and Back on the first goes to the last
     function forward() { show(cur === N - 1 ? 0 : cur + 1); }
