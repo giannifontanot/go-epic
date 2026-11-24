@@ -916,10 +916,14 @@ app-pick-menu { display: block; min-width: 0; }
 .pick-btn strong { display: block; font-family: Georgia, 'Noto Serif', serif; font-weight: 700; line-height: 1.15; overflow-wrap: anywhere;
   font-size: calc(var(--act-fs) * 1.5); letter-spacing: var(--act-ls); }
 .pick-btn.off { opacity: .6; }
-/* An area's description (Gianni: «Familia» beside «El Castillo»): one shade softer than its name, wherever it appears.
-   A panel weighed one shade against two: two drop Office's ink on its plum to 3.1:1, one keeps every theme at 4:1 or more.
+/* An area's description (Gianni: «Familia» beside «El Castillo»): softer than its name by --tones-down, wherever it appears.
    It follows the name on the same line when it fits, else it wraps as a whole close under it. */
-.area-desc { display: inline-block; margin-left: .3em; color: color-mix(in srgb, currentColor 78%, transparent); }
+/* Tones down (Gianni, v83): ONE number for how much softer every second text is than the name it follows, the area's
+   description and the season's year («Invierno, 2026») alike, in every theme. Change --tones-down and all of them change.
+   A tone is 11% of the name's own ink (the old area description, 78%, was two); 3 tones = 67%. */
+:root { --tones-down: 3; --tone-step: 11%; }
+.tone-down { color: color-mix(in srgb, currentColor calc(100% - var(--tones-down) * var(--tone-step)), transparent); }
+.area-desc { display: inline-block; margin-left: .3em; color: color-mix(in srgb, currentColor calc(100% - var(--tones-down) * var(--tone-step)), transparent); }
 /* What opens a floating menu: at the far right, centred on its button, everywhere (Gianni), in the very tone of the name
    it opens; its shape is the app's one filled triangle (below) */
 .menu-chev { position: absolute; right: 10px; top: 50%; translate: 0 -50%; color: inherit; opacity: 1; pointer-events: none; transition: rotate .3s ease; }
