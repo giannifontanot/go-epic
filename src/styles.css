@@ -704,6 +704,9 @@ html.tilt .capture-tabs button.on { translate: 0 0; }   /* the tabs belong to th
 .ga-cap.story { fill: #3b3150; }
 .ga-cap.card { font-size: 7.5px; fill: var(--act-ink, var(--card-ink)); }
 .ga-name { font: 700 13px Georgia, 'Times New Roman', serif; fill: var(--ink); }
+.ga-name.small { font-size: 12px; }
+/* «From your Canvas to your day»: each Epic its own row on the Epic's panel, one Activity in it. */
+.ga-epic-row { fill: color-mix(in srgb, var(--ink) 8%, transparent); stroke: color-mix(in srgb, var(--ink) 18%, transparent); stroke-width: 1; }
 .ga-title, .ga-dayname { font: 700 19px Georgia, 'Times New Roman', serif; fill: var(--ink); }
 .ga-dayname { font-size: 15px; }
 .ga-tri { fill: var(--ink); }
@@ -723,10 +726,10 @@ html[data-edge] .ga-card .edge { display: inline; }
 .ga-slot { fill: none; stroke: var(--jelly-ink); stroke-width: 1.2; stroke-dasharray: 4 3; opacity: .45; }
 .ga-fly { opacity: 0; transform-box: fill-box; transform-origin: center; animation: 8s cubic-bezier(.45, 0, .25, 1) infinite both; }
 .ga-fly .body { filter: drop-shadow(0 3px 3px rgb(0 0 0 / .25)); }
-.ga-fly.f1 { --dy: -18px; --up: -50px; animation-name: ga-fly1; }
-.ga-fly.f2 { --dy: -12px; --up: -44px; animation-name: ga-fly2; }
-.ga-fly.f3 { --dy: -6px; --up: -38px; animation-name: ga-fly3; }
-.ga-fly.f4 { --dy: -22px; --up: -54px; animation-name: ga-fly4; }
+.ga-fly.f1 { --dy: 9px; --up: -23px; animation-name: ga-fly1; }
+.ga-fly.f2 { --dy: -5px; --up: -37px; animation-name: ga-fly2; }
+.ga-fly.f3 { --dy: -19px; --up: -51px; animation-name: ga-fly3; }
+.ga-fly.f4 { --dy: -26px; --up: -58px; animation-name: ga-fly4; }
 @keyframes ga-fly1 { 0%, 6% { opacity: 0; transform: none; } 9% { opacity: 1; transform: none; } 15% { transform: translate(74px, var(--up)) scale(1.08); }
   24%, 88% { opacity: 1; transform: translate(148px, var(--dy)); } 96%, 100% { opacity: 0; transform: translate(148px, var(--dy)); } }
 @keyframes ga-fly2 { 0%, 24% { opacity: 0; transform: none; } 27% { opacity: 1; transform: none; } 33% { transform: translate(74px, var(--up)) scale(1.08); }
