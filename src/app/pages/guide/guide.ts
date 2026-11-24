@@ -1,13 +1,19 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { readGuideCard, writeGuideCard } from '../../core/guide-card';
-import { I18n } from '../../core/i18n';
+import { I18n, inLang } from '../../core/i18n';
+import { LEVEL_SETS } from '../../core/levels.model';
 import { SwipeTracker, stepDay } from '../../core/swipe';
 import { DARK_THEMES, LIGHT_THEMES, THEME_BAR, Theme, ThemeService } from '../../core/theme';
 import { PageMenu } from '../../shared/title-fan';
 
-/** The cards, in the order a new user sets Go Epic up (Gianni: what comes first, what to make sure of, what to watch). */
-export const GUIDE_SLIDES = ['welcome', 'areas', 'epics', 'levels', 'undefined', 'plan', 'week', 'today', 'capture', 'progress', 'year', 'delete', 'themes'] as const;
+/**
+ * The cards, in the order a new user sets Go Epic up (Gianni: what comes first, what to make sure of, what to watch),
+ * rewritten in v77 to match the app as it is: the round menu, the minutes a card shows, the focus on what runs now and
+ * Letreros. Every level name on them is a Letreros token, so the cards follow the set the user chose.
+ */
+export const GUIDE_SLIDES = ['welcome', 'menu', 'areas', 'epics', 'levels', 'undefined', 'plan', 'week', 'size', 'today', 'focus',
+  'capture', 'progress', 'year', 'delete', 'themes', 'labels'] as const;
 export type GuideSlide = (typeof GUIDE_SLIDES)[number];
 
 /** Each theme's accent, for the little theme tiles drawn on the last card (its `--pink` in styles.css). */
@@ -45,6 +51,13 @@ export class Guide {
   /** The themes' tiles on the last card: dark ones on the left, light ones on the right, as in the themes menu. */
   protected readonly themeTiles = [DARK_THEMES, LIGHT_THEMES].flatMap((column, c) =>
     column.map((id, r) => ({ id, x: 150 + c * 54, y: 26 + r * 32, bar: THEME_BAR[id], accent: THEME_ACCENT[id] })));
+  /** The round menu's actions on the menu card, from the top down, each beside its button. */
+  protected readonly menuActions = ['settings.title', 'nav.edit', 'settings.theme', 'nav.pages', 'week.overview']
+    .map((key, i) => ({ key, y: 22 + i * 30 }));
+  /** The Letreros sets on the last card, in the language in use, the chosen one ringed (it follows a new choice). */
+  protected readonly levelSets = computed(() => LEVEL_SETS.map((set, i) => ({
+    id: set.id, name: inLang(set.name, this.i18n.lang()) ?? set.id, y: 44 + i * 22, on: set.id === this.i18n.levels(),
+  })));
 
   protected go(to: number): void {
     const from = this.index();
