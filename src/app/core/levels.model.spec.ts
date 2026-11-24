@@ -18,9 +18,9 @@ describe('Letreros (level names)', () => {
     expect(parseLevelSet(null)).toBe('current');
     expect(parseLevelSet('nope')).toBe('current');
     expect(parseLevelSet('epic')).toBe('epic');
-    expect(levelText('[task:Nuevo|Nueva] [task]', 'current', 'es')).toBe('Nueva Actividad');
+    expect(levelText('[task:Nuevo|Nueva] [task]', 'current', 'es')).toBe('Nueva Activity');
     expect(levelText('[epic:Este|Esta] [epic] está [epic:vacío|vacía]', 'current', 'es')).toBe('Este Epic está vacío');
-    expect(levelText('Primero elige [area.el] [area] de arriba.', 'current', 'es')).toBe('Primero elige el Área de arriba.');
+    expect(levelText('Primero elige [area.el] [area] de arriba.', 'current', 'es')).toBe('Primero elige el Area de arriba.');
     expect(levelText('Add [task.a] [task] to this block', 'current', 'en')).toBe('Add an Activity to this block');
   });
 

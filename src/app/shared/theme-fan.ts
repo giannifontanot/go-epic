@@ -171,7 +171,7 @@ export class ThemeFan {
   protected setName(set: LevelSet): string {
     return inLang(set.name, this.i18n.lang())!;
   }
-  /** A set's five names in the language in use: Área · Epic · Feature · Story · Actividad. */
+  /** A set's five names in the language in use: Area · Epic · Feature · Story · Activity (the current set). */
   protected wordsOf(id: LevelSetId): string {
     const words = inLang(LEVEL_SETS.find((s) => s.id === id)!.words, this.i18n.lang())!;
     return LEVELS.map((level) => words[level].one).join(' · ');

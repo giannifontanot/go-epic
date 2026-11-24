@@ -560,8 +560,10 @@ html.tilt .title-btn { translate: none; }   /* it leans with its title, never sl
    never lean with the phone, so they stay square and never overlap. Each wears its own theme's page colour and ink. */
 /* Letreros (Gianni): a long button at the foot of the tiles, under the last row, across both columns, in the theme that is on */
 .theme-tiles { display: contents; }
-.levels-btn { grid-column: 1 / -1; min-height: 48px; padding: 0 16px; border: 1px solid var(--win-edge, transparent); border-radius: 16px;
-  background: var(--navy-card); color: var(--ink); font: inherit; font-weight: 700; cursor: pointer; box-shadow: 0 6px 18px rgba(1, 6, 29, .35); }
+/* it wears each theme's accent, like the primary buttons (Gianni, v79: on the navy card it was not seen) */
+.levels-btn { grid-column: 1 / -1; min-height: 48px; padding: 0 16px; border: 0; border-radius: 16px;
+  background: var(--pink); color: var(--g-on-ink, var(--card-ink)); font: inherit; font-weight: 700; cursor: pointer; box-shadow: 0 6px 18px rgba(1, 6, 29, .35); }
+@media (hover: hover) { .levels-btn:hover { background: color-mix(in srgb, var(--pink) 88%, #000); } }
 .levels-btn:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
 .theme-tile { position: relative; display: grid; align-content: center; justify-items: center; gap: 5px;
   aspect-ratio: 1; min-width: 0; padding: 8px 6px 7px; border: 0; border-radius: 16px;
