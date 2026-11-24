@@ -34,7 +34,7 @@ export class ThemePicker {
  * the themes back into it. Under reduced motion they simply appear
  * and go. Drawn by the App, outside the page (a grey theme's filter on the page would move and grey the tiles), under
  * the button as far as the screen allows. Ajustes holds the language and the weighted buttons.
- * On top of the tiles, a long Letreros button (Gianni) opens the window where one of six sets of level names is chosen
+ * At the foot of the tiles, under the last row, a long Letreros button (Gianni) opens the window where one of six sets of level names is chosen
  * (levels.model): a tap on a set shows it at once, Aplicar keeps it on this device and closes everything, Cancelar,
  * ×, Esc or the backdrop put back the one kept and leave the themes open.
  */
@@ -45,8 +45,6 @@ export class ThemePicker {
       <!-- a div, not a button: buttons lean with the phone, and a leaning veil would leave the board tappable at its edges -->
       <div class="theme-fan-veil" aria-hidden="true" (click)="close()"></div>
       <div #fanBox id="theme-fan" class="theme-fan">
-        <!-- Letreros (Gianni): a long button on top of the themes, opening the window of the level names -->
-        <button #tile type="button" class="levels-btn" aria-haspopup="dialog" (click)="openLevels()">{{ i18n.t('levels.button') }}</button>
         <div class="theme-tiles" role="radiogroup" [attr.aria-label]="i18n.t('settings.theme')">
         @for (theme of themes; track theme) {
           <button #tile type="button" class="theme-tile" role="radio" [attr.data-preview]="theme" [class.dark]="dark.has(theme)"
@@ -60,6 +58,8 @@ export class ThemePicker {
           </button>
         }
         </div>
+        <!-- Letreros (Gianni): a long button at the foot of the themes, under the last row, opening the window of the level names -->
+        <button #tile type="button" class="levels-btn" aria-haspopup="dialog" (click)="openLevels()">{{ i18n.t('levels.button') }}</button>
       </div>
     }
     <!-- Letreros (Gianni): one of six sets of names for the five levels, only to choose; a tap shows it at once behind,
