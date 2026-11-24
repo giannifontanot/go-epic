@@ -920,10 +920,11 @@ app-pick-menu { display: block; min-width: 0; }
    It follows the name on the same line when it fits, else it wraps as a whole close under it. */
 /* Tones down (Gianni, v83): ONE number for how much softer every second text is than the name it follows, the area's
    description and the season's year («Invierno, 2026») alike, in every theme. Change --tones-down and all of them change.
-   A tone is 11% of the name's own ink (the old area description, 78%, was two); 3 tones = 67%. */
-:root { --tones-down: 3; --tone-step: 11%; }
-.tone-down { color: color-mix(in srgb, currentColor calc(100% - var(--tones-down) * var(--tone-step)), transparent); }
-.area-desc { display: inline-block; margin-left: .3em; color: color-mix(in srgb, currentColor calc(100% - var(--tones-down) * var(--tone-step)), transparent); }
+   A tone is 11% of the name's own ink (the old area description, 78%, was two); 3 tones = 67%. --tone-mix is the
+   result; every such pair reads it: .tone-down, .area-desc, a season's range, a sprint's range (v85). */
+:root { --tones-down: 3; --tone-step: 11%; --tone-mix: calc(100% - var(--tones-down) * var(--tone-step)); }
+.tone-down { color: color-mix(in srgb, currentColor var(--tone-mix), transparent); }
+.area-desc { display: inline-block; margin-left: .3em; color: color-mix(in srgb, currentColor var(--tone-mix), transparent); }
 /* What opens a floating menu: at the far right, centred on its button, everywhere (Gianni), in the very tone of the name
    it opens; its shape is the app's one filled triangle (below) */
 .menu-chev { position: absolute; right: 10px; top: 50%; translate: 0 -50%; color: inherit; opacity: 1; pointer-events: none; transition: rotate .3s ease; }
@@ -2240,17 +2241,17 @@ html:is([data-theme='petalpunk'], [data-theme='smokedcitrus'], [data-theme='goep
 .season-ico { display: inline-grid; place-items: center; width: 34px; height: 34px; flex: none; border-radius: 50%;
   background: color-mix(in srgb, var(--season) 26%, transparent); color: color-mix(in srgb, var(--season) 62%, var(--ink)); }
 .season-head h2 { margin: 0; font-size: calc(20px * var(--esc, 1)); }
-.season-range { margin-left: auto; color: var(--ink-soft); font-size: calc(13px * var(--esc, 1)); font-weight: 700; white-space: nowrap; }
+.season-range { margin-left: auto; color: color-mix(in srgb, var(--ink) var(--tone-mix), transparent); font-size: calc(13px * var(--esc, 1)); font-weight: 700; white-space: nowrap; }
 /* a sprint's label sits right on its line (Gianni: so it reads as the line's own), legible: its name in a deep tone of
-   the season's ink, its range ("05 Oct - 18 Oct") a lighter tone of the same, both in straight columns down the
+   the season's ink, its range ("05 Oct - 18 Oct") --tones-down lighter than the name (v85), both in straight columns down the
    season; a quarter already past greys its title and its labels (two greys), as its past days */
 .yr-label { display: grid; grid-template-columns: 5.4em auto; column-gap: .5em; align-items: baseline; margin: 0;
   font: 800 calc(15px * var(--esc, 1))/1.2 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; letter-spacing: .01em;
   color: color-mix(in srgb, var(--season) 22%, var(--ink)); }
-.yr-range { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; color: color-mix(in srgb, var(--season) 25%, #4a4e57); }
+.yr-range { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; color: color-mix(in srgb, currentColor var(--tone-mix), transparent); }
 .yr-row.rest .yr-name { grid-column: 1 / -1; }
 .season.past h2, .season.past .yr-label { color: var(--yr-edge); }
-.season.past .yr-range { color: #a9adb4; }
+.season.past .season-range { color: color-mix(in srgb, var(--yr-edge) var(--tone-mix), transparent); }
 /* a sprint is one line of 21 days (Gianni), its weeks a little apart; the rest week's line its 7 days and a striped band.
    The line itself is the touch target: a finger held on it (or sliding along it) opens the day's window and moves it
    day by day, stopping at the sprint's ends; scrolling up and down still works (pan-y). */
