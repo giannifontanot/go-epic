@@ -14,9 +14,10 @@ describe('Letreros (level names)', () => {
     }
   });
 
-  it('keeps the current names by default', () => {
-    expect(parseLevelSet(null)).toBe('current');
-    expect(parseLevelSet('nope')).toBe('current');
+  it('starts on Sencillo and keeps a stored choice', () => {
+    expect(parseLevelSet(null)).toBe('simple');
+    expect(parseLevelSet('nope')).toBe('simple');
+    expect(parseLevelSet('current')).toBe('current');
     expect(parseLevelSet('epic')).toBe('epic');
     expect(levelText('[task:Nuevo|Nueva] [task]', 'current', 'es')).toBe('Nueva Activity');
     expect(levelText('[epic:Este|Esta] [epic] está [epic:vacío|vacía]', 'current', 'es')).toBe('Este Epic está vacío');
