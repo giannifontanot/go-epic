@@ -4,7 +4,7 @@ import { splitTail } from '../../core/text-tail';
 import { visibleArea } from '../../core/viewport';
 
 /** A choice; `desc` is an area's description («Familia» under «El Castillo»), drawn a shade softer on its own line. */
-export interface PickItem { id: string; label: string; desc?: string }
+export interface PickItem { id: string; label: string; desc?: string; tag?: string }
 
 /** The floating menu under its button, from its left edge, kept 12px inside the visible screen (keyboard included);
  *  above it when there is more room there. Shared by the Canvas's Área and Epic and the place card's levels. */
@@ -36,8 +36,8 @@ export function placeFan(button: HTMLElement, fan: HTMLElement | undefined): voi
          button of its own on top (Gianni: so renaming is obvious) -->
     <div class="pick-btn" [class.open]="open()" [class.off]="disabled()">
       <button #btn type="button" class="pick-hit" aria-haspopup="true" [attr.aria-expanded]="open()" [disabled]="disabled()"
-        [attr.aria-label]="label() + ': ' + value() + (valueDesc() ? ' ' + valueDesc() : '')" (click)="toggle()"></button>
-      <small aria-hidden="true">{{ label() }}</small>
+        [attr.aria-label]="label() + ': ' + value() + (valueDesc() ? ' ' + valueDesc() : '') + (badge() ? ' · ' + badge() : '')" (click)="toggle()"></button>
+      <small aria-hidden="true">{{ label() }}@if (badge()) { <span class="sprint-tag">{{ badge() }}</span> }</small>
       <!-- an Epic's ✎ never stands alone on a line: the last word of the name (or the description) goes with it (Gianni) -->
       @let t = editLabel() && !valueDesc() ? tail(value()) : { head: value(), tail: '' };
       <strong><span class="pick-value" aria-hidden="true">{{ t.head }}</span>@if (valueDesc() && !editLabel()) { <span class="area-desc" aria-hidden="true">{{ valueDesc() }}</span> }@if (editLabel()) {<span class="pen-tail">@if (valueDesc()) { <span class="area-desc" aria-hidden="true">{{ valueDesc() }}</span> }<span class="pick-value" aria-hidden="true">{{ t.tail }}</span><button type="button" class="edit-pen"
@@ -50,7 +50,7 @@ export function placeFan(button: HTMLElement, fan: HTMLElement | undefined): voi
           @for (item of items(); track item.id) {
             <button #tile type="button" class="page-tile pick-tile" [class.on]="item.id === chosen()"
               [attr.aria-current]="item.id === chosen() ? 'true' : null" (click)="pick(item.id)">
-              <span class="pick-label">{{ item.label }}@if (item.desc) { <span class="area-desc">{{ item.desc }}</span> }</span>@if (item.id === chosen()) { <span class="theme-tile-check" aria-hidden="true">✓</span> }
+              <span class="pick-label">{{ item.label }}@if (item.desc) { <span class="area-desc">{{ item.desc }}</span> }@if (item.tag) { <span class="sprint-tag">{{ item.tag }}</span> }</span>@if (item.id === chosen()) { <span class="theme-tile-check" aria-hidden="true">✓</span> }
             </button>
           }
           @if (addLabel()) {
@@ -67,6 +67,8 @@ export class PickMenu {
   readonly value = input.required<string>();
   /** The current choice's area description, a shade softer under it ('' = none). */
   readonly valueDesc = input('');
+  /** A small tag beside the label ('' = none): the Epic the sprint in focus pushes («In this sprint»). */
+  readonly badge = input('');
   readonly items = input<PickItem[]>([]);
   readonly chosen = input('');
   readonly addLabel = input('');

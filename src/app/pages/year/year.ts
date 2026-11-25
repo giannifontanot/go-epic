@@ -12,6 +12,7 @@ import { daysBetween } from '../../core/period.model';
 import { dateKey } from '../../core/week.model';
 import { WeekStore } from '../../core/week.store';
 import { GoEpicYear, Season, YEARS, cleanDateName, currentFirst, placeOf, sprintRangeLabel, yearFor, yearPlan } from '../../core/year.model';
+import { allSprints, sprintDays } from '../../core/sprint.model';
 import { Ask } from '../../shared/ask';
 import { PageMenu } from '../../shared/title-fan';
 import { Undo } from '../../shared/undo';
@@ -107,7 +108,7 @@ function readLastCalendar(): string | null {
       </div>
       <ng-template #cell let-date>
         @let name = notesLabel(dates.notes().get(date));
-        <button type="button" class="yr-cell" [class.past]="date < today()" [class.today]="date === today()" [class.astro]="astroDays().has(date)"
+        <button type="button" class="yr-cell" [class.past]="date < today()" [class.today]="date === today()" [class.astro]="astroDays().has(date)" [class.sprint-day]="sprintMarks.has(date)"
                 [class.named]="!!name" [class.picked]="date === editing()" [class.deleting]="undo.isPending('date:' + date)"
                 [attr.aria-label]="cellLabel(date, name)" [title]="cellLabel(date, name)" [attr.data-date]="date"
                 (click)="cellClick($event, date)" (keydown)="cellKey($event)"><span class="yr-num" aria-hidden="true">{{ +date.slice(8) }}</span></button>
@@ -155,11 +156,14 @@ function readLastCalendar(): string | null {
             <!-- the day's notes (Gianni: as many as it needs): a tap on one renames it in place, its ✕ removes it after the countdown -->
             @let list = dates.notes().get(key) ?? [];
             @let begins = astroDays().get(key);
-            @if (list.length || begins) {
+            @if (list.length || begins || sprintMarks.has(key)) {
               <ul class="yd-notes" [attr.aria-label]="i18n.t('year.notes')">
                 <!-- the day the season begins is a note of its own, drawn like the ones written (Gianni: the same weight), with no ✕ -->
                 @if (begins) {
                   <li class="yd-auto"><div class="yd-note"><span class="yd-star" aria-hidden="true">★</span><span class="yd-note-name">{{ i18n.t('year.begins.' + begins) }}</span></div></li>
+                }
+                @if (sprintMarks.get(key); as mark) {
+                  <li class="yd-auto yd-sprint"><div class="yd-note"><span class="yd-star" aria-hidden="true">★</span><span class="yd-note-name">{{ i18n.t(mark === 'plan' ? 'sprint.cardPlan' : 'sprint.cardReview') }}</span></div></li>
                 }
                 @for (n of list; track n.id) {
                   <li [class.deleting]="undo.isPending('note:' + key + ':' + n.id)">
@@ -239,6 +243,8 @@ export class Year {
   protected readonly order = computed(() => currentFirst(this.plan(), this.today()));
   /** the days the seasons really begin, wherever their quarter's Monday falls (Mar 20 2027 lies in winter's rest week) */
   protected readonly astroDays = computed(() => new Map(this.plan().map((q) => [q.astro, q.season])));
+  /** the sprints' first and last days (Gianni): the day to plan it and the day to review it, with a blue edge */
+  protected readonly sprintMarks = sprintDays(allSprints());
   private get first(): string { return this.plan()[0].start; }
   private get last(): string { const plan = this.plan(); return plan[plan.length - 1].end; }
   private get total(): number { return daysBetween(this.first, this.last) + 1; }
@@ -649,7 +655,9 @@ export class Year {
   }
   protected cellLabel(date: string, name: string | undefined): string {
     const label = this.i18n.t('year.dayLabel', { date: this.longDate(date), place: this.placeLabel(date) });
-    return name ? `${label} · ★ ${name}` : label;
+    const mark = this.sprintMarks.get(date);
+    const sprint = mark ? ` · ${this.i18n.t(mark === 'plan' ? 'sprint.cardPlan' : 'sprint.cardReview')}` : '';
+    return (name ? `${label} · ★ ${name}` : label) + sprint;
   }
   private dateOf(key: string): Date {
     const [y, m, d] = key.split('-').map(Number);
