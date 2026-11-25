@@ -4,7 +4,7 @@ import { AI_ASKS, AiAsk, AiPlan, AiTurn, aiContext, aiCreateSystem, aiQuestion, 
 import { closeDialog, isBackdropClick, openDialog } from '../core/dialog';
 import { I18n } from '../core/i18n';
 import { LibraryStore } from '../core/library.store';
-import { DayMarks, habits } from '../core/status.model';
+import { DayMarks, habits, taskHabits } from '../core/status.model';
 import { SprintStore } from '../core/sprint.store';
 import { TodoStore } from '../core/todo.store';
 import { dateKey } from '../core/week.model';
@@ -244,6 +244,7 @@ export class AiMenu {
       now, todayKey, today: this.week.today(), lang: this.i18n.lang(),
       library: this.library.library(), week: this.week.week(), status: (id) => this.week.status(id),
       habits: habits(this.week.week(), this.history, now, 14, HISTORY_DAYS),
+      taskHabits: taskHabits(this.todos.todos(), now, 14, HISTORY_DAYS),
       todos: this.todos.todos(),
       place: placeOf(yearPlan(year.seasons, year.next), todayKey),
       sprintEpics: [...this.sprint.currentEpics()].flatMap((id) => this.library.library().nodes.find((n) => n.id === id)?.title ?? []),

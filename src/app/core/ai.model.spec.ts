@@ -20,7 +20,11 @@ describe('ai model', () => {
       now: new Date(2026, 10, 23, 9, 5), todayKey: '2026-11-23', today: 'MONDAY', lang: 'es', library: lib(), week,
       status: () => 'done',
       habits: [{ key: 't', title: 'Correr 20 min', days: [{ date: '2026-11-23', result: 'done' }], streak: 3, streakCapped: false }],
-      todos: [{ id: 'x', title: 'Llamar a mamá', date: '2026-11-20', time: null, done: null, created: 0, repeat: [], doneOn: {} }],
+      taskHabits: [{ key: 'r', title: 'Orar', days: [{ date: '2026-11-23', result: 'done' }], streak: 5, streakCapped: false }],
+      todos: [
+        { id: 'x', title: 'Llamar a mamá', date: '2026-11-20', time: null, done: null, created: 0, repeat: [], doneOn: {} },
+        { id: 'r', title: 'Orar', date: null, time: '06:00', done: null, created: 0, repeat: ['MONDAY'], doneOn: { '2026-11-23': 1 } },
+      ],
       place: { quarter: 3, season: 'autumn', sprint: 3, week: 1 },
       levelNames: ['Área', 'Objetivo', 'Proyecto', 'Entrega', 'Acción'],
       sprintEpics: ['Soy atleta'],
@@ -35,6 +39,9 @@ describe('ai model', () => {
     expect(text).toContain('Correr 20 min: ✓ streak 3');
     expect(text).toContain('Llamar a mamá (2026-11-20 (overdue))');
     expect(text).toContain('area: El Castillo (empty)');
+    expect(text).toContain('REPEATING TASKS');
+    expect(text).toContain('Orar: ✓ streak 5');
+    expect(text).toContain('Orar (repeats MONDAY 06:00, done today)');
   });
 
   it('asks each preset question in the user\'s language', () => {

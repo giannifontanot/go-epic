@@ -31,6 +31,8 @@ export interface AiContextInput {
   status: (taskId: string) => string;
   /** The habits of Progress (last 14 days of each planned Activity). */
   habits: Habit[];
+  /** Capture's repeating tasks as habits (status.model `taskHabits`), the same 14 days. */
+  taskHabits?: Habit[];
   todos: Todo[];
   place: YearPlace | null;
   /** The names the user sees for the five levels (the Letreros set in use), Area first; Claude speaks with them. */
@@ -102,13 +104,22 @@ export function aiContext(input: AiContextInput): string {
     }
   }
 
-  // Capture's open tasks
+  // Capture's repeating tasks, the same days
+  if (input.taskHabits?.length) {
+    lines.push('', 'REPEATING TASKS (Capture), last 14 days oldest first, same marks:');
+    for (const h of input.taskHabits) {
+      lines.push(`- ${h.title}: ${h.days.map((d) => RESULT[d.result] ?? ' ').join('')} streak ${h.streak}${h.streakCapped ? '+' : ''}`);
+    }
+  }
+
+  // Capture's open tasks (a repeating one stays listed; it says whether today's turn is done)
   const open = openTodos(input.todos);
   if (open.length) {
     lines.push('', 'CAPTURE, open tasks:');
     for (const t of open.slice(0, 60)) {
       const when = t.repeat.length ? `repeats ${t.repeat.join(' ')}` : t.date ? `${t.date}${t.date < input.todayKey ? ' (overdue)' : ''}` : 'no day';
-      lines.push(`- ${t.title} (${when}${t.time ? ` ${t.time}` : ''})`);
+      const today = t.repeat.length && t.doneOn?.[input.todayKey] !== undefined ? ', done today' : '';
+      lines.push(`- ${t.title} (${when}${t.time ? ` ${t.time}` : ''}${today})`);
     }
   }
   const text = lines.join('\n');
