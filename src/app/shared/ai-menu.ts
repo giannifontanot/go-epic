@@ -251,7 +251,7 @@ export class AiMenu {
       levelNames: ['[area]', '[epic]', '[feature]', '[story]', '[task]'].map((t) => this.i18n.levelsIn(t)),
     });
   }
-  /** The last days' marks, read once (the habits' 14 days and their streaks); after 3 s Claude goes on without them. */
+  /** The last days' marks, read once from the server (the habits' days and streaks); after 3 s Claude goes on with what this device has. */
   private loadHistory(): Promise<void> {
     const now = this.week.now();
     const from = dateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - (HISTORY_DAYS - 1)));
@@ -260,7 +260,11 @@ export class AiMenu {
       let done = false;
       const finish = () => { if (done) return; done = true; stop?.(); resolve(); };
       setTimeout(finish, 3000);
-      stop = this.week.watchHistory(from, (byDate) => { this.history = byDate; finish(); });
+      // the first snapshot may be this device's cache only: wait for the server's, unless offline (the 3 s keep the cache)
+      stop = this.week.watchHistory(from, (byDate, fromCache) => {
+        this.history = byDate;
+        if (!fromCache || (typeof navigator !== 'undefined' && navigator.onLine === false)) finish();
+      }, true);
       if (done) stop();
     });
   }

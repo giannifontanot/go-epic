@@ -129,13 +129,14 @@ export class WeekStore {
   }
 
   /** Follows the day documents from `fromKey` (YYYY-MM-DD) on, for the Progress page; returns the stop function. */
-  watchHistory(fromKey: string, receive: (byDate: Record<string, DayMarks>) => void): Unsubscribe {
+  watchHistory(fromKey: string, receive: (byDate: Record<string, DayMarks>, fromCache: boolean) => void, untilServer = false): Unsubscribe {
     const fb = firebase();
     const uid = this.auth.user()?.uid;
-    if (!fb || !uid) { receive({}); return () => undefined; }
+    if (!fb || !uid) { receive({}, false); return () => undefined; }
     return onSnapshot(
       query(collection(fb.db, 'users', uid, 'days'), where(documentId(), '>=', fromKey)),
-      (snap) => receive(Object.fromEntries(snap.docs.map((d) => [d.id, d.data() as DayMarks]))),
+      { includeMetadataChanges: untilServer },   // untilServer: also told when the cache's snapshot is confirmed by the server
+      (snap) => receive(Object.fromEntries(snap.docs.map((d) => [d.id, d.data() as DayMarks])), snap.metadata.fromCache),
       (error) => this.fail(error),
     );
   }
