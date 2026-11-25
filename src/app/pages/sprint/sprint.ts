@@ -261,11 +261,16 @@ export class Sprint {
     clearTimeout(this.timers.get(key));
     this.timers.set(key, setTimeout(() => this.flush(key), SAVE_AFTER_MS));
   }
-  /** Saves what was typed in a sprint's answers (the drafts stay, so the box keeps exactly what is in it). */
+  /**
+   * Saves what was typed in a sprint's answers. The store shows the saved text at once, so the drafts go with the save:
+   * only answers still waiting to be saved are drafts, and a change made on another device shows here and is never
+   * written over by an old draft.
+   */
   protected flush(key: string): void {
     clearTimeout(this.timers.get(key));
     if (!this.timers.delete(key)) return;
     this.store.save(key, this.withDrafts(key));
+    this.drafts.delete(key);
   }
   private withDrafts(key: string) {
     return { ...this.store.get(key), ...this.drafts.get(key) };
