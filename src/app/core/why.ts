@@ -6,7 +6,7 @@ import type { Texts } from './i18n';
  * whoever wants to know more. Written with a panel of experts (life design, habit and behavioural psychology, time and
  * attention, pastoral care, UX writing), from what each screen really does. English and Spanish (a spec checks both).
  */
-export type WhyScreen = 'week' | 'canvas' | 'progress' | 'capture' | 'focus' | 'year';
+export type WhyScreen = 'week' | 'canvas' | 'progress' | 'capture' | 'focus' | 'year' | 'sprint';
 export interface WhySection { heading: string; body: string[] }
 export interface WhyText {
   /** The window's title: "Why the Week board?" */
@@ -18,7 +18,7 @@ export interface WhyText {
   sections: WhySection[];
 }
 
-export const WHY_SCREENS: WhyScreen[] = ['week', 'canvas', 'progress', 'capture', 'focus', 'year'];
+export const WHY_SCREENS: WhyScreen[] = ['week', 'canvas', 'progress', 'capture', 'focus', 'year', 'sprint'];
 
 /** English and Spanish always; another language may come later (it falls back to English until then, `inLang`). */
 export const WHY: Record<WhyScreen, Texts<WhyText>> = {
@@ -346,6 +346,52 @@ export const WHY: Record<WhyScreen, Texts<WhyText>> = {
         ] },
         { heading: 'Seeing the whole year', body: [
           'We tend to believe we will have time to spare, and then the year is gone. Seeing every day at once, those already lived and those still to come, is an honest way to number our days and live each season with intention.',
+        ] },
+      ],
+    },
+  },
+  sprint: {
+    es: {
+      title: '¿Por qué planear y reflexionar?',
+      orders: 'tu dirección',
+      lead: 'Planeación y reflexión ordena tu dirección. Al empezar cada sprint eliges a qué partes de tu historia les das tu fuerza estas tres semanas, y al terminarlo te detienes a mirar lo que pasó. Sin ese alto, los días se suman pero no te llevan a ningún lado; con él, cada sprint te enseña algo y el siguiente empieza mejor.',
+      sections: [
+        { heading: 'No se puede empujar todo a la vez', body: [
+          'Cuando todo es prioridad, nada lo es. Elegir pocos [epic.pl], uno o dos por [area.l], es aceptar que tres semanas tienen un límite y decidir de antemano dónde pondrás tu energía.',
+          'Lo que no eliges no desaparece: espera su turno. Elegir no es abandonar, es enfocar.',
+        ] },
+        { heading: 'Mirar atrás para aprender', body: [
+          'La experiencia por sí sola no enseña; enseña la experiencia que se piensa. Por eso cada sprint termina con cuatro preguntas sencillas: qué salió bien, qué no, qué quedó pendiente y qué cambias.',
+          'Escribir las respuestas te obliga a ser honesto contigo mismo y deja una huella que podrás releer sprint tras sprint.',
+        ] },
+        { heading: 'Un ritmo que se repite', body: [
+          'Planear, vivir y revisar, una y otra vez, es el corazón de cualquier mejora: pequeños ciclos en los que se ajusta el rumbo antes de perderse.',
+          'Por eso la Semana te recuerda sola el primer día del sprint y el último, y el Año los marca en azul.',
+        ] },
+        { heading: 'Examinar el camino', body: [
+          '«Examinemos nuestros caminos», dice Lamentaciones. Detenerse a revisar no es un juicio, es un acto de cuidado: reconocer lo bueno con gratitud, lo que falló sin culpa, y volver a empezar con más sabiduría.',
+        ] },
+      ],
+    },
+    en: {
+      title: 'Why plan and reflect?',
+      orders: 'your direction',
+      lead: 'Planning & Reflection orders your direction. When each sprint begins you choose which parts of your story get your strength for these three weeks, and when it ends you stop to look at what happened. Without that pause the days add up but take you nowhere; with it, every sprint teaches you something and the next one starts better.',
+      sections: [
+        { heading: 'You cannot push everything at once', body: [
+          'When everything is a priority, nothing is. Choosing a few [epic.pl], one or two per [area.l], is accepting that three weeks have a limit and deciding in advance where your energy goes.',
+          'What you do not choose does not disappear: it waits its turn. Choosing is not giving up, it is focusing.',
+        ] },
+        { heading: 'Looking back to learn', body: [
+          'Experience alone does not teach; reflected experience does. That is why every sprint ends with four simple questions: what went well, what did not, what was left pending and what you will change.',
+          'Writing the answers makes you honest with yourself and leaves a trail you can read again, sprint after sprint.',
+        ] },
+        { heading: 'A rhythm that repeats', body: [
+          'Plan, live and review, again and again, is the heart of any improvement: small loops where the course is corrected before you get lost.',
+          'That is why the Week board reminds you by itself on the sprint\'s first day and its last, and the Year marks them in blue.',
+        ] },
+        { heading: 'Examining the road', body: [
+          '“Let us examine our ways”, says Lamentations. Stopping to review is not a judgement, it is an act of care: seeing what was good with gratitude, what failed without guilt, and beginning again with more wisdom.',
         ] },
       ],
     },

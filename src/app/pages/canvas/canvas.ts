@@ -1,4 +1,5 @@
 import { Why } from '../../shared/why';
+import { SprintStore } from '../../core/sprint.store';
 import { ThemeService } from '../../core/theme';
 import { PageMenu } from '../../shared/title-fan';
 import { Ask } from '../../shared/ask';
@@ -54,6 +55,7 @@ const PANE_OPEN_MS = 320;
 })
 export class Canvas implements DoCheck {
   protected readonly i18n = inject(I18n);
+  private readonly sprint = inject(SprintStore);
   protected readonly pageMenu = inject(PageMenu);
   /** The app's own question windows (never the browser's confirm/alert). */
   private readonly asks = inject(Ask);
@@ -336,7 +338,12 @@ export class Canvas implements DoCheck {
   get areaTab(): AreaView { return this.pendingArea || this.areaFilter; }
   private areaSwap = 0;
   get areaItems(): PickItem[] { return this.areaViews.map((id) => ({ id, label: this.areaName(id), desc: this.areaDesc(id) })); }
-  get epicItems(): PickItem[] { return this.epics.map((e) => ({ id: e.id, label: e.title })); }
+  get epicItems(): PickItem[] {
+    const sprint = this.sprint.currentEpics();
+    return this.epics.map((e) => ({ id: e.id, label: e.title, tag: sprint.has(e.id) ? this.i18n.t('sprint.tag') : undefined }));
+  }
+  /** The open Epic is one the sprint in focus pushes (Planning & Reflection): marked beside its EPIC label. */
+  get sprintBadge(): string { return this.openEpic && this.sprint.currentEpics().has(this.openEpic.id) ? this.i18n.t('sprint.tag') : ''; }
   /** The Epic the Epic button shows: the one opening, else the open one. */
   get openEpic(): LibNode | undefined { return this.state.node(this.openTab); }
   /** Switching area: the open Epic's content closes softly, then the new area's first Epic opens softly; the last pick wins. */

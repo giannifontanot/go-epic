@@ -36,7 +36,7 @@
             <p class="area-hint">{{ i18n.t('area.' + areaTab + 'Hint') }}</p>
             <!-- the Epic's ✎ points left, right after its name (Gianni: so renaming is obvious) -->
             <app-pick-menu class="pick-epic" [label]="i18n.t('canvas.epic')" [value]="openEpic?.title || i18n.t('canvas.noEpicYet')"
-              [items]="epicItems" [chosen]="openTab" [addLabel]="i18n.t('canvas.epic')" [disabled]="saving"
+              [items]="epicItems" [chosen]="openTab" [addLabel]="i18n.t('canvas.epic')" [disabled]="saving" [badge]="sprintBadge"
               [editLabel]="openEpic ? i18n.t('canvas.editEpic') + ': ' + openEpic.title : ''"
               (picked)="selectEpic($event)" (add)="open('epic')" (edit)="openEpic && open('epic', openEpic.parentId, openEpic)" />
           </header>
