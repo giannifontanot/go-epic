@@ -93,7 +93,8 @@ export class ActionMenu {
   private readonly capture = inject(CaptureUi);
   /** The page's own action, at the bottom of the stack (the Week board's ✎ arrange; set by the page, CaptureUi.menuEdit). */
   protected readonly edit = this.capture.menuEdit;
-  protected readonly open = signal(false);
+  /** Shared, so the ✨ button steps aside while the actions are up. */
+  protected readonly open = this.capture.menuOpen;
   private readonly pagesFan = viewChild(PageFan);
   private readonly overviewWindow = viewChild.required(DayOverview);
   /** The overview needs today's plan and Capture's tasks. */
