@@ -5,6 +5,7 @@ import { closeDialog, isBackdropClick, openDialog } from '../core/dialog';
 import { I18n } from '../core/i18n';
 import { LibraryStore } from '../core/library.store';
 import { DayMarks, habits } from '../core/status.model';
+import { SprintStore } from '../core/sprint.store';
 import { TodoStore } from '../core/todo.store';
 import { dateKey } from '../core/week.model';
 import { WeekStore } from '../core/week.store';
@@ -108,6 +109,7 @@ export class AiMenu {
   protected readonly library = inject(LibraryStore);
   private readonly week = inject(WeekStore);
   private readonly todos = inject(TodoStore);
+  private readonly sprint = inject(SprintStore);
   private readonly injector = inject(Injector);
   protected readonly asks: Ask[] = [...AI_ASKS, 'free'];
   protected readonly fanOpen = signal(false);
@@ -244,6 +246,7 @@ export class AiMenu {
       habits: habits(this.week.week(), this.history, now, 14, HISTORY_DAYS),
       todos: this.todos.todos(),
       place: placeOf(yearPlan(year.seasons, year.next), todayKey),
+      sprintEpics: [...this.sprint.currentEpics()].flatMap((id) => this.library.library().nodes.find((n) => n.id === id)?.title ?? []),
       levelNames: ['[area]', '[epic]', '[feature]', '[story]', '[task]'].map((t) => this.i18n.levelsIn(t)),
     });
   }

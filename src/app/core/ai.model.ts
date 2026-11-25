@@ -35,6 +35,8 @@ export interface AiContextInput {
   place: YearPlace | null;
   /** The names the user sees for the five levels (the Letreros set in use), Area first; Claude speaks with them. */
   levelNames?: string[];
+  /** The Epics chosen to push in this sprint (Planning and reflection), by title. */
+  sprintEpics?: string[];
 }
 
 const RESULT: Record<string, string> = { done: '✓', late: 'L', skipped: '»', progress: '½', missed: '✗', pending: '·', none: ' ' };
@@ -55,6 +57,8 @@ export function aiContext(input: AiContextInput): string {
       ? `Go Epic year: ${p.season} quarter, rest and review week ${p.week}.`
       : `Go Epic year: ${p.season} quarter, sprint ${p.sprint} of 4, week ${p.week} of 3.`);
   }
+
+  if (input.sprintEpics?.length) lines.push(`Epics chosen to push in this sprint: ${input.sprintEpics.join('; ')}.`);
 
   // the Canvas: the four life areas › Epic › Feature › Story › Activity
   lines.push('', 'CANVAS (Area > Epic > Feature > Story > Activity):');

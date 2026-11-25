@@ -23,7 +23,9 @@ describe('ai model', () => {
       todos: [{ id: 'x', title: 'Llamar a mamá', date: '2026-11-20', time: null, done: null, created: 0, repeat: [], doneOn: {} }],
       place: { quarter: 3, season: 'autumn', sprint: 3, week: 1 },
       levelNames: ['Área', 'Objetivo', 'Proyecto', 'Entrega', 'Acción'],
+      sprintEpics: ['Soy atleta'],
     });
+    expect(text).toContain('Epics chosen to push in this sprint: Soy atleta.');
     expect(text).toContain('Área > Objetivo > Proyecto > Entrega > Acción');
     expect(text).toContain('09:05');
     expect(text).toContain('sprint 3 of 4');
