@@ -128,6 +128,8 @@ export class AiMenu {
   private turns: AiTurn[] = [];
   private mode: Ask = 'how';
   private history: Record<string, DayMarks> = {};
+  /** The day history read for this conversation: the first answer waits for it (`loadHistory`). */
+  private historyReady: Promise<void> = Promise.resolve();
   /** A newer question or a closed window makes an older answer stale. */
   private asked = 0;
   private closing = false;
@@ -171,13 +173,9 @@ export class AiMenu {
     openDialog(d);
     void this.closeFan();
     queueMicrotask(() => d.querySelector<HTMLElement>('#ai-title')?.focus({ preventScroll: true }));
-    if (!this.ai.hasKey() || ask === 'free') return;
-    const ticket = this.asked;
-    this.busy.set(true);
-    void this.loadHistory().then(() => {
-      if (ticket !== this.asked) return;                       // closed meanwhile
-      this.say(ask === 'create' ? this.label('create') : aiQuestion(ask, this.i18n.lang()));
-    });
+    if (!this.ai.hasKey()) return;
+    this.historyReady = this.loadHistory();                    // every answer waits for it, the free questions too
+    if (ask !== 'free') this.say(ask === 'create' ? this.label('create') : aiQuestion(ask, this.i18n.lang()));
   }
 
   /** The words typed in the window's box. */
@@ -206,6 +204,8 @@ export class AiMenu {
     this.busy.set(true);
     this.scrollDown();
     try {
+      await this.historyReady;
+      if (ticket !== this.asked) return;                       // closed or asked again meanwhile
       const context = this.context();
       const lang = this.i18n.lang();
       const system = this.mode === 'create' ? aiCreateSystem(lang, context) : aiSystem(lang, context);
@@ -285,6 +285,7 @@ export class AiMenu {
     this.asked++;
     this.turns = [];
     this.history = {};
+    this.historyReady = Promise.resolve();
     this.shown.set([]);
     this.busy.set(false);
     this.failure.set(null);
