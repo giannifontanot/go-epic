@@ -2806,6 +2806,8 @@ a.sprint-act.done { border-style: solid; }
 .yr-cell.sprint-day { border: 2.5px solid var(--yr-sprint); }
 .yr-cell.sprint-day:is(.named, .astro) { border-color: var(--yr-red); outline: 2.5px solid var(--yr-sprint); outline-offset: 1px; }
 .yr-cell.sprint-day.today { border-color: var(--yr-today); outline: 2.5px solid var(--yr-sprint); outline-offset: 1px; }
+/* today, a sprint's day and with notes: today's green inside the notes' red ring, as on any important today (red wins over blue) */
+.yr-cell.sprint-day:is(.named, .astro).today { border-color: var(--yr-today); outline-color: var(--yr-red); }
 
 /* The Canvas: the Epics the sprint in focus pushes carry a small tag, beside EPIC and in its menu */
 .pick-btn small .sprint-tag { margin-left: 6px; }
