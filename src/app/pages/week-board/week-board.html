@@ -45,6 +45,18 @@
           </span>
         </header>
 
+        <!-- The sprint's own activity (Gianni): «Plan the sprint» on its first day, «Review the sprint» on its last, at the
+             top of the day with no hour; a tap opens Planning & Reflection at that part -->
+        @if (sprintCards()[day]; as sc) {
+          <a class="sprint-act" [class.done]="sc.done" [attr.data-kind]="sc.kind" routerLink="/sprint" [queryParams]="{ sprint: sc.sprint.key, part: sc.kind }">
+            <span class="sprint-act-icon" aria-hidden="true">{{ sc.kind === 'plan' ? '◎' : '◐' }}</span>
+            <span class="sprint-act-text"><strong>{{ i18n.t(sc.kind === 'plan' ? 'sprint.cardPlan' : 'sprint.cardReview') }}</strong>
+              <small>{{ i18n.t('year.sprint', { n: sc.sprint.n }) }} · {{ i18n.t('year.' + sc.sprint.season) }}</small></span>
+            @if (sc.done) { <span class="sprint-act-done" [attr.aria-label]="i18n.t('sprint.cardDone')">✓</span> }
+            <span class="sprint-act-go" aria-hidden="true">›</span>
+          </a>
+        }
+
         @for (block of blocks(day); track block.id; let bi = $index, bfirst = $first, blast = $last) {
           @let tones = colors(block);
           <section class="block" [class.deleting]="undo.isPending(block.id)" [class.over]="isOver(block)" [attr.data-flip]="block.id" [attr.data-block]="block.id">

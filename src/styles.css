@@ -2634,7 +2634,7 @@ dialog.info-card.year-import { width: min(440px, calc(100vw - 32px)); border: 1p
 button:not(.round, .capture-fab, .grip, .t-grip, .t-state, .swatch, .theme-tile, .page-tile, .title, .title-btn, .why-btn,
   .now-badge, .edit-pen, .more, .fold, .c-icon, .todo-edit, .pc-act-x, .pick-close, .drawer-close, .close, .update-step,
   .update-button, .pc-head, .pick-hit, .palette-row, .yr-cell, .today-task, .yd-note, .loose-open, .b-row, .c-text,
-  .overdue-head, .pc-act-open, .year-dates li > button, .look-pill button, .stepper button, .linked-chip button, .error > button:not(.primary)) {
+  .overdue-head, .pc-act-open, .year-dates li > button, .look-pill button, .stepper button, .linked-chip button, .error > button:not(.primary), .sprint-fold) {
   font-size: 15px !important;
   letter-spacing: 1.5px !important;
 }
@@ -2739,3 +2739,73 @@ html[data-theme='goepiclight'] .palette-suggested { color: #1d1d1f; }
 html[data-theme='graphite'] .task:not(.done):not(.off) .t-tools .round:has(> .pen) { color: var(--act-ink) !important; }
 html[data-theme='graphite'] :is(.todo-note, .capture-list:not(.finished) li) :is(.todo-edit, .c-icon:has(> .pen)) { color: #1f2226 !important; }
 html[data-auto-ink] .task .t-tools .round:has(> .pen) { background-color: color-mix(in srgb, var(--act-ink) 12%, var(--tone, transparent)); }   /* its ink, like the title's, reads on the card's own colour */
+
+/* Planning & Reflection (Gianni): the sprint in focus on top, its planning and its reflection, the past sprints under it,
+   each opening softly; the user's own theme (only the Canvas wears Epic) */
+.sprint-page { max-width: 720px; margin: 0 auto; }
+.sprint-card { margin: 0 0 16px; padding: 16px; border-radius: 20px; background: var(--navy-card); color: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--ink-soft) 28%, transparent); }
+.sprint-card.now { border: 1.5px solid var(--teal); }
+.sprint-card .eyebrow { font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 11px; }
+.sprint-head h2 { margin: 0; font-size: calc(21px * var(--esc, 1)); }
+.sprint-range { margin: 2px 0 0; color: var(--ink-soft); font-size: calc(14px * var(--esc, 1)); }
+.sprint-part { margin-top: 18px; padding-top: 14px; border-top: 1px solid color-mix(in srgb, var(--ink-soft) 25%, transparent); scroll-margin-top: 16px; }
+.sprint-part h3 { margin: 0 0 6px; font-size: calc(18px * var(--esc, 1)); }
+.sprint-sub { margin: 4px 0 8px; font-size: calc(13px * var(--esc, 1)); font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-soft); }
+.sprint-hint { margin: 0 0 10px; font-size: calc(14px * var(--esc, 1)); }
+.sprint-area { margin: 0 0 12px; }
+.sprint-area-name { margin: 0 0 6px; font-weight: 700; }
+.sprint-area-name .area-desc { font-weight: 500; color: color-mix(in srgb, var(--ink) var(--tone-mix), transparent); }
+.sprint-epics { display: flex; flex-wrap: wrap; gap: 8px; }
+button.sprint-epic, .sprint-epic { display: inline-flex; align-items: center; gap: 6px; min-height: 42px; padding: 8px 16px; border-radius: 999px;
+  border: 1.5px solid color-mix(in srgb, var(--ink-soft) 60%, transparent); background: transparent; color: var(--ink); text-align: left;
+  transition: background .25s ease, border-color .25s ease, color .25s ease, scale .15s ease; }
+button.sprint-epic:active:not(:disabled) { scale: .96; }
+.sprint-epic.on { background: var(--teal); border-color: var(--teal); color: var(--g-on-ink, #101b42); }
+.sprint-epic.static { min-height: 34px; padding: 5px 12px; }
+.sprint-check { font-weight: 800; }
+.sprint-done .sprint-check { color: var(--teal); margin-right: 6px; }
+.sprint-full, .sprint-none { margin: 6px 0 0; font-size: calc(13px * var(--esc, 1)); }
+.sprint-done { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 10px; }
+.sprint-done ul { list-style: none; margin: 4px 0 0; padding: 0 0 0 4px; display: grid; gap: 3px; }
+.sprint-done-epic { margin: 0; font-weight: 700; }
+.sprint-tag { display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: var(--teal); color: var(--g-on-ink, #101b42);
+  font: 800 10.5px/1.6 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; letter-spacing: .04em; text-transform: none; vertical-align: middle; }
+.sprint-q { margin: 12px 0 0; font-size: calc(14px * var(--esc, 1)); }
+.sprint-q span { font-weight: 700; color: var(--ink); }
+.sprint-q textarea { width: 100%; min-height: 80px; padding: 10px 12px; border: 1px solid var(--teal); border-radius: 12px; background: var(--page);
+  color: var(--ink); font: 16px/1.45 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; resize: vertical; }
+.sprint-q textarea:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+.sprint-past-title { margin: 26px 0 10px; font-size: calc(19px * var(--esc, 1)); }
+.sprint-past { list-style: none; margin: 0; padding: 0; }
+.sprint-card.past { padding: 0; }
+button.sprint-fold { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; border: 0; background: transparent; color: inherit; text-align: left; border-radius: 20px; }
+.sprint-fold .sprint-head { flex: 1; min-width: 0; }
+.fold-chev { font-size: 22px; transition: rotate .35s ease; }
+.sprint-card.open .fold-chev { rotate: 180deg; }
+.sprint-fold-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.2, .8, .2, 1); }
+.sprint-card.open .sprint-fold-body { grid-template-rows: 1fr; }
+.sprint-fold-inner { overflow: hidden; min-height: 0; padding: 0 16px; }
+.sprint-card.open .sprint-fold-inner { padding-bottom: 16px; }
+@media (prefers-reduced-motion: reduce) { .sprint-fold-body, .fold-chev, .sprint-epic { transition: none; } }
+
+/* The sprint's own activity on the Week board (Gianni): at the top of its day, with no hour, opening Planning & Reflection */
+a.sprint-act { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; padding: 10px 12px; min-height: 52px; border-radius: 16px;
+  border: 1.5px dashed var(--teal); background: color-mix(in srgb, var(--teal) 14%, var(--navy-card)); color: var(--ink); text-decoration: none; }
+a.sprint-act:active { scale: .98; }
+.sprint-act-icon { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--teal); color: var(--g-on-ink, #101b42); font-size: 16px; }
+.sprint-act-text { flex: 1; min-width: 0; display: grid; }
+.sprint-act-text strong { font-size: calc(var(--act-fs, 15px)); letter-spacing: var(--act-ls, 0); }
+.sprint-act-text small { color: var(--ink-soft); font-size: calc(12px * var(--esc, 1)); }
+.sprint-act-done { flex: none; font-weight: 800; color: var(--teal); }
+.sprint-act-go { flex: none; font-size: 22px; color: var(--ink-soft); }
+a.sprint-act.done { border-style: solid; }
+
+/* The Year: the day to plan or review a sprint has a blue edge (red already means a day with notes) */
+.year-page { --yr-sprint: #1e6bff; }
+.yr-cell.sprint-day { border: 2.5px solid var(--yr-sprint); }
+.yr-cell.sprint-day:is(.named, .astro) { border-color: var(--yr-red); outline: 2.5px solid var(--yr-sprint); outline-offset: 1px; }
+.yr-cell.sprint-day.today { border-color: var(--yr-today); outline: 2.5px solid var(--yr-sprint); outline-offset: 1px; }
+
+/* The Canvas: the Epics the sprint in focus pushes carry a small tag, beside EPIC and in its menu */
+.pick-btn small .sprint-tag { margin-left: 6px; }

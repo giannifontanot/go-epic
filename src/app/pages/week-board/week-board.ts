@@ -4,6 +4,9 @@ import { Ask } from '../../shared/ask';
 import { AutoColors } from '../../core/auto-colors';
 import { Undo } from '../../shared/undo';
 import { NgTemplateOutlet } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { SprintStore } from '../../core/sprint.store';
+import { SprintCardKind, SprintRef, isPlanned, isReviewed, sprintCardOn } from '../../core/sprint.model';
 import { ApplicationRef, Component, DestroyRef, ElementRef, Injector, afterNextRender, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import { flip, flipNow } from '../../core/flip';
 import { TextSettings } from '../../core/text-settings';
@@ -56,7 +59,7 @@ function readFolded(): Set<string> {
 
 @Component({
   selector: 'app-week-board',
-  imports: [TaskDialog, TransferDialog, TodoDialog, NgTemplateOutlet, Why],
+  imports: [TaskDialog, TransferDialog, TodoDialog, NgTemplateOutlet, Why, RouterLink],
   templateUrl: './week-board.html',
 })
 export class WeekBoard {
@@ -380,6 +383,22 @@ export class WeekBoard {
   protected readonly dates = computed(() => {
     const now = this.store.now();
     return Object.fromEntries(DAYS.map((day) => [day, weekDate(now, day)])) as Record<Day, string>;
+  });
+  /**
+   * The sprint's own two activities (Gianni): on its first day «Plan the sprint», on its last «Review the sprint», at the
+   * top of the day with no hour; a tap opens Planning & Reflection at that part. Worked out from the Year's sprints, never
+   * stored, so they show only on those dates of this week. A ✓ once planned (an Epic chosen) or reviewed (an answer).
+   */
+  private readonly sprints = inject(SprintStore);
+  protected readonly sprintCards = computed(() => {
+    const docs = this.sprints.docs();
+    const out = {} as Record<Day, { kind: SprintCardKind; sprint: SprintRef; done: boolean } | null>;
+    for (const day of DAYS) {
+      const card = sprintCardOn(this.sprints.sprints, this.dates()[day]);
+      const doc = card ? docs.get(card.sprint.key) : undefined;
+      out[day] = card ? { ...card, done: card.kind === 'plan' ? isPlanned(doc) : isReviewed(doc) } : null;
+    }
+    return out;
   });
   protected readonly notice = signal('');
   protected readonly windowErrors = signal<Record<string, string>>({});
