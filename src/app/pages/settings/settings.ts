@@ -1,4 +1,6 @@
-import { AfterViewInit, Component, ElementRef, inject, output, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, output, signal, viewChild } from '@angular/core';
+import { AiService, cleanKey, looksLikeKey } from '../../core/ai.service';
+import { Ask } from '../../shared/ask';
 import { closeDialog, isBackdropClick, openDialog } from '../../core/dialog';
 import { AuthService } from '../../core/auth.service';
 import { I18n } from '../../core/i18n';
@@ -39,6 +41,25 @@ import { ThemeService } from '../../core/theme';
           <small>{{ i18n.t('nav.tiltHint') }}</small>
         </span>
       </label>
+      <!-- Claude: each person's own key, for the Week board's ✨ (Gianni: "Mi clave en Ajustes"); kept only in their account -->
+      <div class="setting-row ai-key-row">
+        <span class="setting-text">
+          <strong>✦ {{ i18n.t('settings.ai') }}</strong>
+          <small>{{ i18n.t('settings.aiHint') }}
+            <a href="https://platform.claude.com/settings/keys" target="_blank" rel="noopener noreferrer">{{ i18n.t('settings.aiGet') }}</a></small>
+          @if (ai.hasKey()) {
+            <span class="ai-key-saved">{{ i18n.t('settings.aiSaved', { end: ai.keyEnd() }) }}
+              <button type="button" class="btn-delete" (click)="removeKey()">{{ i18n.t('settings.aiRemove') }}</button></span>
+          } @else {
+            <form class="ai-key-form" (submit)="$event.preventDefault(); saveKey(keyBox.value)">
+              <input #keyBox class="ai-input" type="password" autocomplete="off" spellcheck="false" maxlength="300"
+                     [attr.aria-label]="i18n.t('settings.aiKey')" [placeholder]="i18n.t('settings.aiKey')" (input)="keyBad.set(false)" />
+              <button type="submit" class="primary btn-apply">{{ i18n.t('settings.aiSave') }}</button>
+            </form>
+            @if (keyBad()) { <small class="ai-error" role="alert">{{ i18n.t('settings.aiBad') }}</small> }
+          }
+        </span>
+      </div>
       <footer class="settings-foot">
         <button type="button" class="primary btn-apply" (click)="close()">{{ i18n.t('task.done') }}</button>
       </footer>
@@ -50,6 +71,9 @@ export class Settings implements AfterViewInit {
   protected readonly look = inject(ThemeService);
   protected readonly tilt = inject(Tilt);
   protected readonly auth = inject(AuthService);
+  protected readonly ai = inject(AiService);
+  private readonly asks = inject(Ask);
+  protected readonly keyBad = signal(false);
   /** Emitted once the window has shrunk away (the App then removes it). */
   readonly closed = output<void>();
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
@@ -58,6 +82,22 @@ export class Settings implements AfterViewInit {
     const d = this.dialog().nativeElement;
     openDialog(d);
     queueMicrotask(() => d.querySelector<HTMLElement>('#settings-title')?.focus({ preventScroll: true }));
+  }
+
+  /** The person's own Claude key, saved only in their account; a value that is plainly not a key is refused. */
+  protected saveKey(value: string): void {
+    const key = cleanKey(value);
+    if (!key) return;
+    if (!looksLikeKey(key)) { this.keyBad.set(true); return; }
+    void this.ai.saveKey(key);
+  }
+
+  /** Removing the key asks first and counts down like every delete (Gianni). */
+  protected removeKey(): void {
+    void this.asks.ask({
+      message: this.i18n.t('settings.aiRemoveAsk'), ok: this.i18n.t('settings.aiRemove'), danger: true,
+      countdown: { message: this.i18n.t('undo.deleting', { name: this.i18n.t('settings.aiKey') }), ids: [], commit: () => void this.ai.removeKey() },
+    });
   }
 
   protected close(): void {

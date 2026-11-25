@@ -6,6 +6,7 @@ import { AuthService } from './core/auth.service';
 import { CapturePanel } from './pages/capture/capture-panel';
 import { CaptureUi } from './pages/capture/capture-ui';
 import { ActionMenu } from './shared/action-menu';
+import { AiMenu } from './shared/ai-menu';
 import { ThemeFan } from './shared/theme-fan';
 import { LookStack } from './shared/look-stack';
 import { AskWindow } from './shared/ask';
@@ -25,13 +26,15 @@ import { startSoftKeyboard } from './core/soft-keyboard';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, CapturePanel, Settings, ActionMenu, ThemeFan, TitleFan, AskWindow, LookStack],
+  imports: [RouterOutlet, RouterLink, CapturePanel, Settings, ActionMenu, AiMenu, ThemeFan, TitleFan, AskWindow, LookStack],
   template: `
     @if (auth.user()) {
       <app-capture-panel />
       <!-- one round button at the bottom right of every page (Gianni): + new task, Capture, the day overview, Edit and the
            pages with Ajustes last (no ☰ menu any more); hidden while the Week board is arranged (its ✓ Finish takes the spot) -->
       @if (!ui.menuHidden()) { <app-action-menu /> }
+      <!-- ✨ Ask Claude, above the menu's button, on the Week board only (Gianni); hidden while the week is arranged -->
+      @if (ui.aiShown() && !ui.menuHidden()) { <app-ai-menu /> }
       <!-- edit mode (Gianni): Aa, AV, Themes and px stack at the bottom right above a round ✓ Finish -->
       <app-look-stack />
       <!-- a confirmed delete waits 5 s with a Cancel (Gianni) -->

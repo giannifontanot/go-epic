@@ -124,6 +124,7 @@ export class WeekBoard {
     effect(() => {
       this.capture.menuEdit.set(this.arrangeAction());
       this.capture.menuHidden.set(this.arranging());
+      this.capture.aiShown.set(true);   // the ✨ Ask Claude button lives on the Week board only (Gianni)
       this.capture.lookTools.set(this.arranging() ? { px: true, finish: () => this.toggleArrange() } : null);
     });
     // The countdown at the foot lifts the overdue folder and 💡 Capture and fades the menu's four squares (App): a class
@@ -137,7 +138,7 @@ export class WeekBoard {
     // the phone's top bar darkens with the spotlight's veil over the page and brightens back with it (Gianni, v67)
     effect(() => { this.themes.barVeil.set(this.spotlight() && !this.arranging()); });
     inject(DestroyRef).onDestroy(() => this.themes.barVeil.set(false));
-    inject(DestroyRef).onDestroy(() => { this.capture.menuEdit.set(null); this.capture.menuHidden.set(false); this.capture.lookTools.set(null); this.cancelDrag?.(); });
+    inject(DestroyRef).onDestroy(() => { this.capture.menuEdit.set(null); this.capture.menuHidden.set(false); this.capture.aiShown.set(false); this.capture.lookTools.set(null); this.cancelDrag?.(); });
     // On entering the Week board, the view centres on now (the red line in today's column), as in Epic Manager: once
     // the week, the library (card titles) and Capture's notes (the strip at the top) are there, so nothing shifts after.
     // It waits for the page to have faded in, and a second more (Gianni: it moved the moment it came in).

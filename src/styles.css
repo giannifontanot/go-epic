@@ -2740,6 +2740,59 @@ html[data-theme='graphite'] .task:not(.done):not(.off) .t-tools .round:has(> .pe
 html[data-theme='graphite'] :is(.todo-note, .capture-list:not(.finished) li) :is(.todo-edit, .c-icon:has(> .pen)) { color: #1f2226 !important; }
 html[data-auto-ink] .task .t-tools .round:has(> .pen) { background-color: color-mix(in srgb, var(--act-ink) 12%, var(--tone, transparent)); }   /* its ink, like the title's, reads on the card's own colour */
 
+/* ✨ Ask Claude (Gianni): a round button above the menu's, on the Week board only. Its choices fan out to the left exactly
+   like the pages menu, «¿Cómo voy?» first and highlighted; the answer opens in a window in the theme in use. */
+.capture-fab.ai-fab { display: grid; place-items: center; bottom: calc(max(18px, env(safe-area-inset-bottom)) + 144px);
+  transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .28s ease, visibility 0s; }
+.capture-fab.ai-fab.open { background: var(--teal); color: #0b2f2a; z-index: 22; }
+/* the round menu's actions rise where it stands: it steps aside, softly, and comes back as the menu closes */
+.capture-fab.ai-fab.away { opacity: 0; transform: scale(.6); visibility: hidden; pointer-events: none;
+  transition: transform .34s cubic-bezier(.4, 0, .2, 1), opacity .28s ease, visibility 0s .34s; }
+/* while the now-line centres itself and the countdown rises, it fades with the menu's button */
+html.countdown-up .capture-fab.ai-fab:not(.open) { opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity .9s ease, visibility 0s linear .9s; }
+html.now-centred .capture-fab.ai-fab:not(.away) { filter: brightness(.8) saturate(.75); }
+.ai-fan { z-index: 22; }
+.page-tile.ai-tile { width: 100%; font: inherit; font-size: calc(17px * var(--esc)); font-weight: 700; text-align: left; cursor: pointer; }
+.page-tile.ai-lead { background: var(--pink); color: var(--g-on-ink, var(--card-ink)); box-shadow: 0 0 0 3px var(--teal), 0 6px 18px rgba(1, 6, 29, .35); }
+.page-tile.ai-tile:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+html.tilt .ai-tile { rotate: none; translate: none; }
+dialog.info-card.ai-window { width: min(480px, calc(100vw - 24px)); border: 1px solid var(--win-edge, transparent); }
+dialog.info-card.ai-window[open] { display: flex; flex-direction: column; max-height: min(86dvh, 760px); overflow: hidden; }
+dialog.ai-window :is(.info-head, .ai-ask, .info-foot) { flex: none; }
+.ai-spark { color: var(--pink); }
+.ai-log { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: grid; align-content: start; gap: 12px;
+  margin-top: 12px; padding: 2px 2px 6px; }
+.ai-log > * { margin: 0; }
+.ai-you { justify-self: end; max-width: 85%; padding: 10px 14px; border-radius: 18px 18px 6px 18px;
+  background: color-mix(in srgb, var(--teal) 22%, transparent); color: var(--ink); font-size: calc(16px * var(--esc)); line-height: 1.4; overflow-wrap: anywhere; }
+.ai-reply, .ai-note { white-space: pre-wrap; font-size: calc(16px * var(--esc)); line-height: 1.55; overflow-wrap: anywhere; color: var(--ink); }
+.ai-note { color: var(--ink-soft); }
+.ai-settings, .ai-log > .btn-cancel { justify-self: start; }
+.ai-thinking { color: var(--ink-soft); font-style: italic; animation: ai-breathe 1.6s ease-in-out infinite; }
+@keyframes ai-breathe { 50% { opacity: .45; } }
+.ai-error { display: block; padding: 8px 12px; border-radius: 12px; background: #7a2440; color: #fff4e9; font-size: 15px; font-weight: 600; line-height: 1.4; }   /* the app's error line, its own light ink */
+.ai-done { color: var(--ink-soft); font-size: 15px; }
+.ai-plan { display: grid; gap: 10px; padding: 14px; border-radius: 16px; border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  background: color-mix(in srgb, var(--ink) 6%, transparent); }
+.ai-plan-title { font-size: 15px; }
+.ai-plan dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 0; font-size: 15px; line-height: 1.35; }
+.ai-plan dt { color: var(--ink-soft); font-size: 12px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding-top: 2px; }
+.ai-plan dd { margin: 0; font-weight: 700; overflow-wrap: anywhere; }
+.ai-plan .btn-apply { justify-self: end; }
+.ai-ask, .ai-key-form { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+.ai-input { flex: 1 1 auto; min-width: 0; min-height: 44px; box-sizing: border-box; padding: 8px 14px; border: 1px solid var(--teal); border-radius: 14px;
+  background: var(--page); color: var(--ink); font-size: 16px; }
+.ai-input::placeholder { color: var(--ink-soft); }
+.ai-ask .btn-apply, .ai-key-form .btn-apply { flex: none; min-height: 44px; }
+.ai-key-saved { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 8px; }
+.ai-key-row { cursor: default; }
+.ai-key-row .setting-text { flex: 1 1 auto; min-width: 0; }
+.ai-key-row .setting-text a { color: var(--teal); }
+@media (prefers-reduced-motion: reduce) {
+  .capture-fab.ai-fab, .capture-fab.ai-fab.away, html.countdown-up .capture-fab.ai-fab:not(.open) { transition: none; }
+  .ai-thinking { animation: none; } }
+
 /* Planning & Reflection (Gianni): the sprint in focus on top, its planning and its reflection, the past sprints under it,
    each opening softly; the user's own theme (only the Canvas wears Epic) */
 .sprint-page { max-width: 720px; margin: 0 auto; }

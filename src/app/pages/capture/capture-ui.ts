@@ -18,4 +18,8 @@ export class CaptureUi {
   readonly menuHidden = signal(false);
   /** The page being edited shows its edit tools (Aa, AV, Themes, px) and a round ✓ Finish at the bottom right. */
   readonly lookTools = signal<LookTools | null>(null);
+  /** The round menu is open (ActionMenu): the ✨ button steps aside while its actions are up. */
+  readonly menuOpen = signal(false);
+  /** The ✨ Ask Claude button shows (Gianni: only on the Week board, which sets it). */
+  readonly aiShown = signal(false);
 }
